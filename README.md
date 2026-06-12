@@ -1,1 +1,228 @@
-# sites
+# hirobius-clients
+
+A monorepo for **mass-producing one-page marketing sites** for local service
+businesses (landscaping, junk removal, pressure washing, concrete/fencing). One
+Astro app per client, config-driven, deployed one Vercel project per client.
+
+**Stack:** Astro 5 (static output) · Tailwind v4 · TypeScript · pnpm workspaces ·
+Turborepo · Zod · astro:assets · Web3Forms + hCaptcha · Vercel.
+
+---
+
+## TL;DR
+
+```bash
+pnpm install
+pnpm build          # builds every app (static) — fails loudly on invalid config
+pnpm dev            # turbo dev across apps
+pnpm check          # tsc (packages) + astro check (apps)
+pnpm test           # Playwright smoke test on the demo
+pnpm new-client <slug> --name "Business" --preset pressure-washing
+pnpm eject-client <slug>     # flatten to a standalone handoff repo
+```
+
+Acceptance status: `pnpm install && pnpm build` is green; the demo
+(`apps/demo-pressure-pros`) is deployable static output; pages ship no framework
+runtime except the small islands (lazy map embed, hCaptcha when enabled).
+
+---
+
+## Structure
+
+```
+packages/
+  schema/      @hirobius/schema   — Zod ClientConfig + defineClient() + palette presets
+  template/    @hirobius/template — Astro section components, theming, SEO/JSON-LD helpers
+apps/
+  _template/            canonical client app (copied by new-client)
+  demo-pressure-pros/   working demo proving the system (placeholder imagery)
+scripts/
+  new-client.ts   scaffold a client + print Vercel CLI commands
+  eject-client.ts flatten one client into a standalone repo for handoff
+docs/
+  HANDOFF.md      one-page client handoff (the 7-day window + change fee)
+```
+
+### How a page is composed
+
+`apps/<slug>/src/pages/index.astro` imports the section components from
+`@hirobius/template` and renders them in the order set by
+`client.config.ts → layout.sectionOrder`. **There is zero hardcoded business
+content in the components** — everything reads from the validated config object.
+
+### Theming
+
+Semantic CSS custom properties (`--color-primary/accent/bg/fg/muted/on-primary`,
+`--font-heading/body`, `--radius-theme`) are mapped to Tailwind v4 via `@theme`
+in `packages/template/src/styles/theme.css`. Each client's resolved palette
+(preset + `brand.cssVarOverrides`) is injected as an **inline style on `<html>`**,
+so it always wins the cascade. Four trade presets ship today: `landscaping`,
+`junk-removal`, `pressure-washing`, `concrete-fencing`.
+
+> **Tailwind v4 gotcha (handled):** Tailwind ignores `node_modules` when scanning
+> for class names, and the template is a symlinked workspace package. Each app's
+> `src/styles/global.css` therefore opts the template source in with an explicit
+> `@source "../../../../packages/template/src"`. `eject-client` rewrites this to
+> the inlined path.
+
+---
+
+## New client in 10 minutes
+
+1. **Scaffold** (≈1 min)
+   ```bash
+   pnpm new-client mikes-junk --name "Mike's Junk Removal" --preset junk-removal
+   ```
+   This copies `apps/_template → apps/mikes-junk`, stubs the config, and prints
+   the exact Vercel CLI commands.
+
+2. **Fill in the config** (≈4 min) — `apps/mikes-junk/client.config.ts`:
+   business name/phone/email/hours/serviceAreas, copy, services, reviews, SEO
+   (title/description/city/region/siteUrl), and the Web3Forms `accessKey`
+   (+ `hcaptchaSiteKey`).
+
+3. **Add photos** (≈3 min) — optimized photos go in `src/assets/photos`
+   (astro:assets makes responsive WebP), verbatim assets (og image, favicon) in
+   `public`. See **Images** below for the intake rule.
+
+4. **Verify** (≈1 min)
+   ```bash
+   pnpm install
+   pnpm --filter @hirobius/mikes-junk build
+   ```
+
+5. **Ship on Vercel** (≈1 min) — run the commands `new-client` printed:
+   ```bash
+   vercel link --cwd apps/mikes-junk --project hirobius-mikes-junk --yes
+   # Root Directory = apps/mikes-junk ; Ignored Build Step = npx turbo-ignore
+   vercel env add PREVIEW_USER preview --cwd apps/mikes-junk
+   vercel env add PREVIEW_PASS preview --cwd apps/mikes-junk
+   vercel deploy --cwd apps/mikes-junk          # preview (basic-auth gated)
+   vercel deploy --prod --cwd apps/mikes-junk
+   vercel domains add mikesjunk.com hirobius-mikes-junk
+   ```
+
+---
+
+## Preview gating
+
+Previews are gated by **Vercel Routing Middleware** (formerly "Edge Middleware")
+at `apps/<slug>/middleware.ts` — **not** Astro middleware, which does not run on
+static output. This is a platform feature that runs on the edge for every
+request regardless of framework, which is why it works on a static Astro site.
+
+- HTTP Basic auth via `PREVIEW_USER` / `PREVIEW_PASS`, **only** when
+  `VERCEL_ENV !== "production"`. Production passes straight through.
+- Previews also get `X-Robots-Tag: noindex`. This lives in the middleware, **not
+  `vercel.json`**, because `vercel.json` headers can't be scoped to an
+  environment (they'd noindex production too).
+- Fails closed: if creds aren't set on a preview, the site returns 503.
+
+**Verification:** the pattern is confirmed against Vercel's `routing-middleware`
+docs (a non-Next project exports a default `(request: Request) => Response` and
+uses `next()` from `@vercel/functions` to continue to the static asset). Before
+relying on it across the fleet, do one real preview deploy and confirm the 401
+prompt appears. If it ever fights the platform, the fallback is Vercel's built-in
+**Deployment Protection → Vercel Authentication** (Project Settings) — note the
+swap here if you make it.
+
+---
+
+## Images
+
+- **Intake convention: 1600px max edge, ~200KB per file.** Compress at intake;
+  don't commit phone-camera originals.
+- Optimizable photos → `src/assets/photos` (astro:assets emits responsive
+  `srcset` + WebP/AVIF, hashed, long-cached). Verbatim files (og image, favicon,
+  hero video/poster, static map) → `public`.
+- `ResponsiveImage.astro` resolves a config path against `src/assets/photos`
+  first (optimized) and falls back to a plain `<img>` for `public` paths.
+
+> **Repo-bloat watch (decide before ~client 20):** 100 clients × 15 photos in
+> git is multi-GB. The 1600px/200KB rule buys runway, but plan to move photos to
+> object storage (e.g. an S3/R2 bucket or Vercel Blob) and reference them as
+> remote images before the repo gets heavy. `**/photos-original/` is gitignored
+> so raw originals never land in history.
+
+---
+
+## Spam protection
+
+Day one, not later: every form ships a **honeypot** (`botcheck`, hidden; Web3Forms
+drops anything that fills it) **and an hCaptcha slot**. Set
+`form.hcaptchaSiteKey` in each production client's config — the widget and script
+only render when a key is present. Skipping this fills the client's inbox and
+they call you.
+
+---
+
+## Ops & fleet management
+
+### Build pipeline
+
+`turbo.json` defines the `build`/`check`/`test`/`dev` pipeline. Use
+**`npx turbo-ignore`** as each Vercel project's **Ignored Build Step** so a
+client project only rebuilds when its app (or a shared package) actually changes.
+
+> ⚠️ **Fleet rebuild drift:** a change to `packages/*` rebuilds **ALL** apps and
+> can silently restyle live client sites on their next deploy. See the policy
+> below — this is the most expensive mistake to make casually.
+
+### Template-update policy (read before touching `packages/*`)
+
+- **Handed-off / paid sites are frozen.** They are not re-deployed because the
+  template changed. Treat a live client site as a release artifact.
+- **Version template releases.** Tag `@hirobius/template` releases
+  (`vX.Y.Z`) and record which template version each client shipped on. A
+  template change is a *fleet event*, not a routine commit.
+- **Rebuilds only on paid changes.** If a client wants the new look or fix, that's
+  a scheduled, paid update — redeploy that one app intentionally.
+- The cleanest guarantee that a client is insulated from fleet drift is to
+  **eject** them (below): an ejected site has no link back to the template.
+
+### Handoff (the eject script is not optional)
+
+Client apps use `workspace:*` deps on `@hirobius/template` and
+`@hirobius/schema`, so **they are not standalone** — "the client owns their site"
+is only true after ejecting.
+
+```bash
+pnpm eject-client mikes-junk          # -> ejected/mikes-junk (standalone)
+cd ejected/mikes-junk && pnpm install && pnpm build
+git init && git add -A && git commit -m "Initial commit"
+```
+
+`eject-client` inlines both packages into `src/_vendor`, rewrites every
+`@hirobius/*` import to a relative path, pins real dependency versions, drops the
+monorepo wiring, and writes a handoff README. The result builds with a plain
+`npm install` and zero workspace context (verified).
+
+Hand the client `docs/HANDOFF.md` too — it states the **7-day post-launch change
+window** and the change fee after that, so stale hours/prices on a site with your
+name on it become *their* responsibility on a clear timeline.
+
+### Scope policy
+
+Pricing assumes **config-only customization**. The schema is the contract: if a
+request fits the config, it's in scope. The first **custom component** for one
+client is a **different price tier**, not a favor — keep that boundary at the
+schema. (There is deliberately no free-form HTML escape hatch in the config.)
+
+---
+
+## Conventions & commands
+
+| Command | What it does |
+| --- | --- |
+| `pnpm build` | Turbo build of all apps (static). Invalid config → build fails (Zod). |
+| `pnpm check` | `tsc --noEmit` (packages) + `astro check` (apps). |
+| `pnpm test` | Playwright smoke test on the demo. |
+| `pnpm new-client <slug>` | Scaffold a client + print Vercel commands. |
+| `pnpm eject-client <slug>` | Flatten a client into a standalone repo. |
+
+**Why builds fail on bad config:** `astro.config.ts` and every page import
+`client.config.ts`, which calls `defineClient()` → Zod `safeParse`. A bad config
+throws at build time, so CI and Vercel both refuse to ship it.
+
+CI (`.github/workflows/ci.yml`): install (frozen lockfile) → build → typecheck →
+Playwright chromium smoke test.
