@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # `astro build` imports every client.config.ts, which runs defineClient().
+      # An invalid config throws there, so a bad config fails the build — exactly
+      # the gate we want before anything reaches Vercel.
+      - name: Build (fails on invalid Zod config)
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Install Playwright (Chromium)
+        run: pnpm --filter @hirobius/demo-pressure-pros exec playwright install --with-deps chromium
+
+      - name: Smoke test (demo)
+        run: pnpm --filter @hirobius/demo-pressure-pros test
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/demo-pressure-pros/playwright-report/
+          retention-days: 7
