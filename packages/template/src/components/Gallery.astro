@@ -1,0 +1,35 @@
+---
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "./Section.astro";
+import ResponsiveImage from "./ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { gallery } = config;
+---
+
+{
+  gallery.length > 0 && (
+    <Section id="gallery" title="Recent Work" muted>
+      <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {gallery.map((photo) => (
+          <li class="overflow-hidden rounded-theme bg-bg">
+            <ResponsiveImage
+              src={photo.src}
+              alt={photo.alt}
+              widths={[300, 600, 900]}
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+              width={600}
+              height={600}
+              loading="lazy"
+              class="aspect-square w-full object-cover transition hover:scale-[1.02]"
+            />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}

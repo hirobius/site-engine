@@ -1,0 +1,27 @@
+{
+  "name": "hirobius-clients",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo for mass-producing one-page marketing sites for local service businesses.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "check": "turbo run check",
+    "test": "turbo run test",
+    "lint": "turbo run check",
+    "new-client": "tsx scripts/new-client.ts",
+    "eject-client": "tsx scripts/eject-client.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
+  }
+}

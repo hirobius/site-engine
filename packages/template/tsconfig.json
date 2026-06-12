@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "noEmit": true,
+    "jsx": "preserve",
+    "types": ["astro/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.astro"]
+}

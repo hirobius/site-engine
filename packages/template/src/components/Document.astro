@@ -1,0 +1,30 @@
+---
+import type { ClientConfig } from "@hirobius/schema";
+import { brandStyle } from "../lib/theme.js";
+import BaseHead from "./BaseHead.astro";
+
+/**
+ * HTML document shell. The per-client palette is applied as an inline style on
+ * <html> so it always wins the cascade over the stylesheet defaults.
+ *
+ * The consuming app imports its global.css (Tailwind entry) in the page that
+ * renders this — the CSS is injected as a side effect regardless of where the
+ * <html> tag is authored.
+ */
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const style = brandStyle(config);
+---
+
+<!doctype html>
+<html lang="en" style={style}>
+  <head>
+    <BaseHead config={config} />
+  </head>
+  <body class="min-h-dvh antialiased">
+    <slot />
+  </body>
+</html>
