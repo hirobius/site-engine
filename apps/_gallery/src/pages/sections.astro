@@ -1,0 +1,56 @@
+---
+import Shell from "../components/Shell.astro";
+import { FIXTURES } from "../fixtures.js";
+import { brandStyle } from "@hirobius/template";
+import Hero from "@hirobius/template/components/Hero.astro";
+import ServicesGrid from "@hirobius/template/components/ServicesGrid.astro";
+import Reviews from "@hirobius/template/components/Reviews.astro";
+import ServiceAreaMap from "@hirobius/template/components/ServiceAreaMap.astro";
+import ContactForm from "@hirobius/template/components/ContactForm.astro";
+import Footer from "@hirobius/template/components/Footer.astro";
+
+// One theme for the kitchen sink — review each section component in isolation.
+const fx = FIXTURES.find((f) => f.preset === "pressure-washing") ?? FIXTURES[0]!;
+const config = fx.config;
+
+const blocks = [
+  { id: "Hero", note: "Variant A (image + side content). Variant B swaps to full-bleed video." },
+  { id: "ServicesGrid", note: "Cards from config.services. Optional per-service photo." },
+  { id: "Reviews", note: "Rating + quote cards. Feeds aggregateRating in JSON-LD." },
+  { id: "ServiceAreaMap", note: "Static image preferred; embed lazy-loads on scroll (protects LCP)." },
+  { id: "ContactForm", note: "Web3Forms POST + hidden honeypot + hCaptcha slot (when key set)." },
+  { id: "Footer", note: "NAP + hours, generated from config." },
+] as const;
+---
+
+<Shell title="Sections" active="sections">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight">Section components</h1>
+    <p class="mt-1 text-slate-600">
+      Every section in isolation, themed by the <code class="text-sm">pressure-washing</code>
+      preset. <span class="font-medium">StickyCTA</span> is mobile-only — narrow the
+      window to see the bottom call bar.
+    </p>
+  </div>
+
+  <div class="space-y-10" style={brandStyle(config)}>
+    {
+      blocks.map((b) => (
+        <section>
+          <div class="mb-2 flex items-baseline gap-3">
+            <h2 class="font-mono text-sm font-semibold text-slate-900">{b.id}.astro</h2>
+            <p class="text-xs text-slate-500">{b.note}</p>
+          </div>
+          <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+            {b.id === "Hero" && <Hero config={config} />}
+            {b.id === "ServicesGrid" && <ServicesGrid config={config} />}
+            {b.id === "Reviews" && <Reviews config={config} />}
+            {b.id === "ServiceAreaMap" && <ServiceAreaMap config={config} />}
+            {b.id === "ContactForm" && <ContactForm config={config} />}
+            {b.id === "Footer" && <Footer config={config} />}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</Shell>

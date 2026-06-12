@@ -1,0 +1,63 @@
+---
+import Shell from "../components/Shell.astro";
+import { FLEET, thumbnailUrl } from "../data/fleet.js";
+
+const STATUS_STYLES: Record<string, string> = {
+  live: "bg-green-100 text-green-800",
+  preview: "bg-amber-100 text-amber-800",
+  "handed-off": "bg-slate-200 text-slate-700",
+};
+---
+
+<Shell title="Fleet" active="fleet">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight">Fleet</h1>
+    <p class="mt-1 text-slate-600">
+      Every client site at a glance. Thumbnails are generated from each live URL by
+      a screenshot service — they fill in once a site is publicly reachable. Add
+      sites in <code class="text-sm">src/data/fleet.ts</code>.
+    </p>
+  </div>
+
+  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      FLEET.map((site) => (
+        <li class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <a href={site.url} target="_blank" rel="noopener" class="block">
+            <div class="aspect-[16/10] w-full bg-slate-100">
+              <img
+                src={thumbnailUrl(site.url)}
+                alt={`Screenshot of ${site.name}`}
+                loading="lazy"
+                class="h-full w-full object-cover object-top"
+              />
+            </div>
+          </a>
+          <div class="flex items-start justify-between gap-2 p-4">
+            <div>
+              <p class="font-semibold leading-tight">{site.name}</p>
+              <p class="mt-0.5 text-xs text-slate-500">
+                {site.trade}
+                {site.templateVersion && <span> · tpl {site.templateVersion}</span>}
+              </p>
+              <a href={site.url} target="_blank" rel="noopener" class="mt-1 inline-block text-xs text-blue-600 hover:underline">
+                {site.url.replace(/^https?:\/\//, "")}
+              </a>
+            </div>
+            <span class:list={["shrink-0 rounded-full px-2 py-0.5 text-xs font-medium", STATUS_STYLES[site.status]]}>
+              {site.status}
+            </span>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    FLEET.length === 0 && (
+      <p class="rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-400">
+        No sites tracked yet. Add them in src/data/fleet.ts.
+      </p>
+    )
+  }
+</Shell>

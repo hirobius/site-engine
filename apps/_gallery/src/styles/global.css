@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@import "@hirobius/template/styles/theme.css";
+
+/* Scan this app's own pages plus the template components (node_modules is
+   ignored by default; the template is a symlinked workspace dep). */
+@source "../";
+@source "../../../../packages/template/src";

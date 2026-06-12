@@ -1,0 +1,68 @@
+---
+import Shell from "../components/Shell.astro";
+import { FIXTURES } from "../fixtures.js";
+import { brandStyle, resolvePalette } from "@hirobius/template";
+import Hero from "@hirobius/template/components/Hero.astro";
+import ServicesGrid from "@hirobius/template/components/ServicesGrid.astro";
+import Reviews from "@hirobius/template/components/Reviews.astro";
+
+const SWATCH_KEYS = [
+  "--brand-primary",
+  "--brand-accent",
+  "--brand-bg",
+  "--brand-fg",
+  "--brand-muted",
+  "--brand-on-primary",
+] as const;
+---
+
+<Shell title="Presets" active="presets">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight">Trade presets</h1>
+    <p class="mt-1 text-slate-600">
+      The same components, themed by each preset. This is config-only — every block
+      below is the real production template reading a fixture config.
+    </p>
+  </div>
+
+  <div class="space-y-12">
+    {
+      FIXTURES.map((fx) => {
+        const palette = resolvePalette(fx.config);
+        return (
+          <section>
+            <div class="mb-3 flex flex-wrap items-center gap-3">
+              <h2 class="text-lg font-semibold">{fx.label}</h2>
+              <code class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                {fx.preset}
+              </code>
+              <span class="rounded-full bg-slate-900 px-2 py-0.5 text-xs text-white">
+                Hero variant {fx.variant}
+              </span>
+              <div class="ml-auto flex items-center gap-1">
+                {SWATCH_KEYS.map((k) => (
+                  <span
+                    class="h-5 w-5 rounded border border-slate-200"
+                    style={`background:${palette[k]}`}
+                    title={`${k}: ${palette[k]}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Inline brand vars on the wrapper => the components inside resolve
+                their utilities to THIS preset's palette. */}
+            <div
+              class="overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+              style={brandStyle(fx.config)}
+            >
+              <Hero config={fx.config} />
+              <ServicesGrid config={fx.config} />
+              <Reviews config={fx.config} />
+            </div>
+          </section>
+        );
+      })
+    }
+  </div>
+</Shell>
