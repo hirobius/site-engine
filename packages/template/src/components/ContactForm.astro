@@ -1,0 +1,130 @@
+---
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "./Section.astro";
+import { telHref } from "../lib/theme.js";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { form, business, copy, seo } = config;
+const tel = telHref(business.phone);
+
+// Native POST to Web3Forms: works with zero JS (best for Lighthouse). hCaptcha,
+// when configured, injects `h-captcha-response` into the form before submit.
+const subject = `New lead from ${business.name} website`;
+---
+
+<Section id="contact" title="Get In Touch" subtitle={copy.ctaLabel}>
+  <div class="grid gap-10 md:grid-cols-2">
+    <div>
+      <p class="text-lg text-fg/80">{copy.about}</p>
+      <dl class="mt-6 space-y-3 text-fg/80">
+        <div class="flex gap-2">
+          <dt class="font-semibold">Phone:</dt>
+          <dd><a class="text-primary underline" href={tel}>{business.phone}</a></dd>
+        </div>
+        <div class="flex gap-2">
+          <dt class="font-semibold">Email:</dt>
+          <dd><a class="text-primary underline" href={`mailto:${business.email}`}>{business.email}</a></dd>
+        </div>
+        <div>
+          <dt class="font-semibold">Hours:</dt>
+          {
+            business.hours.map((h) => (
+              <dd class="ml-0">
+                {h.days}: {h.hours}
+              </dd>
+            ))
+          }
+        </div>
+      </dl>
+    </div>
+
+    <form
+      action="https://api.web3forms.com/submit"
+      method="POST"
+      class="rounded-theme border border-fg/10 bg-bg p-6 shadow-sm"
+      data-contact-form
+    >
+      <input type="hidden" name="access_key" value={form.accessKey} />
+      <input type="hidden" name="subject" value={subject} />
+      <input type="hidden" name="from_name" value={business.name} />
+      {form.redirectUrl && <input type="hidden" name="redirect" value={form.redirectUrl} />}
+
+      {/* Honeypot — bots fill it, humans never see it. Web3Forms drops these. */}
+      <input
+        type="checkbox"
+        name="botcheck"
+        class="hidden"
+        style="display:none"
+        tabindex="-1"
+        autocomplete="off"
+        aria-hidden="true"
+      />
+
+      <div class="grid gap-4">
+        <label class="block">
+          <span class="text-sm font-medium">Name</span>
+          <input
+            name="name"
+            required
+            autocomplete="name"
+            class="mt-1 w-full rounded-theme border border-fg/20 bg-bg px-3 py-2 outline-none focus:border-primary"
+          />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Phone</span>
+          <input
+            name="phone"
+            type="tel"
+            autocomplete="tel"
+            class="mt-1 w-full rounded-theme border border-fg/20 bg-bg px-3 py-2 outline-none focus:border-primary"
+          />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Email</span>
+          <input
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            class="mt-1 w-full rounded-theme border border-fg/20 bg-bg px-3 py-2 outline-none focus:border-primary"
+          />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">How can we help?</span>
+          <textarea
+            name="message"
+            rows="4"
+            required
+            class="mt-1 w-full rounded-theme border border-fg/20 bg-bg px-3 py-2 outline-none focus:border-primary"
+          ></textarea>
+        </label>
+
+        {/* hCaptcha slot — rendered only when a site key is configured. The
+            Web3Forms-recognized class wires verification automatically. */}
+        {form.hcaptchaSiteKey && (
+          <div class="h-captcha" data-captcha="true" data-sitekey={form.hcaptchaSiteKey}></div>
+        )}
+
+        <button
+          type="submit"
+          class="rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary transition hover:opacity-90"
+        >
+          {copy.ctaLabel}
+        </button>
+        <p class="text-xs text-fg/50">
+          We respect your privacy. Your details are only used to contact you about your request.
+        </p>
+      </div>
+    </form>
+  </div>
+</Section>
+
+{
+  form.hcaptchaSiteKey && (
+    <script src="https://js.hcaptcha.com/1/api.js" async defer is:inline></script>
+  )
+}

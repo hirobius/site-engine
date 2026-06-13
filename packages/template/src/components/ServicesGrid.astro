@@ -1,0 +1,38 @@
+---
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "./Section.astro";
+import ResponsiveImage from "./ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { services } = config;
+---
+
+<Section id="services" title="What We Do" subtitle="Professional service, done right the first time.">
+  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      services.map((service) => (
+        <li class="flex flex-col overflow-hidden rounded-theme border border-fg/10 bg-bg shadow-sm">
+          {service.image && (
+            <ResponsiveImage
+              src={service.image}
+              alt={service.title}
+              widths={[400, 800]}
+              sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+              width={800}
+              height={500}
+              class="aspect-[8/5] w-full object-cover"
+            />
+          )}
+          <div class="flex flex-1 flex-col p-6">
+            <h3 class="font-heading text-xl font-semibold text-primary">{service.title}</h3>
+            <p class="mt-2 text-fg/75">{service.description}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

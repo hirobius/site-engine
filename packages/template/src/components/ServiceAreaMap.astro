@@ -1,0 +1,103 @@
+---
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "./Section.astro";
+import ResponsiveImage from "./ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { map, business } = config;
+
+// Prefer a static map image (no third-party iframe on first paint => protects
+// LCP). If only an embed query is provided, the iframe is lazy-mounted via
+// IntersectionObserver when the section nears the viewport.
+const embedSrc = map.embedQuery
+  ? `https://www.google.com/maps?q=${encodeURIComponent(map.embedQuery)}&output=embed`
+  : null;
+---
+
+<Section id="serviceAreaMap" title="Areas We Serve" muted>
+  <div class="grid gap-8 md:grid-cols-[1fr_1.2fr] md:items-center">
+    <div>
+      <ul class="flex flex-wrap gap-2">
+        {
+          business.serviceAreas.map((area) => (
+            <li class="rounded-theme bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+              {area}
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-4 text-fg/70">
+        Not sure if you're in our area? Give us a call — we'll let you know.
+      </p>
+    </div>
+
+    <div class="overflow-hidden rounded-theme border border-fg/10">
+      {
+        map.staticImage ? (
+          <ResponsiveImage
+            src={map.staticImage}
+            alt={`Map of our service area around ${config.seo.city}`}
+            widths={[600, 900, 1200]}
+            sizes="(min-width: 768px) 55vw, 100vw"
+            width={1200}
+            height={675}
+            loading="lazy"
+            class="aspect-video w-full object-cover"
+          />
+        ) : embedSrc ? (
+          <div
+            class="aspect-video w-full bg-muted"
+            data-map-embed={embedSrc}
+            data-map-title={`Map of ${config.seo.city}, ${config.seo.region}`}
+          >
+            <noscript>
+              <iframe
+                src={embedSrc}
+                title={`Map of ${config.seo.city}`}
+                class="h-full w-full"
+                loading="lazy"
+              />
+            </noscript>
+          </div>
+        ) : null
+      }
+    </div>
+  </div>
+</Section>
+
+{
+  embedSrc && (
+    <script>
+      // Lazy-mount the maps iframe only when it scrolls near the viewport.
+      const host = document.querySelector<HTMLElement>("[data-map-embed]");
+      if (host) {
+        const mount = () => {
+          if (host.dataset.mounted) return;
+          host.dataset.mounted = "1";
+          const iframe = document.createElement("iframe");
+          iframe.src = host.dataset.mapEmbed!;
+          iframe.title = host.dataset.mapTitle ?? "Service area map";
+          iframe.loading = "lazy";
+          iframe.className = "h-full w-full border-0";
+          host.replaceChildren(iframe);
+        };
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                mount();
+                io.disconnect();
+              }
+            }
+          },
+          { rootMargin: "200px" },
+        );
+        io.observe(host);
+      }
+    </script>
+  )
+}

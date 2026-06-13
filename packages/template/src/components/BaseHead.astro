@@ -1,0 +1,49 @@
+---
+import type { ClientConfig } from "@hirobius/schema";
+import { localBusinessJsonLd, metaTags } from "../lib/seo.js";
+import { fontHref } from "../lib/theme.js";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const meta = metaTags(config);
+const jsonLd = localBusinessJsonLd(config);
+const webFont = fontHref(config);
+const noindex = import.meta.env.NOINDEX === "true";
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{meta.title}</title>
+<meta name="description" content={meta.description} />
+<link rel="canonical" href={meta.canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+{/* Favicon slot — apps drop /favicon.svg in public/. */}
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+
+{/* Open Graph */}
+<meta property="og:type" content="website" />
+<meta property="og:title" content={meta.ogTitle} />
+<meta property="og:description" content={meta.ogDescription} />
+<meta property="og:url" content={meta.ogUrl} />
+{meta.ogImage && <meta property="og:image" content={meta.ogImage} />}
+<meta name="twitter:card" content={meta.ogImage ? "summary_large_image" : "summary"} />
+
+{/* Web font (only when the chosen stack needs loading). Preconnect first to
+    keep it off the LCP critical path. */}
+{
+  webFont && (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link rel="stylesheet" href={webFont} />
+    </>
+  )
+}
+
+{/* LocalBusiness structured data — generated from config. */}
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />

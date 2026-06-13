@@ -1,0 +1,32 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+.astro/
+.vercel/
+.turbo/
+
+# test artifacts
+playwright-report/
+test-results/
+.cache/
+
+# env
+.env
+.env.*
+!.env.example
+
+# editor / os
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# eject output (handoff repos live outside the monorepo by default; ignore the
+# staging dir if a maintainer runs eject in-tree)
+ejected/
+
+# large originals — only compressed intake belongs in git (see README "IMAGES")
+**/photos-original/

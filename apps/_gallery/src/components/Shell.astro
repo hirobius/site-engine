@@ -1,0 +1,56 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  active: "presets" | "sections" | "fleet";
+}
+
+const { title, active } = Astro.props;
+
+const tabs = [
+  { id: "presets", href: "/", label: "Presets" },
+  { id: "sections", href: "/sections", label: "Sections" },
+  { id: "fleet", href: "/fleet", label: "Fleet" },
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{title} · hirobius gallery</title>
+  </head>
+  <body class="min-h-dvh bg-white text-slate-900">
+    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
+        <a href="/" class="font-semibold tracking-tight">hirobius · gallery</a>
+        <nav class="flex gap-1 text-sm">
+          {
+            tabs.map((t) => (
+              <a
+                href={t.href}
+                class:list={[
+                  "rounded-md px-3 py-1.5 transition",
+                  active === t.id
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-600 hover:bg-slate-100",
+                ]}
+              >
+                {t.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+    <main class="mx-auto max-w-6xl px-5 py-8">
+      <slot />
+    </main>
+    <footer class="mx-auto max-w-6xl px-5 py-10 text-xs text-slate-400">
+      Internal preview · renders the real @hirobius/template components. Not a client site.
+    </footer>
+  </body>
+</html>
