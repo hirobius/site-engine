@@ -93,7 +93,11 @@ function toCsv(leads: Lead[]): string {
 async function main() {
   const flags = parseArgs(process.argv.slice(2));
   const queries = buildQueries();
-  const maxPerQuery = Number(flags["max-per-query"] ?? 60);
+  // Default to a single page (20). Coverage comes from gridding 37 sub-areas ×
+  // keywords, not from deep paging. (Pass --max-per-query 60 to opt into paging;
+  // the nextPageToken path can stall behind some egress proxies, so the request
+  // has a 20s timeout in places.ts.)
+  const maxPerQuery = Number(flags["max-per-query"] ?? 20);
   const outDir = resolve(String(flags.out ?? resolve(HERE, "out")));
 
   const areaCount = METROS.reduce((n, m) => n + m.areas.length, 0);

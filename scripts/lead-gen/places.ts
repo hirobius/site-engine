@@ -72,6 +72,8 @@ export async function searchText(
         "X-Goog-FieldMask": FIELD_MASK,
       },
       body: JSON.stringify(body),
+      // Safety net: never let a stalled request hang the whole sweep.
+      signal: AbortSignal.timeout(20000),
     });
 
     if (!res.ok) {
