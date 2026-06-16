@@ -8,7 +8,9 @@
  * model tiering, prompt caching).
  */
 export { runPipeline } from "./pipeline.js";
-export type { PipelineResult, PipelineOptions } from "./pipeline.js";
+export type { PipelineResult, PipelineOptions, LoopStep } from "./pipeline.js";
+export { refineLoop } from "./loop.js";
+export type { LoopResult, LoopOptions, IterationTrace } from "./loop.js";
 export { enrich } from "./enrich.js";
 export { generate } from "./generate.js";
 export { judge } from "./judge.js";

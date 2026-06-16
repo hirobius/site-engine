@@ -61,6 +61,7 @@ wouldn't accept.
 | **Schema as contract** | `packages/schema` + `generate.ts` | Validation, single source of truth | "The JSON schema shapes the model; **Zod** is the real contract. The model's output is validated by the exact same `defineClient()` the production build runs." |
 | **Validate/repair loop** | `generate.ts` | Reliability / self-correction | "On a validation failure I feed the precise Zod errors back and let the model fix them — bounded retries, then it fails loudly. No silently-broken output." |
 | **LLM-as-judge** | `judge.ts` | **Evals** | "A separate model call scores the result against a rubric and can trigger a regeneration. That scorecard is the seed of an offline eval harness." |
+| **Loop engineering** | `loop.ts` + `pipeline.ts` | **Designing/instrumenting the act→observe→decide loop** | "I factored the iterate-with-feedback cycle into one primitive with explicit budgets, stop reasons (converged / plateau / max-iterations), and a per-iteration trace. The system has two nested loops — Zod validate/repair inside generation, and judge/regenerate around it — both share that shape." |
 | **Workflow vs agent** | `pipeline.ts` | Knowing which tier to use | "This is a *workflow* — deterministic, code-orchestrated steps — not an open-ended agent. I reach for agents only when the trajectory is genuinely unknown." |
 | **Prompt caching** | `llm.ts` `cacheSystem` | Cost control at scale | "The large, stable system prompts are cached, so a batch of leads pays the prompt cost roughly once." |
 | **Ingestion** | `scripts/lead-gen` | Tool/data integration | "Leads come from the Google Places API with tech-detection to flag bad/no-site businesses — the system's data source." |
@@ -98,6 +99,14 @@ Each phase deepens one box of the architecture without rebuilding it.
   forces *which* tool (or *any*/*none*).
 - **Agent vs. workflow** — *workflow*: you orchestrate fixed steps. *Agent*: the
   model decides its own next action in a loop. Start at the simplest tier that works.
+- **Loop engineering** — the emerging framing for the highest-leverage skill in
+  agentic systems: engineering the *iterative loop* (produce → evaluate → decide →
+  repeat), not just a single prompt. The work is in the loop's **controls**
+  (stop conditions, iteration/cost budgets, convergence/plateau detection,
+  feedback incorporation) and its **instrumentation** (a trace of every
+  iteration's output, score, and latency). Prompt engineering tunes one call;
+  loop engineering tunes the system around it. Our `refineLoop` primitive is this
+  made concrete.
 - **RAG (retrieval-augmented generation)** — fetch relevant context (vector/keyword
   search) and put it in the prompt so the model answers from *your* data. *(Not in
   Phase A; a natural Phase C+ addition — e.g. retrieve similar businesses/examples.)*
@@ -151,8 +160,12 @@ seven shallow ones. This is that artifact.
 > can trigger a regeneration. It's a **workflow**, not an open-ended agent,
 > because the steps are known. I tier models for cost, cache the stable prompts,
 > and the whole thing produces a real static site, not just text. Next I'm adding
-> a streaming console and an eval harness to track quality across prompt versions."
+> a streaming console and an eval harness to track quality across prompt versions.
+> Both the validate/repair and judge/regenerate cycles run on one instrumented
+> **loop primitive** — explicit budgets, stop reasons, and a per-iteration trace —
+> so the loop itself is engineered and measurable, not just implied."
 
 That paragraph hits: ingestion, tool use, structured output, validation,
-self-correction, evals, workflow-vs-agent judgment, cost levers, and end-to-end
-delivery — the applied-AI checklist, grounded in something real.
+self-correction, evals, **loop engineering**, workflow-vs-agent judgment, cost
+levers, and end-to-end delivery — the applied-AI checklist, grounded in something
+real.

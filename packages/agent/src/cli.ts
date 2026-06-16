@@ -51,7 +51,13 @@ async function main() {
   const v = result.judge;
   console.log("\n" + "─".repeat(60));
   console.log(`✓ ${result.config.business.name} — ${result.config.seo.city}, ${result.config.seo.region}`);
-  console.log(`  attempts: ${result.attempts}  regenerated: ${result.regenerated}`);
+  console.log(
+    `  loop: ${result.loop.iterations} iteration(s), ${result.loop.stopReason}` +
+      `  (gen calls: ${result.attempts})`,
+  );
+  for (const s of result.loop.steps) {
+    console.log(`    #${s.iteration}: ${s.score ?? "?"}/5 ${s.passed ? "PASS" : "FAIL"} (${s.ms}ms)`);
+  }
   console.log(
     `  eval: overall ${v.overall}/5  ${v.pass ? "PASS" : "FAIL"}  ` +
       `(copy ${v.scores.copyQuality}, complete ${v.scores.completeness}, seo ${v.scores.localSeo}, tone ${v.scores.toneFit})`,
