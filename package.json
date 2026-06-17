@@ -15,7 +15,8 @@
     "lint": "turbo run check",
     "new-client": "tsx scripts/new-client.ts",
     "eject-client": "tsx scripts/eject-client.ts",
-    "pull-leads": "tsx scripts/lead-gen/pull-leads.ts"
+    "pull-leads": "tsx scripts/lead-gen/pull-leads.ts",
+    "agent": "tsx packages/agent/src/cli.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.2",
