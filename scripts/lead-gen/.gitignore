@@ -1,0 +1,2 @@
+# Lead data is generated, not source — never commit it (PII + size).
+out/
