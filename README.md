@@ -5,6 +5,21 @@ sites** for local service businesses (landscaping, junk removal, pressure
 washing, concrete/fencing). A typed `ClientConfig` is the contract; a render
 target turns it into a live site.
 
+## Orientation (start here)
+
+The 15-second map so you don't have to hold it all in your head:
+
+- **This repo = the render layer + the contract:** Astro website templates
+  (`packages/template`, `apps/*`) and the `ClientConfig` data shape
+  (`packages/schema`).
+- **The AI engine lives here for now** (`packages/agent` = lead → site config;
+  `scripts/lead-gen` = find businesses). It runs from the `hirobius/ops`
+  dashboard and is slated to **move to `ops`** so each repo has one job.
+- **Building a client site?** Edit one file — `apps/<slug>/client.config.ts` —
+  and drop in photos. That's the whole job (see `CLAUDE.md`).
+- **Production sites ship on Duda**, not self-hosted Astro (`docs/DUDA-DELIVERY.md`).
+- **Why any of this exists / the strategy:** `docs/PROJECT-CONTEXT.md`.
+
 > **Delivery architecture:** production sites ship on **Duda** (rented,
 > white-label, managed) — see [`docs/DUDA-DELIVERY.md`](docs/DUDA-DELIVERY.md).
 > The Astro stack in this repo is the **reference render target** (demo +
