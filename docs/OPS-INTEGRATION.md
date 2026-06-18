@@ -110,18 +110,23 @@ create table leads (
 create index on leads (status);
 ```
 
-### Source to port from `hirobius/clients`
+### Source to bring over from `hirobius/clients`
 
-| Bring over | Role |
-|---|---|
-| `scripts/lead-gen/*` (`config.ts`, `places.ts`, `qualify.ts`, `pull-leads.ts`) | sourcing — Places API + tech-detection |
-| `packages/agent/src/*` (`llm`, `types`, `schemas`, `enrich`, `generate`, `judge`, `loop`, `pipeline`) | the enrich→generate→judge pipeline + loop primitive |
-| `packages/schema` (`ClientConfig` + `defineClient`) | the agent's validation contract (port or publish as a package) |
+> The full step-by-step (incl. safe sequencing + verification) is the dedicated
+> migration brief: **`hirobius/clients` → `docs/OPS-HANDOFF.md`**. Summary:
+
+| Bring over | Move or vendor? | Role |
+|---|---|---|
+| `scripts/lead-gen/*` (`config.ts`, `places.ts`, `qualify.ts`, `pull-leads.ts`) | **move** → `ops/lib/lead-gen/` | sourcing — Places API + tech-detection |
+| `packages/agent/src/*` (`llm`, `types`, `schemas`, `enrich`, `generate`, `judge`, `loop`, `pipeline`) | **move** → `ops/lib/agent/` | the enrich→generate→judge pipeline + loop primitive |
+| `packages/schema` (`ClientConfig` + `defineClient`) | **vendor a copy** → `ops/lib/schema/` | the agent's validation contract; stays canonical in `clients` |
 
 These are framework-agnostic TS (deps: `@anthropic-ai/sdk`, `zod`, native `fetch`).
-In the ops repo they become `lib/lead-gen/` and `lib/agent/`; the API routes are
-thin wrappers. Note: the puller defaults to single-page Places queries + a 20s
-request timeout (pagination stalls behind some egress proxies).
+lead-gen + agent **move** (single home in ops; no long-lived copy in both repos);
+the schema **contract** is vendored (it stays canonical in `clients` for the Astro
+factory). The API routes are thin wrappers. Note: the puller defaults to
+single-page Places queries + a 20s request timeout (pagination stalls behind some
+egress proxies).
 
 ### API route sketch (Next.js App Router)
 

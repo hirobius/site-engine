@@ -183,10 +183,9 @@ end, via the API.
 **Shape** (illustrative — not built yet; this is the plan):
 
 ```ts
-// lives alongside the engine as a render target, framework-agnostic TS.
-// e.g. packages/render-duda/ or ops/lib/render-duda/  (mirrors AGENTS.md
-// "reuse, don't rewrite" — same posture as the agent + lead-gen engine).
-import type { ClientConfig } from "@hirobius/schema";
+// lives in ops as a render target, framework-agnostic TS: ops/lib/render-duda/
+// (same home as the moved engine — ops/lib/lead-gen + ops/lib/agent).
+import type { ClientConfig } from "@/lib/schema"; // ClientConfig contract, vendored into ops
 
 const TEMPLATE_BY_PRESET: Record<ClientConfig["brand"]["palettePreset"], string> = {
   landscaping: "DUDA_TEMPLATE_ID_LANDSCAPING",
@@ -253,11 +252,11 @@ This is a spike to *de-risk the platform bet*, not the production integration.
 
 ## Where this sits in the architecture
 
-- **Engine (the moat, stays platform-agnostic):** `packages/schema`,
-  `scripts/lead-gen`, `packages/agent`. Ported into `ops/lib/` per
-  `docs/OPS-INTEGRATION.md`.
+- **Contract (stays in this repo):** `packages/schema` (`ClientConfig`). `ops`
+  vendors a copy.
+- **Runtime engine (moves to `ops`):** `scripts/lead-gen`, `packages/agent` →
+  `ops/lib/` (single home). Migration brief: `docs/OPS-HANDOFF.md`.
 - **Render targets:** Astro (this repo, reference/portfolio) + **Duda
-  (production, this doc)**.
-- **Command center:** `hirobius/ops` triggers the engine and would call
-  `renderToDuda` from a "Generate site" / "Publish" action (extends the
-  OPS-INTEGRATION Part 2 buttons with a render/publish step).
+  (production, this doc; `ops/lib/render-duda`)**.
+- **Command center:** `hirobius/ops` runs the engine and calls `renderToDuda` from
+  a "Render site" / "Publish" action — see `docs/OPS-HANDOFF.md` for the full wiring.

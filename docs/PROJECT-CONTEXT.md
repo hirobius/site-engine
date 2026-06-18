@@ -37,6 +37,11 @@
   proprietary layer so we're never locked in. The engine emits a `ClientConfig`; a
   render target (Astro = reference/portfolio, **Duda = production**) turns it into a
   site. Field-by-field mapping + the de-risking spike: **`docs/DUDA-DELIVERY.md`**.
+- **Repo split (decided):** the **runtime engine moves to `ops`** — `scripts/lead-gen`
+  + `packages/agent` → `ops/lib/` (their only runtime home is the dashboard). This
+  repo keeps the **Astro reference factory** + the **`ClientConfig` contract**
+  (`packages/schema`, source of truth; `ops` vendors a copy). One job per repo, no
+  duplicated engine. Migration brief: **`docs/OPS-HANDOFF.md`**.
 - **Niche (beachhead):** **exterior cleaning** — pressure/soft washing, roof &
   gutter, moss removal. Climate-aligned for the **Pacific Northwest (WA+OR core)**,
   fragmented, web-unsophisticated, recurring demand.
@@ -72,7 +77,8 @@ docs/
   INTAKE.md             per-client intake questionnaire (maps 1:1 to schema)
   AI-ENGINEERING.md     ★ living architecture + AI-eng glossary + interview prep
   DUDA-DELIVERY.md      ★ production delivery: ClientConfig → Duda mapping + spike
-  OPS-INTEGRATION.md    wrap-a-tool-into-ops recipe (engine → ops/lib)
+  OPS-HANDOFF.md        ★ single brief to build the ops side (move engine + Duda + dashboard)
+  OPS-INTEGRATION.md    generic wrap-a-tool-into-ops recipe
   PROJECT-CONTEXT.md    ← this file
 CLAUDE.md               agent guardrails (config-only, never touch packages/* when building a client)
 ```

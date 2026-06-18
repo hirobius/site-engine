@@ -5,16 +5,21 @@
 > rename/retire runbook. This file is **this repo's lane** within it.
 
 ## Role
-`hirobius/clients` is the **lead-gen / AI-engine source + the reference site factory**.
+`hirobius/clients` is the **reference site factory + the `ClientConfig` contract**.
+The runtime engine (lead-gen + AI agent) **moves to `ops`** — see below.
 
-- **Engine (the moat — source here, ported into `ops/lib/`):** `packages/schema`
-  (`ClientConfig` + `defineClient`, the contract), `scripts/lead-gen` (Places
-  puller), `packages/agent` (enrich→generate→judge + the `refineLoop` loop
-  primitive). Platform-agnostic TS.
+- **Contract (stays here, the seam):** `packages/schema` (`ClientConfig` +
+  `defineClient`). Canonical source of truth; the Astro factory and the agent both
+  consume it. `ops` vendors a copy and re-syncs on the rare contract change.
 - **Astro reference factory (stays here):** `packages/template` (components,
   theming, SEO/JSON-LD), `apps/*` (`_template`, `_gallery`, demo),
   `scripts/new-client` + `eject-client`. This is the **reference render target**
   (demo + portfolio), **not** production.
+- **Runtime engine (MOVES to `ops`):** `scripts/lead-gen` (Places puller) +
+  `packages/agent` (enrich→generate→judge + the `refineLoop` loop primitive). Their
+  only runtime home is the `ops` dashboard, so they live in `ops/lib/`, not here.
+  Migration brief: `docs/OPS-HANDOFF.md`. Until that lands, they remain here as the
+  source — do not delete before `ops` has them building.
 
 **Delivery:** production sites ship on **Duda** (`docs/DUDA-DELIVERY.md`). The
 engine emits a `ClientConfig`; a render target turns it into a site — Astro
@@ -29,10 +34,11 @@ clients (their sites, rendered via Duda).**
 - **Sites build/deploy telemetry** — owned here, surfaced on the `ops` board.
 
 ## Boundaries (do-not-cross)
-- **Reuse, don't rewrite:** the engine (`packages/agent`, `scripts/lead-gen`) is
-  framework-agnostic TS (deps: `@anthropic-ai/sdk`, `zod`, native `fetch`) → it is
-  **ported into `ops/lib/<tool>/`**, with `ops` API routes as thin wrappers. Keep it
-  portable.
+- **Move, don't duplicate:** the runtime engine (`packages/agent`,
+  `scripts/lead-gen`) is framework-agnostic TS (deps: `@anthropic-ai/sdk`, `zod`,
+  native `fetch`) → it **moves to `ops/lib/<tool>/`** (single home), with `ops` API
+  routes as thin wrappers. No long-lived copy in both repos. The `ClientConfig`
+  contract (`packages/schema`) is the exception: it stays here and `ops` vendors it.
 - **Secrets are server-only:** `ANTHROPIC_API_KEY`, `GOOGLE_PLACES_API_KEY`,
   `SUPABASE_*` live in API routes/workers, never the client.
 - **UI components** live in `design-system` (future); apps import, never fork.
@@ -46,11 +52,13 @@ clients (their sites, rendered via Duda).**
 | `docs/PROJECT-CONTEXT.md` | full session/handoff context |
 | `docs/AI-ENGINEERING.md` | the agent architecture + AI-eng glossary + interview map |
 | `docs/DUDA-DELIVERY.md` | production delivery: `ClientConfig` → Duda mapping + spike |
-| `docs/OPS-INTEGRATION.md` | the wrap-a-tool-into-`ops` recipe |
+| `docs/OPS-HANDOFF.md` | **the single brief to build the `ops` side** (move engine + Duda render + dashboard) |
+| `docs/OPS-INTEGRATION.md` | the generic wrap-a-tool-into-`ops` recipe |
 | `docs/HANDOFF.md`, `docs/INTAKE.md` | client handoff + intake |
 
 ## Multi-agent coordination
-- **One agent per repo lane.** This lane = the factory + the engine source.
+- **One agent per repo lane.** This lane = the reference factory + the contract
+  (the runtime engine moves to the `ops` lane).
 - The **contracts above are the seams** — agree them before parallel work in
   `ops` / `design-system`.
 - **After the org rename** (ARCHITECTURE.md runbook): re-scope agent sessions and
