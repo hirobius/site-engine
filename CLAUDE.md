@@ -1,9 +1,23 @@
 # CLAUDE.md — working rules for this repo
 
-This is **hirobius-clients**: a factory for one-page marketing sites for local
-service businesses. One Astro app per client, driven entirely by a typed config.
-Read this before doing anything; it exists to keep automated builds from
-wandering.
+This is **hirobius-clients**: the **engine + reference factory** for one-page
+marketing sites for local service businesses. The engine (schema + lead-gen + AI
+agent) is the moat; the Astro app is one render target. Read this before doing
+anything; it exists to keep automated builds from wandering.
+
+## Delivery architecture (read first)
+
+**Production client sites ship on Duda** (rented, white-label, managed) — see
+`docs/DUDA-DELIVERY.md`. The Astro stack here (`packages/template`, `apps/*`,
+`eject-client`, the Vercel per-client flow) is the **reference render target**:
+the demo, the portfolio artifact, and the surface the schema was first proven
+against. It is **not** the production fleet, so do **not** scale a self-hosted
+Astro fleet past the demo without an explicit decision.
+
+The contract is `ClientConfig` (`packages/schema`): the agent emits it, a render
+target turns it into a site. Astro is one target; Duda is the production target.
+The config-only rules below apply **whenever you build an Astro site** (the demo,
+a portfolio piece, or an ejected handoff) — they keep that path clean.
 
 ## The one rule that matters
 

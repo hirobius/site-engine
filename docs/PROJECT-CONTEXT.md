@@ -3,7 +3,7 @@
 > **Purpose:** paste or reference this file in a new chat to resume with full
 > context. It captures the strategy, the repo, git state, the portfolio plan, the
 > AI flagship, open decisions, and the gotchas already discovered so nothing gets
-> re-litigated. Last updated: 2026-06-16.
+> re-litigated. Last updated: 2026-06-18.
 
 ---
 
@@ -12,10 +12,12 @@
 - **Two goals, run as a barbell:** (1) a **business** — mass-producing one-page
   marketing sites for local-service businesses; (2) a **portfolio** to land an
   **Applied AI Engineer** role. Same domain feeds both.
-- **Business delivery decision:** lean toward **Duda** as the rented platform for
-  the bulk of client sites (offload maintenance), while **owning the data +
-  automation layer** (the moat). A bespoke Astro "site factory" also exists in
-  this repo and works; Duda is the pragmatic path for volume.
+- **Business delivery decision (DECIDED):** production sites ship on **Duda**
+  (rented, white-label, managed), while we **own the data + automation layer**
+  (the moat). The bespoke Astro "site factory" in this repo is the **reference
+  render target** (demo + portfolio + schema proving ground), not the production
+  fleet. Gate before volume: the `ClientConfig → Duda` mapping spike in
+  **`docs/DUDA-DELIVERY.md`**.
 - **Portfolio flagship:** an **AI agent pipeline** (`packages/agent`) that turns a
   business lead into a validated, ready-to-ship site config with an LLM-as-judge
   quality gate + **loop engineering**. This is the centerpiece for AI-apps roles.
@@ -29,10 +31,12 @@
 
 ## 1. Strategy (decisions already made)
 
-- **Bespoke vs. Duda:** For an agency at volume, **Duda** wins (white-label, bulk,
-  API for programmatic site creation, no platform maintenance). Keep a **canonical
-  lead/content store + the automation pipeline** as the proprietary layer so we're
-  never locked in. The Astro factory is a valid alternative/portfolio artifact.
+- **Bespoke vs. Duda (decided → Duda):** For an agency at volume, **Duda** wins
+  (white-label, bulk, API for programmatic site creation, no platform maintenance).
+  Keep a **canonical lead/content store + the automation pipeline** as the
+  proprietary layer so we're never locked in. The engine emits a `ClientConfig`; a
+  render target (Astro = reference/portfolio, **Duda = production**) turns it into a
+  site. Field-by-field mapping + the de-risking spike: **`docs/DUDA-DELIVERY.md`**.
 - **Niche (beachhead):** **exterior cleaning** — pressure/soft washing, roof &
   gutter, moss removal. Climate-aligned for the **Pacific Northwest (WA+OR core)**,
   fragmented, web-unsophisticated, recurring demand.
@@ -67,6 +71,8 @@ docs/
   HANDOFF.md            client handoff (7-day window + change fee)
   INTAKE.md             per-client intake questionnaire (maps 1:1 to schema)
   AI-ENGINEERING.md     ★ living architecture + AI-eng glossary + interview prep
+  DUDA-DELIVERY.md      ★ production delivery: ClientConfig → Duda mapping + spike
+  OPS-INTEGRATION.md    wrap-a-tool-into-ops recipe (engine → ops/lib)
   PROJECT-CONTEXT.md    ← this file
 CLAUDE.md               agent guardrails (config-only, never touch packages/* when building a client)
 ```
@@ -225,6 +231,7 @@ Output = a drop-in `client.config.ts` + loop trace + eval scorecard.
 - [ ] **HC-15** Learning: Azure **AI-102** anchor cert; DeepLearning.AI (RAG/Agents/Evals); Python+SDK basics
 - [ ] **HC-16** Decide photo object storage before ~client 20 (S3/R2/Vercel Blob)
 - [ ] **HC-17** Wire `new-client` to append launched clients to `apps/_gallery` fleet list; tag `@hirobius/template` v0.1.0
+- [ ] **HC-18** Run the **Duda mapping spike** (`docs/DUDA-DELIVERY.md`) — prove the demo config renders faithfully on Duda *(gate before any production volume)*
 
 ---
 
@@ -242,8 +249,9 @@ ANTHROPIC_API_KEY=... pnpm agent --name "..." --city "..." --region "ST"
 
 ---
 
-## 10. Immediate next two decisions
+## 10. Immediate next decisions
 
-1. **Push agent → own branch + PR** (`claude/agent-pipeline`)? *(recommended)*
+1. **Run the Duda mapping spike** (`docs/DUDA-DELIVERY.md`) to de-risk the
+   production platform *before* any client volume. *(gate)*
 2. **Phase B (streaming console)** next, or **run Phase A live** on a real lead first?
 ```

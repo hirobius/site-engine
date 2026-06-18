@@ -1,11 +1,22 @@
 # hirobius-clients
 
-A monorepo for **mass-producing one-page marketing sites** for local service
-businesses (landscaping, junk removal, pressure washing, concrete/fencing). One
-Astro app per client, config-driven, deployed one Vercel project per client.
+The **engine + reference factory** for **mass-producing one-page marketing
+sites** for local service businesses (landscaping, junk removal, pressure
+washing, concrete/fencing). A typed `ClientConfig` is the contract; a render
+target turns it into a live site.
 
-**Stack:** Astro 5 (static output) · Tailwind v4 · TypeScript · pnpm workspaces ·
-Turborepo · Zod · astro:assets · Web3Forms + hCaptcha · Vercel.
+> **Delivery architecture:** production sites ship on **Duda** (rented,
+> white-label, managed) — see [`docs/DUDA-DELIVERY.md`](docs/DUDA-DELIVERY.md).
+> The Astro stack in this repo is the **reference render target** (demo +
+> portfolio artifact + where the schema was first proven), **not** the production
+> fleet. The moat is the platform-agnostic **engine**: `packages/schema`
+> (contract) + `scripts/lead-gen` (sourcing) + `packages/agent` (AI pipeline).
+> Everything below documents the Astro reference path; it stays valid for the
+> demo, portfolio pieces, and ejected handoffs.
+
+**Stack (Astro reference path):** Astro 5 (static output) · Tailwind v4 ·
+TypeScript · pnpm workspaces · Turborepo · Zod · astro:assets · Web3Forms +
+hCaptcha · Vercel. **Engine:** `@anthropic-ai/sdk` · Zod · Places API.
 
 ---
 
@@ -166,7 +177,9 @@ client project only rebuilds when its app (or a shared package) actually changes
 
 > ⚠️ **Fleet rebuild drift:** a change to `packages/*` rebuilds **ALL** apps and
 > can silently restyle live client sites on their next deploy. See the policy
-> below — this is the most expensive mistake to make casually.
+> below — this is the most expensive mistake to make casually. **This risk is
+> specific to the self-hosted Astro path and is exactly what Duda delivery avoids**
+> (Duda sites are independent once created — see `docs/DUDA-DELIVERY.md`).
 
 ### Template-update policy (read before touching `packages/*`)
 

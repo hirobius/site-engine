@@ -5,20 +5,26 @@
 > rename/retire runbook. This file is **this repo's lane** within it.
 
 ## Role
-`hirobius/clients` is the **client site factory + the lead-gen / AI-engine source**.
+`hirobius/clients` is the **lead-gen / AI-engine source + the reference site factory**.
 
-- **Site factory (stays here):** `packages/schema` (`ClientConfig` + `defineClient`),
-  `packages/template` (Astro components, theming, SEO/JSON-LD), `apps/*` (per-client
-  sites, `_template`, `_gallery`, demo), `scripts/new-client` + `eject-client`.
-- **Lead-gen + AI engine (source here, ported into `ops/lib/`):**
-  `scripts/lead-gen` (Places puller) + `packages/agent` (enrich→generate→judge + the
-  `refineLoop` loop primitive).
+- **Engine (the moat — source here, ported into `ops/lib/`):** `packages/schema`
+  (`ClientConfig` + `defineClient`, the contract), `scripts/lead-gen` (Places
+  puller), `packages/agent` (enrich→generate→judge + the `refineLoop` loop
+  primitive). Platform-agnostic TS.
+- **Astro reference factory (stays here):** `packages/template` (components,
+  theming, SEO/JSON-LD), `apps/*` (`_template`, `_gallery`, demo),
+  `scripts/new-client` + `eject-client`. This is the **reference render target**
+  (demo + portfolio), **not** production.
 
-Funnel: **leads (CRM in `ops`) → become → clients (their sites, here).**
+**Delivery:** production sites ship on **Duda** (`docs/DUDA-DELIVERY.md`). The
+engine emits a `ClientConfig`; a render target turns it into a site — Astro
+(reference) or Duda (production). Funnel: **leads (CRM in `ops`) → become →
+clients (their sites, rendered via Duda).**
 
 ## Contracts this repo owns (the seams — agree before parallel work)
-- **`ClientConfig`** (`packages/schema`) — the data contract the agent emits and the
-  factory renders. Both sides import it; don't fork.
+- **`ClientConfig`** (`packages/schema`) — the data contract the agent emits and
+  every render target consumes (Astro + Duda). Both sides import it; don't fork.
+- **`ClientConfig → Duda` mapping** — `docs/DUDA-DELIVERY.md` (production render target).
 - **Wrap-a-tool recipe** — `docs/OPS-INTEGRATION.md` (how the engine plugs into `ops`).
 - **Sites build/deploy telemetry** — owned here, surfaced on the `ops` board.
 
@@ -39,6 +45,7 @@ Funnel: **leads (CRM in `ops`) → become → clients (their sites, here).**
 | `CLAUDE.md` | client-build rules (config-only is the gate) |
 | `docs/PROJECT-CONTEXT.md` | full session/handoff context |
 | `docs/AI-ENGINEERING.md` | the agent architecture + AI-eng glossary + interview map |
+| `docs/DUDA-DELIVERY.md` | production delivery: `ClientConfig` → Duda mapping + spike |
 | `docs/OPS-INTEGRATION.md` | the wrap-a-tool-into-`ops` recipe |
 | `docs/HANDOFF.md`, `docs/INTAKE.md` | client handoff + intake |
 
