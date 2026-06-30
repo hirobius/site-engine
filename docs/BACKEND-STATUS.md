@@ -13,6 +13,7 @@
 - 🟡 **Specced, not built** (design exists in a doc; no code)
 - 🔴 **GAP** (not captured anywhere until now)
 - 🔵 **External gate** (needs an account / manual setup before code can run)
+- 💤 **Deferred** (intentionally not now — future scale option)
 - ❓ **Unknown** (must confirm in the `ops` repo — not visible from `clients`)
 
 ---
@@ -20,29 +21,30 @@
 ## 0. Where we are (the honest one-paragraph)
 
 **Pre-revenue.** What EXISTS: the AI agent pipeline (Phase A — typechecks, never
-run on a real lead), the `ClientConfig` contract, and the Astro reference factory +
-demo. Everything that turns this into a **business** — managed lead sourcing, the
-ops backend wiring, Duda rendering, **cold outreach, billing** — is still to build,
-almost all of it in `hirobius/ops`. **0 paying clients, 0 leads saved, nothing
-deployed live.** The architecture is sound and documented; the backend is mostly
-unbuilt.
+run on a real lead), the `ClientConfig` contract, and the **Astro production
+factory + demo** (built, but never deployed live). Everything that turns this into
+a **business** — managed lead sourcing, the ops backend wiring, a live deploy,
+**cold outreach, billing** — is still to build. **0 paying clients, 0 leads saved,
+nothing deployed live.** Production renders on self-hosted Astro now (Duda deferred
+to scale). The architecture is sound and documented; the backend is mostly unbuilt.
 
 ---
 
 ## 1. The target pipeline (end to end)
 
 ```
-[ source leads ] → [ AI generates site config ] → [ render to Duda ] → [ cold outreach ]
-   Outscraper          ops/lib/agent                 ops/lib/render-duda    EMAIL (no plan yet)
+[ source leads ] → [ AI generates site config ] → [ render: Astro ] → [ cold outreach ]
+   Outscraper          ops/lib/agent                 new-client+Vercel     EMAIL (no plan yet)
        │                    │                              │                      │
        ▼                    ▼                              ▼                      ▼
-   leads table         config + eval                 unpublished preview     reply / "yes"
+   leads table         config + eval                 preview deploy        reply / "yes"
                                                                                   │
                                                           [ close + bill ] ◄──────┘
                                                            Stripe (no plan yet) → publish + domain
 ```
 
-Two of the six stages (**outreach, billing**) had no design at all. Now flagged.
+Render = self-hosted **Astro** for now (the factory is built); Duda is the future
+scale swap. Two of the six stages (**outreach, billing**) had no design at all.
 
 ---
 
@@ -72,13 +74,14 @@ Two of the six stages (**outreach, billing**) had no design at all. Now flagged.
 | **Image sourcing for auto-gen spec sites** (stock by trade — Pexels/Unsplash API) | 🔴 | Demo used fake placeholder photos. Real previews need real imagery; no plan. |
 | Eval harness (score across prompt/model versions) | 🟡 | Phase C; portfolio + quality. |
 
-### D. Render targets
+### D. Render targets — **production = Astro now**
 | Piece | Status | Notes |
 |---|---|---|
-| Astro reference factory + demo | ✅ | Reference/portfolio only, **not** production. |
-| Duda render target `ops/lib/render-duda` (`renderToDuda` / `publishDudaSite`) | 🟡 | Specced in `DUDA-DELIVERY.md`; not built. |
-| Duda mapping **spike** (de-risk theming/schema/forms) | 🟡 🔵 | Gate before building the render target. (was HC-18) |
-| 4 Duda preset templates (built in Duda editor) | 🔴 🔵 | Manual; doesn't exist. Needs Duda white-label account. |
+| Astro factory + demo (`new-client`, `eject`, components) | ✅ | **Production render target.** Built. |
+| Live Vercel deploy + preview-gate verified (one project per client) | ⬜ | Documented + CLI commands printed; never actually deployed live (was HC-09). |
+| Auto-render flow (agent `ClientConfig` → scaffold app → commit → deploy) | 🟡 | Agent already emits `client.config.ts`; the scaffold+commit+deploy orchestration is semi-manual today (fine at low volume). |
+| Template versioning + freeze ejected sites (fleet-drift guard) | 🟡 | Matters now that we self-host; see README policy. |
+| **Duda render target** (`render-duda`, spike, 4 templates) | 💤 | **Deferred — future scale option.** Full plan in `DUDA-DELIVERY.md`; do not build until volume triggers the switch. |
 
 ### E. API routes (Next.js App Router, `ops`)
 | Piece | Status | Notes |
@@ -124,7 +127,7 @@ Two of the six stages (**outreach, billing**) had no design at all. Now flagged.
 | Piece | Status | Notes |
 |---|---|---|
 | Domain acquisition (buy on client's behalf) | 🔴 | Registrar API or manual. |
-| DNS connect to Duda on publish | 🟡 | Part of `publishDudaSite`; details TBD in the spike. |
+| Attach domain to the Vercel project on publish | 🟡 | Astro path: `vercel domains add`; semi-manual at low volume. (Duda path: part of `publishDudaSite`, deferred.) |
 
 ### J. Cross-cutting / infra
 | Piece | Status | Notes |
@@ -138,10 +141,11 @@ Two of the six stages (**outreach, billing**) had no design at all. Now flagged.
 ## 3. HC tracker reconciliation
 
 - ✅ **Done:** HC-01 (agent pushed), HC-08 (lead puller merged).
-- 🗑️ **Obsolete:** HC-06 (lead sweep — scraper retired), HC-16 (photo storage — Duda CDN handles it).
-- 🟡 **Active backend:** HC-02 (run agent live), HC-18 (Duda spike), + the move (Part A of `OPS-HANDOFF.md`).
+- 🗑️ **Obsolete:** HC-06 (lead sweep — scraper retired).
+- 🟡 **Active backend:** HC-02 (run agent live), **HC-09 (live Astro/Vercel deploy — now a critical-path production task, not polish)**, HC-16 (photo storage — back in play now that we self-host; needed before volume), + the engine move (Part A of `OPS-HANDOFF.md`).
+- 💤 **Deferred (scale option):** HC-18 (Duda spike) and the whole Duda render path.
 - 🔵 **Now tracked here (were missing):** outreach system (§G), billing (§H), client/subscription model (§A), image sourcing (§C), dashboard auth (§E).
-- 📦 **Portfolio (not backend):** HC-03/04/05 (agent Phases B–D), HC-07/09/11 (Astro polish), HC-10/12 (case studies/site), HC-13/14 (optional), HC-15 (learning), HC-17 (housekeeping).
+- 📦 **Portfolio (not backend):** HC-03/04/05 (agent Phases B–D), HC-07/11 (Astro polish/design system), HC-10/12 (case studies/site), HC-13/14 (optional), HC-15 (learning), HC-17 (housekeeping).
 
 ---
 
@@ -152,12 +156,16 @@ Everything else is noise until this chain works once:
 1. **Confirm `ops` stack** + create the `leads` table. (§A)
 2. **Move the agent + vendor schema; run it live on ONE real lead.** Prove the AI produces a good config. (§C)
 3. **Outscraper sourcing** — pull real leads with emails. (§B)
-4. **Duda: account + ONE template + spike `renderToDuda`** on the demo config. Prove a config becomes a real site. (§D)
+4. **Astro render live** — take the agent's `client.config.ts` through `new-client`
+   → deploy to Vercel → verify it's live (the factory's built; this is wiring, not
+   a build). Duda is deferred. (§D)
 5. **Outreach MVP** — pick a tool, one warmed sending domain, send preview links (even semi-manually at first). (§G) ← *the make-or-break stage*
 6. **Billing MVP** — a Stripe payment link triggered on "yes." (§H)
 
 → **first paying client.** Bulk automation, board polish, eval harness, and all
-portfolio work come *after* this chain closes.
+portfolio work come *after* this chain closes. **Choosing Astro shortens this
+path** — step 4 is wiring an existing factory, not building a render integration
+from zero.
 
 ---
 

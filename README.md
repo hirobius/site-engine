@@ -17,19 +17,21 @@ The 15-second map so you don't have to hold it all in your head:
   dashboard and is slated to **move to `ops`** so each repo has one job.
 - **Building a client site?** Edit one file — `apps/<slug>/client.config.ts` —
   and drop in photos. That's the whole job (see `CLAUDE.md`).
-- **Production sites ship on Duda**, not self-hosted Astro (`docs/DUDA-DELIVERY.md`).
+- **Production sites ship on self-hosted Astro** (this repo), one Vercel project
+  per client. Duda is a documented *future* option for scale (`docs/DUDA-DELIVERY.md`).
 - **Why any of this exists / the strategy:** `docs/PROJECT-CONTEXT.md`.
 
-> **Delivery architecture:** production sites ship on **Duda** (rented,
-> white-label, managed) — see [`docs/DUDA-DELIVERY.md`](docs/DUDA-DELIVERY.md).
-> The Astro stack in this repo is the **reference render target** (demo +
-> portfolio artifact + where the schema was first proven), **not** the production
-> fleet. The moat is the platform-agnostic **engine**: `packages/schema`
-> (contract) + `scripts/lead-gen` (sourcing) + `packages/agent` (AI pipeline).
-> Everything below documents the Astro reference path; it stays valid for the
-> demo, portfolio pieces, and ejected handoffs.
+> **Delivery architecture:** production sites ship on **self-hosted Astro** (this
+> repo) — already built, free, and the most direct path from a generated
+> `ClientConfig` to a live site, which is the right call at low volume. **Duda**
+> (managed, white-label, client editor) is the documented option to switch to
+> *if/when* maintenance at volume justifies its monthly fee — see
+> [`docs/DUDA-DELIVERY.md`](docs/DUDA-DELIVERY.md). The moat is the
+> platform-agnostic **engine**: `packages/schema` (contract) + `scripts/lead-gen`
+> (sourcing) + `packages/agent` (AI pipeline); keep the contract render-agnostic so
+> the Duda switch stays cheap.
 
-**Stack (Astro reference path):** Astro 5 (static output) · Tailwind v4 ·
+**Stack (production = Astro):** Astro 5 (static output) · Tailwind v4 ·
 TypeScript · pnpm workspaces · Turborepo · Zod · astro:assets · Web3Forms +
 hCaptcha · Vercel. **Engine:** `@anthropic-ai/sdk` · Zod · Places API.
 
@@ -192,9 +194,10 @@ client project only rebuilds when its app (or a shared package) actually changes
 
 > ⚠️ **Fleet rebuild drift:** a change to `packages/*` rebuilds **ALL** apps and
 > can silently restyle live client sites on their next deploy. See the policy
-> below — this is the most expensive mistake to make casually. **This risk is
-> specific to the self-hosted Astro path and is exactly what Duda delivery avoids**
-> (Duda sites are independent once created — see `docs/DUDA-DELIVERY.md`).
+> below — this is the most expensive mistake to make casually, and a **real
+> production risk now that we self-host on Astro.** Mitigate with template
+> versioning + freezing handed-off (ejected) sites. (Eliminating this risk entirely
+> is one of the reasons to switch to Duda at volume — see `docs/DUDA-DELIVERY.md`.)
 
 ### Template-update policy (read before touching `packages/*`)
 

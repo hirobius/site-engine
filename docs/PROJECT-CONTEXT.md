@@ -12,12 +12,16 @@
 - **Two goals, run as a barbell:** (1) a **business** — mass-producing one-page
   marketing sites for local-service businesses; (2) a **portfolio** to land an
   **Applied AI Engineer** role. Same domain feeds both.
-- **Business delivery decision (DECIDED):** production sites ship on **Duda**
-  (rented, white-label, managed), while we **own the data + automation layer**
-  (the moat). The bespoke Astro "site factory" in this repo is the **reference
-  render target** (demo + portfolio + schema proving ground), not the production
-  fleet. Gate before volume: the `ClientConfig → Duda` mapping spike in
-  **`docs/DUDA-DELIVERY.md`**.
+- **Business delivery decision (DECIDED — revised 2026-06-18):** production sites
+  ship on **self-hosted Astro** (this repo, one Vercel project per client) — it's
+  already built, free, and the most direct path from a generated `ClientConfig` to
+  a live site, which is right at low volume. **Duda** (managed, white-label, client
+  editor) is the documented **future option** to switch to *if/when* maintenance at
+  volume justifies its monthly fee — playbook + mapping in **`docs/DUDA-DELIVERY.md`**.
+  We **own the data + automation layer** (the moat) either way, and keep the
+  `ClientConfig` contract render-agnostic so the Duda switch stays cheap. (Earlier
+  this session we had picked Duda-first; corrected to Astro-now after recognizing
+  Duda's advantages are all scale-stage and we have zero clients.)
 - **Portfolio flagship:** an **AI agent pipeline** (`packages/agent`) that turns a
   business lead into a validated, ready-to-ship site config with an LLM-as-judge
   quality gate + **loop engineering**. This is the centerpiece for AI-apps roles.
@@ -31,12 +35,14 @@
 
 ## 1. Strategy (decisions already made)
 
-- **Bespoke vs. Duda (decided → Duda):** For an agency at volume, **Duda** wins
-  (white-label, bulk, API for programmatic site creation, no platform maintenance).
-  Keep a **canonical lead/content store + the automation pipeline** as the
-  proprietary layer so we're never locked in. The engine emits a `ClientConfig`; a
-  render target (Astro = reference/portfolio, **Duda = production**) turns it into a
-  site. Field-by-field mapping + the de-risking spike: **`docs/DUDA-DELIVERY.md`**.
+- **Bespoke vs. Duda (decided → Astro now, Duda at scale):** At low volume,
+  self-hosted **Astro wins** — it's built, free, full control, and the most direct
+  path from a generated `ClientConfig` to a live site. **Duda wins at volume**
+  (managed, no fleet maintenance, client editor) — switch when ≈15–20+ clients make
+  the maintenance worth its monthly fee. Keep a **canonical lead/content store + the
+  automation pipeline** as the proprietary layer (the moat). The engine emits a
+  `ClientConfig`; a render target (Astro = production now, **Duda = later**) turns it
+  into a site. Switch playbook + field mapping: **`docs/DUDA-DELIVERY.md`**.
 - **Repo split (decided):** the **runtime engine moves to `ops`** — `scripts/lead-gen`
   + `packages/agent` → `ops/lib/` (their only runtime home is the dashboard). This
   repo keeps the **Astro reference factory** + the **`ClientConfig` contract**

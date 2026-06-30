@@ -5,16 +5,16 @@
 > rename/retire runbook. This file is **this repo's lane** within it.
 
 ## Role
-`hirobius/clients` is the **reference site factory + the `ClientConfig` contract**.
+`hirobius/clients` is the **production site factory + the `ClientConfig` contract**.
 The runtime engine (lead-gen + AI agent) **moves to `ops`** — see below.
 
 - **Contract (stays here, the seam):** `packages/schema` (`ClientConfig` +
   `defineClient`). Canonical source of truth; the Astro factory and the agent both
   consume it. `ops` vendors a copy and re-syncs on the rare contract change.
-- **Astro reference factory (stays here):** `packages/template` (components,
+- **Astro production factory (stays here):** `packages/template` (components,
   theming, SEO/JSON-LD), `apps/*` (`_template`, `_gallery`, demo),
-  `scripts/new-client` + `eject-client`. This is the **reference render target**
-  (demo + portfolio), **not** production.
+  `scripts/new-client` + `eject-client`. **This is the production render target**
+  (one Vercel project per client); Duda is the future scale option.
 - **Runtime engine (MOVES to `ops`):** `packages/agent` (enrich→generate→judge +
   the `refineLoop` loop primitive) moves to `ops/lib/agent`. **Lead sourcing is
   being replaced** by a managed scraper (Outscraper) — the self-built
@@ -23,10 +23,11 @@ The runtime engine (lead-gen + AI agent) **moves to `ops`** — see below.
   Migration brief: `docs/OPS-HANDOFF.md`. Until that lands they remain here as the
   source — do not delete before `ops` is building.
 
-**Delivery:** production sites ship on **Duda** (`docs/DUDA-DELIVERY.md`). The
-engine emits a `ClientConfig`; a render target turns it into a site — Astro
-(reference) or Duda (production). Funnel: **leads (CRM in `ops`) → become →
-clients (their sites, rendered via Duda).**
+**Delivery:** production sites ship on **self-hosted Astro** (this repo, one Vercel
+project per client). **Duda is the documented future option for scale**
+(`docs/DUDA-DELIVERY.md`). The engine emits a `ClientConfig`; a render target turns
+it into a site — Astro (production now) or Duda (later). Funnel: **leads (CRM in
+`ops`) → become → clients (their Astro sites).**
 
 ## Contracts this repo owns (the seams — agree before parallel work)
 - **`ClientConfig`** (`packages/schema`) — the data contract the agent emits and

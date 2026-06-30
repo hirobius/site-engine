@@ -7,17 +7,21 @@ anything; it exists to keep automated builds from wandering.
 
 ## Delivery architecture (read first)
 
-**Production client sites ship on Duda** (rented, white-label, managed) — see
-`docs/DUDA-DELIVERY.md`. The Astro stack here (`packages/template`, `apps/*`,
-`eject-client`, the Vercel per-client flow) is the **reference render target**:
-the demo, the portfolio artifact, and the surface the schema was first proven
-against. It is **not** the production fleet, so do **not** scale a self-hosted
-Astro fleet past the demo without an explicit decision.
+**Production client sites ship on self-hosted Astro** (this repo), one Vercel
+project per client. The factory is already built, free, and the most direct path
+from a generated `ClientConfig` to a live site — the right call at low volume.
+
+**Duda is the documented future option**, not the current target: a managed,
+white-label platform with a client editor that becomes worth its monthly fee
+*if/when* maintenance at volume (≈15–20+ clients) justifies it. The switch
+playbook + `ClientConfig → Duda` mapping live in `docs/DUDA-DELIVERY.md`. Keep the
+`ClientConfig` contract render-agnostic so that switch stays cheap — but do **not**
+build the Duda path until volume forces the decision.
 
 The contract is `ClientConfig` (`packages/schema`): the agent emits it, a render
-target turns it into a site. Astro is one target; Duda is the production target.
-The config-only rules below apply **whenever you build an Astro site** (the demo,
-a portfolio piece, or an ejected handoff) — they keep that path clean.
+target turns it into a site. Astro is the production target today; Duda is the
+later option. The config-only rules below apply **whenever you build a client
+site** — they keep that path clean.
 
 ## The one rule that matters
 

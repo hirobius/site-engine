@@ -1,12 +1,14 @@
-# Duda delivery — architecture + `ClientConfig` → Duda mapping spike
+# Duda delivery — the future scale option + `ClientConfig` → Duda mapping spike
 
-> **Decision:** production client sites ship on **Duda** (rented, white-label,
-> managed). The Astro stack in `packages/template` + `apps/*` is the **reference
-> render target** — portfolio artifact, demo, and the surface the schema was first
-> proven against — **not** the production fleet.
+> **Status: FUTURE OPTION, not the current plan.** Production currently ships on
+> **self-hosted Astro** (this repo). This doc is the **playbook for switching to
+> Duda** (managed, white-label, client editor) *if/when* maintenance at volume
+> (≈15–20+ clients) justifies its monthly fee. Don't build any of this until that
+> decision is triggered — but keep the `ClientConfig` contract render-agnostic so
+> the switch stays cheap.
 >
-> This doc is (1) the delivery architecture and (2) the **spike plan** to prove
-> Duda can render a `ClientConfig` faithfully *before* we commit volume to it.
+> It contains (1) the Duda delivery architecture and (2) the **spike plan** to
+> prove Duda can render a `ClientConfig` faithfully *before* committing to it.
 >
 > ⚠️ Duda endpoint/field names below are written at the **concept** level. The
 > whole point of the spike is to confirm them against the current Duda API docs +
@@ -16,10 +18,11 @@
 
 ---
 
-## Why this exists
+## When to trigger the switch (why this exists)
 
-Running an Astro fleet in production carries maintenance we don't want to own at
-volume (all flagged elsewhere in this repo):
+Self-hosting an Astro fleet is the right call *now* (built, free, full control),
+but it carries maintenance that compounds with client count — the trigger signals
+to switch to Duda:
 
 - **Fleet-rebuild drift** — README calls it "the most expensive mistake": one
   `packages/*` edit can silently restyle every live site on next deploy.
@@ -36,13 +39,14 @@ config through Duda instead of Astro.
 
 The constant across both paths is the **engine** and its contract: the agent
 emits a validated `ClientConfig` (`packages/schema`); a *render target* turns
-that config into a live site. Astro is one target; Duda is the production target.
+that config into a live site. Astro is the production target today; Duda is the
+target this doc would switch to at scale.
 
 ```
 lead → enrich → generate → judge  ──►  ClientConfig  (the contract, packages/schema)
                                           │
-                                          ├─► Astro factory   (portfolio / demo / ejected handoff)
-                                          └─► Duda Site API    (production)        ◄── this doc
+                                          ├─► Astro factory   (PRODUCTION today + demo/portfolio)
+                                          └─► Duda Site API    (deferred scale option)  ◄── this doc
 ```
 
 ---

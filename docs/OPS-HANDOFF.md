@@ -19,20 +19,24 @@
 
 ## 0. The end state (one paragraph)
 
-Each repo gets one job. **`clients`** = the Astro reference templates +
-the **`ClientConfig` contract** (`packages/schema`, source of truth). **`ops`** =
-the **runtime engine** (lead-gen + AI agent), the **Duda render target**, and the
-**dashboard** that triggers it all. The engine emits a validated `ClientConfig`;
-`renderToDuda(config)` turns it into a live Duda site. Production sites ship on
-**Duda** (rented, white-label); self-hosted Astro is the reference/portfolio path
-only.
+> **Render decision (revised 2026-06-18): production = self-hosted Astro, not Duda.**
+> Part A below (move the engine) is unchanged and still the priority. **Part B (the
+> Duda render target) is DEFERRED** — a future scale option, do not build it now.
+> The current render path is the existing Astro factory in `clients` (`new-client`
+> → Vercel), semi-manual at low volume. See "Part B′" for the Astro render note.
+
+Each repo gets one job. **`clients`** = the Astro production templates + the
+**`ClientConfig` contract** (`packages/schema`, source of truth) + the per-client
+site deploys. **`ops`** = the **runtime engine** (lead-gen + AI agent) + the
+**dashboard** that triggers it. The engine emits a validated `ClientConfig`; for
+now a human/script runs it through the Astro factory and deploys to Vercel.
 
 ```
-ops dashboard:  pull leads → generate site (agent) → render to Duda → publish
-                 │              │                       │              │
-                 ▼              ▼                       ▼              ▼
-              ops/lib/      ops/lib/agent          ops/lib/        Duda site
-              lead-gen      (+ ops/lib/schema)     render-duda     goes live
+ops dashboard:  pull leads → generate site (agent) → [config] → render via Astro factory → deploy
+                 │              │                                  (clients: new-client + Vercel)
+                 ▼              ▼
+              ops/lib/      ops/lib/agent
+              lead-gen      (+ ops/lib/schema)        ── Duda render target: DEFERRED (scale option) ──
 ```
 
 ---
@@ -132,11 +136,32 @@ Used only in API routes / workers, never shipped to the client.
 
 ---
 
-## Part B — Add the Duda render/publish step
+## Part B′ — Render via Astro (the CURRENT production path)
+
+After generate (`status='scored'` with a `config`), production rendering uses the
+**existing Astro factory in `clients`**, not Duda:
+
+1. Scaffold the app: `pnpm new-client <slug> --name "…" --preset <preset>`.
+2. Write the agent's `config` into `apps/<slug>/client.config.ts`; add photos
+   (stock by trade until intake — see BACKEND-STATUS §C image-sourcing gap).
+3. Deploy: `vercel link` → `vercel deploy` (preview, basic-auth gated) → on "yes",
+   `vercel deploy --prod` + `vercel domains add`.
+
+At low volume this is **semi-manual and fine** — the ops board can just surface the
+`config` + the printed commands. Full programmatic scaffold→commit→deploy
+automation is a later optimization; the Duda API (Part B, below) is the *other*
+later option. Set `status='rendered'` + `preview_url` once deployed.
+
+## Part B (DEFERRED) — Duda render/publish step
+
+> 💤 **Do not build now.** This is the future scale-swap render target, kept for
+> when maintenance at volume (≈15–20+ clients) justifies switching off self-hosted
+> Astro. Full background: `docs/DUDA-DELIVERY.md`. The rest of this section is the
+> plan for that day.
 
 Extends the lead pipeline (`leads` table + pull-leads + generate-site from
 `docs/OPS-INTEGRATION.md`). Generate ends at `status='scored'` with a generated
-`config`; Duda is the next stage.
+`config`; Duda would be the next stage.
 
 ### B1. Supabase migration
 
@@ -260,21 +285,20 @@ images + alt; (5) form notifications + redirect.
 ```md
 ### Client-site delivery + repo split
 
-- **Production render target: Duda** (rented, white-label, managed). One Duda site
-  per client, created from a per-preset template via the Duda API.
-- **Reference render target: Astro** (`hirobius/clients` → `packages/template`,
-  `apps/*`). Demo + portfolio. NOT the production fleet.
+- **Production render target: self-hosted Astro** (`hirobius/clients` →
+  `packages/template`, `apps/*`, `new-client` + Vercel). One Vercel project per
+  client.
+- **Duda: deferred future option** for scale (managed, client editor). Switch when
+  fleet maintenance justifies it — `hirobius/clients` → `docs/DUDA-DELIVERY.md`.
 - **The contract: `ClientConfig`** (`hirobius/clients` → `packages/schema`,
   canonical). The agent emits it; every render target consumes it. `ops` vendors a
   copy (`ops/lib/schema`); don't fork the meaning.
 - **Runtime engine lives in `ops`:** `ops/lib/lead-gen` (sourcing) +
-  `ops/lib/agent` (enrich→generate→judge) + `ops/lib/render-duda` (render target),
-  triggered from the ops board. (Moved out of `clients`.)
+  `ops/lib/agent` (enrich→generate→judge), triggered from the ops board. (Moved out
+  of `clients`.) Render happens via the Astro factory in `clients`.
 
-Flow: `lead → enrich → generate → judge → ClientConfig → renderToDuda → preview →
-(on "yes") publish + domain`.
-
-Detail: `hirobius/clients` → `docs/DUDA-DELIVERY.md`.
+Flow: `lead → enrich → generate → judge → ClientConfig → Astro factory → Vercel
+deploy → preview → (on "yes") prod + domain`.
 ```
 
 ---
@@ -285,11 +309,11 @@ Detail: `hirobius/clients` → `docs/DUDA-DELIVERY.md`.
 - [ ] **Part A:** copy lead-gen + agent + vendored schema into `ops/lib/`, rewrite
       imports, set `ANTHROPIC_API_KEY` + `OUTSCRAPER_API_KEY`, verify it runs.
 - [ ] Confirm/create the `leads` table (`docs/OPS-INTEGRATION.md`); run §B1 migration.
-- [ ] **Spike** the Duda render (`docs/DUDA-DELIVERY.md`): one template, prove
-      `renderToDuda` on the demo config, resolve risks #1/#2 — *gate.*
-- [ ] **Part B:** add `ops/lib/render-duda` + `/api/render-site` + board buttons;
-      set `DUDA_*` env + the 4 template ids.
+- [ ] **Part B′ (Astro render — current path):** surface the generated `config` +
+      the `new-client`/Vercel commands on the board; deploy the first site live.
 - [ ] **Part C:** record the decision in `ops/docs/ARCHITECTURE.md`.
+- [ ] 💤 **Deferred — Part B (Duda):** skip unless/until volume triggers the
+      scale-swap (`docs/DUDA-DELIVERY.md`).
 - [ ] Back in `clients`: open the cleanup PR that deletes `packages/agent` +
       `scripts/lead-gen` (keep `packages/schema`). **Only after ops is green.**
 
