@@ -1,5 +1,14 @@
 # Lead puller
 
+> ⚠️ **DEPRECATED — being retired.** We are done building our own scraper. Lead
+> sourcing moves to a managed pay-as-you-go scraper (**Outscraper**) in
+> `ops/lib/lead-gen`, which returns outreach-ready records **including emails**
+> (this Places puller returns none). Only the query definitions in `config.ts`
+> (METROS + KEYWORDS) get ported; `places.ts` / `qualify.ts` / `pull-leads.ts` are
+> retired. See `docs/OPS-HANDOFF.md` → "Lead sourcing". Kept here for reference
+> until the `clients` cleanup PR removes it.
+
+
 Sources qualified leads for cold-outreach spec sites. Beachhead: **exterior
 cleaning** (pressure/soft washing, roof & gutter, moss removal) across the **WA+OR
 core metros**. Edit `config.ts` to change niche or geography.

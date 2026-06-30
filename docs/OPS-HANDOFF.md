@@ -39,23 +39,57 @@ ops dashboard:  pull leads → generate site (agent) → render to Duda → publ
 
 ## Part A — Move the runtime engine into ops
 
-### What moves vs. what's vendored
+### What moves vs. what's vendored vs. what's replaced
 
 | From `hirobius/clients` | Action | Lands in ops |
 |---|---|---|
-| `scripts/lead-gen/*` | **move** | `ops/lib/lead-gen/` |
+| `scripts/lead-gen/config.ts` (METROS + KEYWORDS + qualifying signals) | **port** (query definitions only) | `ops/lib/lead-gen/config.ts` |
+| `scripts/lead-gen/places.ts` + `qualify.ts` + `pull-leads.ts` (self-built scraper) | **RETIRE** — replaced by a managed scraper (see "Lead sourcing" below) | — |
 | `packages/agent/src/*` | **move** | `ops/lib/agent/` |
 | `packages/schema/src/*` (`ClientConfig` + `defineClient` + presets) | **vendor a copy** (stays canonical in `clients`) | `ops/lib/schema/` |
 
-- **Move** = single home in ops; the copy in `clients` is deleted afterward (see
-  sequencing). No long-lived duplicate.
+- **Decision:** we are **done building our own scraper.** Lead sourcing becomes a
+  thin integration with a managed pay-as-you-go scraper that returns
+  outreach-ready records (incl. emails). Keep only the *query definitions*
+  (what/where to search); drop the custom Places client, the per-site
+  tech-detection, and the orchestration.
+- **Move** = single home in ops; the copy in `clients` is deleted afterward.
 - **Vendor** = `ops` keeps its own copy of the contract because the Astro factory
   in `clients` also needs it. The contract changes rarely; re-sync on change.
+
+### Lead sourcing — managed scraper (replaces the self-built puller)
+
+Provider: **Outscraper** (recommended — Google Maps + email/socials, pay-as-you-go,
+~$1–3 / 1,000 records, returns website **and** email). Wrap it behind a small
+interface so it's swappable (e.g. Apify's Google Maps Scraper actor) without
+touching callers.
+
+```ts
+// ops/lib/lead-gen/index.ts
+import { buildQueries } from "./config";   // ported: `${keyword} in ${area}` list
+
+export interface SourcedLead {
+  placeId: string; name: string; phone?: string; website?: string;
+  email?: string; rating?: number; reviewCount?: number;
+  address?: string; region: string;
+}
+
+/** Calls the managed scraper for each query, dedupes by place id, returns
+ *  outreach-ready leads. Provider behind OUTSCRAPER_API_KEY. */
+export async function pullLeads(opts?: { limit?: number }): Promise<SourcedLead[]>;
+```
+
+- Send `buildQueries()` to Outscraper's Google Maps Search **with email
+  enrichment** enabled; dedupe by Google place id; upsert to `leads`
+  (`status='sourced'`).
+- **Qualification is now optional.** Outscraper returns `website` + `email`, so the
+  cheapest qualifier is just `has_website = !website`. Only rebuild the old "bad
+  site = good lead" tech-detection if you want that angle for the cold-email pitch.
 
 ### Files
 
 ```
-lead-gen  → ops/lib/lead-gen/   : config.ts, places.ts, qualify.ts, pull-leads.ts (+ README)
+lead-gen  → ops/lib/lead-gen/   : config.ts (ported), index.ts (Outscraper wrapper, new)
 agent     → ops/lib/agent/      : index.ts, llm.ts, types.ts, schemas.ts, enrich.ts,
                                   generate.ts, judge.ts, loop.ts, pipeline.ts (+ README)
 schema    → ops/lib/schema/     : index.ts, presets.ts   (vendored copy of the contract)
@@ -67,26 +101,27 @@ All framework-agnostic TS. Deps: `@anthropic-ai/sdk`, `zod`, native `fetch`.
 
 - In the moved `agent`, change `import … from "@hirobius/schema"` →
   `import … from "@/lib/schema"` (the vendored contract).
-- The `cli.ts` entrypoints in lead-gen/agent are CLI wrappers — **drop them** (the
-  ops API routes in Part B replace them) or keep as dev-only scripts.
+- The `cli.ts` entrypoint in `agent` is a CLI wrapper — **drop it** (the ops API
+  routes in Part B replace it) or keep as a dev-only script.
 
 ### Env vars (ops Vercel project, server-only)
 
 ```
 ANTHROPIC_API_KEY        # the agent pipeline
-GOOGLE_PLACES_API_KEY    # lead sourcing
+OUTSCRAPER_API_KEY       # managed lead sourcing (replaces GOOGLE_PLACES_API_KEY)
 ```
 
 Used only in API routes / workers, never shipped to the client.
 
 ### Safe sequencing (do not skip)
 
-1. **Copy** lead-gen + agent + vendored schema into `ops/lib/`, rewrite imports.
+1. **Build** `ops/lib/lead-gen` (ported config + Outscraper wrapper), **move** the
+   agent + vendored schema into `ops/lib/`, rewrite imports.
 2. **Verify in ops:** it typechecks and runs (see API routes in Part B; or a quick
    `tsx` smoke call) with the env vars set.
-3. **Only after ops is green:** open a `clients` PR that **deletes**
-   `scripts/lead-gen` + `packages/agent` (and their workspace wiring / root
-   `package.json` scripts: `pnpm pull-leads`, `pnpm agent`). Keep `packages/schema`.
+3. **Only after ops is green:** open a `clients` PR that **deletes** `scripts/lead-gen`
+   (entirely — retired) + `packages/agent`, and their workspace wiring / root
+   `package.json` scripts (`pnpm pull-leads`, `pnpm agent`). Keep `packages/schema`.
 4. **Never delete from `clients` before ops has them building** — that's the only
    copy until step 2 passes.
 
@@ -248,7 +283,7 @@ Detail: `hirobius/clients` → `docs/DUDA-DELIVERY.md`.
 
 - [ ] Confirm `hirobius-ops` is Next.js App Router + Supabase (assumed by the routes).
 - [ ] **Part A:** copy lead-gen + agent + vendored schema into `ops/lib/`, rewrite
-      imports, set `ANTHROPIC_API_KEY` + `GOOGLE_PLACES_API_KEY`, verify it runs.
+      imports, set `ANTHROPIC_API_KEY` + `OUTSCRAPER_API_KEY`, verify it runs.
 - [ ] Confirm/create the `leads` table (`docs/OPS-INTEGRATION.md`); run §B1 migration.
 - [ ] **Spike** the Duda render (`docs/DUDA-DELIVERY.md`): one template, prove
       `renderToDuda` on the demo config, resolve risks #1/#2 — *gate.*

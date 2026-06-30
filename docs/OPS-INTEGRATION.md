@@ -115,25 +115,26 @@ create index on leads (status);
 > The full step-by-step (incl. safe sequencing + verification) is the dedicated
 > migration brief: **`hirobius/clients` → `docs/OPS-HANDOFF.md`**. Summary:
 
-| Bring over | Move or vendor? | Role |
+| Bring over | Move / vendor / replace? | Role |
 |---|---|---|
-| `scripts/lead-gen/*` (`config.ts`, `places.ts`, `qualify.ts`, `pull-leads.ts`) | **move** → `ops/lib/lead-gen/` | sourcing — Places API + tech-detection |
+| `scripts/lead-gen/config.ts` (METROS + KEYWORDS) | **port** (query defs only) | what/where to search |
+| `scripts/lead-gen/places.ts` + `qualify.ts` + `pull-leads.ts` | **RETIRE → managed scraper** (Outscraper) in `ops/lib/lead-gen/index.ts` | sourcing — now returns website **+ email** |
 | `packages/agent/src/*` (`llm`, `types`, `schemas`, `enrich`, `generate`, `judge`, `loop`, `pipeline`) | **move** → `ops/lib/agent/` | the enrich→generate→judge pipeline + loop primitive |
 | `packages/schema` (`ClientConfig` + `defineClient`) | **vendor a copy** → `ops/lib/schema/` | the agent's validation contract; stays canonical in `clients` |
 
-These are framework-agnostic TS (deps: `@anthropic-ai/sdk`, `zod`, native `fetch`).
-lead-gen + agent **move** (single home in ops; no long-lived copy in both repos);
-the schema **contract** is vendored (it stays canonical in `clients` for the Astro
-factory). The API routes are thin wrappers. Note: the puller defaults to
-single-page Places queries + a 20s request timeout (pagination stalls behind some
-egress proxies).
+The agent + ported config are framework-agnostic TS (deps: `@anthropic-ai/sdk`,
+`zod`, native `fetch`). The agent **moves** (single home in ops); the schema
+**contract** is vendored (stays canonical in `clients` for the Astro factory);
+the self-built scraper is **retired** in favor of a managed provider (we are done
+building our own scraper — see `docs/OPS-HANDOFF.md` → "Lead sourcing"). API routes
+are thin wrappers.
 
 ### API route sketch (Next.js App Router)
 
 ```ts
 // app/api/pull-leads/route.ts
 import { createClient } from "@supabase/supabase-js";
-import { pullLeads } from "@/lib/lead-gen";          // ported sourcing
+import { pullLeads } from "@/lib/lead-gen";          // managed scraper (Outscraper) wrapper
 
 export async function POST(req: Request) {
   const { niche, metro, count = 20 } = await req.json();
@@ -178,7 +179,7 @@ export async function POST(req: Request) {
 ### Env vars (ops Vercel project, server-only)
 
 ```
-GOOGLE_PLACES_API_KEY        # Places sourcing
+OUTSCRAPER_API_KEY           # managed lead sourcing (Google Maps + email)
 ANTHROPIC_API_KEY            # the agent pipeline
 SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY    # server-side writes only — never client

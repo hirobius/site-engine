@@ -176,22 +176,25 @@ Output = a drop-in `client.config.ts` + loop trace + eval scorecard.
 
 ---
 
-## 6. Lead-gen status — `scripts/lead-gen`
+## 6. Lead-gen status — **switching to a managed scraper**
 
-- **Beachhead:** exterior cleaning, WA+OR core metros (37 areas × 7 keywords = 259
-  queries, ~$8, single-page mode).
-- **Key:** `GOOGLE_PLACES_API_KEY` is set in the Claude Code **web environment**
-  (project "tooling" in Google Cloud; Places API New enabled; $1 budget *alert* —
-  note: a budget is an alert, **not** a spend cap).
-- **Status:** a full sweep ran partway (~40/259) then **died when the container was
-  reclaimed overnight** — **no leads were saved** (output only writes on success).
-  Needs a clean re-run **while active**.
-- **Data quality confirmed good** (real names/phones/sites/ratings).
-- **Sandbox limitation:** the **qualify** step (fetching arbitrary business sites)
-  is **blocked by egress policy** (only allowlisted hosts like googleapis work) —
-  run qualification locally or raise the env network level. Sourcing works fine.
-- **Run:** `GOOGLE_PLACES_API_KEY=... pnpm pull-leads --dry-run` (sizes it free) →
-  drop `--dry-run` for real (`--limit 50` for a cheap test first).
+- **Decision (2026-06-18): done building our own scraper.** The self-built
+  `scripts/lead-gen` (Places API client + tech-detection + orchestration) is
+  **retired**. Lead sourcing becomes a thin integration with a managed
+  pay-as-you-go scraper that returns outreach-ready records **including emails**
+  (Places gives no email; cold-email is the whole motion).
+- **Provider: Outscraper** (recommended — Google Maps + email/socials,
+  ~$1–3 / 1,000 records). Wrapped behind a swappable interface (Apify as the
+  fallback). Built in `ops/lib/lead-gen` during the migration — see
+  `docs/OPS-HANDOFF.md` → "Lead sourcing".
+- **Keep only the query definitions:** `config.ts` METROS (WA+OR core metros, 37
+  areas) + KEYWORDS (7 exterior-cleaning terms) → fed to the scraper as queries.
+- **Why not keep Places:** it was already ~free at our volume, but it returns no
+  email and the per-site tech-detection was blocked by sandbox egress. A managed
+  scraper hands us emails + handles ToS/IP-bans for cents per record.
+- **Env:** `OUTSCRAPER_API_KEY` (replaces `GOOGLE_PLACES_API_KEY`), server-only.
+- **Reminder (our own README):** deliverability — not lead supply — is the real
+  constraint. Don't over-invest in sourcing; invest in sending/warmup.
 
 ---
 

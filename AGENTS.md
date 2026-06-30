@@ -15,11 +15,13 @@ The runtime engine (lead-gen + AI agent) **moves to `ops`** — see below.
   theming, SEO/JSON-LD), `apps/*` (`_template`, `_gallery`, demo),
   `scripts/new-client` + `eject-client`. This is the **reference render target**
   (demo + portfolio), **not** production.
-- **Runtime engine (MOVES to `ops`):** `scripts/lead-gen` (Places puller) +
-  `packages/agent` (enrich→generate→judge + the `refineLoop` loop primitive). Their
-  only runtime home is the `ops` dashboard, so they live in `ops/lib/`, not here.
-  Migration brief: `docs/OPS-HANDOFF.md`. Until that lands, they remain here as the
-  source — do not delete before `ops` has them building.
+- **Runtime engine (MOVES to `ops`):** `packages/agent` (enrich→generate→judge +
+  the `refineLoop` loop primitive) moves to `ops/lib/agent`. **Lead sourcing is
+  being replaced** by a managed scraper (Outscraper) — the self-built
+  `scripts/lead-gen` puller is **retired**; only its query definitions (METROS +
+  KEYWORDS) get ported. Their only runtime home is the `ops` dashboard.
+  Migration brief: `docs/OPS-HANDOFF.md`. Until that lands they remain here as the
+  source — do not delete before `ops` is building.
 
 **Delivery:** production sites ship on **Duda** (`docs/DUDA-DELIVERY.md`). The
 engine emits a `ClientConfig`; a render target turns it into a site — Astro
@@ -39,7 +41,7 @@ clients (their sites, rendered via Duda).**
   native `fetch`) → it **moves to `ops/lib/<tool>/`** (single home), with `ops` API
   routes as thin wrappers. No long-lived copy in both repos. The `ClientConfig`
   contract (`packages/schema`) is the exception: it stays here and `ops` vendors it.
-- **Secrets are server-only:** `ANTHROPIC_API_KEY`, `GOOGLE_PLACES_API_KEY`,
+- **Secrets are server-only:** `ANTHROPIC_API_KEY`, `OUTSCRAPER_API_KEY`,
   `SUPABASE_*` live in API routes/workers, never the client.
 - **UI components** live in `design-system` (future); apps import, never fork.
 - **Config-only client builds:** see `CLAUDE.md` — building a client edits only
