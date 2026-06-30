@@ -14,7 +14,7 @@ The runtime engine (lead-gen + AI agent) **moves to `ops`** — see below.
 - **Astro production factory (stays here):** `packages/template` (components,
   theming, SEO/JSON-LD), `apps/*` (`_template`, `_gallery`, demo),
   `scripts/new-client` + `eject-client`. **This is the production render target**
-  (one Vercel project per client); Duda is the future scale option.
+  (one Vercel project per client).
 - **Runtime engine (MOVES to `ops`):** `packages/agent` (enrich→generate→judge +
   the `refineLoop` loop primitive) moves to `ops/lib/agent`. **Lead sourcing is
   being replaced** by a managed scraper (Outscraper) — the self-built
@@ -24,15 +24,13 @@ The runtime engine (lead-gen + AI agent) **moves to `ops`** — see below.
   source — do not delete before `ops` is building.
 
 **Delivery:** production sites ship on **self-hosted Astro** (this repo, one Vercel
-project per client). **Duda is the documented future option for scale**
-(`docs/DUDA-DELIVERY.md`). The engine emits a `ClientConfig`; a render target turns
-it into a site — Astro (production now) or Duda (later). Funnel: **leads (CRM in
-`ops`) → become → clients (their Astro sites).**
+project per client). The engine emits a `ClientConfig`; the Astro factory renders
+it. The contract is render-agnostic, so the delivery platform stays swappable.
+Funnel: **leads (CRM in `ops`) → become → clients (their Astro sites).**
 
 ## Contracts this repo owns (the seams — agree before parallel work)
 - **`ClientConfig`** (`packages/schema`) — the data contract the agent emits and
-  every render target consumes (Astro + Duda). Both sides import it; don't fork.
-- **`ClientConfig → Duda` mapping** — `docs/DUDA-DELIVERY.md` (production render target).
+  the render target consumes. Both sides import it; don't fork.
 - **Wrap-a-tool recipe** — `docs/OPS-INTEGRATION.md` (how the engine plugs into `ops`).
 - **Sites build/deploy telemetry** — owned here, surfaced on the `ops` board.
 
@@ -54,8 +52,8 @@ it into a site — Astro (production now) or Duda (later). Funnel: **leads (CRM 
 | `CLAUDE.md` | client-build rules (config-only is the gate) |
 | `docs/PROJECT-CONTEXT.md` | full session/handoff context |
 | `docs/AI-ENGINEERING.md` | the agent architecture + AI-eng glossary + interview map |
-| `docs/DUDA-DELIVERY.md` | production delivery: `ClientConfig` → Duda mapping + spike |
-| `docs/OPS-HANDOFF.md` | **the single brief to build the `ops` side** (move engine + Duda render + dashboard) |
+| `docs/BACKEND-STATUS.md` | backend build status + roadmap + critical path |
+| `docs/OPS-HANDOFF.md` | **the single brief to build the `ops` side** (move engine + Astro render + dashboard) |
 | `docs/OPS-INTEGRATION.md` | the generic wrap-a-tool-into-`ops` recipe |
 | `docs/HANDOFF.md`, `docs/INTAKE.md` | client handoff + intake |
 

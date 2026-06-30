@@ -6,24 +6,18 @@
 >
 > - **Part A — Move the runtime engine into ops** (lead-gen + AI agent), and
 >   vendor the `ClientConfig` contract.
-> - **Part B — Add the Duda render/publish step** (the production render target).
+> - **Part B — Render via the Astro factory** (production render path).
 > - **Part C — Record the architecture decision** in `ops/docs/ARCHITECTURE.md`.
 >
-> Background in `hirobius/clients`: `docs/DUDA-DELIVERY.md` (full `ClientConfig →
-> Duda` mapping + spike), `docs/OPS-INTEGRATION.md` (the generic wrap-a-tool
-> recipe + `leads` table). This file restates everything ops needs to act alone.
+> Background in `hirobius/clients`: `docs/OPS-INTEGRATION.md` (the generic
+> wrap-a-tool recipe + `leads` table). This file restates everything ops needs to
+> act alone.
 >
 > Source date: 2026-06-18.
 
 ---
 
 ## 0. The end state (one paragraph)
-
-> **Render decision (revised 2026-06-18): production = self-hosted Astro, not Duda.**
-> Part A below (move the engine) is unchanged and still the priority. **Part B (the
-> Duda render target) is DEFERRED** — a future scale option, do not build it now.
-> The current render path is the existing Astro factory in `clients` (`new-client`
-> → Vercel), semi-manual at low volume. See "Part B′" for the Astro render note.
 
 Each repo gets one job. **`clients`** = the Astro production templates + the
 **`ClientConfig` contract** (`packages/schema`, source of truth) + the per-client
@@ -36,7 +30,7 @@ ops dashboard:  pull leads → generate site (agent) → [config] → render via
                  │              │                                  (clients: new-client + Vercel)
                  ▼              ▼
               ops/lib/      ops/lib/agent
-              lead-gen      (+ ops/lib/schema)        ── Duda render target: DEFERRED (scale option) ──
+              lead-gen      (+ ops/lib/schema)
 ```
 
 ---
@@ -106,7 +100,7 @@ All framework-agnostic TS. Deps: `@anthropic-ai/sdk`, `zod`, native `fetch`.
 - In the moved `agent`, change `import … from "@hirobius/schema"` →
   `import … from "@/lib/schema"` (the vendored contract).
 - The `cli.ts` entrypoint in `agent` is a CLI wrapper — **drop it** (the ops API
-  routes in Part B replace it) or keep as a dev-only script.
+  routes replace it) or keep as a dev-only script.
 
 ### Env vars (ops Vercel project, server-only)
 
@@ -121,8 +115,8 @@ Used only in API routes / workers, never shipped to the client.
 
 1. **Build** `ops/lib/lead-gen` (ported config + Outscraper wrapper), **move** the
    agent + vendored schema into `ops/lib/`, rewrite imports.
-2. **Verify in ops:** it typechecks and runs (see API routes in Part B; or a quick
-   `tsx` smoke call) with the env vars set.
+2. **Verify in ops:** it typechecks and runs (a quick `tsx` smoke call) with the
+   env vars set.
 3. **Only after ops is green:** open a `clients` PR that **deletes** `scripts/lead-gen`
    (entirely — retired) + `packages/agent`, and their workspace wiring / root
    `package.json` scripts (`pnpm pull-leads`, `pnpm agent`). Keep `packages/schema`.
@@ -136,147 +130,40 @@ Used only in API routes / workers, never shipped to the client.
 
 ---
 
-## Part B′ — Render via Astro (the CURRENT production path)
+## Part B — Render via the Astro factory (production)
 
-After generate (`status='scored'` with a `config`), production rendering uses the
-**existing Astro factory in `clients`**, not Duda:
+After generate (`status='scored'` with a `config`), the site is rendered with the
+**existing Astro factory in `clients`** — one Vercel project per client:
 
-1. Scaffold the app: `pnpm new-client <slug> --name "…" --preset <preset>`.
-2. Write the agent's `config` into `apps/<slug>/client.config.ts`; add photos
-   (stock by trade until intake — see BACKEND-STATUS §C image-sourcing gap).
-3. Deploy: `vercel link` → `vercel deploy` (preview, basic-auth gated) → on "yes",
-   `vercel deploy --prod` + `vercel domains add`.
+1. **Scaffold:** `pnpm new-client <slug> --name "…" --preset <preset>`.
+2. **Fill config:** write the agent's `config` into `apps/<slug>/client.config.ts`;
+   add photos (stock by trade until intake — see `BACKEND-STATUS.md §C`
+   image-sourcing gap).
+3. **Deploy:** `vercel link` → `vercel deploy` (preview, basic-auth gated) → on
+   "yes", `vercel deploy --prod` + `vercel domains add`.
 
-At low volume this is **semi-manual and fine** — the ops board can just surface the
-`config` + the printed commands. Full programmatic scaffold→commit→deploy
-automation is a later optimization; the Duda API (Part B, below) is the *other*
-later option. Set `status='rendered'` + `preview_url` once deployed.
+### Supabase
 
-## Part B (DEFERRED) — Duda render/publish step
+Lifecycle gains a `rendered` state:
+`sourced → generating → scored → rendered → sent → won/lost`. `preview_url` and
+`sent_at` already exist — set `preview_url` + `status='rendered'` once the preview
+deploys, and `status='sent'` + `sent_at` after outreach.
 
-> 💤 **Do not build now.** This is the future scale-swap render target, kept for
-> when maintenance at volume (≈15–20+ clients) justifies switching off self-hosted
-> Astro. Full background: `docs/DUDA-DELIVERY.md`. The rest of this section is the
-> plan for that day.
+### Board buttons
 
-Extends the lead pipeline (`leads` table + pull-leads + generate-site from
-`docs/OPS-INTEGRATION.md`). Generate ends at `status='scored'` with a generated
-`config`; Duda would be the next stage.
+- **"Render site"** (on a `scored` lead) → surfaces the generated `config` + the
+  printed `new-client`/Vercel commands (semi-manual at low volume), or triggers a
+  deploy action once automated. Sets `status='rendered'`, `preview_url`.
+- **"Publish + attach domain"** (after the client says yes) → `vercel deploy --prod`
+  + `vercel domains add`; set `status='sent'`, `sent_at=now()`. Closes the spec-site
+  loop: previews are free (basic-auth gated), you bill on publish.
 
-### B1. Supabase migration
+### Automation note
 
-```sql
-alter table leads add column if not exists duda_site_name text unique;
--- lifecycle: sourced → generating → scored → rendered → sent → won/lost
--- (preview_url and sent_at already exist)
-```
-
-### B2. Env vars (server-only)
-
-```
-DUDA_API_USER        # Duda white-label API username (HTTP Basic)
-DUDA_API_PASSWORD    # Duda white-label API password (HTTP Basic)
-DUDA_TPL_LANDSCAPING / DUDA_TPL_JUNK / DUDA_TPL_PRESSURE / DUDA_TPL_CONCRETE
-                     # the 4 pre-built per-preset Duda template ids (created during the spike)
-```
-
-### B3. The render target — `ops/lib/render-duda/`
-
-Framework-agnostic TS (deps: native `fetch`), same posture as the moved engine.
-
-```ts
-import type { ClientConfig } from "@/lib/schema"; // vendored contract
-
-const TEMPLATE_BY_PRESET: Record<ClientConfig["brand"]["palettePreset"], string> = {
-  landscaping: process.env.DUDA_TPL_LANDSCAPING!,
-  "junk-removal": process.env.DUDA_TPL_JUNK!,
-  "pressure-washing": process.env.DUDA_TPL_PRESSURE!,
-  "concrete-fencing": process.env.DUDA_TPL_CONCRETE!,
-};
-
-/** Creates an UNPUBLISHED Duda site from the matching preset template and
- *  injects all content from the config. Returns the site handle + preview URL. */
-export async function renderToDuda(config: ClientConfig): Promise<{
-  dudaSiteName: string;
-  previewUrl: string;
-}>;
-
-/** Flips an existing site live and attaches the domain. Billed-on-"yes" step. */
-export async function publishDudaSite(dudaSiteName: string, domain: string): Promise<void>;
-```
-
-Implementation = the §B6 mapping, in order. **Spike first** (see `clients` →
-`docs/DUDA-DELIVERY.md` for acceptance criteria): build one Duda template, prove
-`renderToDuda` against the demo config, resolve the risks in §B6 — *gate before
-wiring the board.*
-
-### B4. API route — `app/api/render-site/route.ts` (Next.js App Router)
-
-```ts
-import { createClient } from "@supabase/supabase-js";
-import { renderToDuda } from "@/lib/render-duda";
-
-export async function POST(req: Request) {
-  const { leadId } = await req.json();
-  const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-
-  const { data: lead } = await sb.from("leads").select("*").eq("id", leadId).single();
-  if (!lead?.config) return Response.json({ error: "lead has no generated config" }, { status: 409 });
-
-  const { dudaSiteName, previewUrl } = await renderToDuda(lead.config);
-
-  await sb.from("leads").update({
-    status: "rendered",
-    duda_site_name: dudaSiteName,
-    preview_url: previewUrl,
-  }).eq("id", leadId);
-
-  return Response.json({ ok: true, previewUrl });
-}
-```
-
-### B5. Board buttons
-
-- **"Render preview site"** (on a `scored` lead) → `POST /api/render-site {leadId}`
-  → site appears as `rendered` with a clickable `preview_url`.
-- **"Publish + attach domain"** (later, after the client says yes) →
-  `POST /api/publish-site {leadId, domain}` → `publishDudaSite(...)`,
-  set `status='sent'`, `sent_at=now()`. Closes the spec-site loop: previews are
-  free, you bill on publish.
-
-### B6. `ClientConfig → Duda` mapping (condensed)
-
-Full table + spike acceptance criteria: `clients` → `docs/DUDA-DELIVERY.md`.
-
-| `ClientConfig` | Duda mechanism |
-|---|---|
-| `business.{name,phone,email,address?}` | Business data fields |
-| `business.hours[] {days,hours}` | Business data schedule (verify: strings vs structured) |
-| `business.serviceAreas[]` | Business data areas + LocalBusiness `areaServed` |
-| `brand.palettePreset` | Selects the pre-built Duda template |
-| `brand.cssVarOverrides` (`--brand-*`) | Site global colors via API ⚠️ risk #1 |
-| `brand.font` | Site global font (map 5 font ids → Duda fonts) |
-| `brand.radius` | Template CSS ⚠️ likely not per-site via API |
-| `layout.variant` (A/B) | Template choice (A image hero / B video hero) |
-| `layout.sectionOrder[]` | Frozen to canonical order in the template ⚠️ |
-| `services[]` | Duda Collection `services` (upload `image`, map `icon`) |
-| `gallery[]` {src,alt} | Duda Collection / gallery widget (upload + alt) |
-| `reviews[]` | Duda Collection `reviews` |
-| `copy.{heroHeadline,heroSub,ctaLabel,about}` | Content injection into named regions |
-| `hero.{image,videoSrc,videoPoster}` | Upload assets → hero widget |
-| `map.{staticImage?,embedQuery?}` | Duda native map widget (supersedes both) |
-| `form.*` (web3forms + hCaptcha) | **Drop** → Duda native form + spam protection; recipient = `business.email` |
-| `seo.{title,description,ogImage?}` | Per-page SEO + OG |
-| `seo.{city,region,siteUrl}` | LocalBusiness schema + custom domain |
-| LocalBusiness JSON-LD | Duda auto-schema, else header custom-code ⚠️ risk #2 |
-
-**Wins:** drop Web3Forms/hCaptcha; drop `astro:assets` + the repo photo-bloat
-problem; no per-client Vercel project / preview middleware; clients self-edit
-hours/prices; no fleet-rebuild drift.
-
-**Risks to validate (the spike):** (1) per-site colors/font via API; (2) custom
-JSON-LD injection; (3) `sectionOrder` frozen on Duda; (4) collection binding incl.
-images + alt; (5) form notifications + redirect.
+At low volume the scaffold→deploy is **fine semi-manual** — the board just needs to
+show the `config` + the commands. Full programmatic scaffold→commit→deploy (git +
+Vercel orchestration) is a later optimization; the agent already emits a drop-in
+`client.config.ts`, so most of the work is done.
 
 ---
 
@@ -288,10 +175,8 @@ images + alt; (5) form notifications + redirect.
 - **Production render target: self-hosted Astro** (`hirobius/clients` →
   `packages/template`, `apps/*`, `new-client` + Vercel). One Vercel project per
   client.
-- **Duda: deferred future option** for scale (managed, client editor). Switch when
-  fleet maintenance justifies it — `hirobius/clients` → `docs/DUDA-DELIVERY.md`.
 - **The contract: `ClientConfig`** (`hirobius/clients` → `packages/schema`,
-  canonical). The agent emits it; every render target consumes it. `ops` vendors a
+  canonical). The agent emits it; the render target consumes it. `ops` vendors a
   copy (`ops/lib/schema`); don't fork the meaning.
 - **Runtime engine lives in `ops`:** `ops/lib/lead-gen` (sourcing) +
   `ops/lib/agent` (enrich→generate→judge), triggered from the ops board. (Moved out
@@ -306,14 +191,14 @@ deploy → preview → (on "yes") prod + domain`.
 ## Execution order (checklist)
 
 - [ ] Confirm `hirobius-ops` is Next.js App Router + Supabase (assumed by the routes).
-- [ ] **Part A:** copy lead-gen + agent + vendored schema into `ops/lib/`, rewrite
-      imports, set `ANTHROPIC_API_KEY` + `OUTSCRAPER_API_KEY`, verify it runs.
-- [ ] Confirm/create the `leads` table (`docs/OPS-INTEGRATION.md`); run §B1 migration.
-- [ ] **Part B′ (Astro render — current path):** surface the generated `config` +
-      the `new-client`/Vercel commands on the board; deploy the first site live.
+- [ ] **Part A:** build `ops/lib/lead-gen` (Outscraper) + move agent + vendor schema
+      into `ops/lib/`, rewrite imports, set `ANTHROPIC_API_KEY` + `OUTSCRAPER_API_KEY`,
+      verify it runs.
+- [ ] Confirm/create the `leads` table (`docs/OPS-INTEGRATION.md`); add the
+      `rendered` status.
+- [ ] **Part B (Astro render):** surface the generated `config` + the
+      `new-client`/Vercel commands on the board; deploy the first site live.
 - [ ] **Part C:** record the decision in `ops/docs/ARCHITECTURE.md`.
-- [ ] 💤 **Deferred — Part B (Duda):** skip unless/until volume triggers the
-      scale-swap (`docs/DUDA-DELIVERY.md`).
 - [ ] Back in `clients`: open the cleanup PR that deletes `packages/agent` +
       `scripts/lead-gen` (keep `packages/schema`). **Only after ops is green.**
 
@@ -321,10 +206,10 @@ deploy → preview → (on "yes") prod + domain`.
 
 ## Open questions to confirm
 
-1. Duda API exact endpoints/fields: create-from-template, business data,
-   collections, content injection, SEO, custom code, publish.
-2. Can global colors + font be set **per site** via API (risk #1)?
-3. Is site-wide custom header HTML injectable via API (JSON-LD, risk #2)?
-4. Duda plan tier for API + white-label + expected volume, and the **per-site
-   monthly cost** (the number the recurring care plan must cover).
-5. ops stack: App Router confirmed? Existing Supabase client / RLS helpers to reuse?
+1. ops stack: Next.js App Router confirmed? Existing Supabase client / RLS helpers
+   to reuse?
+2. Does a `leads` table already exist, or create it from `docs/OPS-INTEGRATION.md`?
+3. Has the Astro factory been deployed live to Vercel + the preview-gate verified
+   yet? (`BACKEND-STATUS.md` — was HC-09.)
+4. **Outreach + billing are the biggest unbuilt pieces** (`BACKEND-STATUS.md`
+   §G/§H) — sequence them right after the first real render.

@@ -9,19 +9,12 @@ anything; it exists to keep automated builds from wandering.
 
 **Production client sites ship on self-hosted Astro** (this repo), one Vercel
 project per client. The factory is already built, free, and the most direct path
-from a generated `ClientConfig` to a live site — the right call at low volume.
-
-**Duda is the documented future option**, not the current target: a managed,
-white-label platform with a client editor that becomes worth its monthly fee
-*if/when* maintenance at volume (≈15–20+ clients) justifies it. The switch
-playbook + `ClientConfig → Duda` mapping live in `docs/DUDA-DELIVERY.md`. Keep the
-`ClientConfig` contract render-agnostic so that switch stays cheap — but do **not**
-build the Duda path until volume forces the decision.
+from a generated `ClientConfig` to a live site — the right call at our volume.
 
 The contract is `ClientConfig` (`packages/schema`): the agent emits it, a render
-target turns it into a site. Astro is the production target today; Duda is the
-later option. The config-only rules below apply **whenever you build a client
-site** — they keep that path clean.
+target turns it into a site. Keeping the contract render-agnostic means we're never
+locked to one delivery platform if that ever changes. The config-only rules below
+apply **whenever you build a client site** — they keep that path clean.
 
 ## The one rule that matters
 

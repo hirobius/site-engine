@@ -12,16 +12,13 @@
 - **Two goals, run as a barbell:** (1) a **business** — mass-producing one-page
   marketing sites for local-service businesses; (2) a **portfolio** to land an
   **Applied AI Engineer** role. Same domain feeds both.
-- **Business delivery decision (DECIDED — revised 2026-06-18):** production sites
-  ship on **self-hosted Astro** (this repo, one Vercel project per client) — it's
-  already built, free, and the most direct path from a generated `ClientConfig` to
-  a live site, which is right at low volume. **Duda** (managed, white-label, client
-  editor) is the documented **future option** to switch to *if/when* maintenance at
-  volume justifies its monthly fee — playbook + mapping in **`docs/DUDA-DELIVERY.md`**.
-  We **own the data + automation layer** (the moat) either way, and keep the
-  `ClientConfig` contract render-agnostic so the Duda switch stays cheap. (Earlier
-  this session we had picked Duda-first; corrected to Astro-now after recognizing
-  Duda's advantages are all scale-stage and we have zero clients.)
+- **Business delivery decision (DECIDED — 2026-06-18):** production sites ship on
+  **self-hosted Astro** (this repo, one Vercel project per client) — it's already
+  built, free, and the most direct path from a generated `ClientConfig` to a live
+  site. We **own the data + automation layer** (the moat), and keep the
+  `ClientConfig` contract render-agnostic so the delivery platform stays swappable.
+  (We evaluated a managed platform earlier this session and chose self-hosting —
+  rationale is in git history; don't re-litigate without new volume signals.)
 - **Portfolio flagship:** an **AI agent pipeline** (`packages/agent`) that turns a
   business lead into a validated, ready-to-ship site config with an LLM-as-judge
   quality gate + **loop engineering**. This is the centerpiece for AI-apps roles.
@@ -35,14 +32,12 @@
 
 ## 1. Strategy (decisions already made)
 
-- **Bespoke vs. Duda (decided → Astro now, Duda at scale):** At low volume,
-  self-hosted **Astro wins** — it's built, free, full control, and the most direct
-  path from a generated `ClientConfig` to a live site. **Duda wins at volume**
-  (managed, no fleet maintenance, client editor) — switch when ≈15–20+ clients make
-  the maintenance worth its monthly fee. Keep a **canonical lead/content store + the
-  automation pipeline** as the proprietary layer (the moat). The engine emits a
-  `ClientConfig`; a render target (Astro = production now, **Duda = later**) turns it
-  into a site. Switch playbook + field mapping: **`docs/DUDA-DELIVERY.md`**.
+- **Delivery (decided → self-hosted Astro):** Astro wins for us — it's built,
+  free, full control, and the most direct path from a generated `ClientConfig` to a
+  live site. Keep a **canonical lead/content store + the automation pipeline** as
+  the proprietary layer (the moat), and keep the `ClientConfig` contract
+  render-agnostic so the delivery platform stays a swappable detail if we ever
+  outgrow self-hosting at volume.
 - **Repo split (decided):** the **runtime engine moves to `ops`** — `scripts/lead-gen`
   + `packages/agent` → `ops/lib/` (their only runtime home is the dashboard). This
   repo keeps the **Astro reference factory** + the **`ClientConfig` contract**
@@ -55,8 +50,9 @@
   non-negotiable because a hosted platform costs monthly. One-time-only only works
   if the client takes over hosting.
 - **Lead-acquisition motion:** cold "spec site" outreach — auto-generate a tailored
-  preview per lead (unpublished = free on Duda), cold-email the preview link,
-  publish + bill on "yes." Deliverability is the real constraint, not lead supply.
+  preview per lead (Vercel preview deploys are free + basic-auth gated), cold-email
+  the preview link, publish + bill on "yes." Deliverability is the real constraint,
+  not lead supply.
 - **Portfolio target role:** **AI Engineer (apps)** — agents, tool use, RAG,
   structured output, evals, orchestration. Barbell: cheap business lane + one deep
   flagship AI build.
@@ -82,8 +78,8 @@ docs/
   HANDOFF.md            client handoff (7-day window + change fee)
   INTAKE.md             per-client intake questionnaire (maps 1:1 to schema)
   AI-ENGINEERING.md     ★ living architecture + AI-eng glossary + interview prep
-  DUDA-DELIVERY.md      ★ production delivery: ClientConfig → Duda mapping + spike
-  OPS-HANDOFF.md        ★ single brief to build the ops side (move engine + Duda + dashboard)
+  BACKEND-STATUS.md     ★ backend build status + roadmap + critical path
+  OPS-HANDOFF.md        ★ single brief to build the ops side (move engine + Astro render + dashboard)
   OPS-INTEGRATION.md    generic wrap-a-tool-into-ops recipe
   PROJECT-CONTEXT.md    ← this file
 CLAUDE.md               agent guardrails (config-only, never touch packages/* when building a client)
@@ -246,7 +242,9 @@ Output = a drop-in `client.config.ts` + loop trace + eval scorecard.
 - [ ] **HC-15** Learning: Azure **AI-102** anchor cert; DeepLearning.AI (RAG/Agents/Evals); Python+SDK basics
 - [ ] **HC-16** Decide photo object storage before ~client 20 (S3/R2/Vercel Blob)
 - [ ] **HC-17** Wire `new-client` to append launched clients to `apps/_gallery` fleet list; tag `@hirobius/template` v0.1.0
-- [ ] **HC-18** Run the **Duda mapping spike** (`docs/DUDA-DELIVERY.md`) — prove the demo config renders faithfully on Duda *(gate before any production volume)*
+
+> The live backlog now lives in **`docs/BACKEND-STATUS.md`** (status + critical path).
+> The `HC-` list above is legacy; treat BACKEND-STATUS as the source of truth.
 
 ---
 
@@ -266,7 +264,9 @@ ANTHROPIC_API_KEY=... pnpm agent --name "..." --city "..." --region "ST"
 
 ## 10. Immediate next decisions
 
-1. **Run the Duda mapping spike** (`docs/DUDA-DELIVERY.md`) to de-risk the
-   production platform *before* any client volume. *(gate)*
-2. **Phase B (streaming console)** next, or **run Phase A live** on a real lead first?
+The critical path is in **`docs/BACKEND-STATUS.md §4`**. The first move:
+
+1. **Run the agent live on ONE real lead** — prove it produces a good `ClientConfig`.
+2. **Deploy the demo/first site live on Vercel** + verify the preview gate (was HC-09).
+3. Then: outreach + billing (the biggest unbuilt pieces, BACKEND-STATUS §G/§H).
 ```

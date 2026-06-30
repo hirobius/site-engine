@@ -13,7 +13,6 @@
 - 🟡 **Specced, not built** (design exists in a doc; no code)
 - 🔴 **GAP** (not captured anywhere until now)
 - 🔵 **External gate** (needs an account / manual setup before code can run)
-- 💤 **Deferred** (intentionally not now — future scale option)
 - ❓ **Unknown** (must confirm in the `ops` repo — not visible from `clients`)
 
 ---
@@ -25,8 +24,8 @@ run on a real lead), the `ClientConfig` contract, and the **Astro production
 factory + demo** (built, but never deployed live). Everything that turns this into
 a **business** — managed lead sourcing, the ops backend wiring, a live deploy,
 **cold outreach, billing** — is still to build. **0 paying clients, 0 leads saved,
-nothing deployed live.** Production renders on self-hosted Astro now (Duda deferred
-to scale). The architecture is sound and documented; the backend is mostly unbuilt.
+nothing deployed live.** Production renders on self-hosted Astro. The architecture
+is sound and documented; the backend is mostly unbuilt.
 
 ---
 
@@ -43,8 +42,8 @@ to scale). The architecture is sound and documented; the backend is mostly unbui
                                                            Stripe (no plan yet) → publish + domain
 ```
 
-Render = self-hosted **Astro** for now (the factory is built); Duda is the future
-scale swap. Two of the six stages (**outreach, billing**) had no design at all.
+Render = self-hosted **Astro** (the factory is built). Two of the six stages
+(**outreach, billing**) had no design at all.
 
 ---
 
@@ -53,7 +52,7 @@ scale swap. Two of the six stages (**outreach, billing**) had no design at all.
 ### A. Data layer — Supabase (`ops`)
 | Piece | Status | Notes |
 |---|---|---|
-| `leads` table (sourced→…→won/lost, + config/eval/preview/duda fields) | 🟡 ❓ | Schema specced in `OPS-HANDOFF.md`/`OPS-INTEGRATION.md`; **confirm it exists or create it.** |
+| `leads` table (sourced→…→won/lost, + config/eval/preview fields) | 🟡 ❓ | Schema specced in `OPS-HANDOFF.md`/`OPS-INTEGRATION.md`; **confirm it exists or create it.** |
 | `clients` / `subscriptions` entity (a won lead becomes a paying client) | 🔴 | No model for post-conversion: account, plan, live-site mapping, MRR. |
 | Email **suppression / unsubscribe** list | 🔴 | Legally required for cold email; nowhere today. |
 | RLS / auth policies | ❓ | Confirm in `ops`. |
@@ -81,7 +80,6 @@ scale swap. Two of the six stages (**outreach, billing**) had no design at all.
 | Live Vercel deploy + preview-gate verified (one project per client) | ⬜ | Documented + CLI commands printed; never actually deployed live (was HC-09). |
 | Auto-render flow (agent `ClientConfig` → scaffold app → commit → deploy) | 🟡 | Agent already emits `client.config.ts`; the scaffold+commit+deploy orchestration is semi-manual today (fine at low volume). |
 | Template versioning + freeze ejected sites (fleet-drift guard) | 🟡 | Matters now that we self-host; see README policy. |
-| **Duda render target** (`render-duda`, spike, 4 templates) | 💤 | **Deferred — future scale option.** Full plan in `DUDA-DELIVERY.md`; do not build until volume triggers the switch. |
 
 ### E. API routes (Next.js App Router, `ops`)
 | Piece | Status | Notes |
@@ -127,7 +125,7 @@ scale swap. Two of the six stages (**outreach, billing**) had no design at all.
 | Piece | Status | Notes |
 |---|---|---|
 | Domain acquisition (buy on client's behalf) | 🔴 | Registrar API or manual. |
-| Attach domain to the Vercel project on publish | 🟡 | Astro path: `vercel domains add`; semi-manual at low volume. (Duda path: part of `publishDudaSite`, deferred.) |
+| Attach domain to the Vercel project on publish | 🟡 | `vercel domains add`; semi-manual at low volume. |
 
 ### J. Cross-cutting / infra
 | Piece | Status | Notes |
@@ -143,7 +141,6 @@ scale swap. Two of the six stages (**outreach, billing**) had no design at all.
 - ✅ **Done:** HC-01 (agent pushed), HC-08 (lead puller merged).
 - 🗑️ **Obsolete:** HC-06 (lead sweep — scraper retired).
 - 🟡 **Active backend:** HC-02 (run agent live), **HC-09 (live Astro/Vercel deploy — now a critical-path production task, not polish)**, HC-16 (photo storage — back in play now that we self-host; needed before volume), + the engine move (Part A of `OPS-HANDOFF.md`).
-- 💤 **Deferred (scale option):** HC-18 (Duda spike) and the whole Duda render path.
 - 🔵 **Now tracked here (were missing):** outreach system (§G), billing (§H), client/subscription model (§A), image sourcing (§C), dashboard auth (§E).
 - 📦 **Portfolio (not backend):** HC-03/04/05 (agent Phases B–D), HC-07/11 (Astro polish/design system), HC-10/12 (case studies/site), HC-13/14 (optional), HC-15 (learning), HC-17 (housekeeping).
 
@@ -158,7 +155,7 @@ Everything else is noise until this chain works once:
 3. **Outscraper sourcing** — pull real leads with emails. (§B)
 4. **Astro render live** — take the agent's `client.config.ts` through `new-client`
    → deploy to Vercel → verify it's live (the factory's built; this is wiring, not
-   a build). Duda is deferred. (§D)
+   a build). (§D)
 5. **Outreach MVP** — pick a tool, one warmed sending domain, send preview links (even semi-manually at first). (§G) ← *the make-or-break stage*
 6. **Billing MVP** — a Stripe payment link triggered on "yes." (§H)
 

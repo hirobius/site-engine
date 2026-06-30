@@ -14,7 +14,7 @@
 
 We run **two lanes** on one domain (local-service marketing sites):
 
-- **Lane 1 — the business** (cash): bulk client sites, delivered cheaply (static/Duda).
+- **Lane 1 — the business** (cash): bulk client sites, delivered cheaply (self-hosted Astro).
 - **Lane 2 — the flagship AI system** (portfolio): an agent that turns a *lead*
   into a *validated site* with a *quality gate*. Same data, different purpose.
 

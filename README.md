@@ -18,18 +18,15 @@ The 15-second map so you don't have to hold it all in your head:
 - **Building a client site?** Edit one file — `apps/<slug>/client.config.ts` —
   and drop in photos. That's the whole job (see `CLAUDE.md`).
 - **Production sites ship on self-hosted Astro** (this repo), one Vercel project
-  per client. Duda is a documented *future* option for scale (`docs/DUDA-DELIVERY.md`).
+  per client.
 - **Why any of this exists / the strategy:** `docs/PROJECT-CONTEXT.md`.
 
 > **Delivery architecture:** production sites ship on **self-hosted Astro** (this
 > repo) — already built, free, and the most direct path from a generated
-> `ClientConfig` to a live site, which is the right call at low volume. **Duda**
-> (managed, white-label, client editor) is the documented option to switch to
-> *if/when* maintenance at volume justifies its monthly fee — see
-> [`docs/DUDA-DELIVERY.md`](docs/DUDA-DELIVERY.md). The moat is the
-> platform-agnostic **engine**: `packages/schema` (contract) + `scripts/lead-gen`
-> (sourcing) + `packages/agent` (AI pipeline); keep the contract render-agnostic so
-> the Duda switch stays cheap.
+> `ClientConfig` to a live site. The moat is the platform-agnostic **engine**:
+> `packages/schema` (contract) + lead sourcing + `packages/agent` (AI pipeline).
+> The `ClientConfig` contract is render-agnostic, so the delivery platform is a
+> swappable detail if we ever outgrow self-hosting.
 
 **Stack (production = Astro):** Astro 5 (static output) · Tailwind v4 ·
 TypeScript · pnpm workspaces · Turborepo · Zod · astro:assets · Web3Forms +
@@ -195,9 +192,8 @@ client project only rebuilds when its app (or a shared package) actually changes
 > ⚠️ **Fleet rebuild drift:** a change to `packages/*` rebuilds **ALL** apps and
 > can silently restyle live client sites on their next deploy. See the policy
 > below — this is the most expensive mistake to make casually, and a **real
-> production risk now that we self-host on Astro.** Mitigate with template
-> versioning + freezing handed-off (ejected) sites. (Eliminating this risk entirely
-> is one of the reasons to switch to Duda at volume — see `docs/DUDA-DELIVERY.md`.)
+> production risk since we self-host on Astro.** Mitigate with template versioning +
+> freezing handed-off (ejected) sites.
 
 ### Template-update policy (read before touching `packages/*`)
 

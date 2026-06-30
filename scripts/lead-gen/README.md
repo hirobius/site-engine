@@ -14,8 +14,9 @@ cleaning** (pressure/soft washing, roof & gutter, moss removal) across the **WA+
 core metros**. Edit `config.ts` to change niche or geography.
 
 This is your **canonical lead layer** — platform-agnostic. The output feeds
-whatever you render specs in (Duda, the Astro factory, etc.), so you're never
-locked to one platform for the part that's actually your moat.
+whatever you render specs in (the Astro factory today; the contract is
+render-agnostic), so you're never locked to one platform for the part that's
+actually your moat.
 
 ## What it does
 

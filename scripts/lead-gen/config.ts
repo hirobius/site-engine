@@ -2,8 +2,8 @@
  * Lead-puller configuration — exterior-cleaning beachhead, WA+OR core metros.
  *
  * This is platform-agnostic lead sourcing: it feeds your canonical lead store,
- * which can render to Duda, the Astro factory, or anything else. Widen METROS or
- * KEYWORDS to grow the net; each (metro × keyword) is one Places text query.
+ * which renders via the Astro factory (the contract is render-agnostic). Widen
+ * METROS or KEYWORDS to grow the net; each (metro × keyword) is one Places query.
  */
 
 /** Exterior-cleaning search terms. Overlap is fine — results dedupe by place id. */
