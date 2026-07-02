@@ -14,6 +14,16 @@
 > act alone.
 >
 > Source date: 2026-06-18.
+>
+> **Execution status (2026-07-02, from ops):** this brief has been executed —
+> **Part A done** (engine vendored: `lib/agent` verbatim, `lib/schema`, new
+> Outscraper `lib/lead-gen`; verified offline; first live generate awaits
+> `ANTHROPIC_API_KEY`). **Part B seam built** (`lib/render` emits
+> `client.config.ts` + factory commands; `POST /api/render-site`; lifecycle
+> `scored→rendered→published→sent`, billing on `published`). **Part C done**
+> (ops `ARCHITECTURE.md` rewritten 2026-06-30). Remaining: ops live generate →
+> clients cleanup (#10) → then this brief is **deleted** (transfer briefs die
+> after execution).
 
 ---
 

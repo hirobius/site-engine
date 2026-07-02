@@ -7,6 +7,10 @@
 > (METROS + KEYWORDS) get ported; `places.ts` / `qualify.ts` / `pull-leads.ts` are
 > retired. See `docs/OPS-HANDOFF.md` → "Lead sourcing". Kept here for reference
 > until the `clients` cleanup PR removes it.
+>
+> **2026-07-02:** the Outscraper wrapper is now BUILT in ops (`lib/lead-gen`) and
+> the canonical lead store is the ops Supabase `leads` table. Any local `out/`
+> CSV/JSON lead artifacts here are dead — do not read or regenerate them.
 
 
 Sources qualified leads for cold-outreach spec sites. Beachhead: **exterior

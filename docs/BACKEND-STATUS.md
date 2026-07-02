@@ -4,7 +4,17 @@
 > to build.** Strategy/why lives in `PROJECT-CONTEXT.md`; this is the build status.
 > Reconciles and supersedes the old `HC-` checklist in `PROJECT-CONTEXT.md §8`.
 >
-> Last updated: 2026-06-18.
+> Last updated: 2026-07-02.
+>
+> **2026-07-02 ops sync (authoritative):** ops executed the handoff — engine
+> vendored (`lib/agent` verbatim, `lib/schema`, new Outscraper `lib/lead-gen`),
+> verified offline; first live generate awaits `ANTHROPIC_API_KEY`. The Astro
+> render seam is built in ops (`lib/render` + `POST /api/render-site`; lifecycle
+> `scored→rendered→published→sent`, billing on `published`). The `leads` table
+> exists in ops Supabase (stub rows only). Ops's frozen Duda code is removed once
+> **#8** closes (factory live + preview gate verified). The engine here is
+> **frozen** pending **#10**; **#17** migrated to ops; **#16** reframed as a
+> public portfolio artifact. Task source of truth = GitHub Issues (#8–#19).
 
 ## Legend
 
@@ -52,7 +62,7 @@ Render = self-hosted **Astro** (the factory is built). Two of the six stages
 ### A. Data layer — Supabase (`ops`)
 | Piece | Status | Notes |
 |---|---|---|
-| `leads` table (sourced→…→won/lost, + config/eval/preview fields) | 🟡 ❓ | Schema specced in `OPS-HANDOFF.md`/`OPS-INTEGRATION.md`; **confirm it exists or create it.** |
+| `leads` table (sourced→…→won/lost, + config/eval/preview fields) | ✅ | Exists in ops Supabase (upsert on `place_id`; board reads it). Only stub rows (`stub-` prefix) until live sourcing. |
 | `clients` / `subscriptions` entity (a won lead becomes a paying client) | 🔴 | No model for post-conversion: account, plan, live-site mapping, MRR. |
 | Email **suppression / unsubscribe** list | 🔴 | Legally required for cold email; nowhere today. |
 | RLS / auth policies | ❓ | Confirm in `ops`. |
@@ -60,7 +70,7 @@ Render = self-hosted **Astro** (the factory is built). Two of the six stages
 ### B. Lead sourcing
 | Piece | Status | Notes |
 |---|---|---|
-| Outscraper integration → `ops/lib/lead-gen/index.ts` | 🟡 🔵 | Decided + specced; not built. Needs **Outscraper account + `OUTSCRAPER_API_KEY`**. Returns website **+ email**. |
+| Outscraper integration → `ops/lib/lead-gen/index.ts` | ⬜ 🔵 | **Built in ops (2026-07-02)**; not yet run live. Needs **Outscraper account + `OUTSCRAPER_API_KEY`**. Returns website **+ email**. |
 | Query defs (METROS + KEYWORDS) ported from `config.ts` | 🟡 | Only part of the old scraper that survives. |
 | Self-built Places puller | ✅→🗑️ | Built, now **retired** (replaced by Outscraper). |
 

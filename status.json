@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-07-02T05:14:42Z",
+  "updatedAt": "2026-07-02T05:41:28Z",
   "phase": "active",
-  "headline": "Astro site factory + AI agent pipeline built and typecheck-green; pre-revenue — nothing deployed live, no leads saved yet.",
+  "headline": "Engine vendored into ops and verified offline; engine here is frozen pending deletion (#10). Factory built but still not deployed live.",
   "next": [
-    "Run the agent pipeline on one real lead (#9)",
-    "Deploy the demo to Vercel and verify the preview basic-auth gate (#8)",
-    "Execute the engine move to ops per docs/OPS-HANDOFF.md"
+    "Deploy demo live + verify preview gate (#8 — also gates ops's Duda-code removal)",
+    "Ops: first live generate once ANTHROPIC_API_KEY lands, then execute #10 here",
+    "Build #16 as a PUBLIC portfolio console (#17 migrated to ops)"
   ],
   "blocked": [
-    "Outscraper account + API key (external gate for lead sourcing)",
-    "Engine deletion here (#10) waits until the ops migration is green"
+    "#10 waits on ops's first live generate (needs ANTHROPIC_API_KEY in ops)",
+    "Live lead sourcing waits on Outscraper account + OUTSCRAPER_API_KEY in ops"
   ]
 }

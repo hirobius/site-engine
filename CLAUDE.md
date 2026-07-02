@@ -16,6 +16,16 @@ target turns it into a site. Keeping the contract render-agnostic means we're ne
 locked to one delivery platform if that ever changes. The config-only rules below
 apply **whenever you build a client site** — they keep that path clean.
 
+## Engine freeze (2026-07-02 — do not touch)
+
+`packages/agent` and `scripts/lead-gen` are **FROZEN**: the engine now lives in
+hirobius/ops (`lib/agent` vendored verbatim, `lib/schema` vendored, `lib/lead-gen`
+= new Outscraper wrapper), verified offline; first live generate awaits
+`ANTHROPIC_API_KEY` there. Do **not** edit the engine here — it is deleted via
+issue #10 the moment ops's first live generate passes. Exception:
+`packages/schema` remains **canonical here** — any schema change must be
+re-synced to ops's vendored copy.
+
 ## The one rule that matters
 
 **A client site is built by editing ONE file — `apps/<slug>/client.config.ts` —
