@@ -1,0 +1,14 @@
+{
+  "updatedAt": "2026-07-02T05:14:42Z",
+  "phase": "active",
+  "headline": "Astro site factory + AI agent pipeline built and typecheck-green; pre-revenue — nothing deployed live, no leads saved yet.",
+  "next": [
+    "Run the agent pipeline on one real lead (#9)",
+    "Deploy the demo to Vercel and verify the preview basic-auth gate (#8)",
+    "Execute the engine move to ops per docs/OPS-HANDOFF.md"
+  ],
+  "blocked": [
+    "Outscraper account + API key (external gate for lead sourcing)",
+    "Engine deletion here (#10) waits until the ops migration is green"
+  ]
+}
