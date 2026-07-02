@@ -90,3 +90,12 @@ Static Astro, one Vercel project per client, Root Directory `apps/<slug>`,
 Ignored Build Step `npx turbo-ignore`. Preview deploys are basic-auth gated by
 `apps/<slug>/middleware.ts` (Vercel Routing Middleware — NOT Astro middleware).
 `new-client` prints the exact Vercel CLI commands.
+
+## Fleet hub
+
+This repo is part of the Hirobius fleet. The operations hub is the
+hirobius/ops repo: fleet state at /api/projects, consolidated tasks at
+/ops/tasks (this repo's GitHub Issues sync there), current cross-project
+state in docs/ai/HANDOFF.md (in ops). Track new work as GitHub Issues in
+THIS repo — never a local TODO file. Read the ops HANDOFF before
+cross-project decisions.
