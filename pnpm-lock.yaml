@@ -120,6 +120,108 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  apps/preview-clearout-junk:
+    dependencies:
+      '@hirobius/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
+      '@hirobius/template':
+        specifier: workspace:*
+        version: link:../../packages/template
+      '@vercel/functions':
+        specifier: ^2.0.0
+        version: 2.2.13
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.4
+        version: 0.9.9(prettier@3.8.4)(typescript@5.9.3)
+      '@astrojs/sitemap':
+        specifier: ^3.2.1
+        version: 3.7.3
+      '@tailwindcss/vite':
+        specifier: ^4.0.0
+        version: 4.3.0(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0))
+      astro:
+        specifier: ^5.7.0
+        version: 5.18.2(@types/node@24.13.2)(@vercel/functions@2.2.13)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.61.1)(tsx@4.22.4)(typescript@5.9.3)(yaml@2.9.0)
+      sharp:
+        specifier: ^0.33.5
+        version: 0.33.5
+      tailwindcss:
+        specifier: ^4.0.0
+        version: 4.3.0
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  apps/preview-evergreen-lawn:
+    dependencies:
+      '@hirobius/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
+      '@hirobius/template':
+        specifier: workspace:*
+        version: link:../../packages/template
+      '@vercel/functions':
+        specifier: ^2.0.0
+        version: 2.2.13
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.4
+        version: 0.9.9(prettier@3.8.4)(typescript@5.9.3)
+      '@astrojs/sitemap':
+        specifier: ^3.2.1
+        version: 3.7.3
+      '@tailwindcss/vite':
+        specifier: ^4.0.0
+        version: 4.3.0(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0))
+      astro:
+        specifier: ^5.7.0
+        version: 5.18.2(@types/node@24.13.2)(@vercel/functions@2.2.13)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.61.1)(tsx@4.22.4)(typescript@5.9.3)(yaml@2.9.0)
+      sharp:
+        specifier: ^0.33.5
+        version: 0.33.5
+      tailwindcss:
+        specifier: ^4.0.0
+        version: 4.3.0
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  apps/preview-solidline-concrete:
+    dependencies:
+      '@hirobius/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
+      '@hirobius/template':
+        specifier: workspace:*
+        version: link:../../packages/template
+      '@vercel/functions':
+        specifier: ^2.0.0
+        version: 2.2.13
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.4
+        version: 0.9.9(prettier@3.8.4)(typescript@5.9.3)
+      '@astrojs/sitemap':
+        specifier: ^3.2.1
+        version: 3.7.3
+      '@tailwindcss/vite':
+        specifier: ^4.0.0
+        version: 4.3.0(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0))
+      astro:
+        specifier: ^5.7.0
+        version: 5.18.2(@types/node@24.13.2)(@vercel/functions@2.2.13)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.61.1)(tsx@4.22.4)(typescript@5.9.3)(yaml@2.9.0)
+      sharp:
+        specifier: ^0.33.5
+        version: 0.33.5
+      tailwindcss:
+        specifier: ^4.0.0
+        version: 4.3.0
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/agent:
     dependencies:
       '@anthropic-ai/sdk':
