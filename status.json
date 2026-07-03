@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-07-02T05:41:28Z",
+  "updatedAt": "2026-07-03T02:14:10Z",
   "phase": "active",
-  "headline": "Engine vendored into ops and verified offline; engine here is frozen pending deletion (#10). Factory built but still not deployed live.",
+  "headline": "Factory proven (previews build green across all 4 presets); animating the template next. Engine frozen pending ops cutover. Still pre-revenue — nothing deployed live.",
   "next": [
-    "Deploy demo live + verify preview gate (#8 — also gates ops's Duda-code removal)",
-    "Ops: first live generate once ANTHROPIC_API_KEY lands, then execute #10 here",
-    "Build #16 as a PUBLIC portfolio console (#17 migrated to ops)"
+    "Deploy a preview live + verify the basic-auth gate (#8)",
+    "Bake access-tech scroll-reveal motion into the template + brand.motion dial (#22)",
+    "Ops first live generate (needs ANTHROPIC_API_KEY) → then delete engine here (#10)"
   ],
   "blocked": [
-    "#10 waits on ops's first live generate (needs ANTHROPIC_API_KEY in ops)",
-    "Live lead sourcing waits on Outscraper account + OUTSCRAPER_API_KEY in ops"
+    "#10 waits on ops's first live generate (ANTHROPIC_API_KEY in ops)",
+    "Live lead sourcing waits on OUTSCRAPER_API_KEY in ops"
   ]
 }
