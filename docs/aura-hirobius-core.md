@@ -98,3 +98,22 @@ triggered fades. Smooth easing. Never decorative.
 - Imagery is large and editorial, never small floating thumbnails.
 - Sections breathe — don't crowd text into color bands.
 ```
+
+## Signature patterns — the "opened-up editorial" system (CORE)
+Bank these into the section library. They're what make output feel systematic
+and premium, and they work **light or dark** (the ground is skin):
+- **Bracket / numbered eyebrows:** `[ EDITORIAL SYSTEM ]`, `01 / DIRECTION`, `Mood / 01` — mono, letter-spaced.
+- **Numbered process sections:** big display heading + `NN / LABEL` eyebrow + one-line description, thin dividers between.
+- **Stat rail:** 2–4 big numbers, each with a mono caption ("218 / HOMES SOLD", "11 days / AVG ON MARKET").
+- **Mono checklist:** an uppercase letter-spaced list ("WHAT'S INCLUDED").
+- **Inversion CTA block:** flip to the opposite ground (dark-on-cream or cream-on-dark) for booking/valuation — solid primary button + outlined secondary + a bordered stat stack.
+- **Crop-mark details:** small `+` corner marks + a hairline frame on hero imagery.
+- **Live status line:** "● TAKING 2 NEW LISTINGS THIS MONTH" with a small dot — honest scarcity signal.
+- **Big wrap-headline moments:** a display line that fills the viewport.
+
+## Direction (2026-07 — Adrian)
+Keep this editorial *system* but **lighter**: light ground (cream/off-white),
+near-black text, one accent; reserve the cream↔dark **inversion** for CTA
+moments only. The **display font is the swing variable** — a bold grotesk gives
+NOIRFRAME's sharp energy; a high-contrast serif gives SERENE's warmth. Same
+bones either way. (For Elizabeth: serif. For a modern/fashion client: grotesk.)
