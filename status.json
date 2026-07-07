@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-07-03T02:14:10Z",
+  "updatedAt": "2026-07-07T00:00:00Z",
   "phase": "active",
-  "headline": "Factory proven (previews build green across all 4 presets); animating the template next. Engine frozen pending ops cutover. Still pre-revenue — nothing deployed live.",
+  "headline": "Astro one-page factory proven; 3 placeholder preview apps deployed behind the basic-auth gate. Prospect→Astro site bridge live-verified end-to-end: scraped WA lead → two-axis scored → generated site → live noindex Vercel preview (Cascade Fence & Deck, Lacey WA). Engine still frozen pending ops cutover. Pre-revenue — no paying client yet.",
   "next": [
-    "Deploy a preview live + verify the basic-auth gate (#8)",
-    "Bake access-tech scroll-reveal motion into the template + brand.motion dial (#22)",
-    "Ops first live generate (needs ANTHROPIC_API_KEY) → then delete engine here (#10)"
+    "Merge the prospect→Astro site bridge from claude/prospect-to-site (#26); first autonomous generate needs ANTHROPIC_API_KEY",
+    "Set real form.accessKey (Web3Forms) + hcaptchaSiteKey before any prospect outreach (#26)",
+    "Delete the frozen packages/agent engine once ops's first live generate passes (#10)"
   ],
   "blocked": [
-    "#10 waits on ops's first live generate (ANTHROPIC_API_KEY in ops)",
-    "Live lead sourcing waits on OUTSCRAPER_API_KEY in ops"
+    "Autonomous site generation blocked on ANTHROPIC_API_KEY (#26)",
+    "Engine delete (#10) waits on ops's first live generate"
   ]
 }
