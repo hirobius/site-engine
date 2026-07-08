@@ -7,43 +7,49 @@
  * by default, and this package is a symlinked workspace dep, so the app must
  * opt the template source in explicitly. See apps/_template/src/styles/global.css.
  *
- * Semantic theming
- * ----------------
+ * Semantic theming — on the HDS token spine (hirobius/design-system#64)
+ * --------------------------------------------------------------------
  * The template never references a literal color. It uses Tailwind utilities
  * (`bg-primary`, `text-fg`, `rounded-theme`, `font-heading`, …) which resolve to
- * `--color-*` theme tokens. Those tokens point at `--brand-*` custom properties.
+ * `--color-*` theme tokens. Those tokens now point at HDS **semantic** custom
+ * properties (`--semantic-*`), so a client site inherits the same contrast-
+ * checked palette, accent states, and radius the product design system ships —
+ * one token spine, no parallel `--brand-*` system.
  *
- * Each client app sets the concrete `--brand-*` values as an inline style on the
- * <html> element (see @hirobius/template/lib/theme -> brandStyle). Inline element
- * styles win the cascade, so a client's palette always overrides the defaults.
+ * `variables.css` (imported below) provides the HDS `:root` defaults so the
+ * template renders coherently even without per-client injection. Each client
+ * app sets the concrete palette as an inline style on <html>, mapped onto the
+ * same `--semantic-*` vars by `brandStyle` (see lib/theme.ts, which calls the
+ * `@hirobius/design-system/brand` overlay bridge). Inline element styles win the
+ * cascade, so a client's palette always overrides the defaults.
+ *
+ * `--brand-accent` is the one brand-level extra — HDS has a single accent ramp,
+ * so the optional secondary accent stays outside the HDS surface (#64).
  */
 
+/* HDS design tokens as CSS custom properties (no reset, host-safe). Must come
+   before @theme so the `var(--semantic-*)` references below have defaults. */
+@import "@hirobius/design-system/variables.css";
+
 @theme {
-  --color-primary: var(--brand-primary);
+  --color-primary: var(--semantic-accent-rest);
   --color-accent: var(--brand-accent);
-  --color-bg: var(--brand-bg);
-  --color-fg: var(--brand-fg);
-  --color-muted: var(--brand-muted);
-  --color-on-primary: var(--brand-on-primary);
+  --color-bg: var(--semantic-color-surface-page);
+  --color-fg: var(--semantic-color-content-primary);
+  --color-muted: var(--semantic-color-surface-raised);
+  --color-on-primary: var(--semantic-color-content-onAccent);
 
-  --font-heading: var(--brand-font-heading);
-  --font-body: var(--brand-font-body);
+  --font-heading: var(--primitive-typography-family-display);
+  --font-body: var(--primitive-typography-family-primary);
 
-  --radius-theme: var(--brand-radius);
+  --radius-theme: var(--semantic-radius-action);
 }
 
-/* Safe defaults so components render even without per-client injection
-   (component tests, isolated previews). Real apps override via inline <html>. */
+/* Brand-level default for the one var HDS does not own (secondary accent).
+   Every other default comes from the imported variables.css :root block.
+   Real client apps override the palette via inline <html> injection. */
 :root {
-  --brand-primary: #0a6cb5;
   --brand-accent: #21d4c4;
-  --brand-bg: #f4fafd;
-  --brand-fg: #0b2230;
-  --brand-muted: #dceef6;
-  --brand-on-primary: #ffffff;
-  --brand-font-heading: ui-sans-serif, system-ui, sans-serif;
-  --brand-font-body: ui-sans-serif, system-ui, sans-serif;
-  --brand-radius: 8px;
 }
 
 @layer base {
