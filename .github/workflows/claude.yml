@@ -1,0 +1,45 @@
+name: Claude
+
+# Fleet executor (hirobius/ops epic #41). When a task is dispatched, the ops
+# board opens a GitHub issue whose body @-mentions Claude; this workflow picks it
+# up and runs a Claude Code session on Adrian's Max subscription (via
+# CLAUDE_CODE_OAUTH_TOKEN, NOT a metered API key) to work the task on a branch and
+# open a PR. Mirrors the same workflow in hirobius/ops so client-site tasks
+# execute here too.
+#
+# Setup (one-time, Adrian): the Claude GitHub App (github.com/apps/claude) must be
+# installed on this repo, and the CLAUDE_CODE_OAUTH_TOKEN secret set at
+# https://github.com/hirobius/clients/settings/secrets/actions. Because `hirobius`
+# is a personal account (not an org), the secret is per-repo — paste the SAME
+# `claude setup-token` value already used in hirobius/ops.
+
+on:
+  issues:
+    types: [opened, assigned]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  claude:
+    # Only run when @claude is actually mentioned (in a new issue body or a comment).
+    if: |
+      contains(github.event.issue.body, '@claude') ||
+      contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Auth via the Max subscription (no ANTHROPIC_API_KEY). Generate with
+          # `claude setup-token`; store as the CLAUDE_CODE_OAUTH_TOKEN secret.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
