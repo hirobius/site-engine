@@ -1,0 +1,56 @@
+---
+/**
+ * Motion island — clients#22. The ONE piece of JS for scroll motion.
+ *
+ * Dependency-free (no GSAP, no Lenis): a single IntersectionObserver that flips
+ * `.reveal` elements to `.reveal.in` as they enter the viewport, plus an
+ * optional per-card stagger for `rich`. The reveal/rise/pulse CSS lives in
+ * styles/theme.css; this only supplies the trigger.
+ *
+ * Rendered by Document.astro only when `brand.motion !== "none"`. The
+ * `.motion-ready` class that actually arms the CSS is added by an inline <head>
+ * script in Document.astro (before first paint, so there's no reveal flash),
+ * guarded by `prefers-reduced-motion`.
+ */
+interface Props {
+  /** `subtle` | `rich` — `none` never renders this component. */
+  motion: "subtle" | "rich";
+}
+const { motion } = Astro.props;
+---
+
+<script is:inline define:vars={{ rich: motion === "rich" }}>
+  (() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const items = Array.from(document.querySelectorAll(".reveal"));
+    if (!items.length) return;
+
+    // No IO or reduced motion => show everything immediately, no animation.
+    if (reduce || !("IntersectionObserver" in window)) {
+      items.forEach((el) => el.classList.add("in"));
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target;
+          if (rich) {
+            // Stagger cards within their reveal group: (i % 4) * 80ms.
+            const group = el.closest("[data-reveal-group]");
+            if (group) {
+              const sibs = Array.from(group.querySelectorAll(".reveal"));
+              const i = sibs.indexOf(el);
+              if (i > 0) el.style.setProperty("--reveal-delay", `${(i % 4) * 80}ms`);
+            }
+          }
+          el.classList.add("in");
+          io.unobserve(el);
+        }
+      },
+      { threshold: 0.12 },
+    );
+    items.forEach((el) => io.observe(el));
+  })();
+</script>

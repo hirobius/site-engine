@@ -1,15 +1,14 @@
 {
-  "updatedAt": "2026-07-08T15:20:00Z",
+  "updatedAt": "2026-07-09T01:00:00Z",
   "phase": "active",
-  "headline": "Template now themes off the HDS token spine (#30 / design-system#64): @theme maps --color-* to HDS --semantic-* vars, brandStyle() maps the palette via the @hirobius/design-system/brand overlay bridge, and variables.css supplies defaults — the parallel --brand-* system is gone. All 6 apps build green, each preview keeps its distinct palette, output carries the full HDS spine (119 semantic + 162 primitive vars), pixel-identical. ClientConfig.brand + presets unchanged (no config/schema break). Factory still proven across all 4 presets; engine frozen pending ops cutover; pre-revenue, nothing deployed live.",
+  "headline": "brand.motion dial shipped (#22): dependency-free scroll motion baked into packages/template — reveal-on-enter, hero-rise cascade, radar-ring pulse — as CSS + one IntersectionObserver island, no GSAP/Lenis. Ported from access-tech but hardened: prefers-reduced-motion guard + no-JS-safe (visible by default) + tokenized values grounded in an ADR (docs/adr/0001-motion-foundation.md). New brand.motion: none|subtle|rich on BrandSchema, default rich. All 6 apps build + check green; browser-verified motion fires and reduced-motion stays static. Template + schema bumped to 0.2.0 (fleet event). Earlier: template themes off the HDS token spine (#30). Pre-revenue, nothing deployed live.",
   "next": [
-    "Publish @hirobius/design-system >=0.12.0 (carries /brand + overlay bridge), then `pnpm install` here to regenerate the lockfile against the published version (#30 release gate)",
+    "Re-sync brand.motion schema field to ops's vendored lib/schema (#21)",
+    "Enrich motion after the section scrub once #33 grabs more Astro section pieces (new tracking issue)",
     "Deploy a preview live + verify the basic-auth gate (#8)",
-    "Bake access-tech scroll-reveal motion into the template + brand.motion dial (#22)",
-    "Ops first live generate (needs ANTHROPIC_API_KEY) → then delete engine here (#10)"
+    "Ops first live generate (needs ANTHROPIC_API_KEY) -> then delete engine here (#10)"
   ],
   "blocked": [
-    "#30 lockfile regen waits on the @hirobius/design-system >=0.12.0 npm release (proven locally against a pnpm-pack tarball)",
     "#10 waits on ops's first live generate (ANTHROPIC_API_KEY in ops)",
     "Live lead sourcing waits on OUTSCRAPER_API_KEY in ops"
   ]
