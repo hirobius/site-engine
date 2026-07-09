@@ -65,3 +65,14 @@ Funnel: **leads (CRM in `ops`) → become → clients (their Astro sites).**
 - **After the org rename** (ARCHITECTURE.md runbook): re-scope agent sessions and
   re-point Vercel git integration + MCP repo scopes. GitHub auto-redirects git
   remotes, but those integrations do **not** follow automatically.
+
+## Ralph quality bar
+
+REPO_TYPE: production
+QUALITY BAR: Site factory is production. Never touch live client output without a passing build.
+
+Rules for any autonomous loop in this repo:
+- One issue per PR. Small steps. Never push to main.
+- The gate (ralph/gate.sh) must pass before any PR. No exceptions.
+- Fight entropy: leave the code better than you found it.
+- No shortcut that creates debt someone else pays for.
