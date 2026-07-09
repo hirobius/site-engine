@@ -1,6 +1,6 @@
 {
   "name": "@hirobius/template",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -14,7 +14,6 @@
     "build": "tsc --noEmit"
   },
   "dependencies": {
-    "@hirobius/design-system": "^0.12.0",
     "@hirobius/schema": "workspace:*"
   },
   "peerDependencies": {

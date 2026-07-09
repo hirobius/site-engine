@@ -28,8 +28,10 @@
  */
 
 /* HDS design tokens as CSS custom properties (no reset, host-safe). Must come
-   before @theme so the `var(--semantic-*)` references below have defaults. */
-@import "@hirobius/design-system/variables.css";
+   before @theme so the `var(--semantic-*)` references below have defaults.
+   Vendored + trimmed to the tokens the template actually uses (see tokens.css);
+   the factory no longer depends on the frozen @hirobius/design-system package. */
+@import "./tokens.css";
 
 @theme {
   --color-primary: var(--semantic-accent-rest);

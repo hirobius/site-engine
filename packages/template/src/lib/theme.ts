@@ -1,6 +1,6 @@
 import type { ClientConfig } from "@hirobius/schema";
 import { PALETTE_PRESETS, FONT_STACKS, type PaletteTokens } from "@hirobius/schema/presets";
-import { brandOverlayStyle } from "@hirobius/design-system/brand";
+import { brandOverlayStyle } from "./brand-overlay";
 
 const RADIUS_PX: Record<ClientConfig["brand"]["radius"], string> = {
   none: "0px",
@@ -34,9 +34,10 @@ export function resolvePalette(config: ClientConfig): PaletteTokens {
  * beat stylesheet rules, so this is what actually themes the page per client.
  *
  * The resolved `--brand-*` palette is mapped onto the HDS semantic custom
- * properties via `@hirobius/design-system/brand` (hirobius/design-system#64), so
- * a client site inherits HDS's contrast-checked semantics, `color-mix`-derived
- * accent states, and radius — one token spine, not a parallel `--brand-*` system.
+ * properties via the vendored `./brand-overlay` bridge (clients#42; originally
+ * `@hirobius/design-system/brand`, hirobius/design-system#64), so a client site
+ * inherits HDS's contrast-checked semantics, `color-mix`-derived accent states,
+ * and radius — one token spine, not a parallel `--brand-*` system.
  * The secondary `--brand-accent` is passed through by the bridge (HDS owns a
  * single accent ramp, so it stays brand-level).
  */
