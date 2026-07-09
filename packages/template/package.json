@@ -11,7 +11,8 @@
   },
   "scripts": {
     "check": "tsc --noEmit",
-    "build": "tsc --noEmit"
+    "build": "tsc --noEmit",
+    "test": "tsx --test src/lib/theme.test.ts"
   },
   "dependencies": {
     "@hirobius/schema": "workspace:*"

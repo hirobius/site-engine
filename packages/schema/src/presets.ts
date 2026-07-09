@@ -90,7 +90,7 @@ export const FONT_IDS = Object.keys(FONT_STACKS) as [FontId, ...FontId[]];
 /**
  * Per-client spacing density dial. Multiplies the base Tailwind v4 `--spacing`
  * unit (see packages/template/src/styles/theme.css `@theme`), so it scales the
- * whole spacing rhythm (p-*/gap-*/m-*/space-*) with zero component edits.
+ * whole spacing rhythm (padding, gap, margin, space utilities) with zero edits.
  *
  * `comfortable: 1` is the default and reproduces current spacing exactly —
  * every existing client that doesn't set `brand.density` renders byte-identical
