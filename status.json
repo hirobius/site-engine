@@ -3,7 +3,7 @@
   "phase": "active",
   "headline": "brand.motion dial shipped (#22): dependency-free scroll motion baked into packages/template — reveal-on-enter, hero-rise cascade, radar-ring pulse — as CSS + one IntersectionObserver island, no GSAP/Lenis. Ported from access-tech but hardened: prefers-reduced-motion guard + no-JS-safe (visible by default) + tokenized values grounded in an ADR (docs/adr/0001-motion-foundation.md). New brand.motion: none|subtle|rich on BrandSchema, default rich. All 6 apps build + check green; browser-verified motion fires and reduced-motion stays static. Template + schema bumped to 0.2.0 (fleet event). Earlier: template themes off the HDS token spine (#30). Pre-revenue, nothing deployed live.",
   "next": [
-    "Re-sync brand.motion schema field to ops's vendored lib/schema (#21)",
+    "Include brand.motion when the schema is vendored to ops (no vendored lib/schema exists yet; sync is moot until the #10 engine migration — the #21 drift guard must cover this field then)",
     "Enrich motion after the section scrub once #33 grabs more Astro section pieces (new tracking issue)",
     "Deploy a preview live + verify the basic-auth gate (#8)",
     "Ops first live generate (needs ANTHROPIC_API_KEY) -> then delete engine here (#10)"
