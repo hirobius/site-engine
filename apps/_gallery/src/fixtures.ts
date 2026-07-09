@@ -10,7 +10,7 @@ import type { PalettePresetId } from "@hirobius/schema/presets";
 interface PresetDemo {
   preset: PalettePresetId;
   label: string;
-  variant: "A" | "B";
+  variant: "split" | "full-bleed";
   business: string;
   headline: string;
   sub: string;
@@ -21,7 +21,7 @@ const DEMOS: PresetDemo[] = [
   {
     preset: "landscaping",
     label: "Landscaping",
-    variant: "A",
+    variant: "split",
     business: "Green Thumb Landscaping",
     headline: "Austin's Lawn & Landscape Crew",
     sub: "Design, install, and maintenance that makes the neighbors ask who you use.",
@@ -34,7 +34,7 @@ const DEMOS: PresetDemo[] = [
   {
     preset: "junk-removal",
     label: "Junk Removal",
-    variant: "B",
+    variant: "full-bleed",
     business: "Haul-It-Away",
     headline: "Same-Day Junk Removal",
     sub: "Point at it, we haul it. Furniture, appliances, garage cleanouts — gone today.",
@@ -47,7 +47,7 @@ const DEMOS: PresetDemo[] = [
   {
     preset: "pressure-washing",
     label: "Pressure Washing",
-    variant: "A",
+    variant: "split",
     business: "Pressure Pros",
     headline: "Driveways & Siding, Restored",
     sub: "Soft-wash and surface cleaning that brings back the curb appeal. Free quotes.",
@@ -60,7 +60,7 @@ const DEMOS: PresetDemo[] = [
   {
     preset: "concrete-fencing",
     label: "Concrete & Fencing",
-    variant: "A",
+    variant: "split",
     business: "Ironclad Concrete & Fence",
     headline: "Concrete & Fencing Done Right",
     sub: "Driveways, patios, and fences built to outlast the weather and the warranty.",
@@ -87,7 +87,8 @@ function build(demo: PresetDemo): ClientConfig {
       serviceAreas: ["Austin", "Round Rock", "Cedar Park"],
     },
     brand: { palettePreset: demo.preset, font: "inter", radius: "lg" },
-    layout: { variant: demo.variant, sectionOrder: ["services", "reviews", "contact"] },
+    layout: { sectionOrder: ["services", "reviews", "contact"] },
+    hero: { variant: demo.variant },
     services: demo.services.map(([title, description]) => ({ title, description })),
     copy: {
       heroHeadline: demo.headline,
@@ -114,7 +115,7 @@ function build(demo: PresetDemo): ClientConfig {
 export interface PresetFixture {
   label: string;
   preset: PalettePresetId;
-  variant: "A" | "B";
+  variant: "split" | "full-bleed";
   config: ClientConfig;
 }
 

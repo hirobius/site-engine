@@ -37,7 +37,7 @@ function assemble(lead: Lead, content: GeneratedContent): ClientConfigInput {
       serviceAreas: content.serviceAreas,
     },
     brand: { palettePreset: content.palettePreset, font: content.font, radius: "lg" },
-    layout: { variant: "A", sectionOrder: ["services", "gallery", "reviews", "serviceAreaMap", "contact"] },
+    layout: { sectionOrder: ["services", "gallery", "reviews", "serviceAreaMap", "contact"] },
     services: content.services,
     copy: {
       heroHeadline: content.heroHeadline,

@@ -76,11 +76,14 @@ export const BrandSchema = z.object({
 });
 
 export const LayoutSchema = z.object({
-  variant: z.enum(["A", "B"]).default("A"),
   /**
    * Order of sections on the page. Unknown ids are rejected so a typo can't
    * silently drop a section. Hero and Footer are always rendered (first/last)
    * and must not appear here.
+   *
+   * Note: there is NO global layout variant. Per-section layout variants live on
+   * their own section schema (e.g. `hero.variant`) so shifting one section can
+   * never move another (Red Alert #2).
    */
   sectionOrder: z
     .array(
@@ -142,8 +145,16 @@ export const SeoSchema = z.object({
 });
 
 export const HeroSchema = z.object({
+  /**
+   * Per-section layout variant, localized to the Hero (Red Alert #2). Shifting
+   * the Hero must never move another section, so the variant lives here — not on
+   * `layout`. `split` = responsive two-column grid; `full-bleed` = background
+   * image/video with left-aligned content. Defaults to `split` (the prior global
+   * "A" behaviour), so existing configs render unchanged.
+   */
+  variant: z.enum(["split", "full-bleed"]).default("split"),
   image: publicPath.optional(),
-  /** Used only by layout variant "B" (full-bleed video). */
+  /** Background video source. Used only by the `full-bleed` variant. */
   videoSrc: publicPath.optional(),
   /** Poster shown before the video loads — protects LCP. */
   videoPoster: publicPath.optional(),

@@ -8,9 +8,9 @@ interface Props {
 }
 
 const { config } = Astro.props;
-const { copy, business, layout, hero } = config;
+const { copy, business, hero } = config;
 const tel = telHref(business.phone);
-const isVideo = layout.variant === "B" && hero.videoSrc;
+const isVideo = hero.variant === "full-bleed" && hero.videoSrc;
 ---
 
 <section class="relative overflow-hidden bg-fg text-on-primary" aria-label="Intro">
@@ -52,7 +52,7 @@ const isVideo = layout.variant === "B" && hero.videoSrc;
   <div
     class:list={[
       "relative mx-auto grid max-w-6xl gap-8 px-5 py-20 sm:py-28",
-      layout.variant === "A" ? "md:grid-cols-2 md:items-center" : "place-items-start",
+      hero.variant === "split" ? "md:grid-cols-2 md:items-center" : "place-items-start",
     ]}
   >
     <div class="max-w-2xl">
