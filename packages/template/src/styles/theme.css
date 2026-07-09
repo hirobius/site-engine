@@ -30,6 +30,12 @@
   --font-body: var(--brand-font-body);
 
   --radius-theme: var(--brand-radius);
+
+  /* Density dial: Tailwind v4 derives p-*/gap-*/m-*/space-* from --spacing, so
+     scaling it scales the whole spacing rhythm with zero component edits.
+     --brand-space-scale defaults to 1 (see :root below), which makes this
+     calc() equal Tailwind's own default --spacing: 0.25rem exactly. */
+  --spacing: calc(0.25rem * var(--brand-space-scale, 1));
 }
 
 /* Safe defaults so components render even without per-client injection

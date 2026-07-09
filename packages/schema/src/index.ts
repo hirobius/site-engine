@@ -66,6 +66,13 @@ export const BrandSchema = z.object({
   font: z.enum(FONT_IDS).default("system"),
   /** Corner radius applied site-wide via `--brand-radius`. */
   radius: z.enum(["none", "sm", "md", "lg", "xl"]).default("md"),
+  /**
+   * Spacing density dial — scales the whole spacing rhythm via
+   * `--brand-space-scale` (see packages/schema/src/presets.ts DENSITY_SCALES).
+   * Defaults to "comfortable" (scale 1), which reproduces current spacing
+   * exactly — additive, does not change any existing client's output.
+   */
+  density: z.enum(["compact", "comfortable", "loose"]).default("comfortable"),
 });
 
 export const LayoutSchema = z.object({

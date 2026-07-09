@@ -86,3 +86,21 @@ export const FONT_STACKS = {
 
 export type FontId = keyof typeof FONT_STACKS;
 export const FONT_IDS = Object.keys(FONT_STACKS) as [FontId, ...FontId[]];
+
+/**
+ * Per-client spacing density dial. Multiplies the base Tailwind v4 `--spacing`
+ * unit (see packages/template/src/styles/theme.css `@theme`), so it scales the
+ * whole spacing rhythm (p-*/gap-*/m-*/space-*) with zero component edits.
+ *
+ * `comfortable: 1` is the default and reproduces current spacing exactly —
+ * every existing client that doesn't set `brand.density` renders byte-identical
+ * to before this dial existed.
+ */
+export const DENSITY_SCALES = {
+  compact: 0.85,
+  comfortable: 1,
+  loose: 1.2,
+} as const;
+
+export type DensityId = keyof typeof DENSITY_SCALES;
+export const DENSITY_IDS = Object.keys(DENSITY_SCALES) as [DensityId, ...DensityId[]];

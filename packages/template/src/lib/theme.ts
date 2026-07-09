@@ -1,5 +1,5 @@
 import type { ClientConfig } from "@hirobius/schema";
-import { PALETTE_PRESETS, FONT_STACKS } from "@hirobius/schema/presets";
+import { PALETTE_PRESETS, FONT_STACKS, DENSITY_SCALES } from "@hirobius/schema/presets";
 
 const RADIUS_PX: Record<ClientConfig["brand"]["radius"], string> = {
   none: "0px",
@@ -40,6 +40,7 @@ export function brandStyle(config: ClientConfig): string {
     "--brand-font-heading": stack,
     "--brand-font-body": stack,
     "--brand-radius": RADIUS_PX[config.brand.radius],
+    "--brand-space-scale": String(DENSITY_SCALES[config.brand.density]),
   };
   return Object.entries(vars)
     .map(([k, v]) => `${k}:${v}`)
