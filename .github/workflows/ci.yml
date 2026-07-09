@@ -39,8 +39,11 @@ jobs:
       - name: Install Playwright (Chromium)
         run: pnpm --filter @hirobius/demo-pressure-pros exec playwright install --with-deps chromium
 
-      - name: Smoke test (demo)
-        run: pnpm --filter @hirobius/demo-pressure-pros test
+      # Runs every package's `test` script via turbo: the packages/* unit tests
+      # (node:test) AND the demo app's Playwright smoke test. A packages/* change
+      # without passing tests fails CI — this is the TDD enforcement gate.
+      - name: Tests (package unit tests + demo smoke)
+        run: pnpm test
 
       - name: Upload Playwright report on failure
         if: failure()

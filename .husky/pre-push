@@ -1,0 +1,7 @@
+set -e
+# TDD enforcement — fast local gate on every push: typecheck + packages/* unit
+# tests (node:test via tsx). The heavier build + Playwright smoke run in CI, so
+# this keeps the test-first ethos honest without waiting on a browser.
+# See CLAUDE.md "Testing". Bypass only for a genuine emergency (git push --no-verify).
+pnpm check
+pnpm --filter @hirobius/schema --filter @hirobius/template test

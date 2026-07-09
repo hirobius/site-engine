@@ -105,7 +105,7 @@ Ignored Build Step `npx turbo-ignore`. Preview deploys are basic-auth gated by
 
 `.claude/skills/` vendors Matt Pocock's engineering skills. Use them **deterministically** — a routing mandate, not a suggestion the model may skip:
 
-- **Code work in `packages/*` or a `.astro` component (a deliberate fleet change) → `/implement` + `/tdd`** (test-first), and `/code-review` before the PR; `/codebase-design` for interface/module decisions; periodic design-debt sweep → `/improve-codebase-architecture`.
+- **Code work in `packages/*` or a `.astro` component (a deliberate fleet change) → `/implement` + `/tdd`** (test-first), and `/code-review` before the PR; `/codebase-design` for interface/module decisions; periodic design-debt sweep → `/improve-codebase-architecture`. **Gated, not just mandated (2026-07-09):** CI runs `pnpm test` (every `packages/*` unit suite via turbo) on every PR, and `.husky/pre-push` runs `pnpm check` + the `packages/*` unit tests — a `packages/*` change without passing tests fails. Unit tests use `node:test` run through the already-present `tsx` (zero new deps); test files are excluded from `tsc` builds.
 - **A bug → `/diagnosing-bugs`** (reproduce → minimize → fix), then `/tdd`.
 - **An epic / multi-part / fuzzy task → `/to-tickets`** (dependency-ordered sub-issues); `/grill-me` first if the plan itself is unclear.
 - **Issue-lifecycle / board work → `/triage`.**
