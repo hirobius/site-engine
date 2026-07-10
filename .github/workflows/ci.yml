@@ -39,8 +39,11 @@ jobs:
       - name: Install Playwright (Chromium)
         run: pnpm --filter @hirobius/demo-pressure-pros exec playwright install --with-deps chromium
 
-      - name: Smoke test (demo)
-        run: pnpm --filter @hirobius/demo-pressure-pros test
+      # Runs every workspace's `test` script (turbo run test): the demo's
+      # Playwright smoke test plus the vitest acceptance suites in
+      # packages/template and apps/monroe-street-power-wash.
+      - name: Test
+        run: pnpm test
 
       - name: Upload Playwright report on failure
         if: failure()
