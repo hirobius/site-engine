@@ -1,6 +1,10 @@
 packages:
   - "packages/*"
   - "apps/*"
+  - "scripts"
 
 # apps/_template is the canonical client app. It is a real workspace member so
 # that `pnpm build` validates it, but `new-client.ts` copies it into apps/<slug>.
+#
+# scripts/ is a workspace member only so its golden-path tooling (new-client,
+# eject-client) can be tested via `turbo run test`. It ships no build/check task.

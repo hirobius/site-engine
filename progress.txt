@@ -40,3 +40,38 @@ need, unrelated to this change.
 Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
 src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
 client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.
+
+---
+Issue #54 — test(scripts): cover new-client / eject-client golden-path tooling
+
+What: scripts/new-client.ts + eject-client.ts (the only sanctioned scaffold/
+handoff path, CLAUDE.md rule #1) had ZERO tests. Added scripts/tooling.test.ts
+(vitest, 11 cases) that drive the real scripts as tsx subprocesses.
+
+Home for the tests: made scripts/ a workspace member (scripts/package.json =
+@hirobius/scripts, test-only; added `- "scripts"` to pnpm-workspace.yaml) so
+`turbo run test` picks the suite up. It ships no build/check task, so turbo
+build/check skip it — scripts behavior unchanged.
+
+new-client coverage: scaffold created with @hirobius/<slug> pkg name; all 4
+config rewrites (slug/name/preset/siteUrl); clean copy (no node_modules/dist/
+.astro/.turbo); generated config PASSES defineClient (copied into a temp dir
+under scripts/ so the bare @hirobius/schema specifier resolves, executed via
+tsx — throws non-zero on invalid); rejects bad slug / unknown preset (no dir
+created); refuses to overwrite.
+
+eject coverage: standalone package.json has NO workspace:* deps + pins zod/
+@vercel/functions/astro; NO workspace: string anywhere in the tree; vendors
+template+schema into src/_vendor; NO residual @hirobius/* import specifier;
+writes tsconfig/.gitignore/README; copies no node_modules/dist.
+
+DEFERRED (flagged on issue): full `astro build` / isolated-`install` smoke
+("builds standalone" from DoD) — needs a networked install of astro/tailwind/
+sharp + minutes of wall-clock, wrong fit for the per-commit vitest gate. Belongs
+in a separate heavier CI job. No script bug uncovered → no behavior change.
+
+Verify: bash ralph/gate.sh green — 14/14 turbo tasks; scripts#test = 11 passed.
+Fixtures use throwaway zzz-* slugs + afterAll cleanup; confirmed no leftovers.
+
+Files changed: scripts/{package.json,tooling.test.ts}, pnpm-workspace.yaml,
+pnpm-lock.yaml.
