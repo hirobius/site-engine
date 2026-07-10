@@ -40,3 +40,26 @@ need, unrelated to this change.
 Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
 src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
 client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.
+
+---
+Issue #52 — fix(template): 3 preview apps' latent gallery/sectionOrder bug
+
+What: preview-clearout-junk, preview-evergreen-lawn, preview-solidline-concrete
+each listed "gallery" in layout.sectionOrder but defined no gallery array — the
+exact SECTION_REQUIREMENTS.gallery failure checkClientAcceptance catches, already
+fixed on monroe. None had a tests/ dir.
+
+Test-first: added tests/acceptance.test.ts to each app (mirrors monroe's — calls
+checkClientAcceptance(client), expects []), plus `test: vitest run` script +
+vitest devDep. Confirmed all 3 RED first ("layout.sectionOrder includes gallery
+but its required data is missing/empty"), then dropped "gallery" from each app's
+sectionOrder → all 3 GREEN.
+
+Why drop rather than add a gallery: these are cold-outreach previews with no
+photos (realData=false), same call as monroe. A gallery needs real images from
+intake; adding an empty array would still fail the checker.
+
+Verify: bash ralph/gate.sh green — 16/16 turbo tasks.
+
+Files changed: apps/preview-{clearout-junk,evergreen-lawn,solidline-concrete}/
+{client.config.ts,package.json,tests/acceptance.test.ts}, pnpm-lock.yaml.
