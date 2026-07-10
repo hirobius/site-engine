@@ -1,0 +1,42 @@
+Ralph iteration — 2026-07-10
+
+Issue #37: Shared client-config acceptance test (placeholder / gate / SEO guard)
+
+What shipped (smallest complete slice):
+- packages/template/src/acceptance.ts: checkClientAcceptance(config, { realData }).
+  Catches what Zod can't: .example emails/siteUrls, the fleet's two placeholder-
+  phone conventions (area code 555, and the FCC-reserved 555-01xx exchange used
+  by apps/_template's stub), all-zeros Web3Forms keys, stub business names, non-
+  https siteUrl, and any layout.sectionOrder entry whose backing data (gallery/
+  reviews/map/form) is empty. Placeholder checks are gated behind `realData`
+  (default false) because every current preview app intentionally ships fake
+  contact info pending intake — flip it once real data lands.
+- packages/template/src/acceptance.test.ts: 11 unit tests (vitest), TDD on the
+  checker itself.
+- Exported from @hirobius/template's index so apps import one thing.
+- Wired end-to-end into ONE real app (apps/monroe-street-power-wash/tests/
+  acceptance.test.ts) as proof — running it immediately caught a REAL bug: its
+  client.config.ts listed "gallery" in sectionOrder with gallery: [] (photo-less
+  preview, per its own header comment). Fixed by dropping "gallery" from that
+  app's sectionOrder. This is exactly the class of bug #37 exists to catch.
+- Added vitest devDependency to packages/template and to monroe's app package.
+
+Why the scope stops here (commented on the issue for the next iteration):
+- preview-clearout-junk, preview-evergreen-lawn, preview-solidline-concrete all
+  have the SAME latent bug (gallery in sectionOrder, no gallery array) — same
+  3-line test wiring + 1-line sectionOrder fix needed in each.
+- demo-pressure-pros already owns the `test` script (Playwright e2e); adding a
+  vitest acceptance test needs a script-naming decision (e.g. test:unit vs.
+  test:e2e) before wiring there.
+- Gate posture (middleware.ts unmodified from _template + noindex until
+  SITE_LIVE) is NOT yet implemented — needs an fs-diff convention, deliberately
+  left as a separate follow-up.
+
+Verify: bash ralph/gate.sh green (build + check + test, all 13 turbo tasks).
+Note: sandbox needed `pnpm exec playwright install chromium` once before the
+gate could run demo-pressure-pros's existing e2e suite — pre-existing infra
+need, unrelated to this change.
+
+Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
+src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
+client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.

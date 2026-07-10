@@ -27,7 +27,9 @@ export const client = defineClient({
   },
   layout: {
     variant: "A",
-    sectionOrder: ["services", "gallery", "reviews", "serviceAreaMap", "contact"],
+    // No "gallery" — this preview is photo-less by design (see issue #14);
+    // an empty gallery section would render blank.
+    sectionOrder: ["services", "reviews", "serviceAreaMap", "contact"],
   },
   services: [
     {
