@@ -40,3 +40,30 @@ need, unrelated to this change.
 Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
 src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
 client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.
+
+---
+Issue #55 — docs: reconcile status.json / README / PROJECT-CONTEXT with reality
+
+Docs-only. Three narrow factual fixes:
+
+status.json: refreshed updatedAt (2026-07-10), headline, next, blocked. Dropped
+the stale #26 prospect-bridge framing; now reflects the shipped acceptance guard
+(#37/#45), SITE_LIVE gate (#34), and the Ralph burndown CI (#43-#48,#57). next[]
+points at the in-review Ralph PRs (#50/#51/#53/#54) instead of #26.
+
+README.md: `pnpm test` line no longer undersells as "Playwright smoke on the demo"
+— now "turbo run test: vitest acceptance suites + demo Playwright smoke". Structure
+apps/ block now lists all 7 apps (_gallery, monroe, 3 preview-*) instead of just
+_template + demo.
+
+docs/PROJECT-CONTEXT.md: repo-structure apps/ list updated to reality (monroe + 3
+previews). Added dated SUPERSEDED banner to §3 (Git/PR state — the stale PR #2/#3/#4
++ local-only-agent snapshot) and a RETIRED banner to §8 (the HC- tracker), both
+pointing to the live sources (GitHub Issues + status.json + BACKEND-STATUS) and
+noting the repo is now hirobius/site-engine. Scoped to factual fixes only — broad
+retirement of this file stays tracked in #20 (did not rewrite the whole doc).
+
+Verify: bash ralph/gate.sh green — 13/13 turbo tasks (docs-only, no build impact);
+status.json validated as parseable JSON.
+
+Files changed: README.md, docs/PROJECT-CONTEXT.md, status.json.

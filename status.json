@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-07-07T00:00:00Z",
+  "updatedAt": "2026-07-10T00:00:00Z",
   "phase": "active",
-  "headline": "Astro one-page factory proven; 3 placeholder preview apps deployed behind the basic-auth gate. Prospect→Astro site bridge live-verified end-to-end: scraped WA lead → two-axis scored → generated site → live noindex Vercel preview (Cascade Fence & Deck, Lacey WA). Engine still frozen pending ops cutover. Pre-revenue — no paying client yet.",
+  "headline": "Astro one-page factory proven; 3 placeholder preview apps deployed behind the basic-auth gate. Shared config acceptance guard live (checkClientAcceptance, #37/#45) — catches placeholder/ungated-prod leaks before build. SITE_LIVE closed-by-default gate (#34) shipped on _template + monroe. Autonomous Ralph burndown loop wired in CI (#43-#48, #57). Engine still frozen pending ops cutover (#10). Pre-revenue — no paying client yet.",
   "next": [
-    "Merge the prospect→Astro site bridge from claude/prospect-to-site (#26); first autonomous generate needs ANTHROPIC_API_KEY",
-    "Set real form.accessKey (Web3Forms) + hcaptchaSiteKey before any prospect outreach (#26)",
+    "Land the in-review Ralph PRs: backport SITE_LIVE gate to the 4 stale apps (#50), run root pnpm test in CI (#51), schema/scripts test coverage (#53/#54)",
+    "Set real form.accessKey (Web3Forms) + hcaptchaSiteKey before any prospect outreach",
     "Delete the frozen packages/agent engine once ops's first live generate passes (#10)"
   ],
   "blocked": [
-    "Autonomous site generation blocked on ANTHROPIC_API_KEY (#26)",
+    "Autonomous site generation blocked on ANTHROPIC_API_KEY (in ops)",
     "Engine delete (#10) waits on ops's first live generate"
   ]
 }

@@ -41,7 +41,7 @@ pnpm install
 pnpm build          # builds every app (static) — fails loudly on invalid config
 pnpm dev            # turbo dev across apps
 pnpm check          # tsc (packages) + astro check (apps)
-pnpm test           # Playwright smoke test on the demo
+pnpm test           # turbo run test: vitest acceptance suites + demo Playwright smoke
 pnpm new-client <slug> --name "Business" --preset pressure-washing
 pnpm eject-client <slug>     # flatten to a standalone handoff repo
 ```
@@ -59,8 +59,13 @@ packages/
   schema/      @hirobius/schema   — Zod ClientConfig + defineClient() + palette presets
   template/    @hirobius/template — Astro section components, theming, SEO/JSON-LD helpers
 apps/
-  _template/            canonical client app (copied by new-client)
-  demo-pressure-pros/   working demo proving the system (placeholder imagery)
+  _template/                canonical client app (copied by new-client)
+  _gallery/                 internal component/preset preview (design-system head start)
+  demo-pressure-pros/       working demo proving the system (Playwright smoke test)
+  monroe-street-power-wash/ cold-outreach preview (has an acceptance test suite)
+  preview-clearout-junk/    cold-outreach preview
+  preview-evergreen-lawn/   cold-outreach preview
+  preview-solidline-concrete/ cold-outreach preview
 scripts/
   new-client.ts   scaffold a client + print Vercel CLI commands
   eject-client.ts flatten one client into a standalone repo for handoff

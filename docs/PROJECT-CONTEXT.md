@@ -68,8 +68,12 @@ packages/
   agent/       @hirobius/agent    — AI pipeline (lead → validated config → eval)  ★flagship
 apps/
   _template/            canonical client app (copied by new-client)
-  demo-pressure-pros/   working demo (sharp-generated placeholder photos)
   _gallery/             internal preset/section preview (head start on design-system piece)
+  demo-pressure-pros/   working demo (sharp-generated placeholder photos; Playwright smoke)
+  monroe-street-power-wash/    cold-outreach preview (+ acceptance test suite)
+  preview-clearout-junk/       cold-outreach preview
+  preview-evergreen-lawn/      cold-outreach preview
+  preview-solidline-concrete/  cold-outreach preview
 scripts/
   new-client.ts         scaffold a client + print Vercel CLI commands
   eject-client.ts       flatten a client into a standalone handoff repo
@@ -93,6 +97,14 @@ Turborepo · Zod · astro:assets · Web3Forms + hCaptcha · Vercel · `@anthropi
 ---
 
 ## 3. Git / PR state (important)
+
+> ⚠️ **Superseded (2026-07-10).** The specific PR/branch snapshot below is a
+> 2026-06-18 point-in-time and is stale — PR #2/#3/#4 and the "local-only agent
+> commits" no longer describe reality. **Live git/PR state is GitHub itself; live
+> project state is `status.json` + `docs/BACKEND-STATUS.md`; open work is tracked
+> as GitHub Issues in this repo** (see CLAUDE.md → Fleet hub). The repo is now
+> `hirobius/site-engine`. Kept below as history; full retirement of this section
+> is tracked in #20.
 
 - **Repo:** `hirobius/clients` (old `hirobius/sites` URLs redirect).
 - **`main`:** contains the full monorepo (PR #2 merged).
@@ -224,6 +236,13 @@ Output = a drop-in `client.config.ts` + loop trace + eval scorecard.
 ---
 
 ## 8. Open tasks (the tracker — prefix `HC-`)
+
+> ⚠️ **Retired (2026-07-10).** The `HC-` list is a legacy 2026-06-18 tracker and
+> **no longer exists as a live board.** Open work is tracked as **GitHub Issues in
+> this repo** (CLAUDE.md → Fleet hub), which also sync to `ops/ops/tasks`; current
+> project state is `status.json` + `docs/BACKEND-STATUS.md`. The items below are
+> kept only as historical record — do not treat any as open. Full retirement of
+> this file is tracked in #20.
 
 - [ ] **HC-01** Push agent commits to own branch + PR `claude/agent-pipeline` *(needs OK)*
 - [ ] **HC-02** Run Phase A live on a real lead (set `ANTHROPIC_API_KEY`)
