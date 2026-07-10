@@ -40,3 +40,29 @@ need, unrelated to this change.
 Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
 src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
 client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.
+
+---
+Issue #53 — test(schema): cover the canonical ClientConfig contract
+
+What: packages/schema had ZERO tests. Added packages/schema/src/index.test.ts
+(vitest, 25 cases mirroring template's src/*.test.ts convention) + wired
+`test: vitest run` script + vitest devDep so `turbo run test` picks it up.
+
+Coverage: happy-path + all documented defaults (sectionOrder/variant/font/radius/
+cssVarOverrides/ctaLabel/gallery/reviews/map/hero); phone/slug/email rejection;
+hours/serviceAreas/services min-1; sectionOrder unknown-id rejection + valid-subset
+accept; every palette preset + font id resolves; cssVarOverrides key/color rules;
+SEO title(70)/description(180)/siteUrl limits; form required + provider literal +
+key-min-1 + optional hcaptcha/redirect; map optional; gallery alt/path rules;
+review rating int 1–5; defineClient's readable slug-tagged throw.
+
+DECISION — duplicate sectionOrder: DoD assumed "duplicate entries rejected", but
+the schema (z.array(z.enum(...))) does NOT reject dupes — only unknown ids. Tested
++ documented the CURRENT behavior (accepted) rather than silently adding a .refine:
+tightening the contract is a canonical schema change that must re-sync to ops's
+vendored copy (CLAUDE.md engine-freeze) — out of scope for a test-coverage slice.
+Flagged on the issue as a separate follow-up.
+
+Verify: bash ralph/gate.sh green — 14/14 turbo tasks; schema#test = 25 passed.
+
+Files changed: packages/schema/{package.json,src/index.test.ts}, pnpm-lock.yaml.
