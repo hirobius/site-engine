@@ -39,8 +39,12 @@ jobs:
       - name: Install Playwright (Chromium)
         run: pnpm --filter @hirobius/demo-pressure-pros exec playwright install --with-deps chromium
 
-      - name: Smoke test (demo)
-        run: pnpm --filter @hirobius/demo-pressure-pros test
+      # Root `pnpm test` == `turbo run test`, so EVERY workspace test script runs:
+      # the demo Playwright smoke test AND the vitest acceptance suites
+      # (packages/template, apps/monroe-street-power-wash). Previously CI only ran
+      # the demo filter, so vitest-caught bugs shipped unverified (#51).
+      - name: Test (vitest acceptance + Playwright smoke)
+        run: pnpm test
 
       - name: Upload Playwright report on failure
         if: failure()

@@ -40,3 +40,34 @@ need, unrelated to this change.
 Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
 src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
 client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.
+
+---
+Issue #51 — ci: run root `pnpm test` (turbo test suite) in CI
+
+What: `.github/workflows/ci.yml` ran only `pnpm --filter
+@hirobius/demo-pressure-pros test` (the Playwright smoke), so the vitest
+acceptance suites (packages/template's acceptance.test.ts, monroe's
+tests/acceptance.test.ts) NEVER ran in push/PR CI — they lived only in Ralph's
+local gate. A human pushing straight to main shipped vitest-caught bugs unverified.
+
+Fix: replaced the demo-only filter step with `pnpm test` (== `turbo run test`),
+which fans out to EVERY workspace `test` script — the demo Playwright smoke plus
+both vitest suites. CI now matches the gate (`pnpm build && pnpm check && pnpm test`).
+The Chromium install step + failure-artifact upload are unchanged, so Playwright
+still runs and the report still uploads on failure.
+
+Why this is complete + safe: turbo's `test` task already `dependsOn: build`, so
+the earlier build is a cache hit — no double build. In CI, Playwright installs to
+its default cache (no PLAYWRIGHT_BROWSERS_PATH), so the demo test resolves the
+browser normally.
+
+Repro (DoD item 1): before the fix, a vitest failure in packages/template or
+monroe passes CI because the demo filter never invokes those scripts — turbo test
+now runs all 13 tasks (proven green locally).
+
+Verify: bash ralph/gate.sh green — 13/13 turbo tasks (build+check+test).
+Note: sandbox needed `pnpm exec playwright install chromium` into BOTH
+/opt/pw-browsers and the default cache once (turbo strips PLAYWRIGHT_BROWSERS_PATH
+in strict env mode) — pre-existing infra need, unrelated to this change.
+
+Files changed: .github/workflows/ci.yml.
