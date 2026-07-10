@@ -65,3 +65,53 @@ Verify: bash ralph/gate.sh green (build + check + test, all 13 turbo tasks).
 Files changed: apps/{demo-pressure-pros,preview-clearout-junk,
 preview-evergreen-lawn,preview-solidline-concrete}/middleware.ts (byte-copy of
 _template's), packages/template/src/middleware-gate.test.ts (new).
+
+---
+Ralph iteration (2026-07-10, this session):
+
+Issue #51 (ci: run root `pnpm test` in CI) — attempted, BLOCKED.
+- Diagnosed + wrote the fix (swap CI's demo-only `pnpm --filter
+  @hirobius/demo-pressure-pros test` step for root `pnpm test` / `turbo run
+  test`, which fans out to the demo Playwright suite + both vitest acceptance
+  suites). Verified locally: old command only invokes 4 demo Playwright tests;
+  `pnpm test` runs all 17 across 3 workspaces. Gate green.
+- Could NOT push: bot's GitHub App token lacks the `workflows` permission
+  scope, so any commit touching .github/workflows/ci.yml is rejected by
+  GitHub itself (not a code/gate problem — a token-scope wall). This is also
+  why the earlier #58 attempt at this same issue stalled.
+- Commented the diff + diagnosis on #51, created `blocked` label (documented
+  in AGENTS.md's label vocabulary but didn't exist yet), relabeled #51
+  blocked (removed ralph-ready) so the queue doesn't re-pick a dead end.
+  Needs a human to grant the App `workflows` perm or push the 4-line diff
+  directly.
+
+Issue #53 (test(schema): cover the canonical ClientConfig contract) — done.
+- Found prior attempt (#60) was functionally complete but closed unmerged for
+  a "clean redo" (branch conflicts from the pre-#64-gate-fix PR stack, per
+  adr-eng's comment — no work lost, just needed a fresh branch off current
+  main). Re-did it fresh rather than trying to resurrect the closed branch.
+- packages/schema/src/index.test.ts: 36 vitest cases against defineClient() /
+  ClientConfigSchema — defaults, slug/phone/email/hours/serviceAreas/services
+  rejection, sectionOrder unknown-id rejection, every palette preset + font
+  id, cssVarOverrides key/color validation, SEO title/description/siteUrl
+  limits, form required+optional fields, map optionality, gallery alt-text
+  requirement, review rating bounds.
+- Wired `test: vitest run` + `vitest` devDep into packages/schema/package.json
+  so `turbo run test` picks it up (needed `pnpm install --no-frozen-lockfile`
+  once locally to update pnpm-lock.yaml for the new devDep).
+- Decision: documented, did NOT fix, that `layout.sectionOrder` rejects
+  unknown ids but not duplicates (`z.array(z.enum(...))` has no dedup). Fixing
+  that is a canonical-contract change requiring an ops re-sync per CLAUDE.md's
+  engine-freeze rule — flagged as a possible follow-up issue instead of
+  bundled here.
+- Gate green: 12/12 turbo tasks.
+- Branch name collision note: both `ralph/issue-51-...` and
+  `ralph/issue-53-...` had stale same-named remote branches left over from
+  the closed #58/#60 PRs (fetch-first push rejection). Renamed locally with a
+  distinct suffix before pushing rather than force-pushing or deleting the
+  old remote branch.
+
+PR opened: #65 (Closes #53).
+Next iteration: pick up #52 (3 preview apps gallery/sectionOrder bug) or #54
+(new-client/eject-client tooling tests) — both still ralph-ready and
+untouched by this session. #51 needs a human before Ralph can retry.
