@@ -13,11 +13,14 @@ import { next } from "@vercel/functions";
  * `(request: Request) => Response`, using `next()` from `@vercel/functions` to
  * continue to the static asset.
  *
- * Behavior:
- *  - Production (VERCEL_ENV === "production"): pass through untouched.
- *  - Preview / development: HTTP Basic auth via PREVIEW_USER / PREVIEW_PASS, and
- *    add `X-Robots-Tag: noindex` so previews never get indexed. (vercel.json
- *    headers can't be scoped to an environment, so the noindex lives here.)
+ * Behavior — CLOSED BY DEFAULT:
+ *  - Live (SITE_LIVE === "true"): pass through untouched — set this env var only
+ *    once the client has signed and the site is on their real domain.
+ *  - Otherwise (spec sites / previews / EVERY env incl. production): HTTP Basic
+ *    auth via PREVIEW_USER / PREVIEW_PASS + `X-Robots-Tag: noindex`. A fabricated
+ *    spec site under a real business's name is thus never publicly exposed or
+ *    indexed until SITE_LIVE is explicitly flipped. (vercel.json headers can't be
+ *    env-scoped, so the noindex lives here.)
  */
 export const config = {
   // Skip Vercel internals; gate everything else (HTML + assets).
@@ -25,14 +28,16 @@ export const config = {
 };
 
 export default function middleware(request: Request) {
-  if (process.env.VERCEL_ENV === "production") {
+  // Public ONLY when explicitly marked live (client signed). Until then the site
+  // is gated + noindex on every environment — production included.
+  if (process.env.SITE_LIVE === "true") {
     return next();
   }
 
   const user = process.env.PREVIEW_USER;
   const pass = process.env.PREVIEW_PASS;
 
-  // Fail closed: if creds aren't set on a preview, don't expose the site.
+  // Fail closed: if creds aren't set, don't expose the site.
   if (!user || !pass) {
     return new Response(
       "Preview access is not configured. Set PREVIEW_USER and PREVIEW_PASS.",

@@ -40,3 +40,28 @@ need, unrelated to this change.
 Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
 src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
 client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.
+
+## Issue #50 — backport SITE_LIVE closed-by-default gate to 4 deployed apps
+- 4 deployed apps (demo-pressure-pros, preview-clearout-junk,
+  preview-evergreen-lawn, preview-solidline-concrete) still ran the pre-#34
+  logic (`VERCEL_ENV === "production"` open-by-default) in their
+  middleware.ts, while _template + monroe-street-power-wash had the fixed
+  SITE_LIVE closed-by-default gate. Live exposure: any prod deploy of those 4
+  is publicly reachable/indexable without SITE_LIVE ever being set.
+- Fix: copied apps/_template/middleware.ts verbatim into all 4 stale apps.
+- Regression guard (TDD, confirmed red first): packages/template/src/
+  middleware-gate.test.ts — reads apps/_template/middleware.ts as canonical,
+  it.each()s every apps/* dir except _template/_gallery, asserts byte-identical
+  middleware.ts. Ran red against the 4 stale files (4 failed / 1 passed,
+  monroe), green after the copy (5/5).
+- Why _gallery is exempt: no middleware.ts (internal preview tool, not a
+  deployed client site) — confirmed via ls.
+- Sandbox note: needed `pnpm exec playwright install chromium --with-deps`
+  once before demo-pressure-pros's existing e2e suite could run — pre-existing
+  infra need, unrelated to this change (same note as the #37 entry above).
+
+Verify: bash ralph/gate.sh green (build + check + test, all 13 turbo tasks).
+
+Files changed: apps/{demo-pressure-pros,preview-clearout-junk,
+preview-evergreen-lawn,preview-solidline-concrete}/middleware.ts (byte-copy of
+_template's), packages/template/src/middleware-gate.test.ts (new).
