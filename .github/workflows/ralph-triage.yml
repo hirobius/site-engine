@@ -27,6 +27,7 @@ on:
 permissions:
   contents: read
   issues: write
+  id-token: write
 
 jobs:
   triage:
@@ -83,13 +84,12 @@ jobs:
             (the `ralph`-fit items, best first) with a one-line why for each.
 
             OUTPUT MODE = "${{ inputs.mode || 'report' }}":
-            - report: create ONE issue titled "\U0001F50E Triage: <goal-or-health>"
+            - report: create ONE issue titled "Triage: <goal-or-health>"
               labelled `triage`, body = the full ranked proposals (each with a
               ready-to-file body) + the shortlist. Create nothing else. STOP.
             - file: create the top proposals as individual issues, EACH labelled
               `triage` and nothing else (never ralph-ready); then post one
-              "\U0001F50E Triage summary" issue with the ranked shortlist linking
-              them. STOP.
+              "Triage summary" issue with the ranked shortlist linking them. STOP.
 
             Finish by printing the shortlist to the log (so it also hits Discord).
 
@@ -106,7 +106,7 @@ jobs:
             exit 0
           fi
           case "$STATUS" in
-            success) EMOJI="\U0001F50E" ;;
+            success) EMOJI="🔎" ;;
             failure) EMOJI="❌" ;;
             *)       EMOJI="⚪" ;;
           esac
