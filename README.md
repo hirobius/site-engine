@@ -228,6 +228,33 @@ Hand the client `docs/HANDOFF.md` too — it states the **7-day post-launch chan
 window** and the change fee after that, so stale hours/prices on a site with your
 name on it become *their* responsibility on a clear timeline.
 
+### Visual regression (fleet-drift guard)
+
+The most expensive mistake in this product is a `packages/*` change that silently
+restyles every site. The `.github/workflows/visual.yml` job screenshots the
+**gallery** (`apps/_gallery`) — which renders all 4 presets, both hero variants,
+and every section on deterministic pages — and pixel-diffs against committed
+baselines. A diff = the template's rendering changed; the PR shows expected /
+actual / diff PNGs so you decide if it's intended. The browser context forces
+`prefers-reduced-motion: reduce`, so scroll-reveal motion never arms and the
+baselines stay deterministic regardless of a preset's `brand.motion`.
+
+Baselines are platform-specific, so generate them in the **pinned Playwright
+container** (matching CI), then commit the snapshots:
+
+```bash
+docker run --rm -it --ipc=host -v "$PWD":/work -w /work \
+  mcr.microsoft.com/playwright:v1.60.0-noble \
+  bash -lc "corepack enable && pnpm install --frozen-lockfile \
+            && pnpm --filter @hirobius/gallery build \
+            && pnpm --filter @hirobius/gallery test:visual:update"
+git add apps/_gallery/tests/**/*-snapshots && git commit -m "Seed visual baselines"
+```
+
+After that, every PR touching `packages/**` or `apps/_gallery/**` runs the diff
+automatically. (You can also trigger the workflow manually with `update: true` to
+refresh baselines and download them as an artifact.)
+
 ### Scope policy
 
 Pricing assumes **config-only customization**. The schema is the contract: if a
