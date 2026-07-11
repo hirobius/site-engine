@@ -33,6 +33,15 @@ Funnel: **leads (CRM in `ops`) → become → clients (their Astro sites).**
   the render target consumes. Both sides import it; don't fork.
 - **Wrap-a-tool recipe** — `docs/OPS-INTEGRATION.md` (how the engine plugs into `ops`).
 - **Sites build/deploy telemetry** — owned here, surfaced on the `ops` board.
+- **Schema-drift guard** — `packages/schema/src/ops-drift.test.ts` compares a
+  normalized shape (field keys/nesting/kind, via `src/shape.ts`) of the
+  canonical `ClientConfigSchema` + `presets.ts` against
+  `packages/schema/ops-shape.snapshot.json`, a frozen snapshot of the last
+  known-synced `ops/lib/schema`. It runs as part of `pnpm test` (wired into
+  `ralph/gate.sh` + `ci.yml` already). **After re-syncing `ops/lib/schema`**
+  to match a canonical change, refresh the snapshot: `pnpm schema:snapshot-ops`.
+  If that test fails on an unrelated PR, the two copies have drifted — sync
+  `ops` first, don't just regenerate the snapshot to silence it.
 
 ## Boundaries (do-not-cross)
 - **Move, don't duplicate:** the runtime engine (`packages/agent`,
