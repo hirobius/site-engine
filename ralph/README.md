@@ -44,8 +44,10 @@ error (bounded backoff, never silent).
 2. **Add the two thin callers** as `.github/workflows/ralph.yml` and
    `.github/workflows/ralph-gate.yml` — copy them from another repo already
    on the kit and change the `uses:` lines to the org-level form:
-   `uses: hirobius/ralph/.github/workflows/ralph-run-reusable.yml@main` and
-   `uses: hirobius/ralph/.github/workflows/ralph-gate-reusable.yml@main`.
+   `uses: hirobius/ralph/.github/workflows/ralph-run-reusable.yml@v1` and
+   `uses: hirobius/ralph/.github/workflows/ralph-gate-reusable.yml@v1`.
+   Pin `@v1`, not `@main` — callers pin the engine's `v1` ref so they never
+   skew against `@main` (see `hirobius/ralph` README § Versioning).
 3. **One-time org setup** (already done once, listed for completeness):
    Org secrets `CLAUDE_CODE_OAUTH_TOKEN` + `DISCORD_WEBHOOK_URL`, shared
    with private repos: <https://github.com/organizations/hirobius/settings/secrets/actions>
