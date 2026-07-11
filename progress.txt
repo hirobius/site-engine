@@ -305,3 +305,19 @@ styles/theme.css,acceptance.ts,acceptance.test.ts}.
 
 PR opened: see issue #79 comment for link.
 Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #72 (2026-07-11) — pin @v1 doc examples, not @main
+Issue #72's original DoD (engine pointer ops→ralph, config.env header) was
+already fixed by #73 (merged). A 2026-07-11 rollout note added to #72 flagged
+NEW drift: this repo's actual workflow callers (.github/workflows/ralph.yml,
+ralph-gate.yml, ralph-triage.yml) were pinned to @v1 in #90, but ralph/README.md's
+"Add Ralph to another hirobius repo" example (step 2 uses: lines) and AGENTS.md's
+loop-mechanics engine pointer still said @main. Verified via grep that the real
+workflows already use @v1 — only the docs/examples were stale.
+Decision: smallest slice = update the two stale doc references to @v1, add a
+one-line "why @v1 not @main" note in README pointing at hirobius/ralph's
+Versioning section. Left config.env untouched — already correct from #73.
+Files changed: ralph/README.md, AGENTS.md.
+Gate: bash ralph/gate.sh green (16/16 turbo tasks).
+Branch: ralph/issue-72-v1-pin-doc-drift. PR #93 (Closes #72). Issue commented.
+Next iteration: none picked — Ralph selects the next issue.
