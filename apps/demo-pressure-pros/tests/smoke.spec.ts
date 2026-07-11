@@ -49,3 +49,9 @@ test("contact form posts to Web3Forms (mocked)", async ({ page }) => {
   expect(postData).toContain("access_key");
   expect(postData).not.toMatch(/botcheck=(?!&|$)./);
 });
+
+test("the form's hidden redirect field defaults to the branded /thanks page", async ({ page }) => {
+  await page.goto("/");
+  const redirect = page.locator('form[data-contact-form] input[name="redirect"]');
+  await expect(redirect).toHaveAttribute("value", "https://pressure-pros.example/thanks");
+});

@@ -2,6 +2,7 @@
 import type { ClientConfig } from "@hirobius/schema";
 import Section from "./Section.astro";
 import { telHref } from "../lib/theme.js";
+import { absoluteUrl } from "../lib/seo.js";
 
 interface Props {
   config: ClientConfig;
@@ -14,6 +15,10 @@ const tel = telHref(business.phone);
 // Native POST to Web3Forms: works with zero JS (best for Lighthouse). hCaptcha,
 // when configured, injects `h-captcha-response` into the form before submit.
 const subject = `New lead from ${business.name} website`;
+
+// Land the lead on the branded /thanks page, not Web3Forms' generic response
+// page, unless the config opts into a different destination.
+const redirectUrl = form.redirectUrl ?? absoluteUrl(seo.siteUrl, "/thanks");
 ---
 
 <Section id="contact" title="Get In Touch" subtitle={copy.ctaLabel}>
@@ -51,7 +56,7 @@ const subject = `New lead from ${business.name} website`;
       <input type="hidden" name="access_key" value={form.accessKey} />
       <input type="hidden" name="subject" value={subject} />
       <input type="hidden" name="from_name" value={business.name} />
-      {form.redirectUrl && <input type="hidden" name="redirect" value={form.redirectUrl} />}
+      <input type="hidden" name="redirect" value={redirectUrl} />
 
       {/* Honeypot — bots fill it, humans never see it. Web3Forms drops these. */}
       <input
