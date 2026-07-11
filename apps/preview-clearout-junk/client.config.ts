@@ -24,7 +24,7 @@ export const client = defineClient({
   },
   layout: {
     variant: "A",
-    sectionOrder: ["services", "gallery", "reviews", "serviceAreaMap", "contact"],
+    sectionOrder: ["services", "reviews", "serviceAreaMap", "contact"],
   },
   services: [
     {

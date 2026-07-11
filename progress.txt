@@ -115,3 +115,30 @@ PR opened: #65 (Closes #53).
 Next iteration: pick up #52 (3 preview apps gallery/sectionOrder bug) or #54
 (new-client/eject-client tooling tests) — both still ralph-ready and
 untouched by this session. #51 needs a human before Ralph can retry.
+
+Issue #52 (3 preview apps: phantom "gallery" in sectionOrder) — done.
+- Confirmed bug still live on main (prior PR #59 for this issue was closed
+  unmerged by a human for a "clean redo" after #64/#56 merged into main;
+  issue comment said Ralph would re-pick #52 fresh).
+- Test-first: added tests/acceptance.test.ts (mirrors monroe-street-power-
+  wash's) to preview-clearout-junk, preview-evergreen-lawn,
+  preview-solidline-concrete. Confirmed red: checkClientAcceptance flagged
+  "layout.sectionOrder includes \"gallery\" but its required data is
+  missing/empty" in all 3.
+- Fix: dropped "gallery" from each app's layout.sectionOrder (same call as
+  monroe — these are realData:false cold-outreach previews with no photos;
+  an empty gallery array would still fail the checker).
+- Wired test: vitest run + vitest devDep into each app's package.json so
+  `turbo run test` picks them up; pnpm install --no-frozen-lockfile once to
+  update pnpm-lock.yaml.
+- Branch note: remote already had a stale ralph/issue-52-preview-gallery-
+  sectionorder branch left over from the closed #59 PR (based on pre-#64/#56
+  main). Verified no open PR referenced it, then used
+  `git push --force-with-lease` to replace it with the fresh-off-main branch
+  under the exact required name, rather than renaming — prompt.md says the
+  harness keys reconciliation on the exact `ralph/issue-<n>-<slug>` shape.
+- Gate green: 15/15 turbo tasks (build + check + test).
+
+PR opened: #71 (Closes #52).
+Next iteration: #54 (new-client/eject-client tooling tests) is still
+ralph-ready and untouched.
