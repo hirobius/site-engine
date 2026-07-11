@@ -406,3 +406,64 @@ src/pages/thanks.astro (new), apps/demo-pressure-pros/tests/smoke.spec.ts.
 Branch: ralph/issue-80-thanks-page-redirect. PR opened (Closes #80). Issue
 commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-11
+
+Issue #81: performance defaults skip the fast path (font:"inter" +
+public/ hero bypass astro:assets)
+
+What shipped (smallest complete slice):
+- apps/_template/client.config.ts: brand.font "inter" -> "system" (matches
+  the schema's own default). Every new pnpm new-client scaffold now pays
+  zero Google Fonts requests by default; named web fonts (inter/geist/
+  work-sans/slab) stay a per-client opt-in. Existing apps that already set
+  a named font untouched (defaults-only change, matches the issue's own
+  risk note).
+- packages/template/src/build-gate.ts (armAcceptanceGate): added a check
+  that hero.image's basename exists under the app's src/assets/photos/ (the
+  dir ResponsiveImage.astro globs for the astro:assets fast path). Preview
+  builds console.warn (photos often land after intake, shouldn't block
+  local dev); a real build (SITE_LIVE=true / VERCEL_ENV=production) fails
+  via the existing checkClientAcceptance issue-list/throw path -- same
+  armed/unarmed split as the placeholder checks from #91. armAcceptanceGate
+  gained an optional `appDir` param (defaults to process.cwd(), which is
+  the app dir when Astro loads astro.config.ts) so tests can point it at a
+  fixture dir instead of the real FS.
+- New fixture: packages/template/src/__fixtures__/hero-image/optimized/
+  src/assets/photos/hero.jpg (empty placeholder file) for build-gate.test.ts.
+
+Decision: did NOT touch scripts/new-client.ts's next-steps text or
+docs/INTAKE.md (DoD asked to update both to the src/assets/photos/hero.jpg
+convention) -- checked both, they already say src/assets/photos/hero.jpg
+and have since the initial scaffold commit. The stub's hero.image string
+("/photos/hero.jpg") is a basename lookup against src/assets/photos/ first
+regardless of directory -- there was nothing to rewrite in the config path
+itself, only a real FS-backed check that catches when the file lands in
+the wrong place, which is what build-gate.ts now does.
+
+Decision: did NOT introduce a generic severity field on AcceptanceIssue
+(would touch acceptance.ts's pure/unit-tested API and every existing
+issue). Instead kept the hero-image check entirely inside build-gate.ts,
+which already owns the realData/env branching -- console.warn for the
+non-blocking preview case, push onto the throw-path issues array for the
+realData case. Smaller diff, acceptance.ts unchanged.
+
+Verify (issue's DoD): built apps/_template, grep -c fonts.googleapis.com
+dist/index.html -> 0. Built apps/demo-pressure-pros (already has a real
+src/assets/photos/hero.jpg): hero <img> emits a 4-width srcset in .webp,
+confirming the fast path works end to end. _template's own stub still has
+no real photo file by design (its docstring: kept VALID, not empty
+strings) so it can't demonstrate the srcset directly.
+
+Gate: bash ralph/gate.sh green (build, check, turbo test all pass, 0
+errors; 8 build-gate.test.ts cases, 4 new).
+Files changed: apps/_template/client.config.ts,
+packages/template/src/{build-gate.ts,build-gate.test.ts},
+packages/template/src/__fixtures__/hero-image/optimized/src/assets/photos/
+hero.jpg (new).
+
+Branch: ralph/issue-81-scaffold-fast-path-defaults. PR #96 opened (Closes
+#81). Issue commented.
+Next iteration: none picked — Ralph selects the next issue.
