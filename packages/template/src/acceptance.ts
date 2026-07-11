@@ -1,4 +1,7 @@
 import type { ClientConfig, SectionId } from "@hirobius/schema";
+import type { PaletteTokens } from "@hirobius/schema/presets";
+import { contrastRatio, WCAG_AA_NORMAL_TEXT } from "./lib/contrast.js";
+import { resolvePalette } from "./lib/theme.js";
 
 /**
  * Shared acceptance checks for a generated client site.
@@ -84,6 +87,22 @@ const SECTION_REQUIREMENTS: Record<SectionId, (config: ClientConfig) => boolean>
 };
 
 /**
+ * Token pairs the template actually renders text on top of. `fg`/`bg` covers
+ * both normal body text and the hero (`bg-fg text-on-fg`, where `on-fg`
+ * resolves to `bg` — see `brand-overlay.ts`). Keep in sync with any new
+ * surface/text pairing a component introduces (issue #79).
+ */
+const CONTRAST_TOKEN_PAIRS: Array<{
+  code: string;
+  a: keyof PaletteTokens;
+  b: keyof PaletteTokens;
+  label: string;
+}> = [
+  { code: "low-contrast-cta", a: "--brand-primary", b: "--brand-on-primary", label: "primary/on-primary (CTA button)" },
+  { code: "low-contrast-hero", a: "--brand-fg", b: "--brand-bg", label: "fg/bg (body text + hero surface pairing)" },
+];
+
+/**
  * Check a resolved `ClientConfig` for issues the schema can't express.
  * Returns an empty array when the config is acceptable.
  */
@@ -149,6 +168,17 @@ export function checkClientAcceptance(
       code: "empty-video-hero",
       message: 'layout.variant is "B" (full-bleed video) but hero.videoSrc is missing — renders an empty dark hero',
     });
+  }
+
+  const palette = resolvePalette(config);
+  for (const pair of CONTRAST_TOKEN_PAIRS) {
+    const ratio = contrastRatio(palette[pair.a], palette[pair.b]);
+    if (ratio < WCAG_AA_NORMAL_TEXT) {
+      issues.push({
+        code: pair.code,
+        message: `${pair.label} contrast is ${ratio.toFixed(2)}:1, below WCAG AA's ${WCAG_AA_NORMAL_TEXT}:1 (palettePreset "${config.brand.palettePreset}")`,
+      });
+    }
   }
 
   for (const section of config.layout.sectionOrder) {

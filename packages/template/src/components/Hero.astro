@@ -13,7 +13,7 @@ const tel = telHref(business.phone);
 const isVideo = layout.variant === "B" && hero.videoSrc;
 ---
 
-<section class="relative overflow-hidden bg-fg text-on-primary" aria-label="Intro">
+<section class="relative overflow-hidden bg-fg text-on-fg" aria-label="Intro">
   {
     isVideo ? (
       // Variant B: full-bleed background video. Poster paints first so video
@@ -59,7 +59,7 @@ const isVideo = layout.variant === "B" && hero.videoSrc;
       <h1 class="font-heading text-4xl font-bold leading-tight sm:text-5xl">
         {copy.heroHeadline}
       </h1>
-      <p class="mt-4 text-lg text-on-primary/90">{copy.heroSub}</p>
+      <p class="mt-4 text-lg text-on-fg/90">{copy.heroSub}</p>
 
       <div class="mt-8 flex flex-wrap gap-3">
         <a
@@ -70,13 +70,13 @@ const isVideo = layout.variant === "B" && hero.videoSrc;
         </a>
         <a
           href={tel}
-          class="inline-flex items-center rounded-theme border border-on-primary/40 px-6 py-3 font-semibold text-on-primary transition hover:bg-on-primary/10"
+          class="inline-flex items-center rounded-theme border border-on-fg/40 px-6 py-3 font-semibold text-on-fg transition hover:bg-on-fg/10"
         >
           Call {business.phone}
         </a>
       </div>
 
-      <p class="mt-6 text-sm text-on-primary/80">
+      <p class="mt-6 text-sm text-on-fg/80">
         Serving {business.serviceAreas.join(" • ")}
       </p>
     </div>
