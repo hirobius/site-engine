@@ -5,15 +5,16 @@ import { fontHref } from "../lib/theme.js";
 
 interface Props {
   config: ClientConfig;
-  /** Force noindex regardless of the NOINDEX env var (e.g. the /thanks page). */
+  /** Force noindex, e.g. the /thanks page — the only noindex mechanism; real
+   * preview-environment gating is the middleware's X-Robots-Tag header, not
+   * this prop (see README § Preview gating). */
   noindex?: boolean;
 }
 
-const { config, noindex: forceNoindex = false } = Astro.props;
+const { config, noindex = false } = Astro.props;
 const meta = metaTags(config);
 const jsonLd = localBusinessJsonLd(config);
 const webFont = fontHref(config);
-const noindex = forceNoindex || import.meta.env.NOINDEX === "true";
 ---
 
 <meta charset="utf-8" />
@@ -29,6 +30,8 @@ const noindex = forceNoindex || import.meta.env.NOINDEX === "true";
 
 {/* Open Graph */}
 <meta property="og:type" content="website" />
+<meta property="og:site_name" content={meta.ogSiteName} />
+<meta property="og:locale" content={meta.ogLocale} />
 <meta property="og:title" content={meta.ogTitle} />
 <meta property="og:description" content={meta.ogDescription} />
 <meta property="og:url" content={meta.ogUrl} />

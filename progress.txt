@@ -512,3 +512,77 @@ src/pages/index.astro (id="main-content" only).
 Branch: ralph/issue-82-a11y-baseline. PR opened (Closes #82). Issue
 commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+--- Issue #83 (2026-07-11) ---
+SEO completeness: machine-parseable JSON-LD hours, robots.txt, OG
+completeness, remove dead NOINDEX path.
+
+Scoped to 4 of the issue's 5 DoD items — deferred the nice-to-have
+(priceRange/geo on the LocalBusiness node) since neither field exists in
+packages/schema yet and adding them is a canonical schema change (see
+below on why that's out of scope here).
+
+1. Structured hours (packages/template/src/lib/seo.ts): added
+   parseDaysOfWeek/parseClockTime/parseOpenClose + exported
+   openingHoursSpecification(), replacing the old dayOfWeek:h.days (a raw
+   display string, not a schema.org DayOfWeek) + free-text description.
+   Deliberately did NOT touch packages/schema (BusinessHoursSchema stays
+   {days,hours} display strings) — a canonical shape change there needs a
+   cross-repo ops re-sync (AGENTS.md § contracts) that this repo can't
+   perform, and packages/schema/src/ops-drift.test.ts (wired into
+   ralph/gate.sh) would correctly red-gate on the unsynced drift; its own
+   refresh script (schema/scripts/refresh-ops-snapshot.ts) says outright
+   "never [regenerate] to silence a real, un-synced drift." Instead, seo.ts
+   parses the two display-string conventions already used fleetwide
+   ("Mon–Fri" / "Sat" / "Mon, Wed, Fri" ranges+lists, "8:00 AM – 6:00 PM"
+   12h ranges) into schema.org DayOfWeek URIs + 24h opens/closes. Rows that
+   don't match (e.g. "Closed", "By appointment") are omitted from
+   openingHoursSpecification rather than guessed at — schema.org's own
+   convention for "not open then". Also added "@id": `${siteUrl}#business`
+   to the LocalBusiness node (issue's nice-to-have #5, no schema change
+   needed).
+2. robots.txt (new packages/template/src/lib/seo.ts:robotsTxt(siteUrl) +
+   apps/*/src/pages/robots.txt.ts, one per app incl. _template so future
+   `pnpm new-client` scaffolds get it automatically): `Allow: /` +
+   `Sitemap: {siteUrl}/sitemap-index.xml`, matching @astrojs/sitemap's
+   output path. Propagated to the 5 already-scaffolded apps
+   (demo-pressure-pros, monroe-street-power-wash, preview-clearout-junk,
+   preview-evergreen-lawn, preview-solidline-concrete) same as issue #82's
+   index.astro id mechanically fanned out.
+3. OG completeness (seo.ts metaTags + BaseHead.astro): og:site_name
+   (business.name) + og:locale (hardcoded "en_US" — every client in the
+   fleet is a US local-service business per seo.region's format; a
+   technical SEO default, not a fabricated business fact).
+4. Removed the dead NOINDEX path: BaseHead.astro no longer reads
+   `import.meta.env.NOINDEX` (set nowhere in the repo — real preview
+   gating is the middleware's X-Robots-Tag header per README § Preview
+   gating). The `noindex` prop (used by Thanks.astro) is unchanged and is
+   now the only mechanism.
+
+New tests: packages/template/src/lib/seo.test.ts (8 cases) — day-range
+expansion, comma lists, 12h->24h incl. noon/midnight edge cases, unparseable
+rows omitted, mixed parseable/unparseable rows, robotsTxt output, og:
+site_name/locale, @id.
+
+Verify (issue's DoD): built apps/_template + apps/demo-pressure-pros,
+inspected dist/robots.txt (correct Allow/Sitemap lines) and the emitted
+LocalBusiness JSON-LD (structured openingHoursSpecification with real
+DayOfWeek URIs + opens/closes, @id present) and og:site_name/og:locale meta
+tags in dist/index.html. Did not paste a live Google Rich Results Test
+result into the PR (no network access to Google's tool from this
+environment) — the emitted JSON-LD was hand-checked against schema.org's
+LocalBusiness + OpeningHoursSpecification field requirements instead;
+flagged as a human follow-up in the PR.
+
+Gate: bash ralph/gate.sh green (build, check, turbo test all pass; +8 new
+seo.test.ts cases; schema-drift guard (ops-drift.test.ts) still green,
+confirming packages/schema was untouched).
+Files changed: packages/template/src/{lib/seo.ts,lib/seo.test.ts,
+components/BaseHead.astro} (new+modified), apps/{_template,
+demo-pressure-pros,monroe-street-power-wash,preview-clearout-junk,
+preview-evergreen-lawn,preview-solidline-concrete}/src/pages/robots.txt.ts
+(new).
+
+Branch: ralph/issue-83-seo-completeness. PR opened (Closes #83, but see PR
+body for the scope note on priceRange/geo). Issue commented.
+Next iteration: none picked — Ralph selects the next issue.
