@@ -586,3 +586,90 @@ preview-evergreen-lawn,preview-solidline-concrete}/src/pages/robots.txt.ts
 Branch: ralph/issue-83-seo-completeness. PR opened (Closes #83, but see PR
 body for the scope note on priceRange/geo). Issue commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #88 — Lighthouse + axe budgets on demo-pressure-pros (perf ≥95, a11y=100)
+
+New CI job `.github/workflows/lighthouse.yml` (same trigger paths + pinned
+mcr.microsoft.com/playwright:v1.60.0-noble container as visual.yml #74):
+builds demo-pressure-pros, runs `lhci autorun` (apps/demo-pressure-pros/
+lighthouserc.cjs) then the axe scan (playwright.a11y.config.ts + a11y/
+a11y.spec.ts, @axe-core/playwright). Budgets: perf>=0.95, a11y=1, seo=1,
+LCP<2500ms; 3 runs, lhci's default "optimistic" aggregation (best-of-3)
+absorbs simulated-throttling noise without hiding a real regression.
+
+Decisions + why:
+- staticDistDir (not astro preview) for lhci — serves dist/ directly, no
+  server-lifecycle wiring, sidesteps the Vercel-only preview-gate
+  middleware entirely (it doesn't run under a plain static server anyway).
+- chromeFlags needs "--no-sandbox --disable-dev-shm-usage" (root-in-
+  container) and, critically, "--force-prefers-reduced-motion": Lighthouse/
+  axe never scroll, so a below-the-fold `.reveal` section can still be
+  mid fade-in (opacity 0->1, brand.motion defaults "rich") when they
+  sample it — read as false-positive color-contrast violations. Same
+  flake guard as visual.yml (#22/#74). Confirmed empirically: several
+  "violations" I found before adding this flag vanished after — chased
+  and reverted 2 speculative component edits once the real cause was
+  motion, not color.
+- axe kept in its own playwright.a11y.config.ts + a11y/ dir (not tests/,
+  not wired into the default `test` script) so it never runs inside
+  ci.yml's plain `pnpm test` on an unpinned runner — one dedicated job.
+- lhci upload.target: filesystem (not the default temporary-public-
+  storage) — no third-party upload of demo content.
+- @lhci/cli's `chromeFlags` wants a space-separated STRING, not an array
+  (silently mis-joins otherwise: `[a,b].toString()` via `+=` on a string).
+
+Real a11y bugs found + fixed in packages/template (motion-independent,
+confirmed via forced reduced-motion, needed so the new gate can be green
+at all — otherwise it ships red on day one):
+- Reviews.astro: `aria-label` on a `<div>` with no `role` is invalid ARIA
+  (aria-prohibited-attr) — added `role="img"`.
+- Footer.astro: tel:/mailto: links below the 24x24px touch-target min +
+  insufficient spacing — `inline-block py-1.5`.
+- ServiceAreaMap.astro: service-area chip text-primary on bg-primary/10
+  (over a muted section bg) only hits ~4:1 contrast for this preset's
+  blue — swapped chip label to text-fg (12:1+), kept bg-primary/10 tint
+  + the primary-colored pulse dot as the brand accent.
+- ContactForm.astro privacy note (text-fg/50, 3.2:1) and Reviews byline
+  ("· via {source}", text-fg/60, 4.33:1): bumped both to text-fg/70
+  (~6:1 for this fg/bg pair, verified against WCAG_AA_NORMAL_TEXT=4.5).
+
+Prove-once (per DoD): confirmed green in the pinned container via
+`docker run ... lhci autorun` + the axe test (all budgets pass, a11y=1.0
+seo=1.0, perf 0.94-0.95 across 3 runs, LCP ~2438ms). Confirmed RED by
+temporarily adding a 1.5s busy-wait `<script>` to Document.astro's <head>
+— performance dropped to 0.61, job failed as expected — then reverted
+(git checkout, confirmed clean diff) before committing.
+
+Note for the human reviewer: performance genuinely straddles the 94/95
+boundary (FCP ~0.69 sub-score is the drag; TBT/CLS/SI already ~1.0) — not
+something my edits moved, present before them too. Relying on lhci's
+best-of-3 "optimistic" default rather than tightening the budget or
+digging further into FCP (would mean touching font-loading strategy,
+bigger than this issue's slice). Flagging in case it flakes red in real
+CI despite passing repeatedly here.
+
+Gate: bash ralph/gate.sh green. Also verified: demo-pressure-pros existing
+Playwright smoke suite (5 tests) still passes after the shared-component
+edits; packages/template vitest suite (56 tests, incl. contrast.test.ts)
+green.
+
+Files changed: .github/workflows/lighthouse.yml (new — see blocker below),
+apps/demo-pressure-pros/{package.json,lighthouserc.cjs (new),
+playwright.a11y.config.ts (new), a11y/a11y.spec.ts (new)},
+packages/template/src/components/{ContactForm,Footer,Reviews,
+ServiceAreaMap}.astro, README.md (new "Performance & accessibility
+budgets" section), pnpm-lock.yaml (@lhci/cli, @axe-core/playwright added
+to demo-pressure-pros devDependencies).
+
+BLOCKER: `git push` rejected .github/workflows/lighthouse.yml — "refusing
+to allow a GitHub App to create or update workflow ... without
+`workflows` permission". This bot's installation token can't write
+.github/workflows/** at all (a hard GitHub App permission boundary, not
+fixable from this session). Pushed everything else; the workflow file
+stays local-only, with its full contents quoted in the PR body for a
+human to add by hand (or grant the App `workflows` permission and have
+Ralph re-run). Commented this on the issue too.
+
+Branch: ralph/issue-88-lighthouse-a11y-budgets. PR opened (Closes #88,
+with the workflow-file caveat above). Issue commented.
+Next iteration: none picked — Ralph selects the next issue.
