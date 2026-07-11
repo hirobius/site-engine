@@ -711,3 +711,54 @@ full `bash ralph/gate.sh` both green.
 Branch: ralph/issue-89-dedup-phone-validation. PR opened (Closes #89).
 Issue commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-11
+
+Issue #54: test(scripts): cover new-client / eject-client golden-path tooling
+
+Prior PR #61 for this issue was functionally complete (11/11 vitest cases,
+gate green) but closed unmerged by a human for a "clean redo" — branch
+conflicted with main after #64 (gate fix) + #56 merged, same pattern as
+#52/#53's prior closures. Confirmed scripts/new-client.ts and
+scripts/eject-client.ts are byte-identical to #61's base (no commits touched
+them since), so re-applied the same diff fresh off current main rather than
+redesigning: scripts/package.json (new, @hirobius/scripts, test-only —
+devDeps @hirobius/schema workspace:*, tsx, vitest), scripts/tooling.test.ts
+(new, 11 cases), pnpm-workspace.yaml (+"scripts" member so `turbo run test`
+picks it up; build/check tasks skip it since it has no such scripts).
+
+new-client coverage: scaffold created with @hirobius/<slug> pkg name; all 4
+config rewrites (slug/name/preset/siteUrl); clean copy (no node_modules/
+dist/.astro/.turbo); generated config PASSES defineClient() (copied into a
+temp dir under scripts/ so the bare @hirobius/schema specifier resolves,
+executed via tsx — throws non-zero on invalid); rejects bad slug / unknown
+preset (no dir created); refuses to overwrite.
+
+eject coverage: standalone package.json has NO workspace:* deps + pins
+zod/@vercel/functions/astro; NO workspace: string anywhere in the tree;
+vendors template+schema into src/_vendor; NO residual @hirobius/* import
+specifier; writes tsconfig/.gitignore/README; copies no node_modules/dist.
+
+DEFERRED (flagged on issue, same as #61): full `astro build` / isolated-
+`install` "builds standalone" smoke — needs a networked install of
+astro/tailwind/sharp + minutes of wall-clock, wrong fit for the per-commit
+vitest gate. Belongs in a separate heavier CI job. No script bug uncovered,
+so scripts/new-client.ts and scripts/eject-client.ts are unchanged.
+
+Verify: `pnpm --filter @hirobius/scripts test` — 11/11. `pnpm install
+--no-frozen-lockfile` once (new scripts/ workspace member + 3 new devDeps).
+`bash ralph/gate.sh` green — 17/17 turbo tasks.
+
+Branch name note: origin had a stale `ralph/issue-54-scripts-tests` branch
+left over from the closed #61 PR (pre-#64/#56 main). Confirmed no open PR
+referenced it, branched fresh off current main under the same required
+name — will need `--force-with-lease` to push over the stale remote ref.
+
+Files changed: scripts/{package.json (new),tooling.test.ts (new)},
+pnpm-workspace.yaml, pnpm-lock.yaml.
+
+Branch: ralph/issue-54-scripts-tests. PR opened (Closes #54). Issue
+commented.
+Next iteration: none picked — Ralph selects the next issue.
