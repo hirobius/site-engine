@@ -20,13 +20,18 @@ const BASE_INPUT: ClientConfigInput = {
     heroSub: "Sub",
     about: "About us.",
   },
-  form: { provider: "web3forms", accessKey: "real-web3forms-key-123" },
+  form: {
+    provider: "web3forms",
+    accessKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    hcaptchaSiteKey: "real-hcaptcha-site-key",
+  },
   seo: {
     title: "Real Business Co | Spokane",
     description: "Spokane's real business.",
     city: "Spokane",
     region: "WA",
     siteUrl: "https://realbusinessco.com",
+    ogImage: "/photos/og.jpg",
   },
 };
 
@@ -64,6 +69,22 @@ describe("checkClientAcceptance", () => {
     expect(issues.map((i) => i.code)).toContain("placeholder-site-url");
   });
 
+  it("flags an example.com email once realData is true", () => {
+    const issues = checkClientAcceptance(
+      config({ business: { ...BASE_INPUT.business, email: "hello@example.com" } }),
+      { realData: true },
+    );
+    expect(issues.map((i) => i.code)).toContain("placeholder-email");
+  });
+
+  it("flags an example.com siteUrl once realData is true", () => {
+    const issues = checkClientAcceptance(
+      config({ seo: { ...BASE_INPUT.seo, siteUrl: "https://example.com" } }),
+      { realData: true },
+    );
+    expect(issues.map((i) => i.code)).toContain("placeholder-site-url");
+  });
+
   it("flags the 555 area code convention once realData is true", () => {
     const issues = checkClientAcceptance(
       config({ business: { ...BASE_INPUT.business, phone: "(555) 010-0000" } }),
@@ -86,6 +107,30 @@ describe("checkClientAcceptance", () => {
       { realData: true },
     );
     expect(issues.map((i) => i.code)).toContain("placeholder-form-key");
+  });
+
+  it("flags a REPLACE_WITH-style form key once realData is true", () => {
+    const issues = checkClientAcceptance(
+      config({ form: { provider: "web3forms", accessKey: "REPLACE_WITH_WEB3FORMS_ACCESS_KEY" } }),
+      { realData: true },
+    );
+    expect(issues.map((i) => i.code)).toContain("placeholder-form-key");
+  });
+
+  it("flags a missing hcaptchaSiteKey once realData is true", () => {
+    const issues = checkClientAcceptance(
+      config({ form: { provider: "web3forms", accessKey: BASE_INPUT.form.accessKey } }),
+      { realData: true },
+    );
+    expect(issues.map((i) => i.code)).toContain("missing-hcaptcha-key");
+  });
+
+  it("flags a missing seo.ogImage once realData is true", () => {
+    const issues = checkClientAcceptance(
+      config({ seo: { ...BASE_INPUT.seo, ogImage: undefined } }),
+      { realData: true },
+    );
+    expect(issues.map((i) => i.code)).toContain("missing-og-image");
   });
 
   it("flags a stub business name once realData is true", () => {
@@ -116,6 +161,21 @@ describe("checkClientAcceptance", () => {
       config({
         layout: { sectionOrder: ["services", "gallery", "contact"] },
         gallery: [{ src: "/photos/one.jpg", alt: "A finished job" }],
+      }),
+    );
+    expect(issues).toEqual([]);
+  });
+
+  it("flags a variant B layout with no hero.videoSrc, regardless of realData", () => {
+    const issues = checkClientAcceptance(config({ layout: { variant: "B", sectionOrder: ["contact"] } }));
+    expect(issues.map((i) => i.code)).toContain("empty-video-hero");
+  });
+
+  it("passes a variant B layout once hero.videoSrc is set", () => {
+    const issues = checkClientAcceptance(
+      config({
+        layout: { variant: "B", sectionOrder: ["contact"] },
+        hero: { videoSrc: "/photos/hero.mp4" },
       }),
     );
     expect(issues).toEqual([]);

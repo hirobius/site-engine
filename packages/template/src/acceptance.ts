@@ -12,8 +12,12 @@ import type { ClientConfig, SectionId } from "@hirobius/schema";
  * Each `apps/<slug>` acceptance test calls `checkClientAcceptance` with its own
  * config. Placeholder checks are opt-in via `realData` because every preview
  * site in this fleet (see `apps/_template`'s stub phone `(555) 010-0000`)
- * intentionally ships fictional contact info until intake lands — flip
- * `realData: true` in that app's test once the real business data replaces it.
+ * intentionally ships fictional contact info until intake lands. `realData`
+ * doesn't need to be hand-flipped anymore — `armAcceptanceGate` (`build-gate.ts`)
+ * calls this with `realData` keyed off `SITE_LIVE`/`VERCEL_ENV` from every app's
+ * `astro.config.ts`, so a real build fails automatically the moment placeholder
+ * data would otherwise ship (issue #78 — the #37 guard was dormant fleet-wide
+ * because nothing armed it).
  */
 
 export interface AcceptanceIssue {
@@ -28,6 +32,7 @@ export interface AcceptanceOptions {
 
 const PLACEHOLDER_EMAIL_DOMAIN = /\.example$/i;
 const PLACEHOLDER_NAME = /\b(acme|new client|test business)\b/i;
+const WEB3FORMS_KEY_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Fleet convention for fake phones: area code 555, or the FCC-reserved
  *  555-01XX exchange (see `apps/_template`'s stub `(555) 010-0000`). */
@@ -40,10 +45,34 @@ function isPlaceholderPhone(phone: string): boolean {
   return areaCode === "555" || (exchange === "555" && /^01/.test(line));
 }
 
-/** All-zeros Web3Forms key, with or without UUID dashes. */
+/** `example.com`, not just the `.example` TLD (see `apps/_template`'s stub
+ *  `hello@example.com`, which the original `.example`-only check missed). */
+function hasPlaceholderDomain(domain: string): boolean {
+  return PLACEHOLDER_EMAIL_DOMAIN.test(domain) || domain.toLowerCase() === "example.com";
+}
+
+function isPlaceholderEmail(email: string): boolean {
+  return hasPlaceholderDomain(email.split("@").pop() ?? "");
+}
+
+function isPlaceholderSiteUrl(siteUrl: string): boolean {
+  let hostname: string;
+  try {
+    hostname = new URL(siteUrl).hostname;
+  } catch {
+    return false;
+  }
+  return hasPlaceholderDomain(hostname);
+}
+
+/** All-zeros Web3Forms key (with or without UUID dashes), or anything that
+ *  isn't UUID-shaped at all — real Web3Forms keys are UUIDs, so a scaffold
+ *  string like `REPLACE_WITH_WEB3FORMS_ACCESS_KEY` (see `apps/_template`)
+ *  is caught even though it isn't all zeros. */
 function isPlaceholderFormKey(accessKey: string): boolean {
   const alphanumeric = accessKey.replace(/-/g, "");
-  return alphanumeric.length > 0 && /^0+$/.test(alphanumeric);
+  if (alphanumeric.length > 0 && /^0+$/.test(alphanumeric)) return true;
+  return !WEB3FORMS_KEY_SHAPE.test(accessKey);
 }
 
 const SECTION_REQUIREMENTS: Record<SectionId, (config: ClientConfig) => boolean> = {
@@ -65,16 +94,16 @@ export function checkClientAcceptance(
   const issues: AcceptanceIssue[] = [];
 
   if (options.realData) {
-    if (PLACEHOLDER_EMAIL_DOMAIN.test(config.business.email)) {
+    if (isPlaceholderEmail(config.business.email)) {
       issues.push({
         code: "placeholder-email",
-        message: `business.email is a placeholder .example address: ${config.business.email}`,
+        message: `business.email is a placeholder .example/example.com address: ${config.business.email}`,
       });
     }
-    if (PLACEHOLDER_EMAIL_DOMAIN.test(config.seo.siteUrl)) {
+    if (isPlaceholderSiteUrl(config.seo.siteUrl)) {
       issues.push({
         code: "placeholder-site-url",
-        message: `seo.siteUrl is a placeholder .example domain: ${config.seo.siteUrl}`,
+        message: `seo.siteUrl is a placeholder .example/example.com domain: ${config.seo.siteUrl}`,
       });
     }
     if (isPlaceholderPhone(config.business.phone)) {
@@ -86,7 +115,13 @@ export function checkClientAcceptance(
     if (isPlaceholderFormKey(config.form.accessKey)) {
       issues.push({
         code: "placeholder-form-key",
-        message: "form.accessKey is a placeholder (all-zeros) Web3Forms key",
+        message: `form.accessKey doesn't look like a real Web3Forms key: ${config.form.accessKey}`,
+      });
+    }
+    if (!config.form.hcaptchaSiteKey) {
+      issues.push({
+        code: "missing-hcaptcha-key",
+        message: "form.hcaptchaSiteKey is required once realData is true — spam protection is a go-live requirement",
       });
     }
     if (PLACEHOLDER_NAME.test(config.business.name)) {
@@ -101,6 +136,19 @@ export function checkClientAcceptance(
         message: `seo.siteUrl must be a real https URL: ${config.seo.siteUrl}`,
       });
     }
+    if (!config.seo.ogImage) {
+      issues.push({
+        code: "missing-og-image",
+        message: "seo.ogImage is required once realData is true (social/link previews need it)",
+      });
+    }
+  }
+
+  if (config.layout.variant === "B" && !config.hero.videoSrc) {
+    issues.push({
+      code: "empty-video-hero",
+      message: 'layout.variant is "B" (full-bleed video) but hero.videoSrc is missing — renders an empty dark hero',
+    });
   }
 
   for (const section of config.layout.sectionOrder) {
