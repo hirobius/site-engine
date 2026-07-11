@@ -1,0 +1,36 @@
+---
+import type { ClientConfig } from "@hirobius/schema";
+import Document from "./Document.astro";
+import Footer from "./Footer.astro";
+import { telHref } from "../lib/theme.js";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { business } = config;
+const tel = telHref(business.phone);
+
+// Default redirect target for ContactForm.astro (see form.redirectUrl in
+// packages/schema). Not a landing page, so it's always noindexed.
+---
+
+<Document config={config} noindex>
+  <main
+    class="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center px-5 py-24 text-center"
+  >
+    <h1 class="font-heading text-3xl font-bold sm:text-4xl">Thanks — we got your request</h1>
+    <p class="mt-4 text-lg text-fg/80">
+      {business.name} will call you back shortly. Need it faster? Call us now.
+    </p>
+    <a
+      href={tel}
+      class="mt-8 inline-flex items-center rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
+    >
+      Call {business.phone}
+    </a>
+    <a href="/" class="mt-6 text-sm text-fg/60 underline">Back to home</a>
+  </main>
+  <Footer config={config} />
+</Document>

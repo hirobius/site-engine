@@ -14,9 +14,11 @@ import Motion from "./Motion.astro";
  */
 interface Props {
   config: ClientConfig;
+  /** Force noindex regardless of the NOINDEX env var (e.g. the /thanks page). */
+  noindex?: boolean;
 }
 
-const { config } = Astro.props;
+const { config, noindex = false } = Astro.props;
 const style = brandStyle(config);
 const motion = config.brand.motion;
 ---
@@ -24,7 +26,7 @@ const motion = config.brand.motion;
 <!doctype html>
 <html lang="en" style={style} data-motion={motion}>
   <head>
-    <BaseHead config={config} />
+    <BaseHead config={config} noindex={noindex} />
     {
       /* Arm the reveal/rise CSS before first paint (no flash), but only for
          visitors who haven't asked for reduced motion. No motion class => the

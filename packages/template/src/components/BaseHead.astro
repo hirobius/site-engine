@@ -5,13 +5,15 @@ import { fontHref } from "../lib/theme.js";
 
 interface Props {
   config: ClientConfig;
+  /** Force noindex regardless of the NOINDEX env var (e.g. the /thanks page). */
+  noindex?: boolean;
 }
 
-const { config } = Astro.props;
+const { config, noindex: forceNoindex = false } = Astro.props;
 const meta = metaTags(config);
 const jsonLd = localBusinessJsonLd(config);
 const webFont = fontHref(config);
-const noindex = import.meta.env.NOINDEX === "true";
+const noindex = forceNoindex || import.meta.env.NOINDEX === "true";
 ---
 
 <meta charset="utf-8" />

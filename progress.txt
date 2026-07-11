@@ -356,3 +356,53 @@ until that lands. Proving visual green/red also blocked on that.
 Branch: ralph/issue-74-visual-regression-tripwire. PR #94 (Closes #74).
 Issue commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-11
+
+Issue #80: branded /thanks page + default form redirect (close post-submit
+conversion leak)
+
+What shipped (smallest complete slice):
+- packages/template/src/components/Thanks.astro: new branded page component
+  (Document + "we got it, we'll call you back" copy + tel: CTA + back-home
+  link + Footer). Always noindexed — it's a conversion-tracking hook, not a
+  landing page.
+- Document.astro / BaseHead.astro: added an optional `noindex` prop so a page
+  can force noindex regardless of the NOINDEX env var, without touching the
+  existing env-based gate used for the rest of the site.
+- ContactForm.astro: hidden `redirect` field is no longer conditional on
+  `form.redirectUrl` — it now always renders, defaulting to
+  `absoluteUrl(seo.siteUrl, "/thanks")` via the existing seo.ts helper, with
+  the explicit `form.redirectUrl` still winning when set.
+- Wired `src/pages/thanks.astro` (2-line wrapper, same pattern as every app's
+  index.astro) into ALL apps, not just _template: _template, demo-pressure-
+  pros, monroe-street-power-wash, preview-clearout-junk, preview-evergreen-
+  lawn, preview-solidline-concrete. Scoped this wider than the issue's literal
+  "wired via _template" because ContactForm.astro is shared — defaulting the
+  redirect without giving every existing app a real /thanks page would have
+  made every fleet site's form redirect to a 404 post-submit (a regression,
+  not a fix). Confirmed safe: every app's seo.siteUrl is still a `.example`
+  placeholder (none handed off/live yet).
+- Playwright smoke (demo-pressure-pros): new test asserts the hidden redirect
+  field equals `https://pressure-pros.example/thanks`. Ran the full demo
+  Playwright suite locally against a real build (`pnpm build` + `npx
+  playwright test`, chromium installed ad hoc) — all 5 tests green, confirmed
+  /thanks renders with tel: CTA + `noindex, nofollow` meta and the redirect
+  field is populated in the built HTML.
+- Sitemap/JSON-LD DoD item satisfied via noindex (the page does still appear
+  in @astrojs/sitemap's output — didn't add a sitemap filter per app since
+  the issue's DoD accepts "excluded OR noindexed" and noindex is the smaller,
+  single-file change).
+
+Gate: bash ralph/gate.sh green (build, check, turbo test all pass, 0 errors).
+Files changed: packages/template/src/components/{Thanks.astro(new),
+Document.astro,BaseHead.astro,ContactForm.astro},
+apps/{_template,demo-pressure-pros,monroe-street-power-wash,
+preview-clearout-junk,preview-evergreen-lawn,preview-solidline-concrete}/
+src/pages/thanks.astro (new), apps/demo-pressure-pros/tests/smoke.spec.ts.
+
+Branch: ralph/issue-80-thanks-page-redirect. PR opened (Closes #80). Issue
+commented.
+Next iteration: none picked — Ralph selects the next issue.
