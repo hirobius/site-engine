@@ -1,0 +1,61 @@
+name: Visual Regression
+
+# Catches "fleet rebuild drift": a packages/* change that silently restyles the
+# rendered template. Runs in the pinned Playwright container so rendering matches
+# the committed baselines exactly.
+on:
+  pull_request:
+    paths:
+      - "packages/**"
+      - "apps/_gallery/**"
+      - ".github/workflows/visual.yml"
+  workflow_dispatch:
+    inputs:
+      update:
+        description: "Regenerate baselines and upload them as an artifact"
+        type: boolean
+        default: false
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    # Pinned to the resolved Playwright version so browsers + OS match baselines.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm version comes from "packageManager" in package.json
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build gallery
+        run: pnpm --filter @hirobius/gallery build
+
+      - name: Compare snapshots
+        if: ${{ !inputs.update }}
+        run: pnpm --filter @hirobius/gallery test:visual
+
+      - name: Update snapshots (manual dispatch)
+        if: ${{ inputs.update }}
+        run: pnpm --filter @hirobius/gallery test:visual:update
+
+      # On failure, the report contains expected/actual/diff PNGs to review.
+      # On a dispatched update, the snapshots dir is the deliverable to commit.
+      - name: Upload report / snapshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-${{ inputs.update && 'snapshots' || 'report' }}
+          path: |
+            apps/_gallery/playwright-report/
+            apps/_gallery/tests/**/*-snapshots/**
+          retention-days: 7
+          if-no-files-found: ignore
