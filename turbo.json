@@ -3,6 +3,7 @@
   "ui": "stream",
   "globalEnv": [
     "VERCEL_ENV",
+    "SITE_LIVE",
     "PREVIEW_USER",
     "PREVIEW_PASS"
   ],

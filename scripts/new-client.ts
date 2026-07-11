@@ -93,6 +93,14 @@ Next:
      Verbatim assets (og.jpg, favicon) go in apps/${slug}/public.
   3. pnpm install && pnpm --filter @hirobius/${slug} build
 
+Go-live checklist (before flipping this site public):
+  - Replace every placeholder: phone, email, form.accessKey, siteUrl, ogImage.
+  - Set form.hcaptchaSiteKey (required once real data is live).
+  - Set SITE_LIVE=true (or deploy to the Vercel "production" env, which sets
+    VERCEL_ENV=production automatically) — astro build then runs
+    checkClientAcceptance with realData:true and FAILS the build if any
+    placeholder survived. Preview builds stay unarmed on purpose.
+
 ──────────────────────────────────────────────────────────────────────────────
 Vercel setup (run from repo root; one project per client):
 

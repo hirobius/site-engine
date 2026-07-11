@@ -9,6 +9,7 @@
 export * from "./lib/theme.js";
 export * from "./lib/seo.js";
 export * from "./acceptance.js";
+export * from "./build-gate.js";
 export { defineClient } from "@hirobius/schema";
 export type { ClientConfig, SectionId } from "@hirobius/schema";
 

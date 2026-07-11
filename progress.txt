@@ -202,3 +202,54 @@ ralph-ready and untouched.
 PR opened: #75 (Closes #21).
 Next iteration: #54 (new-client/eject-client tooling tests) still
 ralph-ready and untouched.
+
+## Issue #78 — arm the launch gate (2026-07-11)
+- Problem: checkClientAcceptance()'s realData placeholder checks existed
+  but no app ever set realData: true — the guard was dormant fleet-wide.
+  The scaffold's own placeholders (`REPLACE_WITH_WEB3FORMS_ACCESS_KEY`,
+  `hello@example.com`) evaded even the existing detectors.
+- Fix: `armAcceptanceGate(client)` (new packages/template/src/build-gate.ts)
+  keys realData off `SITE_LIVE === "true" || VERCEL_ENV === "production"`
+  and throws on issues. Wired into all 6 apps' astro.config.ts (_template +
+  5 deployed apps) — identical line addition, matching the existing
+  duplicated-file convention (middleware.ts). Added a drift-guard test
+  (astro-config-gate.test.ts, mirrors middleware-gate.test.ts) so a future
+  app can't silently skip it.
+- Extended checkClientAcceptance: example.com (not just .example) via a new
+  hasPlaceholderDomain/isPlaceholderEmail/isPlaceholderSiteUrl helper set;
+  form key check now also rejects anything not UUID-shaped (was: all-zeros
+  only) — required updating acceptance.test.ts's BASE_INPUT fixture to a
+  real-looking UUID key + hcaptchaSiteKey + ogImage so the "fully real"
+  test still passes; hcaptchaSiteKey required under realData; seo.ogImage
+  required under realData; layout.variant "B" without hero.videoSrc flagged
+  unconditionally (dead hero, not data-quality — same bug class as the
+  existing incomplete-section check).
+- apps/_template had a pre-existing bug the new unconditional check
+  surfaced: sectionOrder included "gallery" while gallery: [] — fixed by
+  dropping "gallery" from the stub's sectionOrder (matches monroe's
+  precedent/comment for photo-less previews).
+- apps/_template gains tests/acceptance.test.ts + a "test": "vitest run"
+  script + vitest devDependency — first acceptance coverage on the
+  canonical scaffold, so every pnpm new-client copy inherits it.
+- scripts/new-client.ts's printed next-steps gained a go-live checklist
+  mentioning SITE_LIVE and what it arms.
+- turbo.json: added SITE_LIVE to globalEnv so the build task's cache key
+  changes with the flag (else a cached preview build could be served under
+  SITE_LIVE=true without re-running the gate).
+- Proof done manually: `pnpm --filter @hirobius/monroe-street-power-wash
+  build` passes; `SITE_LIVE=true pnpm --filter @hirobius/monroe-street-power-wash
+  build` fails, listing all 6 placeholder issues in monroe's still-preview
+  config (email, siteUrl, phone, form key, hcaptcha, ogImage).
+- Gate green: pnpm build + pnpm check + turbo test (all suites, template
+  package now has 4 test files / 33 tests).
+
+Files changed: packages/template/src/{acceptance.ts,acceptance.test.ts,
+build-gate.ts (new),build-gate.test.ts (new),astro-config-gate.test.ts
+(new),index.ts}, apps/_template/{astro.config.ts,client.config.ts,
+package.json,tests/acceptance.test.ts (new)}, apps/{demo-pressure-pros,
+monroe-street-power-wash,preview-clearout-junk,preview-evergreen-lawn,
+preview-solidline-concrete}/astro.config.ts, scripts/new-client.ts,
+turbo.json, pnpm-lock.yaml.
+
+PR opened: #91 (Closes #78).
+Next iteration: none picked — Ralph selects the next issue.

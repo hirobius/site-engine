@@ -31,7 +31,10 @@ export const client = defineClient({
   },
   layout: {
     variant: "A",
-    sectionOrder: ["services", "gallery", "reviews", "serviceAreaMap", "contact"],
+    // No "gallery" — the stub ships no photos (see monroe-street-power-wash's
+    // client.config.ts for the same precedent); an empty gallery section
+    // renders blank.
+    sectionOrder: ["services", "reviews", "serviceAreaMap", "contact"],
   },
   hero: {
     image: "/photos/hero.jpg",

@@ -1,7 +1,12 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import { armAcceptanceGate } from "@hirobius/template";
 import { client } from "./client.config";
+
+// Arms checkClientAcceptance's realData checks on SITE_LIVE=true /
+// VERCEL_ENV=production — throws to fail the build, never fails a preview.
+armAcceptanceGate(client);
 
 // Static output (default). The preview gate is a Vercel Routing Middleware at
 // ./middleware.ts — NOT Astro middleware, which does not run on static output.
