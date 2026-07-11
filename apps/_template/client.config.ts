@@ -26,7 +26,10 @@ export const client = defineClient({
   },
   brand: {
     palettePreset: "pressure-washing",
-    font: "inter",
+    // "system" is the schema default: zero-cost, no Google Fonts request, no
+    // render-blocking CSS/woff2 RTT. A named web font (inter/geist/work-sans/
+    // slab) is an opt-in per client, not a scaffold default (issue #81).
+    font: "system",
     radius: "md",
   },
   layout: {
