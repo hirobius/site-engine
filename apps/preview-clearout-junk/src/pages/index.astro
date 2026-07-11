@@ -23,7 +23,7 @@ const SECTIONS: Record<SectionId, typeof ServicesGrid> = {
 ---
 
 <Document config={client}>
-  <main>
+  <main id="main-content">
     <Hero config={client} />
     {
       client.layout.sectionOrder.map((id) => {

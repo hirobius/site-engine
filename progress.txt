@@ -467,3 +467,48 @@ hero.jpg (new).
 Branch: ralph/issue-81-scaffold-fast-path-defaults. PR #96 opened (Closes
 #81). Issue commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+--- Issue #82 (2026-07-11) ---
+a11y baseline: :focus-visible ring, skip link, reduced-motion gate on hero
+video, service-image alt default.
+
+1. Focus ring (theme.css): global `:focus-visible { outline:none; box-shadow:
+   <bg 2px>, <fg 4px> }` two-tone halo instead of a single primary-colored
+   ring. Reason: primary/bg contrast isn't guardrailed (#79 only checks
+   primary/on-primary + fg/bg), so a primary-only ring could vanish on some
+   presets; fg/bg IS guardrailed to AA, so stacking both colors guarantees one
+   ring segment is visible on both normal page bg and inverted (bg-fg)
+   sections (hero/footer). Removed the `outline-none focus:border-primary`
+   half-measure from ContactForm's 4 inputs so the global rule isn't fought.
+2. Skip link: added to Document.astro (sr-only, focus-visible:not-sr-only),
+   targets #main-content. Added that id to every app's <main> in index.astro
+   (main is authored per-app, not inside the shared Document/Hero components)
+   plus Thanks.astro's shared <main> (covers every site's /thanks page in one
+   edit).
+3. Hero video: dropped the `autoplay` attribute; a tiny inline script now
+   calls video.play() unless matchMedia("(prefers-reduced-motion: reduce)")
+   matches, mirroring Document.astro's existing reduced-motion check. Reduced-
+   motion visitors see the poster only, never fetch/play the video.
+4. ServicesGrid: service image alt now defaults to "" (decorative) instead of
+   service.title. Explicit alt field is #87 (schema), out of scope here.
+
+Verify: temporarily flipped apps/demo-pressure-pros/client.config.ts to
+variant B + a videoSrc/videoPoster, built, drove it with a throwaway
+Playwright script (chromium, keyboard Tab through skip link -> hero CTAs ->
+tel/email -> form fields -> submit -> footer, plus a reduced-motion page).
+Confirmed: skip link is the first tab stop and gets the halo ring; every
+focusable element gets the fg/bg box-shadow ring (no reliance on `outline`,
+which is `none` on purpose); with prefers-reduced-motion: reduce the video
+element is paused, has no autoplay attribute, currentTime 0. Reverted the
+client.config.ts change before committing — not part of the fix.
+
+Gate: bash ralph/gate.sh green (build, check, turbo test all pass).
+Files changed: packages/template/src/styles/theme.css,
+packages/template/src/components/{Document,ContactForm,Hero,ServicesGrid,
+Thanks}.astro, apps/{_template,demo-pressure-pros,monroe-street-power-wash,
+preview-clearout-junk,preview-evergreen-lawn,preview-solidline-concrete}/
+src/pages/index.astro (id="main-content" only).
+
+Branch: ralph/issue-82-a11y-baseline. PR opened (Closes #82). Issue
+commented.
+Next iteration: none picked — Ralph selects the next issue.
