@@ -40,6 +40,10 @@
   --color-fg: var(--semantic-color-content-primary);
   --color-muted: var(--semantic-color-surface-raised);
   --color-on-primary: var(--semantic-color-content-onAccent);
+  /* Text/icon color that sits on a `--color-fg` surface (e.g. the hero's
+     `bg-fg`) — distinct from `--color-on-primary`, which pairs with
+     `--color-primary` only. See brand-overlay.ts (issue #79). */
+  --color-on-fg: var(--semantic-color-content-inverse);
 
   --font-heading: var(--primitive-typography-family-display);
   --font-body: var(--primitive-typography-family-primary);

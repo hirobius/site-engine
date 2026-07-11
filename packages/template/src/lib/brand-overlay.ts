@@ -90,6 +90,12 @@ export function brandOverlayVars(palette: BrandPalette): Record<string, string> 
     '--semantic-color-surface-raised': muted,
     '--semantic-color-content-primary': fg,
     '--semantic-color-content-secondary': blend(fg, bg, CONTENT_SECONDARY_MIX),
+    // `fg` is the one surface dark enough to use as an inverted (dark) hero
+    // background (`bg-fg`); `bg` is guaranteed high-contrast against it, since
+    // fg/bg is already the page's base body-text/background pairing. Pairing
+    // hero text with `onPrimary` instead (designed for `primary`, not `fg`)
+    // was issue #79 — near-black-on-near-black on the junk-removal preset.
+    '--semantic-color-content-inverse': bg,
   };
 
   // Secondary accent has no 1:1 HDS home — kept brand-level (Adrian, 2026-07-08).

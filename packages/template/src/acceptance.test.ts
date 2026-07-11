@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { defineClient } from "@hirobius/schema";
+import { defineClient, PALETTE_PRESET_IDS } from "@hirobius/schema";
 import type { ClientConfigInput } from "@hirobius/schema";
 import { checkClientAcceptance } from "./acceptance.js";
 
@@ -179,5 +179,39 @@ describe("checkClientAcceptance", () => {
       }),
     );
     expect(issues).toEqual([]);
+  });
+
+  describe("token contrast (issue #79)", () => {
+    it("passes every shipped preset's primary/on-primary and fg/bg pairing", () => {
+      for (const palettePreset of PALETTE_PRESET_IDS) {
+        const issues = checkClientAcceptance(config({ brand: { palettePreset } }));
+        expect(issues.map((i) => i.code), `preset "${palettePreset}"`).not.toContain("low-contrast-cta");
+        expect(issues.map((i) => i.code), `preset "${palettePreset}"`).not.toContain("low-contrast-hero");
+      }
+    });
+
+    it("flags a low-contrast primary/on-primary override", () => {
+      const issues = checkClientAcceptance(
+        config({
+          brand: {
+            palettePreset: "junk-removal",
+            cssVarOverrides: { "--brand-on-primary": "#f26419" },
+          },
+        }),
+      );
+      expect(issues.map((i) => i.code)).toContain("low-contrast-cta");
+    });
+
+    it("flags a low-contrast fg/bg override (would break the hero and body text)", () => {
+      const issues = checkClientAcceptance(
+        config({
+          brand: {
+            palettePreset: "junk-removal",
+            cssVarOverrides: { "--brand-fg": "#161616", "--brand-bg": "#1a1a1a" },
+          },
+        }),
+      );
+      expect(issues.map((i) => i.code)).toContain("low-contrast-hero");
+    });
   });
 });

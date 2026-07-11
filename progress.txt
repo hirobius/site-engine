@@ -253,3 +253,55 @@ turbo.json, pnpm-lock.yaml.
 
 PR opened: #91 (Closes #78).
 Next iteration: none picked — Ralph selects the next issue.
+
+Ralph iteration — 2026-07-11
+
+Issue #79: fix(template) hero unreadable on junk-removal preset — bg-fg × text-on-primary token mispairing
+
+What shipped (smallest complete slice, packages/template only — no packages/schema
+contract change, so no ops re-sync required):
+- Root cause: Hero.astro's `bg-fg text-on-primary` paired `--brand-fg` (surface)
+  against `--brand-on-primary` (text) — a token designed to pair with `--brand-
+  primary`, not `--brand-fg`. junk-removal resolves to #161616 bg vs #0d0d0d
+  text, ~1.07:1 (WCAG needs 4.5:1). The other 3 presets only looked fine because
+  their on-primary happens to be #ffffff.
+- Fix: introduced `--color-on-fg` (theme.css `@theme`), mapped to a new
+  `--semantic-color-content-inverse: bg` line in brand-overlay.ts's
+  brandOverlayVars(). Reuses `bg` (not a new schema field) because fg/bg is
+  already the page's base body-text/background pairing — pairing hero text
+  with `bg` when `fg` is used as the hero surface is just that same pairing
+  read in reverse, so it's contrast-correct by construction, per-preset, and
+  per-override, with zero new PaletteTokens surface (avoids an ops/lib/schema
+  contract-drift sync — packages/schema untouched).
+- Hero.astro: `bg-fg text-on-primary` -> `bg-fg text-on-fg`; same swap on the
+  heroSub paragraph, the "Call {phone}" button's border/text/hover, and the
+  "Serving ..." line. Left the CTA button's `bg-primary text-on-primary`
+  untouched — that pairing was already correct (issue said so explicitly).
+- New packages/template/src/lib/contrast.ts: dependency-free WCAG relative-
+  luminance + contrastRatio + meetsAAContrast (3- and 6-digit hex). 8 unit
+  tests incl. a fixture asserting junk-removal's exact pre-fix pair
+  (#161616 vs #0d0d0d) is correctly flagged red (~1.07:1) and its post-fix
+  pair (#161616 vs #ffffff) passes.
+- checkClientAcceptance (acceptance.ts) gained an unconditional (not gated by
+  realData — this is structural, not fake-intake-data) contrast guardrail:
+  resolvePalette(config) checked against WCAG AA 4.5:1 for primary/on-primary
+  (`low-contrast-cta`) and fg/bg (`low-contrast-hero` — covers the hero since
+  on-fg now == bg). Runs for every preset and any cssVarOverrides, so a future
+  preset or override can't regress this silently. 4 new acceptance.test.ts
+  cases: all 4 shipped presets pass both pairs; a bad on-primary override
+  flags low-contrast-cta; a bad fg/bg override flags low-contrast-hero.
+- Verified against built output, not just unit tests: rebuilt all preview
+  apps, grepped dist/index.html — junk-removal's --semantic-color-content-
+  inverse now resolves to #ffffff (was implicitly using on-primary #0d0d0d
+  via text-on-primary); the other 3 presets resolve on-fg to their own bg
+  (near-white tint, e.g. #f7f8f3) instead of a flat #ffffff — an
+  imperceptible, more-correct shift, not a regression.
+- Gate green: pnpm build + pnpm check + turbo test (all suites incl. the
+  schema-drift guard, untouched since packages/schema wasn't touched).
+
+Files changed: packages/template/src/{components/Hero.astro,lib/brand-
+overlay.ts,lib/contrast.ts (new),lib/contrast.test.ts (new),
+styles/theme.css,acceptance.ts,acceptance.test.ts}.
+
+PR opened: see issue #79 comment for link.
+Next iteration: none picked — Ralph selects the next issue.
