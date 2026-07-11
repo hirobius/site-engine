@@ -321,3 +321,38 @@ Files changed: ralph/README.md, AGENTS.md.
 Gate: bash ralph/gate.sh green (16/16 turbo tasks).
 Branch: ralph/issue-72-v1-pin-doc-drift. PR #93 (Closes #72). Issue commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #74 (2026-07-11) — re-land fleet-drift visual-regression tripwire
+PR #3 (June 13) built the right guard (Playwright toHaveScreenshot over
+apps/_gallery's presets+sections pages, pinned mcr.microsoft.com/playwright
+container) but stalled on baseline seeding and fell a month behind main.
+Ported it onto current main: apps/_gallery/{playwright.config.ts,
+tests/visual.spec.ts, package.json (test:visual scripts + @playwright/test
+devDep)}, .github/workflows/visual.yml, README "Visual regression" section.
+Decision: PR #40 (HDS token spine + brand.motion, default "rich") landed
+since PR #3 — the DoD calls out asserting prefers-reduced-motion in the
+snapshot context so scroll-reveal doesn't flake baselines. Investigated:
+apps/_gallery's pages render Hero/ServicesGrid/Reviews directly (not via
+Document.astro), so the Motion island + .motion-ready arm script never
+actually wire in there today — motion is already inert in the gallery.
+Added `contextOptions: { reducedMotion: "reduce" }` to playwright.config.ts's
+`use` block anyway (cheap, matches the DoD literally, and is a safety net if
+gallery pages ever start using Document.astro). Note: reducedMotion must
+nest under `use.contextOptions` in @playwright/test@1.60.0's TS types, not
+directly under `use` (top-level `use.reducedMotion` failed `astro check`/tsc
+with "does not exist in type UseOptions<...>" — fixed before gate went green).
+`@playwright/test@1.60.0` was already resolved in pnpm-lock.yaml (pulled in
+by apps/demo-pressure-pros's existing Playwright e2e dep), so `pnpm install`
+needed no network fetch — lockfile diff is a clean 3-line addition.
+Files changed: apps/_gallery/{package.json, playwright.config.ts (new),
+tests/visual.spec.ts (new)}, .github/workflows/visual.yml (new), README.md,
+pnpm-lock.yaml.
+Gate: bash ralph/gate.sh green. Verified `pnpm exec playwright test --list`
+inside apps/_gallery discovers both tests (browser binaries can't be
+downloaded in this sandbox — same firewall constraint PR #3 hit).
+Not done (explicit human step per DoD): seeding baselines in the pinned
+container and committing them — visual job reports "missing snapshots"
+until that lands. Proving visual green/red also blocked on that.
+Branch: ralph/issue-74-visual-regression-tripwire. PR #94 (Closes #74).
+Issue commented.
+Next iteration: none picked — Ralph selects the next issue.
