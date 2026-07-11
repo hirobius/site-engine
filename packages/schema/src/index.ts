@@ -66,6 +66,19 @@ export const BrandSchema = z.object({
   font: z.enum(FONT_IDS).default("system"),
   /** Corner radius applied site-wide via `--brand-radius`. */
   radius: z.enum(["none", "sm", "md", "lg", "xl"]).default("md"),
+  /**
+   * Scroll-motion intensity, applied dependency-free (CSS + one
+   * IntersectionObserver island; no GSAP, no Lenis):
+   * - `none`   — fully static; no reveal, rise, or pulse. Content renders as-is.
+   * - `subtle` — reveal-on-enter for sections/cards + a hero entrance cascade.
+   * - `rich`   — adds per-card stagger within a section and pulsing service-area
+   *              markers on top of `subtle`.
+   * Always `prefers-reduced-motion`-guarded and no-JS-safe (content is visible
+   * by default; motion only hides-then-reveals once the island confirms motion
+   * is wanted). Default `rich` — the factory starts expressive; dial down to
+   * `subtle`/`none` per client. See docs/adr/0001-motion-foundation.md.
+   */
+  motion: z.enum(["none", "subtle", "rich"]).default("rich"),
 });
 
 export const LayoutSchema = z.object({

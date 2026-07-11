@@ -7,43 +7,51 @@
  * by default, and this package is a symlinked workspace dep, so the app must
  * opt the template source in explicitly. See apps/_template/src/styles/global.css.
  *
- * Semantic theming
- * ----------------
+ * Semantic theming — on the HDS token spine (hirobius/design-system#64)
+ * --------------------------------------------------------------------
  * The template never references a literal color. It uses Tailwind utilities
  * (`bg-primary`, `text-fg`, `rounded-theme`, `font-heading`, …) which resolve to
- * `--color-*` theme tokens. Those tokens point at `--brand-*` custom properties.
+ * `--color-*` theme tokens. Those tokens now point at HDS **semantic** custom
+ * properties (`--semantic-*`), so a client site inherits the same contrast-
+ * checked palette, accent states, and radius the product design system ships —
+ * one token spine, no parallel `--brand-*` system.
  *
- * Each client app sets the concrete `--brand-*` values as an inline style on the
- * <html> element (see @hirobius/template/lib/theme -> brandStyle). Inline element
- * styles win the cascade, so a client's palette always overrides the defaults.
+ * `variables.css` (imported below) provides the HDS `:root` defaults so the
+ * template renders coherently even without per-client injection. Each client
+ * app sets the concrete palette as an inline style on <html>, mapped onto the
+ * same `--semantic-*` vars by `brandStyle` (see lib/theme.ts, which calls the
+ * `@hirobius/design-system/brand` overlay bridge). Inline element styles win the
+ * cascade, so a client's palette always overrides the defaults.
+ *
+ * `--brand-accent` is the one brand-level extra — HDS has a single accent ramp,
+ * so the optional secondary accent stays outside the HDS surface (#64).
  */
 
+/* HDS design tokens as CSS custom properties (no reset, host-safe). Must come
+   before @theme so the `var(--semantic-*)` references below have defaults.
+   Vendored + trimmed to the tokens the template actually uses (see tokens.css);
+   the factory no longer depends on the frozen @hirobius/design-system package. */
+@import "./tokens.css";
+
 @theme {
-  --color-primary: var(--brand-primary);
+  --color-primary: var(--semantic-accent-rest);
   --color-accent: var(--brand-accent);
-  --color-bg: var(--brand-bg);
-  --color-fg: var(--brand-fg);
-  --color-muted: var(--brand-muted);
-  --color-on-primary: var(--brand-on-primary);
+  --color-bg: var(--semantic-color-surface-page);
+  --color-fg: var(--semantic-color-content-primary);
+  --color-muted: var(--semantic-color-surface-raised);
+  --color-on-primary: var(--semantic-color-content-onAccent);
 
-  --font-heading: var(--brand-font-heading);
-  --font-body: var(--brand-font-body);
+  --font-heading: var(--primitive-typography-family-display);
+  --font-body: var(--primitive-typography-family-primary);
 
-  --radius-theme: var(--brand-radius);
+  --radius-theme: var(--semantic-radius-action);
 }
 
-/* Safe defaults so components render even without per-client injection
-   (component tests, isolated previews). Real apps override via inline <html>. */
+/* Brand-level default for the one var HDS does not own (secondary accent).
+   Every other default comes from the imported variables.css :root block.
+   Real client apps override the palette via inline <html> injection. */
 :root {
-  --brand-primary: #0a6cb5;
   --brand-accent: #21d4c4;
-  --brand-bg: #f4fafd;
-  --brand-fg: #0b2230;
-  --brand-muted: #dceef6;
-  --brand-on-primary: #ffffff;
-  --brand-font-heading: ui-sans-serif, system-ui, sans-serif;
-  --brand-font-body: ui-sans-serif, system-ui, sans-serif;
-  --brand-radius: 8px;
 }
 
 @layer base {
@@ -66,6 +74,120 @@
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+  }
+}
+
+/*
+ * Motion foundation — clients#22. Dependency-free: CSS + one IntersectionObserver
+ * island (see components/Motion.astro). No GSAP, no Lenis.
+ *
+ * Values are TOKENS, not magic numbers — each traces to an established motion
+ * principle (see docs/adr/0001-motion-foundation.md), reconciled from the
+ * access-tech prototype:
+ *   --motion-ease-entrance   decelerate (ease-out): entrances arrive at speed,
+ *                            settle to rest.               [Material 3 emphasized-decelerate]
+ *   --motion-duration-*      200–850ms expressive range.  [NN/g; Material 3 duration scale]
+ *   --motion-travel*         small displacement, not a big slide. [MD3; Disney "staging"]
+ *   --motion-stagger         choreography beat, capped at 4 items. [Material 3 choreography]
+ *
+ * Progressive-enhancement contract: `.reveal` / `.rise` elements are fully
+ * VISIBLE by default. They only hide-then-animate when BOTH are true:
+ *   1. `[data-motion="subtle|rich"]` is set on <html> (from brand.motion), and
+ *   2. the `.motion-ready` class is present — added by an inline <head> script
+ *      ONLY when the visitor has not requested reduced motion.
+ * So a no-JS visitor, an unsupported browser, or a reduced-motion visitor all
+ * see static, fully-visible content — never a stuck-hidden state. [WCAG 2.3.3]
+ */
+:root {
+  --motion-duration-entrance: 700ms; /* expressive entrance */
+  --motion-duration-hero: 850ms; /* hero cascade beat */
+  --motion-ease-entrance: cubic-bezier(0.16, 0.84, 0.44, 1); /* decelerate / ease-out */
+  --motion-travel: 24px; /* reveal displacement (≈ HDS --primitive-space-6) */
+  --motion-travel-hero: 20px; /* hero-rise displacement (per access-tech source) */
+  --motion-stagger: 80ms; /* per-card choreography beat */
+  --motion-pulse-duration: 2.4s; /* radar-ring ping period */
+}
+
+@layer base {
+  /* Reveal-on-enter: hidden until the island adds `.in`. */
+  .motion-ready[data-motion="subtle"] .reveal,
+  .motion-ready[data-motion="rich"] .reveal {
+    opacity: 0;
+    transform: translateY(var(--motion-travel));
+    transition:
+      opacity var(--motion-duration-entrance) var(--motion-ease-entrance),
+      transform var(--motion-duration-entrance) var(--motion-ease-entrance);
+    transition-delay: var(--reveal-delay, 0ms); /* rich stagger sets this per card */
+    will-change: opacity, transform;
+  }
+  .motion-ready[data-motion="subtle"] .reveal.in,
+  .motion-ready[data-motion="rich"] .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Hero entrance cascade: pure CSS, plays on load (element is above the fold). */
+  .motion-ready[data-motion="subtle"] .rise > *,
+  .motion-ready[data-motion="rich"] .rise > * {
+    animation: hds-rise var(--motion-duration-hero) var(--motion-ease-entrance) both;
+  }
+  .rise > *:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .rise > *:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .rise > *:nth-child(3) {
+    animation-delay: 0.35s;
+  }
+  .rise > *:nth-child(4) {
+    animation-delay: 0.5s;
+  }
+
+  /* Pulsing service-area markers — `rich` only. Radar-ring ping (expanding
+     box-shadow that fades), matching the access-tech source. Each served area
+     = a "pin". */
+  .motion-ready[data-motion="rich"] .pulse {
+    animation: hds-pulse var(--motion-pulse-duration) ease-out infinite;
+  }
+
+  @keyframes hds-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--motion-travel-hero));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes hds-pulse {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 50%, transparent);
+    }
+    70% {
+      box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-primary) 0%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 0%, transparent);
+    }
+  }
+
+  /* Non-negotiable a11y guard: reduced motion => everything static + visible. */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    .rise > * {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .pulse {
+      animation: none !important;
     }
   }
 }
