@@ -28,6 +28,14 @@ const PLACEHOLDER_INPUT: ClientConfigInput = {
 
 const client = defineClient(PLACEHOLDER_INPUT);
 
+const STRUCTURAL_ISSUE_INPUT: ClientConfigInput = {
+  ...PLACEHOLDER_INPUT,
+  layout: { sectionOrder: ["services", "gallery", "contact"] },
+  gallery: [],
+};
+
+const structuralIssueClient = defineClient(STRUCTURAL_ISSUE_INPUT);
+
 const ENV_KEYS = ["SITE_LIVE", "VERCEL_ENV"] as const;
 
 afterEach(() => {
@@ -52,5 +60,14 @@ describe("armAcceptanceGate", () => {
   it("does not arm for VERCEL_ENV=preview", () => {
     process.env.VERCEL_ENV = "preview";
     expect(() => armAcceptanceGate(client)).not.toThrow();
+  });
+
+  it("does not throw for a structural issue (empty gallery in sectionOrder) in an unarmed build", () => {
+    expect(() => armAcceptanceGate(structuralIssueClient)).not.toThrow();
+  });
+
+  it("throws for the same structural issue once SITE_LIVE=true", () => {
+    process.env.SITE_LIVE = "true";
+    expect(() => armAcceptanceGate(structuralIssueClient)).toThrow(/incomplete-section/);
   });
 });
