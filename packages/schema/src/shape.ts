@@ -46,6 +46,12 @@ function unwrap(schema: ZodTypeAny): {
       current = current._def.innerType;
       continue;
     }
+    if (typeName === "ZodEffects") {
+      // .refine()/.superRefine() wrap in ZodEffects — a check-level detail
+      // (see file header), so unwrap to the schema being refined.
+      current = current._def.schema;
+      continue;
+    }
     break;
   }
   return { inner: current, optional, hasDefault };

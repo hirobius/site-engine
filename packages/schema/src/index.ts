@@ -15,12 +15,22 @@ import { PALETTE_PRESET_IDS, FONT_IDS } from "./presets.js";
 // Primitives
 // ---------------------------------------------------------------------------
 
-/** E.164-ish phone. Stored canonical; the template builds the `tel:` href. */
+/**
+ * E.164-ish phone. Stored canonical; the template builds the `tel:` href.
+ * Requires a 10-digit NANP number (optionally `+1`-prefixed) with a valid
+ * area code lead digit (2-9) — deliberately does NOT enforce the exchange
+ * (NXX) digit, since the fleet's intentional `555-01xx` placeholders use a
+ * leading `0` there.
+ */
 const phone = z
   .string()
   .trim()
-  .min(7, "phone looks too short")
-  .regex(/^[+]?[\d().\-\s]+$/, "phone has invalid characters");
+  .regex(/^[+]?[\d().\-\s]+$/, "phone has invalid characters")
+  .refine((value) => {
+    const digits = value.replace(/\D/g, "");
+    const tenDigits = digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : digits;
+    return tenDigits.length === 10 && /^[2-9]/.test(tenDigits);
+  }, "phone must be a 10-digit US/Canada number (area code can't start with 0 or 1), optionally prefixed with +1");
 
 const hexColor = z
   .string()
@@ -92,7 +102,20 @@ export const LayoutSchema = z.object({
     .array(
       z.enum(["services", "gallery", "reviews", "serviceAreaMap", "contact"]),
     )
-    .default(["services", "gallery", "reviews", "serviceAreaMap", "contact"]),
+    .default(["services", "gallery", "reviews", "serviceAreaMap", "contact"])
+    .superRefine((ids, ctx) => {
+      const seen = new Set<string>();
+      ids.forEach((id, index) => {
+        if (seen.has(id)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `duplicate section id "${id}" in sectionOrder`,
+            path: [index],
+          });
+        }
+        seen.add(id);
+      });
+    }),
 });
 
 export const ServiceSchema = z.object({

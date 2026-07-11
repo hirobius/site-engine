@@ -673,3 +673,41 @@ Ralph re-run). Commented this on the issue too.
 Branch: ralph/issue-88-lighthouse-a11y-budgets. PR opened (Closes #88,
 with the workflow-file caveat above). Issue commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-11
+
+Issue #89: fix(schema): reject duplicate sectionOrder ids + tighten phone validation
+
+What shipped (smallest complete slice, test-first):
+- packages/schema/src/index.ts:
+  - layout.sectionOrder gained a .superRefine() that rejects duplicate ids
+    with a readable per-index error ("duplicate section id \"x\" in
+    sectionOrder").
+  - business.phone tightened from min(7)+char-class to a real 10-digit NANP
+    shape check (optional +1 prefix, area code first digit 2-9). Deliberately
+    does NOT enforce the exchange (NXX) digit, since the fleet's 555-01xx
+    placeholders (apps/_template, preview-*) use a leading 0 there — verified
+    every current apps/*/client.config.ts phone still parses.
+- packages/schema/src/shape.ts: unwrap() now also unwraps ZodEffects (the
+  wrapper .refine()/.superRefine() add). Needed because ops-drift.test.ts's
+  shape comparison walks _def.typeName and would otherwise see "ZodEffects"
+  as a structural change on both fields — even though the file's own header
+  comment already documents refinements as check-level, not shape-level.
+  No existing field used refine/superRefine before this, so this was latent.
+- packages/schema/src/index.test.ts: flipped the "documents current gap"
+  duplicate-sectionOrder test to assert rejection; expanded phone tests
+  (7-digit, leading-0/1 area code, 11-digit non-+1 all now rejected) and
+  added an explicit test enumerating every fleet placeholder number that
+  must keep parsing.
+
+Canonical schema change — ops re-sync (#21) still needed separately; not
+done here (out of scope per issue, ops repo not in this checkout).
+
+Verify: `pnpm --filter @hirobius/schema test` (40/40 incl. drift guard) and
+full `bash ralph/gate.sh` both green.
+
+Branch: ralph/issue-89-dedup-phone-validation. PR opened (Closes #89).
+Issue commented.
+Next iteration: none picked — Ralph selects the next issue.

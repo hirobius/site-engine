@@ -73,8 +73,17 @@ describe("defineClient", () => {
   });
 
   describe("business.phone", () => {
-    it("rejects too-short or invalid-character phone numbers", () => {
-      for (const bad of ["123", "call us!", "555-CALL-NOW"]) {
+    it("rejects too-short, invalid-character, or non-10-digit phone numbers", () => {
+      for (const bad of [
+        "123",
+        "call us!",
+        "555-CALL-NOW",
+        "1234567",
+        "12345",
+        "0123456789",
+        "1123456789",
+        "509-838-42001",
+      ]) {
         expect(() =>
           defineClient(config({ business: { ...BASE_INPUT.business, phone: bad } })),
         ).toThrow();
@@ -85,6 +94,21 @@ describe("defineClient", () => {
       for (const good of ["(509) 838-4200", "+1 509-838-4200", "5098384200"]) {
         expect(() =>
           defineClient(config({ business: { ...BASE_INPUT.business, phone: good } })),
+        ).not.toThrow();
+      }
+    });
+
+    it("accepts the fleet's intentional 555 placeholder numbers", () => {
+      for (const placeholder of [
+        "(555) 010-0000",
+        "(512) 555-0142",
+        "(509) 555-0100",
+        "(555) 010-3302",
+        "(555) 010-2201",
+        "(555) 010-4403",
+      ]) {
+        expect(() =>
+          defineClient(config({ business: { ...BASE_INPUT.business, phone: placeholder } })),
         ).not.toThrow();
       }
     });
@@ -145,14 +169,10 @@ describe("defineClient", () => {
       ]);
     });
 
-    // Documents current behavior rather than desired behavior: the schema
-    // rejects unknown ids but not duplicates. See issue follow-up before
-    // relying on this for validation.
-    it("does NOT reject duplicate section ids (documents current gap)", () => {
-      const result = defineClient(
-        config({ layout: { sectionOrder: ["services", "services"] } }),
-      );
-      expect(result.layout.sectionOrder).toEqual(["services", "services"]);
+    it("rejects duplicate section ids", () => {
+      expect(() =>
+        defineClient(config({ layout: { sectionOrder: ["services", "services"] } })),
+      ).toThrow(/duplicate section id "services"/);
     });
   });
 
