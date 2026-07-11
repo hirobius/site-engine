@@ -142,3 +142,26 @@ Issue #52 (3 preview apps: phantom "gallery" in sectionOrder) — done.
 PR opened: #71 (Closes #52).
 Next iteration: #54 (new-client/eject-client tooling tests) is still
 ralph-ready and untouched.
+
+## Issue #72 — docs(ralph): fix vendored-kit doc drift
+- Day-one drift from org-level Ralph migration (#70): repo's kit docs still
+  described the intermediate ops-hosted engine.
+- Fixed 3 files:
+  - ralph/README.md "Add Ralph to another hirobius repo": uses: lines now
+    point at hirobius/ralph/.github/workflows/ralph-{run,gate}-reusable.yml@main;
+    install step now copies the kit from hirobius/ralph, not "a local ops
+    checkout"; removed the obsolete org Actions-access step (engine repo is
+    public now, no cross-repo Actions access grant needed).
+  - AGENTS.md loop-mechanics section: engine pointer hirobius/ops ->
+    hirobius/ralph. Left the unrelated hirobius/ops -> docs/ARCHITECTURE.md
+    pointer at the top of the file alone (correct, different reference).
+  - ralph/config.env header comment: replaced the verbatim-copied-from-ops
+    "ops = PRIVATE client automation" line with a site-engine-specific one
+    matching AGENTS.md's Ralph quality bar (production site factory, never
+    touch live client output without a passing build).
+- Gate green: 15/15 turbo tasks (build + check + test) — docs/comments only,
+  no code paths touched.
+
+PR opened: #(see issue #72 comment) (Closes #72).
+Next iteration: #54 (new-client/eject-client tooling tests) still
+ralph-ready and untouched.

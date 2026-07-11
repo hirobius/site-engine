@@ -90,4 +90,4 @@ Loop mechanics (see `ralph/README.md` for the full contract):
   a contract (`ralph/run.sh` header). Agents never touch `ralph-*` labels,
   claim refs, or `ralph/{.lock,runs.jsonl,logs/}` — the harness owns those.
 - The engine is org-level: workflows are thin callers into
-  `hirobius/ops/.github/workflows/ralph-{run,gate}-reusable.yml@main`.
+  `hirobius/ralph/.github/workflows/ralph-{run,gate}-reusable.yml@main`.
