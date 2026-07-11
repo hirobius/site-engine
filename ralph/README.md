@@ -37,21 +37,18 @@ error (bounded backoff, never silent).
 
 ## Add Ralph to another hirobius repo
 
-1. **Vendor this directory** into the repo (from a local ops checkout):
-   `cp -r ../ops/ralph . && rm -rf ralph/logs ralph/runs.jsonl ralph/.lock`
+1. **Vendor this directory** into the repo (from the `hirobius/ralph` kit):
+   `cp -r ../ralph/ralph . && rm -rf ralph/logs ralph/runs.jsonl ralph/.lock`
    Then edit the two per-repo files: `ralph/gate.sh` (the repo's own
    typecheck/test/lint steps) and `ralph/config.env` (knobs).
 2. **Add the two thin callers** as `.github/workflows/ralph.yml` and
-   `.github/workflows/ralph-gate.yml` — copy them from ops and change the
-   `uses:` lines to the org-level form:
-   `uses: hirobius/ops/.github/workflows/ralph-run-reusable.yml@main` and
-   `uses: hirobius/ops/.github/workflows/ralph-gate-reusable.yml@main`.
+   `.github/workflows/ralph-gate.yml` — copy them from another repo already
+   on the kit and change the `uses:` lines to the org-level form:
+   `uses: hirobius/ralph/.github/workflows/ralph-run-reusable.yml@main` and
+   `uses: hirobius/ralph/.github/workflows/ralph-gate-reusable.yml@main`.
 3. **One-time org setup** (already done once, listed for completeness):
-   - Org secrets `CLAUDE_CODE_OAUTH_TOKEN` + `DISCORD_WEBHOOK_URL`, shared
-     with private repos: <https://github.com/organizations/hirobius/settings/secrets/actions>
-   - Allow org repos to call ops' reusable workflows:
-     <https://github.com/hirobius/ops/settings/actions> → **Access** →
-     "Accessible from repositories in the `hirobius` organization".
+   Org secrets `CLAUDE_CODE_OAUTH_TOKEN` + `DISCORD_WEBHOOK_URL`, shared
+   with private repos: <https://github.com/organizations/hirobius/settings/secrets/actions>
 4. **Per-repo GitHub settings**: branch protection on the default branch with
    required status check `ralph-gate` + "Allow auto-merge" enabled:
    `https://github.com/hirobius/<repo>/settings/branches`
