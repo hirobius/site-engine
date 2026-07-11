@@ -41,7 +41,7 @@ pnpm install
 pnpm build          # builds every app (static) — fails loudly on invalid config
 pnpm dev            # turbo dev across apps
 pnpm check          # tsc (packages) + astro check (apps)
-pnpm test           # Playwright smoke test on the demo
+pnpm test           # turbo run test: vitest acceptance suites + demo Playwright smoke
 pnpm new-client <slug> --name "Business" --preset pressure-washing
 pnpm eject-client <slug>     # flatten to a standalone handoff repo
 ```
@@ -59,8 +59,13 @@ packages/
   schema/      @hirobius/schema   — Zod ClientConfig + defineClient() + palette presets
   template/    @hirobius/template — Astro section components, theming, SEO/JSON-LD helpers
 apps/
-  _template/            canonical client app (copied by new-client)
-  demo-pressure-pros/   working demo proving the system (placeholder imagery)
+  _template/                   canonical client app (copied by new-client)
+  _gallery/                    internal component/preset preview (design-system head start)
+  demo-pressure-pros/          working demo proving the system (Playwright smoke test)
+  monroe-street-power-wash/    cold-outreach preview (has an acceptance test suite)
+  preview-clearout-junk/       cold-outreach preview
+  preview-evergreen-lawn/      cold-outreach preview
+  preview-solidline-concrete/  cold-outreach preview
 scripts/
   new-client.ts   scaffold a client + print Vercel CLI commands
   eject-client.ts flatten one client into a standalone repo for handoff
@@ -292,7 +297,7 @@ schema. (There is deliberately no free-form HTML escape hatch in the config.)
 | --- | --- |
 | `pnpm build` | Turbo build of all apps (static). Invalid config → build fails (Zod). |
 | `pnpm check` | `tsc --noEmit` (packages) + `astro check` (apps). |
-| `pnpm test` | Playwright smoke test on the demo. |
+| `pnpm test` | `turbo run test`: vitest acceptance suites (schema, template, scripts, apps) + demo Playwright smoke. |
 | `pnpm new-client <slug>` | Scaffold a client + print Vercel commands. |
 | `pnpm eject-client <slug>` | Flatten a client into a standalone repo. |
 
@@ -301,4 +306,4 @@ schema. (There is deliberately no free-form HTML escape hatch in the config.)
 throws at build time, so CI and Vercel both refuse to ship it.
 
 CI (`.github/workflows/ci.yml`): install (frozen lockfile) → build → typecheck →
-Playwright chromium smoke test.
+`pnpm test` (vitest acceptance suites + demo Playwright chromium smoke test).

@@ -762,3 +762,56 @@ pnpm-workspace.yaml, pnpm-lock.yaml.
 Branch: ralph/issue-54-scripts-tests. PR opened (Closes #54). Issue
 commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+Issue #55 — docs: reconcile status.json / README / PROJECT-CONTEXT with reality
+
+Docs-only, redo of a prior attempt. A first pass shipped as PR #62 (closed
+2026-07-10, unmerged) — the human closed it for a clean redo because it
+conflicted with main after #64 (gate fix) + #56 merged; #55 stayed open +
+ralph-ready for a fresh pick. This iteration re-does the same three fixes
+against current main (post #74/#78/#79/#80/#81/#82/#83/#88/#89/#50-#54),
+which had drifted status.json/README/PROJECT-CONTEXT further stale in the
+meantime.
+
+status.json: refreshed updatedAt (2026-07-11), headline, next, blocked.
+Headline now covers the SITE_LIVE backport (#50), acceptance gate armed on
+prod builds (#78), root `pnpm test` in CI (#51), the bugfix batch (#89 dup
+sectionOrder/phone validation, #79 hero contrast, #52 preview apps'
+gallery/sectionOrder bug, #81 scaffold perf defaults), new surface (#80
+/thanks page, #83 JSON-LD/robots.txt/OG, #82 a11y baseline, #88 Lighthouse+
+axe CI budgets), the re-landed visual-regression tripwire (#74), and new
+vitest coverage (#53 schema, #54 scripts). next[] now points at the open
+needs-human backlog (#84/#85/#86/#87) + triage (#67); blocked[] still flags
+ANTHROPIC_API_KEY (ops) + engine delete (#10) + the needs-human items.
+
+README.md: `pnpm test` line (both the TL;DR block and the Conventions
+table) no longer undersells as "Playwright smoke test on the demo" — now
+describes the vitest acceptance suites + demo Playwright smoke, matching
+turbo.json's actual `test` pipeline. Also fixed the CI summary line at the
+bottom (omitted the vitest step). Structure block's apps/ list now shows
+all 7 current apps (_gallery, monroe, 3 preview-*) instead of just
+_template + demo.
+
+docs/PROJECT-CONTEXT.md: repo-structure apps/ list updated to reality
+(monroe + 3 previews). Added a dated SUPERSEDED banner to §3 (Git/PR state
+— the stale PR #2/#3/#4 + local-only-agent snapshot) and a RETIRED banner
+to §8 (the HC- tracker), both pointing to the live sources (GitHub Issues +
+status.json + BACKEND-STATUS) and noting the repo is now
+hirobius/site-engine. Scoped to factual fixes only, matching the DoD — did
+not rewrite the whole doc; broader retirement of this file stays tracked in
+#20.
+
+Branch-name note (same situation as #54's iteration): origin had a stale
+`ralph/issue-55-docs-reconcile` branch from the closed #62 PR. No open PR
+referenced it; branched fresh off current main under the same required
+name — will need `--force-with-lease` to push over the stale remote ref.
+
+Verify: `bash ralph/gate.sh` green — 17/17 turbo tasks (docs-only, no
+build/runtime impact). status.json validated as parseable JSON.
+
+Files changed: README.md, docs/PROJECT-CONTEXT.md, status.json.
+
+Branch: ralph/issue-55-docs-reconcile. PR opened (Closes #55). Issue
+commented.
+Next iteration: none picked — Ralph selects the next issue.
