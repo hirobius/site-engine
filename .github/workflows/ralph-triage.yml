@@ -1,0 +1,37 @@
+name: Ralph Triage
+
+# Thin caller — the engine lives in the PUBLIC hirobius/ralph repo (same
+# pattern as ralph.yml / ralph-gate.yml). The comb proposes issues only;
+# a human approves the ralph-ready tag.
+
+on:
+  workflow_dispatch:
+    inputs:
+      goal:
+        description: "North-star to bias the comb (blank = general repo-health)"
+        required: false
+        type: string
+      mode:
+        description: "report = one triage-report issue (safe default) | file = create top-N triage-labelled drafts"
+        required: false
+        default: report
+        type: choice
+        options: [report, file]
+      max:
+        description: "Max proposals"
+        required: false
+        default: "6"
+        type: string
+
+jobs:
+  triage:
+    uses: hirobius/ralph/.github/workflows/ralph-triage-reusable.yml@main
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    with:
+      goal: ${{ inputs.goal || '' }}
+      mode: ${{ inputs.mode || 'report' }}
+      max: ${{ inputs.max || '6' }}
+    secrets: inherit

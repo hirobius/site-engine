@@ -1,0 +1,167 @@
+Ralph iteration — 2026-07-10
+
+Issue #37: Shared client-config acceptance test (placeholder / gate / SEO guard)
+
+What shipped (smallest complete slice):
+- packages/template/src/acceptance.ts: checkClientAcceptance(config, { realData }).
+  Catches what Zod can't: .example emails/siteUrls, the fleet's two placeholder-
+  phone conventions (area code 555, and the FCC-reserved 555-01xx exchange used
+  by apps/_template's stub), all-zeros Web3Forms keys, stub business names, non-
+  https siteUrl, and any layout.sectionOrder entry whose backing data (gallery/
+  reviews/map/form) is empty. Placeholder checks are gated behind `realData`
+  (default false) because every current preview app intentionally ships fake
+  contact info pending intake — flip it once real data lands.
+- packages/template/src/acceptance.test.ts: 11 unit tests (vitest), TDD on the
+  checker itself.
+- Exported from @hirobius/template's index so apps import one thing.
+- Wired end-to-end into ONE real app (apps/monroe-street-power-wash/tests/
+  acceptance.test.ts) as proof — running it immediately caught a REAL bug: its
+  client.config.ts listed "gallery" in sectionOrder with gallery: [] (photo-less
+  preview, per its own header comment). Fixed by dropping "gallery" from that
+  app's sectionOrder. This is exactly the class of bug #37 exists to catch.
+- Added vitest devDependency to packages/template and to monroe's app package.
+
+Why the scope stops here (commented on the issue for the next iteration):
+- preview-clearout-junk, preview-evergreen-lawn, preview-solidline-concrete all
+  have the SAME latent bug (gallery in sectionOrder, no gallery array) — same
+  3-line test wiring + 1-line sectionOrder fix needed in each.
+- demo-pressure-pros already owns the `test` script (Playwright e2e); adding a
+  vitest acceptance test needs a script-naming decision (e.g. test:unit vs.
+  test:e2e) before wiring there.
+- Gate posture (middleware.ts unmodified from _template + noindex until
+  SITE_LIVE) is NOT yet implemented — needs an fs-diff convention, deliberately
+  left as a separate follow-up.
+
+Verify: bash ralph/gate.sh green (build + check + test, all 13 turbo tasks).
+Note: sandbox needed `pnpm exec playwright install chromium` once before the
+gate could run demo-pressure-pros's existing e2e suite — pre-existing infra
+need, unrelated to this change.
+
+Files changed: packages/template/{package.json,src/index.ts,src/acceptance.ts,
+src/acceptance.test.ts}, apps/monroe-street-power-wash/{package.json,
+client.config.ts,tests/acceptance.test.ts}, pnpm-lock.yaml.
+
+## Issue #50 — backport SITE_LIVE closed-by-default gate to 4 deployed apps
+- 4 deployed apps (demo-pressure-pros, preview-clearout-junk,
+  preview-evergreen-lawn, preview-solidline-concrete) still ran the pre-#34
+  logic (`VERCEL_ENV === "production"` open-by-default) in their
+  middleware.ts, while _template + monroe-street-power-wash had the fixed
+  SITE_LIVE closed-by-default gate. Live exposure: any prod deploy of those 4
+  is publicly reachable/indexable without SITE_LIVE ever being set.
+- Fix: copied apps/_template/middleware.ts verbatim into all 4 stale apps.
+- Regression guard (TDD, confirmed red first): packages/template/src/
+  middleware-gate.test.ts — reads apps/_template/middleware.ts as canonical,
+  it.each()s every apps/* dir except _template/_gallery, asserts byte-identical
+  middleware.ts. Ran red against the 4 stale files (4 failed / 1 passed,
+  monroe), green after the copy (5/5).
+- Why _gallery is exempt: no middleware.ts (internal preview tool, not a
+  deployed client site) — confirmed via ls.
+- Sandbox note: needed `pnpm exec playwright install chromium --with-deps`
+  once before demo-pressure-pros's existing e2e suite could run — pre-existing
+  infra need, unrelated to this change (same note as the #37 entry above).
+
+Verify: bash ralph/gate.sh green (build + check + test, all 13 turbo tasks).
+
+Files changed: apps/{demo-pressure-pros,preview-clearout-junk,
+preview-evergreen-lawn,preview-solidline-concrete}/middleware.ts (byte-copy of
+_template's), packages/template/src/middleware-gate.test.ts (new).
+
+---
+Ralph iteration (2026-07-10, this session):
+
+Issue #51 (ci: run root `pnpm test` in CI) — attempted, BLOCKED.
+- Diagnosed + wrote the fix (swap CI's demo-only `pnpm --filter
+  @hirobius/demo-pressure-pros test` step for root `pnpm test` / `turbo run
+  test`, which fans out to the demo Playwright suite + both vitest acceptance
+  suites). Verified locally: old command only invokes 4 demo Playwright tests;
+  `pnpm test` runs all 17 across 3 workspaces. Gate green.
+- Could NOT push: bot's GitHub App token lacks the `workflows` permission
+  scope, so any commit touching .github/workflows/ci.yml is rejected by
+  GitHub itself (not a code/gate problem — a token-scope wall). This is also
+  why the earlier #58 attempt at this same issue stalled.
+- Commented the diff + diagnosis on #51, created `blocked` label (documented
+  in AGENTS.md's label vocabulary but didn't exist yet), relabeled #51
+  blocked (removed ralph-ready) so the queue doesn't re-pick a dead end.
+  Needs a human to grant the App `workflows` perm or push the 4-line diff
+  directly.
+
+Issue #53 (test(schema): cover the canonical ClientConfig contract) — done.
+- Found prior attempt (#60) was functionally complete but closed unmerged for
+  a "clean redo" (branch conflicts from the pre-#64-gate-fix PR stack, per
+  adr-eng's comment — no work lost, just needed a fresh branch off current
+  main). Re-did it fresh rather than trying to resurrect the closed branch.
+- packages/schema/src/index.test.ts: 36 vitest cases against defineClient() /
+  ClientConfigSchema — defaults, slug/phone/email/hours/serviceAreas/services
+  rejection, sectionOrder unknown-id rejection, every palette preset + font
+  id, cssVarOverrides key/color validation, SEO title/description/siteUrl
+  limits, form required+optional fields, map optionality, gallery alt-text
+  requirement, review rating bounds.
+- Wired `test: vitest run` + `vitest` devDep into packages/schema/package.json
+  so `turbo run test` picks it up (needed `pnpm install --no-frozen-lockfile`
+  once locally to update pnpm-lock.yaml for the new devDep).
+- Decision: documented, did NOT fix, that `layout.sectionOrder` rejects
+  unknown ids but not duplicates (`z.array(z.enum(...))` has no dedup). Fixing
+  that is a canonical-contract change requiring an ops re-sync per CLAUDE.md's
+  engine-freeze rule — flagged as a possible follow-up issue instead of
+  bundled here.
+- Gate green: 12/12 turbo tasks.
+- Branch name collision note: both `ralph/issue-51-...` and
+  `ralph/issue-53-...` had stale same-named remote branches left over from
+  the closed #58/#60 PRs (fetch-first push rejection). Renamed locally with a
+  distinct suffix before pushing rather than force-pushing or deleting the
+  old remote branch.
+
+PR opened: #65 (Closes #53).
+Next iteration: pick up #52 (3 preview apps gallery/sectionOrder bug) or #54
+(new-client/eject-client tooling tests) — both still ralph-ready and
+untouched by this session. #51 needs a human before Ralph can retry.
+
+Issue #52 (3 preview apps: phantom "gallery" in sectionOrder) — done.
+- Confirmed bug still live on main (prior PR #59 for this issue was closed
+  unmerged by a human for a "clean redo" after #64/#56 merged into main;
+  issue comment said Ralph would re-pick #52 fresh).
+- Test-first: added tests/acceptance.test.ts (mirrors monroe-street-power-
+  wash's) to preview-clearout-junk, preview-evergreen-lawn,
+  preview-solidline-concrete. Confirmed red: checkClientAcceptance flagged
+  "layout.sectionOrder includes \"gallery\" but its required data is
+  missing/empty" in all 3.
+- Fix: dropped "gallery" from each app's layout.sectionOrder (same call as
+  monroe — these are realData:false cold-outreach previews with no photos;
+  an empty gallery array would still fail the checker).
+- Wired test: vitest run + vitest devDep into each app's package.json so
+  `turbo run test` picks them up; pnpm install --no-frozen-lockfile once to
+  update pnpm-lock.yaml.
+- Branch note: remote already had a stale ralph/issue-52-preview-gallery-
+  sectionorder branch left over from the closed #59 PR (based on pre-#64/#56
+  main). Verified no open PR referenced it, then used
+  `git push --force-with-lease` to replace it with the fresh-off-main branch
+  under the exact required name, rather than renaming — prompt.md says the
+  harness keys reconciliation on the exact `ralph/issue-<n>-<slug>` shape.
+- Gate green: 15/15 turbo tasks (build + check + test).
+
+PR opened: #71 (Closes #52).
+Next iteration: #54 (new-client/eject-client tooling tests) is still
+ralph-ready and untouched.
+
+## Issue #72 — docs(ralph): fix vendored-kit doc drift
+- Day-one drift from org-level Ralph migration (#70): repo's kit docs still
+  described the intermediate ops-hosted engine.
+- Fixed 3 files:
+  - ralph/README.md "Add Ralph to another hirobius repo": uses: lines now
+    point at hirobius/ralph/.github/workflows/ralph-{run,gate}-reusable.yml@main;
+    install step now copies the kit from hirobius/ralph, not "a local ops
+    checkout"; removed the obsolete org Actions-access step (engine repo is
+    public now, no cross-repo Actions access grant needed).
+  - AGENTS.md loop-mechanics section: engine pointer hirobius/ops ->
+    hirobius/ralph. Left the unrelated hirobius/ops -> docs/ARCHITECTURE.md
+    pointer at the top of the file alone (correct, different reference).
+  - ralph/config.env header comment: replaced the verbatim-copied-from-ops
+    "ops = PRIVATE client automation" line with a site-engine-specific one
+    matching AGENTS.md's Ralph quality bar (production site factory, never
+    touch live client output without a passing build).
+- Gate green: 15/15 turbo tasks (build + check + test) — docs/comments only,
+  no code paths touched.
+
+PR opened: #(see issue #72 comment) (Closes #72).
+Next iteration: #54 (new-client/eject-client tooling tests) still
+ralph-ready and untouched.

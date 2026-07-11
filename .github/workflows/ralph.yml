@@ -1,0 +1,45 @@
+name: Ralph
+
+# Thin caller — the engine is ralph-run-reusable.yml (org-shared; other repos
+# call it as hirobius/ralph/.github/workflows/ralph-run-reusable.yml@main).
+#
+# Triggers: manual dispatch (optionally naming an issue — a human override
+# that steals any claim), `issues: labeled` (fires when something is tagged
+# ralph-ready; the guard filters every other label — load-bearing, see the
+# reusable), and push-to-main (the chain: an approved+merged Ralph PR pushes
+# main, which grabs the next issue). Selection, claiming, single-flight,
+# wedge alerts, and reconciliation all live in the reusable workflow +
+# ralph/lib.sh — one logic for CI and local runs.
+#
+# site-engine is the production site factory — never break live client output, no destructive
+# ops, merges are human-approved (`ralph-approved` on the PR, or the issue
+# pre-tagged `ralph-auto`). Auth: CLAUDE_CODE_OAUTH_TOKEN (Max) — NO API key.
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Issue number to work (blank = deterministic pick via ralph/next.sh)"
+        required: false
+        type: string
+  issues:
+    types: [labeled]
+  push:
+    branches: [main] # chain: a merged Ralph PR grabs the next ralph-ready issue
+
+concurrency:
+  group: ralph-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  ralph:
+    uses: hirobius/ralph/.github/workflows/ralph-run-reusable.yml@main
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+      actions: write # chain hop: push runs re-dispatch as workflow_dispatch
+    with:
+      issue: ${{ inputs.issue || '' }}
+    secrets: inherit
