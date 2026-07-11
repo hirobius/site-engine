@@ -30,3 +30,9 @@ ejected/
 
 # large originals — only compressed intake belongs in git (see README "IMAGES")
 **/photos-original/
+
+# Ralph loop runtime artifacts (audit log, transcripts, lock, CI verdict)
+ralph/runs.jsonl
+ralph/logs/
+ralph/.lock
+verdict.json
