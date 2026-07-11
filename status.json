@@ -1,15 +1,16 @@
 {
-  "updatedAt": "2026-07-09T09:00:00Z",
+  "updatedAt": "2026-07-11T20:00:00Z",
   "phase": "active",
-  "headline": "Dropped the @hirobius/design-system dependency (#42): the factory only ever used HDS's token spine + the ~130-line palette→semantic overlay bridge (zero React components), and HDS is now frozen/shelved (0.13.0). Vendored the overlay into packages/template/src/lib/brand-overlay.ts and a trimmed tokens.css (125 of 403 vars — the template's transitive closure, light-only), dropped the dep, bumped template to 0.3.0. pnpm install removes 69 packages; all 7 apps build clean; headless HTTP render is pixel-identical (body #0b2230, CTA #0a6cb5, zero page errors). Earlier: brand.motion dial (#22) + template on the HDS token spine (#30). Pre-revenue, nothing deployed live.",
+  "headline": "Ralph's autonomous burndown loop shipped a fast run of fleet-hardening work on top of the design-system drop (#42): the launch gate is now armed (SITE_LIVE backported to all 4 previously-unprotected apps #50, the acceptance realData check runs automatically on production builds #78, root `pnpm test` wired into CI #51), a bugfix batch landed (duplicate sectionOrder ids + weak phone validation #89, unreadable junk-removal hero contrast #79, the 3 preview apps' latent gallery/sectionOrder bug #52, scaffold perf defaults #81), new user-facing surface shipped (branded /thanks page + default form redirect #80, machine-parseable JSON-LD hours + robots.txt + OG completeness #83, a11y baseline — focus ring, skip link, reduced-motion hero video #82, Lighthouse ≥95 + axe=100 CI budgets #88), the visual-regression fleet-drift tripwire re-landed on current main (#74, supersedes stale PR #3), and vitest coverage was added for the schema contract (#53) and new-client/eject-client tooling (#54). All 7 apps build clean. Engine still frozen pending ops cutover (#10). Pre-revenue — no paying client yet.",
   "next": [
-    "Include brand.motion when the schema is vendored to ops (no vendored lib/schema exists yet; sync is moot until the #10 engine migration — the #21 drift guard must cover this field then)",
-    "Enrich motion after the section scrub once #33 grabs more Astro section pieces (new tracking issue)",
-    "Deploy a preview live + verify the basic-auth gate (#8)",
-    "Ops first live generate (needs ANTHROPIC_API_KEY) -> then delete engine here (#10)"
+    "Work the open needs-human backlog: trust/conversion fields (#87), per-vertical content packs (#85), analytics/conversion events (#84), aesthetics dials (#86)",
+    "Resolve Triage: general repo-health (#67)",
+    "Set real form.accessKey (Web3Forms) + hcaptchaSiteKey before any prospect outreach",
+    "Delete the frozen packages/agent engine once ops's first live generate passes (#10)"
   ],
   "blocked": [
-    "#10 waits on ops's first live generate (ANTHROPIC_API_KEY in ops)",
-    "Live lead sourcing waits on OUTSCRAPER_API_KEY in ops"
+    "Autonomous site generation blocked on ANTHROPIC_API_KEY (in ops)",
+    "Engine delete (#10) waits on ops's first live generate",
+    "#84/#85/#87/#35/#41/#27 need a human decision before Ralph can pick them up"
   ]
 }
