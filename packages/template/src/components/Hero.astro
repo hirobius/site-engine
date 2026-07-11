@@ -17,18 +17,28 @@ const isVideo = layout.variant === "B" && hero.videoSrc;
   {
     isVideo ? (
       // Variant B: full-bleed background video. Poster paints first so video
-      // decoding never blocks LCP; text sits on an overlay.
-      <video
-        class="absolute inset-0 h-full w-full object-cover"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="none"
-        poster={hero.videoPoster}
-      >
-        <source src={hero.videoSrc} type="video/mp4" />
-      </video>
+      // decoding never blocks LCP; text sits on an overlay. No `autoplay`
+      // attribute — a reduced-motion visitor gets the poster only (WCAG
+      // 2.2.2, clients#82); the inline script below starts playback for
+      // everyone else.
+      <>
+        <video
+          id="hero-video"
+          class="absolute inset-0 h-full w-full object-cover"
+          muted
+          loop
+          playsinline
+          preload="none"
+          poster={hero.videoPoster}
+        >
+          <source src={hero.videoSrc} type="video/mp4" />
+        </video>
+        <script is:inline>
+          if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            document.getElementById("hero-video")?.play();
+          }
+        </script>
+      </>
     ) : (
       hero.image && (
         <div class="absolute inset-0">

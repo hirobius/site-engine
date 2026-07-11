@@ -58,6 +58,17 @@
   --brand-accent: #21d4c4;
 }
 
+/* Focus ring — clients#82. A two-tone halo (bg gap + fg ring) rather than a
+   single primary-colored outline: fg/bg contrast is guardrailed to WCAG AA
+   for every preset (#79's acceptance check), but primary/bg is not, so a
+   primary-only ring could vanish on some palettes. Stacking both means one
+   ring segment is always visible — the bg ring reads on inverted (`bg-fg`)
+   sections like the hero/footer, the fg ring reads on the normal page bg. */
+:root {
+  --focus-ring-gap: 2px;
+  --focus-ring-width: 2px;
+}
+
 @layer base {
   html {
     background-color: var(--color-bg);
@@ -65,6 +76,13 @@
     font-family: var(--font-body);
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--focus-ring-gap) var(--color-bg),
+      0 0 0 calc(var(--focus-ring-gap) + var(--focus-ring-width)) var(--color-fg);
   }
 
   h1,
