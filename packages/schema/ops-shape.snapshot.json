@@ -37,6 +37,18 @@
                 "optional": false,
                 "hasDefault": true
               },
+              "motion": {
+                "shape": {
+                  "kind": "enum",
+                  "values": [
+                    "none",
+                    "rich",
+                    "subtle"
+                  ]
+                },
+                "optional": false,
+                "hasDefault": true
+              },
               "palettePreset": {
                 "shape": {
                   "kind": "enum",
