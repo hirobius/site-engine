@@ -255,6 +255,28 @@ After that, every PR touching `packages/**` or `apps/_gallery/**` runs the diff
 automatically. (You can also trigger the workflow manually with `update: true` to
 refresh baselines and download them as an artifact.)
 
+### Performance & accessibility budgets
+
+The factory's pitch is "green Core Web Vitals by default" — the
+`.github/workflows/lighthouse.yml` job proves it on every PR touching
+`packages/**`, `apps/_template/**`, or `apps/demo-pressure-pros/**`. It builds
+`demo-pressure-pros`, serves the static output, and enforces budgets against `/`:
+
+- **Lighthouse CI** (mobile, simulated throttling): Performance ≥ 95,
+  Accessibility = 100, SEO = 100, LCP < 2.5s. 3 runs per URL; lhci's `optimistic`
+  aggregation (its default) takes the best-scoring run, which absorbs simulated-
+  throttling measurement noise without hiding a real regression — a genuine
+  regression drags every run down, not just one.
+- **axe-core scan** (`playwright.a11y.config.ts`): zero accessibility violations.
+
+Both run in the same pinned Playwright container as the visual regression job,
+for the same reason — Lighthouse's perf scoring is sensitive to whatever Chrome
+build a generic runner happens to have. Both also force
+`--force-prefers-reduced-motion` / `reducedMotion: "reduce"`: Lighthouse and axe
+never scroll the page, so a below-the-fold `.reveal` section can still be mid
+fade-in when they sample it, reading as a false-positive contrast violation —
+same flake guard as the visual regression job (clients#22/#74).
+
 ### Scope policy
 
 Pricing assumes **config-only customization**. The schema is the contract: if a
