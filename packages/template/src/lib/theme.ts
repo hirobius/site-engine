@@ -1,5 +1,6 @@
 import type { ClientConfig } from "@hirobius/schema";
-import { PALETTE_PRESETS, FONT_STACKS } from "@hirobius/schema/presets";
+import { PALETTE_PRESETS, FONT_STACKS, type PaletteTokens } from "@hirobius/schema/presets";
+import { brandOverlayStyle } from "./brand-overlay";
 
 const RADIUS_PX: Record<ClientConfig["brand"]["radius"], string> = {
   none: "0px",
@@ -23,7 +24,7 @@ const FONT_HREFS: Record<keyof typeof FONT_STACKS, string | null> = {
  * Resolve a client's palette: preset tokens merged with `cssVarOverrides`.
  * Overrides win. Returns a flat `--brand-*` => value map.
  */
-export function resolvePalette(config: ClientConfig): Record<string, string> {
+export function resolvePalette(config: ClientConfig): PaletteTokens {
   const preset = PALETTE_PRESETS[config.brand.palettePreset];
   return { ...preset, ...config.brand.cssVarOverrides };
 }
@@ -31,19 +32,29 @@ export function resolvePalette(config: ClientConfig): Record<string, string> {
 /**
  * Build the inline style string for the <html> element. Inline element styles
  * beat stylesheet rules, so this is what actually themes the page per client.
+ *
+ * The resolved `--brand-*` palette is mapped onto the HDS semantic custom
+ * properties via the vendored `./brand-overlay` bridge (clients#42; originally
+ * `@hirobius/design-system/brand`, hirobius/design-system#64), so a client site
+ * inherits HDS's contrast-checked semantics, `color-mix`-derived accent states,
+ * and radius — one token spine, not a parallel `--brand-*` system.
+ * The secondary `--brand-accent` is passed through by the bridge (HDS owns a
+ * single accent ramp, so it stays brand-level).
  */
 export function brandStyle(config: ClientConfig): string {
   const palette = resolvePalette(config);
   const stack = FONT_STACKS[config.brand.font];
-  const vars: Record<string, string> = {
-    ...palette,
-    "--brand-font-heading": stack,
-    "--brand-font-body": stack,
-    "--brand-radius": RADIUS_PX[config.brand.radius],
-  };
-  return Object.entries(vars)
-    .map(([k, v]) => `${k}:${v}`)
-    .join(";");
+  return brandOverlayStyle({
+    primary: palette["--brand-primary"],
+    onPrimary: palette["--brand-on-primary"],
+    bg: palette["--brand-bg"],
+    fg: palette["--brand-fg"],
+    muted: palette["--brand-muted"],
+    accent: palette["--brand-accent"],
+    radius: RADIUS_PX[config.brand.radius],
+    fontHeading: stack,
+    fontBody: stack,
+  });
 }
 
 /** Web font href to preconnect+load, or `null` for the system stack. */

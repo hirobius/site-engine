@@ -1,0 +1,132 @@
+/* Vendored from @hirobius/design-system/src/brand/overlay.ts (clients #42).
+ * Dependency-free palette -> HDS-semantic bridge. Copied so the factory no
+ * longer depends on the (now-frozen) @hirobius/design-system package; it only
+ * ever used this ~130-line function + the token vars (see styles/tokens.css). */
+/**
+ * overlay.ts — pure palette → HDS-semantic overlay bridge.
+ *
+ * The seam that lets a downstream render target (a static Astro site, an email,
+ * an SSR shell) theme itself from a small brand palette while inheriting HDS's
+ * semantic contract — contrast-checked pairs, accent states, density, dark mode.
+ *
+ * A consumer resolves a brand palette (six colours + optional font/radius) and
+ * this module maps it onto the HDS semantic custom properties. Everything HDS
+ * ships downstream of those semantics (component tokens, utilities) then reads
+ * the brand automatically via the `var()` reference chain — the same strategy
+ * as the checked-in `[data-brand]` tenant overlays (`src/styles/tenants.css`),
+ * but computed at the consumer instead of at HDS build time, so HDS never has
+ * to know the client roster.
+ *
+ * Deliberately dependency-free (no React, no Node) so it runs in any render
+ * target and is unit-testable in isolation. Mirrors the zero-dependency idiom
+ * of `box-sx.ts`.
+ *
+ * Interactive accent states (hover/pressed/subtle) are derived from the primary
+ * with CSS `color-mix()` — no colour-math dependency, resolved by the browser.
+ * `color-mix()` is Baseline-supported (all evergreen engines since 2023); the
+ * factory ships new sites, so this is a safe floor.
+ *
+ * @packageDocumentation
+ */
+
+/** A resolved brand palette — the minimal input needed to theme a surface. */
+export interface BrandPalette {
+  /** Primary brand colour — accent rest, key surfaces, links. */
+  primary: string;
+  /** Text/icon colour that sits on top of `primary`. */
+  onPrimary: string;
+  /** Page background. */
+  bg: string;
+  /** Body/foreground text colour. */
+  fg: string;
+  /** Muted surface — raised cards, subtle fills. */
+  muted: string;
+  /** Optional secondary accent. Kept brand-level (HDS has one accent ramp). */
+  accent?: string;
+  /** Optional corner radius as a CSS length (e.g. `'8px'`). */
+  radius?: string;
+  /** Optional heading font stack. */
+  fontHeading?: string;
+  /** Optional body font stack. */
+  fontBody?: string;
+}
+
+/** How dark/light a derived accent state sits relative to the primary. */
+const ACCENT_HOVER_MIX = 88; // % primary, remainder black
+const ACCENT_PRESSED_MIX = 76; // % primary, remainder black
+const ACCENT_SUBTLE_MIX = 12; // % primary, remainder white
+const CONTENT_SECONDARY_MIX = 66; // % fg, remainder bg
+
+const darken = (color: string, pct: number) => `color-mix(in srgb, ${color} ${pct}%, #000)`;
+const lighten = (color: string, pct: number) => `color-mix(in srgb, ${color} ${pct}%, #fff)`;
+const blend = (a: string, b: string, pct: number) => `color-mix(in srgb, ${a} ${pct}%, ${b})`;
+
+/**
+ * Map a brand palette onto HDS semantic (and a few primitive) custom
+ * properties. Returns a flat `--var` → value record; the caller decides how to
+ * apply it (inline style string via {@link brandOverlayStyle} or a scoped CSS
+ * rule via {@link brandOverlayCss}).
+ *
+ * Only the accent ramp, page/content colours, and — when provided — radius and
+ * font families are overridden. All other semantics inherit HDS defaults
+ * unchanged, so a partial palette still yields a coherent theme.
+ */
+export function brandOverlayVars(palette: BrandPalette): Record<string, string> {
+  const { primary, onPrimary, bg, fg, muted, accent, radius, fontHeading, fontBody } = palette;
+
+  const vars: Record<string, string> = {
+    // ── accent ramp (rest + derived interactive states) ──
+    '--semantic-accent-rest': primary,
+    '--semantic-accent-hover': darken(primary, ACCENT_HOVER_MIX),
+    '--semantic-accent-pressed': darken(primary, ACCENT_PRESSED_MIX),
+    '--semantic-accent-subtle': lighten(primary, ACCENT_SUBTLE_MIX),
+    '--semantic-accent-content': primary,
+    '--semantic-color-surface-accent': primary,
+    '--semantic-color-surface-accentSubtle': lighten(primary, ACCENT_SUBTLE_MIX),
+    '--semantic-color-border-accent': primary,
+    '--semantic-color-content-onAccent': onPrimary,
+    // ── page + content ──
+    '--semantic-color-surface-page': bg,
+    '--semantic-color-surface-raised': muted,
+    '--semantic-color-content-primary': fg,
+    '--semantic-color-content-secondary': blend(fg, bg, CONTENT_SECONDARY_MIX),
+  };
+
+  // Secondary accent has no 1:1 HDS home — kept brand-level (Adrian, 2026-07-08).
+  if (accent) vars['--brand-accent'] = accent;
+
+  if (radius) {
+    vars['--semantic-radius-action'] = radius;
+    // Pass-through for consumers whose utility layer still reads --brand-radius.
+    vars['--brand-radius'] = radius;
+  }
+
+  if (fontHeading) vars['--primitive-typography-family-display'] = fontHeading;
+  if (fontBody) vars['--primitive-typography-family-primary'] = fontBody;
+
+  return vars;
+}
+
+/**
+ * Serialize a palette to an inline `style` string (`k:v;k:v`) for the `<html>`
+ * element. Inline element styles beat stylesheet rules, so this is the most
+ * direct per-surface theming path (the model the clients factory already uses).
+ */
+export function brandOverlayStyle(palette: BrandPalette): string {
+  return Object.entries(brandOverlayVars(palette))
+    .map(([k, v]) => `${k}:${v}`)
+    .join(';');
+}
+
+/**
+ * Serialize a palette to a scoped CSS rule (`<selector>{ --var: value; }`) for
+ * a static stylesheet — e.g. `[data-brand="acme"]` blocks in an Astro layout,
+ * mirroring the checked-in tenant overlays. `selector` is emitted verbatim; the
+ * caller owns its trust (typically a slug it controls).
+ */
+export function brandOverlayCss(selector: string, palette: BrandPalette): string {
+  const body = Object.entries(brandOverlayVars(palette))
+    .map(([k, v]) => `  ${k}: ${v};`)
+    .join('\n');
+  return `${selector} {\n${body}\n}`;
+}

@@ -12,10 +12,10 @@ const { services } = config;
 ---
 
 <Section id="services" title="What We Do" subtitle="Professional service, done right the first time.">
-  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
     {
       services.map((service) => (
-        <li class="flex flex-col overflow-hidden rounded-theme border border-fg/10 bg-bg shadow-sm">
+        <li class="reveal flex flex-col overflow-hidden rounded-theme border border-fg/10 bg-bg shadow-sm">
           {service.image && (
             <ResponsiveImage
               src={service.image}

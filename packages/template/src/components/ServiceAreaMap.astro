@@ -20,11 +20,12 @@ const embedSrc = map.embedQuery
 
 <Section id="serviceAreaMap" title="Areas We Serve" muted>
   <div class="grid gap-8 md:grid-cols-[1fr_1.2fr] md:items-center">
-    <div>
+    <div class="reveal">
       <ul class="flex flex-wrap gap-2">
         {
           business.serviceAreas.map((area) => (
-            <li class="rounded-theme bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+            <li class="inline-flex items-center gap-1.5 rounded-theme bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+              <span class="pulse inline-block h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
               {area}
             </li>
           ))
@@ -35,7 +36,7 @@ const embedSrc = map.embedQuery
       </p>
     </div>
 
-    <div class="overflow-hidden rounded-theme border border-fg/10">
+    <div class="reveal overflow-hidden rounded-theme border border-fg/10">
       {
         map.staticImage ? (
           <ResponsiveImage

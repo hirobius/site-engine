@@ -2,6 +2,7 @@
 import type { ClientConfig } from "@hirobius/schema";
 import { brandStyle } from "../lib/theme.js";
 import BaseHead from "./BaseHead.astro";
+import Motion from "./Motion.astro";
 
 /**
  * HTML document shell. The per-client palette is applied as an inline style on
@@ -17,14 +18,27 @@ interface Props {
 
 const { config } = Astro.props;
 const style = brandStyle(config);
+const motion = config.brand.motion;
 ---
 
 <!doctype html>
-<html lang="en" style={style}>
+<html lang="en" style={style} data-motion={motion}>
   <head>
     <BaseHead config={config} />
+    {
+      /* Arm the reveal/rise CSS before first paint (no flash), but only for
+         visitors who haven't asked for reduced motion. No motion class => the
+         `.reveal`/`.rise` base state stays fully visible (no-JS-safe). #22 */
+      motion !== "none" && (
+        <script is:inline>
+          if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+            document.documentElement.classList.add("motion-ready");
+        </script>
+      )
+    }
   </head>
   <body class="min-h-dvh antialiased">
     <slot />
+    {motion !== "none" && <Motion motion={motion} />}
   </body>
 </html>

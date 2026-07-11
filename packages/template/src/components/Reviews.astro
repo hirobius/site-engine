@@ -17,9 +17,9 @@ function stars(rating: number): string {
 {
   reviews.length > 0 && (
     <Section id="reviews" title="What Customers Say">
-      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
         {reviews.map((review) => (
-          <li class="flex flex-col rounded-theme border border-fg/10 bg-bg p-6 shadow-sm">
+          <li class="reveal flex flex-col rounded-theme border border-fg/10 bg-bg p-6 shadow-sm">
             <div class="text-accent" aria-label={`${review.rating} out of 5 stars`}>
               <span aria-hidden="true">{stars(review.rating)}</span>
             </div>

@@ -1,14 +1,15 @@
 {
-  "updatedAt": "2026-07-07T00:00:00Z",
+  "updatedAt": "2026-07-09T09:00:00Z",
   "phase": "active",
-  "headline": "Astro one-page factory proven; 3 placeholder preview apps deployed behind the basic-auth gate. Prospect→Astro site bridge live-verified end-to-end: scraped WA lead → two-axis scored → generated site → live noindex Vercel preview (Cascade Fence & Deck, Lacey WA). Engine still frozen pending ops cutover. Pre-revenue — no paying client yet.",
+  "headline": "Dropped the @hirobius/design-system dependency (#42): the factory only ever used HDS's token spine + the ~130-line palette→semantic overlay bridge (zero React components), and HDS is now frozen/shelved (0.13.0). Vendored the overlay into packages/template/src/lib/brand-overlay.ts and a trimmed tokens.css (125 of 403 vars — the template's transitive closure, light-only), dropped the dep, bumped template to 0.3.0. pnpm install removes 69 packages; all 7 apps build clean; headless HTTP render is pixel-identical (body #0b2230, CTA #0a6cb5, zero page errors). Earlier: brand.motion dial (#22) + template on the HDS token spine (#30). Pre-revenue, nothing deployed live.",
   "next": [
-    "Merge the prospect→Astro site bridge from claude/prospect-to-site (#26); first autonomous generate needs ANTHROPIC_API_KEY",
-    "Set real form.accessKey (Web3Forms) + hcaptchaSiteKey before any prospect outreach (#26)",
-    "Delete the frozen packages/agent engine once ops's first live generate passes (#10)"
+    "Include brand.motion when the schema is vendored to ops (no vendored lib/schema exists yet; sync is moot until the #10 engine migration — the #21 drift guard must cover this field then)",
+    "Enrich motion after the section scrub once #33 grabs more Astro section pieces (new tracking issue)",
+    "Deploy a preview live + verify the basic-auth gate (#8)",
+    "Ops first live generate (needs ANTHROPIC_API_KEY) -> then delete engine here (#10)"
   ],
   "blocked": [
-    "Autonomous site generation blocked on ANTHROPIC_API_KEY (#26)",
-    "Engine delete (#10) waits on ops's first live generate"
+    "#10 waits on ops's first live generate (ANTHROPIC_API_KEY in ops)",
+    "Live lead sourcing waits on OUTSCRAPER_API_KEY in ops"
   ]
 }
