@@ -1052,3 +1052,66 @@ contents in PR #117's description for manual paste.
 
 Branch: ralph/issue-113-visual-seed-workflow. PR: #117.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-12
+
+Issue #85: feat(presets): per-vertical content packs — default services,
+FAQ, and CTA copy per trade
+
+What shipped (smallest complete slice — DoD items 1-3 for services/CTA/
+sectionOrder; FAQ + ops resync deferred, see below):
+- Seam (Adrian's 2026-07-11 comment): top-level `contentPack: "<trade>"` id,
+  packs merge default services/CTA copy under the config, explicit config
+  fields always win. Implemented WITHOUT touching `ClientConfigSchema`'s Zod
+  shape — `contentPack` lives only in a new `ClientConfigDraft` union type
+  that `defineClient()` accepts; the merge happens before `safeParse()`, and
+  the pack key is stripped before validation. This keeps
+  `shapeOf(ClientConfigSchema)` byte-identical, so the ops schema-drift guard
+  (#75, packages/schema/src/ops-drift.test.ts) stays green with no snapshot
+  refresh — no canonical schema field was actually added, so there's nothing
+  to re-sync to ops for this slice.
+- packages/schema/src/content-packs.ts: `CONTENT_PACKS` registry, one pack
+  per shipped trade (landscaping, junk-removal, pressure-washing,
+  concrete-fencing) — 5 trade-generic services each, a trade-appropriate
+  ctaLabel, and a recommended sectionOrder (trust-first: reviews before
+  gallery for landscaping/concrete-fencing; visual-first: gallery before
+  reviews for junk-removal/pressure-washing). No business facts (golden rule
+  #5) — copy is generic to the trade, never invented phone/hours/reviews.
+- packages/schema/src/index.ts: `ClientConfigDraft` (union of the existing
+  `ClientConfigInput` or the same minus required `services`, plus
+  `contentPack`), `applyContentPack()` (override-only merge: services only
+  filled if omitted/empty, copy.ctaLabel and layout.sectionOrder only filled
+  if unset), `defineClient()` now takes `ClientConfigDraft` and runs the
+  merge before validating.
+- Icons deliberately omitted from pack services: `ServiceSchema.icon` is
+  unused by `ServicesGrid.astro` today (only `.image` renders) and no icon
+  set exists yet — inventing icon ids would be dead data.
+- Tests: packages/schema/src/content-packs.test.ts (8 cases) — every trade
+  has a pack, pack fills services/ctaLabel/sectionOrder when omitted, real
+  business copy (heroHeadline/heroSub/about) is never touched, explicit
+  services/ctaLabel/sectionOrder each override the pack, all 4 packs resolve
+  end-to-end via defineClient, and omitting contentPack keeps today's
+  "services required" behavior unchanged. 48/48 schema tests green.
+
+Deferred (commented on #85, needs #33 / a human, not in this PR):
+- FAQ entries: no FAQ field/section exists in `ClientConfigSchema` yet
+  (that's #33's new-section-type work) — nothing to attach pack FAQ content
+  to. Add once #33 lands a FAQ section shape.
+- Ops re-sync + agent prompt/catalog update: this slice made zero canonical
+  schema changes (see above), so there is nothing to re-sync to
+  ops/lib/schema for #21. If a later slice promotes `contentPack` into the
+  canonical Zod contract, that WILL need an ops resync + snapshot refresh
+  first.
+- Icon set for services: unblocked follow-up once #33/design-system defines
+  one; packs can then add `icon` per service.
+
+Verify: `bash ralph/gate.sh` green (build, check, full turbo test run incl.
+the new content-packs.test.ts and unchanged ops-drift.test.ts).
+
+Files changed: packages/schema/src/index.ts, packages/schema/src/
+content-packs.ts (new), packages/schema/src/content-packs.test.ts (new).
+
+Branch: ralph/issue-85-content-packs.
+Next iteration: none picked — Ralph selects the next issue.

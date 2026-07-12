@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { PALETTE_PRESET_IDS, FONT_IDS } from "./presets.js";
+import { PALETTE_PRESET_IDS, FONT_IDS, type PalettePresetId } from "./presets.js";
+import { CONTENT_PACKS } from "./content-packs.js";
 
 /**
  * Client configuration schema.
@@ -219,23 +220,63 @@ export type ClientConfig = z.output<typeof ClientConfigSchema>;
 export type SectionId = ClientConfig["layout"]["sectionOrder"][number];
 
 /**
+ * A config that starts from a per-vertical content pack (issue #85) instead
+ * of hand-writing default services and CTA copy. Picking `contentPack` relaxes
+ * `services` to optional — the pack supplies it when omitted. Business facts
+ * (hours, phone, service areas, about copy) are never in a pack, so they stay
+ * required here same as `ClientConfigInput`.
+ */
+export type ClientConfigDraft =
+  | ClientConfigInput
+  | (Omit<ClientConfigInput, "services"> & {
+      contentPack: PalettePresetId;
+      services?: ClientConfigInput["services"];
+    });
+
+/**
+ * Merge a content pack's defaults under a draft config. Override-only: any
+ * field the draft sets explicitly wins, the pack only fills gaps. Returns a
+ * plain `ClientConfigInput` (the `contentPack` key never reaches Zod — it
+ * isn't part of the canonical `ClientConfigSchema` shape, so this keeps the
+ * ops schema-drift guard, #75, unaffected by picking a pack).
+ */
+function applyContentPack(config: ClientConfigDraft): ClientConfigInput {
+  if (!("contentPack" in config)) {
+    return config;
+  }
+  const { contentPack, ...rest } = config;
+  const pack = CONTENT_PACKS[contentPack];
+  if (!pack) {
+    throw new Error(`Unknown contentPack "${contentPack}" — expected one of ${PALETTE_PRESET_IDS.join(", ")}`);
+  }
+  return {
+    ...rest,
+    services: rest.services && rest.services.length > 0 ? rest.services : pack.services,
+    copy: { ...rest.copy, ctaLabel: rest.copy.ctaLabel ?? pack.ctaLabel },
+    layout: { ...rest.layout, sectionOrder: rest.layout.sectionOrder ?? pack.sectionOrder },
+  };
+}
+
+/**
  * Validate and normalize a client config.
  *
  * Use this in every `client.config.ts`. It throws a readable error on invalid
  * config so that `pnpm build` (and therefore CI and the Vercel build) fails
  * loudly rather than shipping a broken site.
  */
-export function defineClient(config: ClientConfigInput): ClientConfig {
-  const result = ClientConfigSchema.safeParse(config);
+export function defineClient(config: ClientConfigDraft): ClientConfig {
+  const draft = applyContentPack(config);
+  const result = ClientConfigSchema.safeParse(draft);
   if (!result.success) {
     const issues = result.error.issues
       .map((i) => `  • ${i.path.join(".") || "(root)"}: ${i.message}`)
       .join("\n");
     throw new Error(
-      `Invalid client config${config?.slug ? ` for "${config.slug}"` : ""}:\n${issues}`,
+      `Invalid client config${draft?.slug ? ` for "${draft.slug}"` : ""}:\n${issues}`,
     );
   }
   return result.data;
 }
 
 export * from "./presets.js";
+export * from "./content-packs.js";
