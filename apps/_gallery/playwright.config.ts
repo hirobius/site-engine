@@ -1,6 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolveChromiumExecutable } from "../../scripts/resolve-playwright-browser.js";
 
 const PORT = 4322;
+
+// BS1b: use the pre-installed Chromium in the remote sandbox so the browser is
+// launchable with no manual binary bridging. undefined elsewhere → Playwright's
+// normal resolution. NB: visual baselines remain CI-generated and
+// platform-pinned (see below) — this only makes the browser runnable, it does
+// not make sandbox pixel-comparison authoritative.
+const chromiumExecutable = resolveChromiumExecutable();
 
 /**
  * Visual regression for the template fleet.
@@ -37,7 +45,15 @@ export default defineConfig({
     // reveal timing left to flake on (clients#22, clients#74).
     contextOptions: { reducedMotion: "reduce" },
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        ...(chromiumExecutable ? { launchOptions: { executablePath: chromiumExecutable } } : {}),
+      },
+    },
+  ],
   webServer: {
     command: `pnpm preview --host 127.0.0.1 --port ${PORT}`,
     url: `http://127.0.0.1:${PORT}`,

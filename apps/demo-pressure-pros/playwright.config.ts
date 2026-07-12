@@ -1,6 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolveChromiumExecutable } from "../../scripts/resolve-playwright-browser.js";
 
 const PORT = 4321;
+
+// BS1b: use the pre-installed, version-stable Chromium in the remote sandbox so
+// the smoke suite runs with no manual binary bridging. undefined elsewhere →
+// Playwright's normal browser resolution (CI/local).
+const chromiumExecutable = resolveChromiumExecutable();
 
 /**
  * Smoke tests run against the built static output via `astro preview`, so they
@@ -17,7 +23,15 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${PORT}`,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        ...(chromiumExecutable ? { launchOptions: { executablePath: chromiumExecutable } } : {}),
+      },
+    },
+  ],
   webServer: {
     command: `pnpm preview --host 127.0.0.1 --port ${PORT}`,
     url: `http://127.0.0.1:${PORT}`,
