@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { SECTION_VARIANTS } from "@hirobius/schema";
 
 /**
  * Snapshot the deterministic gallery pages. The presets and sections pages use
@@ -29,3 +30,16 @@ test("sections — component kitchen sink", async ({ page }) => {
     mask: [page.locator("#serviceAreaMap")],
   });
 });
+
+// One screenshot PER SECTION on the variants page, so a new harvested variant
+// re-baselines only its own section's image instead of the whole page.
+for (const sectionId of Object.keys(SECTION_VARIANTS)) {
+  test(`variants — ${sectionId}`, async ({ page }) => {
+    await page.goto("/variants");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator(`#variants-${sectionId}`)).toHaveScreenshot(
+      `variants-${sectionId}.png`,
+      { mask: [page.locator("#serviceAreaMap")] },
+    );
+  });
+}

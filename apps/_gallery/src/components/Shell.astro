@@ -3,7 +3,7 @@ import "../styles/global.css";
 
 interface Props {
   title: string;
-  active: "presets" | "sections" | "fleet";
+  active: "presets" | "sections" | "variants" | "fleet";
 }
 
 const { title, active } = Astro.props;
@@ -11,6 +11,7 @@ const { title, active } = Astro.props;
 const tabs = [
   { id: "presets", href: "/", label: "Presets" },
   { id: "sections", href: "/sections", label: "Sections" },
+  { id: "variants", href: "/variants", label: "Variants" },
   { id: "fleet", href: "/fleet", label: "Fleet" },
 ] as const;
 ---
