@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "skills": {
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/impeccable/SKILL.md",
+      "computedHash": "e26ac0962e4a016a561e4317232bd23d5266b74f38e8bfc785d81f41f93e25b9",
+      "hashAlgorithm": "sha256 of the SKILL.md bytes at pinnedCommit",
+      "pinnedCommit": "630fc2682a5bd39b25a8e61f74b6b3f14f2b1e21",
+      "paths": [
+        ".claude/skills/impeccable/SKILL.md",
+        ".claude/skills/impeccable/reference/critique.md",
+        ".claude/skills/impeccable/reference/polish.md",
+        ".claude/skills/impeccable/reference/audit.md",
+        ".claude/skills/impeccable/reference/harden.md",
+        ".claude/skills/impeccable/reference/typeset.md",
+        ".claude/skills/impeccable/reference/layout.md",
+        ".claude/skills/impeccable/reference/brand.md",
+        ".claude/skills/impeccable/reference/product.md",
+        ".claude/skills/impeccable/reference/init.md",
+        ".claude/skills/impeccable/scripts/context.mjs",
+        ".claude/skills/impeccable/scripts/palette.mjs"
+      ]
+    }
+  }
+}

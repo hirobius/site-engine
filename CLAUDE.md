@@ -113,6 +113,28 @@ Ignored Build Step `npx turbo-ignore`. Preview deploys are basic-auth gated by
 
 Tracker config for `/to-tickets` + `/triage`: our tracker is **GitHub Issues in this repo**; label vocabulary `backlog` · `bug` · `blocked` · `needs-adrian`; dependencies via **sub-issues** / **"Depends on #N"**.
 
+### Design-quality skill (2026-07-12)
+
+`.claude/skills/impeccable/` vendors a curated subset of
+[pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0),
+pinned in `skills-lock.json` (`pinnedCommit` + `paths`; hash = sha256 of
+SKILL.md at the pin). Routing:
+
+- **Before shipping any generated client site → `/impeccable critique <app>`**
+  (review) **then `/impeccable polish <app>`** (fix pass). Layout/spacing →
+  `/impeccable layout`; typography → `/impeccable typeset`; a11y/perf →
+  `/impeccable audit`; edge cases (overflow, long names, error states) →
+  `/impeccable harden`.
+- **Deterministic no-LLM sweep → `npx impeccable detect apps/<slug>/`**
+  (46 anti-pattern rules; no guardrail registry exists in this repo, so this
+  stays a documented invocation, not a gate).
+- Only the curated reference subset is vendored — commands outside it
+  (e.g. `/impeccable animate`) are intentionally not installed; vendor the
+  missing `reference/<command>.md` at the pinned commit first if needed.
+- These skills complement, never replace, the purity/acceptance gates in
+  `packages/template` — those stay the hard floor; impeccable raises the
+  ceiling.
+
 ## Fleet hub
 
 This repo is part of the Hirobius fleet. The operations hub is the
