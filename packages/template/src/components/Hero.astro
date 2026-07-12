@@ -6,6 +6,8 @@
 import type { ClientConfig, SECTION_VARIANTS } from "@hirobius/schema";
 import Classic from "./hero/classic.astro";
 import Video from "./hero/video.astro";
+import SplitCard from "./hero/split-card.astro";
+import Banner from "./hero/banner.astro";
 
 interface Props {
   config: ClientConfig;
@@ -16,6 +18,8 @@ const { config } = Astro.props;
 const VARIANTS = {
   classic: Classic,
   video: Video,
+  "split-card": SplitCard,
+  banner: Banner,
 } satisfies Record<(typeof SECTION_VARIANTS)["hero"][number], unknown>;
 
 const Variant = VARIANTS[config.layout.sections.hero.variant];

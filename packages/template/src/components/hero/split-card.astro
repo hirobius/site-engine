@@ -1,0 +1,74 @@
+---
+// Hero variant "split-card" — light hero: content column left, photo in an
+// elevated rounded card right. A universal pattern (re-implemented from
+// scratch, layout idea only — no code copied; see docs/harvesting.md /
+// ATTRIBUTIONS.md). Degrades to a single centered column when hero.image is
+// absent.
+import type { ClientConfig } from "@hirobius/schema";
+import { telHref } from "../../lib/theme.js";
+import ResponsiveImage from "../ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { copy, business, hero } = config;
+const tel = telHref(business.phone);
+---
+
+<section class="relative overflow-hidden bg-bg text-fg" aria-label="Intro">
+  <div
+    class:list={[
+      "relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:py-28",
+      hero.image ? "md:grid-cols-2" : "justify-items-center text-center",
+    ]}
+  >
+    <div class="rise max-w-2xl">
+      <p class="text-sm font-semibold uppercase tracking-wide text-primary">
+        {business.serviceAreas.join(" • ")}
+      </p>
+      <h1 class="mt-3 font-heading text-4xl font-bold leading-tight sm:text-5xl">
+        {copy.heroHeadline}
+      </h1>
+      <p class="mt-4 text-lg text-fg/70">{copy.heroSub}</p>
+
+      <div class:list={["mt-8 flex flex-wrap gap-3", !hero.image && "justify-center"]}>
+        <a
+          href="#contact"
+          class="inline-flex items-center rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
+        >
+          {copy.ctaLabel}
+        </a>
+        <a
+          href={tel}
+          class="inline-flex items-center rounded-theme border border-fg/20 px-6 py-3 font-semibold text-fg transition hover:bg-fg/5"
+        >
+          Call {business.phone}
+        </a>
+      </div>
+
+      <p class="mt-6 text-sm text-fg/60">{business.name}</p>
+    </div>
+
+    {
+      hero.image && (
+        <div class="reveal relative">
+          <div class="absolute -inset-3 rounded-theme bg-primary/10" aria-hidden="true" />
+          <div class="relative overflow-hidden rounded-theme shadow-xl">
+            <ResponsiveImage
+              src={hero.image}
+              alt=""
+              loading="eager"
+              fetchpriority="high"
+              sizes="(min-width: 768px) 50vw, 100vw"
+              width={1600}
+              height={1200}
+              class="aspect-[4/3] h-auto w-full object-cover"
+            />
+          </div>
+        </div>
+      )
+    }
+  </div>
+</section>

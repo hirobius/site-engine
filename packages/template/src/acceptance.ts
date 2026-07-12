@@ -100,6 +100,7 @@ const CONTRAST_TOKEN_PAIRS: Array<{
 }> = [
   { code: "low-contrast-cta", a: "--brand-primary", b: "--brand-on-primary", label: "primary/on-primary (CTA button)" },
   { code: "low-contrast-hero", a: "--brand-fg", b: "--brand-bg", label: "fg/bg (body text + hero surface pairing)" },
+  { code: "low-contrast-muted", a: "--brand-fg", b: "--brand-muted", label: "fg/muted (muted sections + banner hero surface)" },
 ];
 
 /**

@@ -34,7 +34,12 @@ export const SECTION_COMPONENTS = {
  * SECTION_VARIANTS never drift and that every file exists.
  */
 export const SECTION_VARIANT_COMPONENTS = {
-  hero: { classic: "hero/classic.astro", video: "hero/video.astro" },
+  hero: {
+    classic: "hero/classic.astro",
+    video: "hero/video.astro",
+    "split-card": "hero/split-card.astro",
+    banner: "hero/banner.astro",
+  },
   services: { grid: "ServicesGrid.astro" },
   gallery: { grid: "Gallery.astro" },
   reviews: { cards: "Reviews.astro" },

@@ -17,7 +17,7 @@
  *   of these variants is a custom-component engagement, not a config edit.
  */
 export const SECTION_VARIANTS = {
-  hero: ["classic", "video"],
+  hero: ["classic", "video", "split-card", "banner"],
   services: ["grid"],
   gallery: ["grid"],
   reviews: ["cards"],

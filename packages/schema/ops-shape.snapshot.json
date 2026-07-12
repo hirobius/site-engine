@@ -391,7 +391,9 @@
                             "shape": {
                               "kind": "enum",
                               "values": [
+                                "banner",
                                 "classic",
+                                "split-card",
                                 "video"
                               ]
                             },

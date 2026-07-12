@@ -46,6 +46,18 @@ describe("SECTION_VARIANTS", () => {
   it("keeps the video hero variant available", () => {
     expect(SECTION_VARIANTS.hero).toContain("video");
   });
+
+  it("offers the harvested hero variants", () => {
+    expect(SECTION_VARIANTS.hero).toContain("split-card");
+    expect(SECTION_VARIANTS.hero).toContain("banner");
+  });
+
+  it("accepts a harvested hero variant via config", () => {
+    const result = defineClient(
+      config({ layout: { sections: { hero: { variant: "split-card" } } } }),
+    );
+    expect(result.layout.sections.hero.variant).toBe("split-card");
+  });
 });
 
 describe("layout.sections variants", () => {
