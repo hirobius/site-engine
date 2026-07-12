@@ -12,7 +12,8 @@
 import { cpSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PALETTE_PRESET_IDS } from "../packages/schema/src/presets.js";
+import { PALETTE_PRESET_IDS, type PalettePresetId } from "../packages/schema/src/presets.js";
+import { generateFaviconSvg } from "./favicon.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -81,6 +82,13 @@ cfg = cfg
   .replace(/palettePreset:\s*"[^"]*"/, `palettePreset: "${preset}"`)
   .replace(/siteUrl:\s*"https:\/\/example\.com"/, `siteUrl: "https://${slug}.example"`);
 writeFileSync(cfgPath, cfg);
+
+// 3) Brand-colored monogram favicon (business initial on the preset primary),
+// overwriting _template's generic stub. A real logo overwrites this later.
+writeFileSync(
+  resolve(dest, "public/favicon.svg"),
+  generateFaviconSvg(name, preset as PalettePresetId),
+);
 
 const projectName = `hirobius-${slug}`;
 
