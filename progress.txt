@@ -1197,3 +1197,56 @@ see PR body). Issue commented.
 Next iteration: none picked — Ralph selects the next issue. Deliverable 2
 of #121 stays open for a future iteration once #112 item 1 (workflows
 scope) lands.
+
+---
+
+Ralph iteration — 2026-07-12 (second pass)
+
+Issue #121: render-site.yml dispatch workflow (deliverable 2, deferred by the prior pass)
+
+What shipped (smallest complete slice):
+- scripts/render-site.ts: second half of the scaffold step. Takes a lead's
+  mapped ClientConfig JSON (as leadToConfig() would emit) + an already-
+  scaffolded apps/<slug>, re-validates the config through defineClient()
+  (fails fast, no fabricated fallback, on bad JSON or a schema-rejected
+  config), and writes it into apps/<slug>/client.config.ts.
+  `pnpm render-site <slug> --config <path.json>`.
+- scripts/render-site.test.ts: unit tests on the exported renderConfigFile/
+  writeClientConfig (valid write, invalid JSON, schema-rejected config —
+  each throws without writing a file) + a CLI-level test that scaffolds a
+  throwaway fixture with the real new-client script first (so it produces
+  the full canonical astro.config.ts/middleware.ts pair packages/template's
+  gate tests check — an earlier draft used a bare mkdirSync stub and broke
+  those gate tests by leaving a malformed apps/* dir behind mid-suite).
+- package.json: added the "render-site" script entry.
+- Drafted `.github/workflows/render-site.yml` (steps 1-7 from the issue:
+  scaffold -> write config -> check+build -> commit/push to main -> vercel
+  link/env add/deploy -> Supabase callback on success, `if: failure()`
+  callback on any prior step failing that records the error and leaves
+  `status` untouched). Confirmed #112 said item 1 (workflows scope) was
+  done, so attempted a real push — still got the same
+  "refusing to allow a GitHub App to create or update workflow ... without
+  `workflows` permission" rejection #99/#117 hit. So this file is NOT in the
+  commit; full YAML pasted into the PR body instead (#99 pattern), title
+  flags it.
+- Failure-notes Supabase column is a guess (`render_error`) — the issue says
+  "a qualify_reason-adjacent notes field" but doesn't name it and the ops
+  `leads` table lives in a different repo (hirobius/ops) not readable from
+  here. Flagged in the PR/workflow comment for Adrian to correct if wrong.
+
+Verify: `bash ralph/gate.sh` green (17/17 turbo tasks, incl. new
+scripts/render-site.test.ts).
+
+Files changed: package.json, scripts/render-site.ts (new),
+scripts/render-site.test.ts (new). .github/workflows/render-site.yml
+drafted but NOT committed (pasted in PR body — see above).
+
+Branch: ralph/issue-121-render-site-workflow. PR opened (Closes #121 —
+still partial: workflow needs a human to add the file + Adrian's
+VERCEL_TOKEN/SUPABASE_* secrets + the live workflow_dispatch proof per
+issue #112 item 5). Issue commented.
+Next iteration: none picked — Ralph selects the next issue. Re-attempt
+landing the workflow file itself once #112's workflows-scope grant is
+confirmed actually effective for this bot's token (its "item 1 done" note
+in #112 did not hold on push, same as #88/#113 before it — worth a comment
+back on #112 flagging the discrepancy).
