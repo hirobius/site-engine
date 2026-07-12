@@ -58,6 +58,10 @@ error (bounded backoff, never silent).
    quality bar, rules — copy ops' section as the template), file issues with
    acceptance criteria, tag them `ralph-ready` (+ `p0`–`p3`, + `ralph-auto`
    if pre-approved), and either let CI chain or run `bash ralph/loop.sh N`.
+6. Give the run caller a `schedule:` trigger (hourly, staggered minute per
+   repo) — the idle watchdog. Without it the CI chain halts silently after a
+   failed iteration or a dedup-cancelled label event; the tick re-enters the
+   guard and restarts the queue, and costs nothing when there's nothing to do.
 
 ## Layout
 
