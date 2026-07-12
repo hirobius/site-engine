@@ -815,3 +815,50 @@ Files changed: README.md, docs/PROJECT-CONTEXT.md, status.json.
 Branch: ralph/issue-55-docs-reconcile. PR opened (Closes #55). Issue
 commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #103 — tokenized preview links (2026-07-12)
+
+feat(middleware): `?key=<PREVIEW_TOKEN>` path added alongside Basic auth
+in the shared `apps/_template/middleware.ts`, so cold-outreach prospects
+get a one-click preview link instead of shared PREVIEW_USER/PASS creds.
+
+Decisions:
+- Shared-secret token (not JWT/HMAC) — matches the issue's own "per-site
+  secret via env" framing; "signed-token" in the title is loose language,
+  not a literal signing requirement.
+- Constant-time compare (`timingSafeEqual`, length-short-circuit only —
+  leaks length, not content) exported from middleware.ts for unit testing;
+  no new dependency needed.
+- Valid `?key=` sets an httpOnly, Secure, SameSite=Lax cookie
+  (`preview_token`, 30-day Max-Age) so subsequent requests need no query
+  param. Invalid/absent token falls through to existing Basic auth
+  unchanged; PREVIEW_TOKEN unset -> behavior is exactly the prior
+  Basic-auth-only gate (fail-closed 503 preserved). noindex header stays
+  on every gated response either path; SITE_LIVE=true still bypasses both.
+- Synced the canonical file byte-for-byte to all 5 deployed apps
+  (demo-pressure-pros, monroe-street-power-wash, preview-clearout-junk,
+  preview-evergreen-lawn, preview-solidline-concrete) — middleware-gate.test.ts
+  drift guard stays green.
+- New unit suite `apps/_template/tests/middleware.test.ts` (9 tests) covers
+  the token/cookie/fallback/noindex/SITE_LIVE matrix from the DoD. Lives in
+  _template only (not duplicated per-app) since the byte-identity test
+  already guarantees every app runs the same logic; `new-client` copies the
+  whole tests/ dir so every future client inherits this coverage for free.
+- `scripts/new-client.ts` next-steps now prints
+  `vercel env add PREVIEW_TOKEN preview --cwd apps/<slug>`.
+- README "Preview gating" section rewritten to document the link format
+  and that tokens die the moment SITE_LIVE flips (same as Basic auth).
+
+Verify: `bash ralph/gate.sh` green — build, check, full turbo test run
+(17/17 tasks), including the new 9-test middleware suite.
+
+Files changed: apps/_template/middleware.ts, apps/_template/tests/middleware.test.ts (new),
+apps/{demo-pressure-pros,monroe-street-power-wash,preview-clearout-junk,
+preview-evergreen-lawn,preview-solidline-concrete}/middleware.ts,
+scripts/new-client.ts, README.md.
+
+Branch: ralph/issue-103-preview-token-link. PR #111 opened (Closes #103).
+Issue commented.
+Next iteration: none picked — Ralph selects the next issue. Cross-repo
+note left in the issue body (not actioned here, out of scope): ops needs
+to coordinate the token source with its leads table for outreach templates.
