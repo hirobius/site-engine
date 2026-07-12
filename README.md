@@ -169,6 +169,33 @@ swap here if you make it.
 
 ---
 
+## Deploy
+
+Going live used to be a hand-run ritual: flip `SITE_LIVE` in the Vercel
+dashboard, redeploy, and hope. `pnpm go-live` + `pnpm verify-live` replace that
+with a scripted flip that refuses to proceed on a bad config, plus a real
+post-deploy check:
+
+```bash
+pnpm go-live mikes-junk            # armed build -> print the Vercel steps
+pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod deploy -> verify
+```
+
+- `go-live` first runs `SITE_LIVE=true astro build` for the app locally — the
+  same armed `checkClientAcceptance` gate described above — so placeholder
+  intake data fails **here**, before anything touches Vercel.
+- Without `--yes` it prints the exact `vercel env add SITE_LIVE production` +
+  `vercel deploy --prod` commands (same print/execute pattern as `new-client`).
+  With `--yes` it runs them, then verifies the live result.
+- `pnpm verify-live <url>` asserts a live site works: 200, no
+  `X-Robots-Tag: noindex`, a LocalBusiness JSON-LD block, `/sitemap-index.xml`
+  + `robots.txt` reachable, `/thanks` renders.
+- `pnpm verify-live <preview-url> --expect-gated` asserts the opposite — 401
+  with `WWW-Authenticate` + noindex — the behavioral proof of the preview gate
+  above, runnable against any real preview deploy.
+
+---
+
 ## Images
 
 - **Intake convention: 1600px max edge, ~200KB per file.** Compress at intake;

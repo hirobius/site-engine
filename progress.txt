@@ -862,3 +862,50 @@ Issue commented.
 Next iteration: none picked — Ralph selects the next issue. Cross-repo
 note left in the issue body (not actioned here, out of scope): ops needs
 to coordinate the token source with its leads table for outreach templates.
+
+---
+
+Issue #104 — feat(scripts): pnpm go-live <slug> + verify-live post-deploy checks
+
+- Added `scripts/go-live.ts`: runs the ARMED acceptance build locally
+  (`pnpm --filter @hirobius/<slug> build` with SITE_LIVE=true) first — refuses
+  to proceed (dies with the checkClientAcceptance issue list) if that build
+  fails, so placeholder intake data never reaches Vercel. Without `--yes`
+  prints the exact `vercel env add SITE_LIVE production` + `vercel deploy
+  --prod` commands (print/execute pattern matches new-client's runbook
+  output); with `--yes` executes them (piping "true" as the env value) then
+  calls verifyLive() against the app's configured seo.siteUrl and fails loud
+  if any check is red.
+- Added `scripts/verify-live.ts`: `verifyLive(url, fetch?)` (200, no
+  X-Robots-Tag: noindex, LocalBusiness JSON-LD block, /sitemap-index.xml +
+  /robots.txt + /thanks reachable) and `verifyGated(url, fetch?)` (401 +
+  WWW-Authenticate + noindex) — the behavioral gate proof #8 has waited on.
+  Both take an injectable fetch so vitest covers the assertion logic with
+  mocked Response objects, no network/real deploy needed.
+- Decision: `runArmedBuild` takes an injectable spawn function for the same
+  reason (tooling.test.ts already flags that a real `astro build` smoke
+  doesn't belong in the per-commit vitest gate) — unit tests assert refuse/
+  proceed behavior via a fake spawn returning status 1/0, not a real build.
+  Verified separately by hand: `pnpm go-live monroe-street-power-wash` (real
+  app, real placeholder data) correctly refused and printed the 6 flagged
+  issues.
+- `pnpm go-live` / `pnpm verify-live` added to root package.json scripts.
+- `scripts/new-client.ts`'s printed go-live checklist now points at
+  `pnpm go-live <slug>` as the launch path.
+- New README "## Deploy" section (after "Preview gating") documents both
+  scripts, replacing the old hand-run checklist.
+- Out of scope (flagged back on the issue, per its own autonomous-fit note):
+  running `verify-live --expect-gated` against a real preview deploy and
+  pasting the output into #8 — needs Adrian's Vercel login.
+
+Verify: `bash ralph/gate.sh` green — build, check, full turbo test run
+(17/17 tasks), including new scripts/go-live.test.ts (4 tests) and
+scripts/verify-live.test.ts (7 tests).
+
+Files changed: scripts/go-live.ts (new), scripts/go-live.test.ts (new),
+scripts/verify-live.ts (new), scripts/verify-live.test.ts (new),
+package.json, scripts/new-client.ts, README.md.
+
+Branch: ralph/issue-104-go-live-verify-live. PR #114 opened (Closes #104).
+Issue commented.
+Next iteration: none picked — Ralph selects the next issue.
