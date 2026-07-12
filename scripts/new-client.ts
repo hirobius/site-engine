@@ -100,6 +100,10 @@ Go-live checklist (before flipping this site public):
     VERCEL_ENV=production automatically) — astro build then runs
     checkClientAcceptance with realData:true and FAILS the build if any
     placeholder survived. Preview builds stay unarmed on purpose.
+  - Launch with: pnpm go-live ${slug}
+    Runs that armed build locally, prints (or with --yes executes) the Vercel
+    SITE_LIVE flip + prod deploy, then verifies the live result with
+    pnpm verify-live.
 
 ──────────────────────────────────────────────────────────────────────────────
 Vercel setup (run from repo root; one project per client):
