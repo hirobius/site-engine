@@ -1,0 +1,64 @@
+---
+// Hero variant "banner" — centered full-width statement hero on the muted
+// surface, optional framed photo below the copy. A universal pattern
+// (re-implemented from scratch, layout idea only — no code copied; see
+// docs/harvesting.md / ATTRIBUTIONS.md). Degrades to text-only when
+// hero.image is absent.
+import type { ClientConfig } from "@hirobius/schema";
+import { telHref } from "../../lib/theme.js";
+import ResponsiveImage from "../ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { copy, business, hero } = config;
+const tel = telHref(business.phone);
+---
+
+<section class="relative overflow-hidden bg-muted text-fg" aria-label="Intro">
+  <div class="relative mx-auto max-w-6xl px-5 py-20 text-center sm:py-28">
+    <div class="rise mx-auto max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-wide text-primary">
+        Serving {business.serviceAreas.join(" • ")}
+      </p>
+      <h1 class="mt-3 font-heading text-4xl font-bold leading-tight sm:text-6xl">
+        {copy.heroHeadline}
+      </h1>
+      <p class="mx-auto mt-5 max-w-2xl text-lg text-fg/70">{copy.heroSub}</p>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a
+          href="#contact"
+          class="inline-flex items-center rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
+        >
+          {copy.ctaLabel}
+        </a>
+        <a
+          href={tel}
+          class="inline-flex items-center rounded-theme border border-fg/20 px-6 py-3 font-semibold text-fg transition hover:bg-fg/5"
+        >
+          Call {business.phone}
+        </a>
+      </div>
+    </div>
+
+    {
+      hero.image && (
+        <div class="reveal mx-auto mt-14 max-w-4xl overflow-hidden rounded-theme border border-fg/10 shadow-2xl">
+          <ResponsiveImage
+            src={hero.image}
+            alt=""
+            loading="eager"
+            fetchpriority="high"
+            sizes="(min-width: 896px) 896px, 100vw"
+            width={1600}
+            height={900}
+            class="aspect-[16/9] h-auto w-full object-cover"
+          />
+        </div>
+      )
+    }
+  </div>
+</section>

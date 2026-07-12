@@ -1,4 +1,9 @@
-import { defineClient, type ClientConfig } from "@hirobius/schema";
+import {
+  defineClient,
+  type ClientConfig,
+  type SectionVariantId,
+  type VariantSectionId,
+} from "@hirobius/schema";
 import type { PalettePresetId } from "@hirobius/schema/presets";
 
 /**
@@ -124,3 +129,22 @@ export const FIXTURES: PresetFixture[] = DEMOS.map((d) => ({
   variant: d.variant,
   config: build(d),
 }));
+
+/**
+ * Re-validate a fixture with one section switched to a specific style variant.
+ * Runs back through `defineClient()`, so the variants page can only ever show
+ * (section, variant) combinations a real client config could ship.
+ */
+export function withSectionVariant<S extends VariantSectionId>(
+  base: ClientConfig,
+  section: S,
+  variant: SectionVariantId<S>,
+): ClientConfig {
+  return defineClient({
+    ...base,
+    layout: {
+      ...base.layout,
+      sections: { ...base.layout.sections, [section]: { variant } },
+    },
+  });
+}

@@ -1,94 +1,28 @@
 ---
-import type { ClientConfig } from "@hirobius/schema";
-import { telHref } from "../lib/theme.js";
-import ResponsiveImage from "./ResponsiveImage.astro";
+// Hero dispatcher — renders the variant selected by
+// `config.layout.sections.hero.variant`. The map is checked against the
+// schema's closed enum (`satisfies`), so adding a SECTION_VARIANTS value
+// without a component here fails `astro check`.
+import type { ClientConfig, SECTION_VARIANTS } from "@hirobius/schema";
+import Classic from "./hero/classic.astro";
+import Video from "./hero/video.astro";
+import SplitCard from "./hero/split-card.astro";
+import Banner from "./hero/banner.astro";
 
 interface Props {
   config: ClientConfig;
 }
 
 const { config } = Astro.props;
-const { copy, business, layout, hero } = config;
-const tel = telHref(business.phone);
-const isVideo = layout.variant === "B" && hero.videoSrc;
+
+const VARIANTS = {
+  classic: Classic,
+  video: Video,
+  "split-card": SplitCard,
+  banner: Banner,
+} satisfies Record<(typeof SECTION_VARIANTS)["hero"][number], unknown>;
+
+const Variant = VARIANTS[config.layout.sections.hero.variant];
 ---
 
-<section class="relative overflow-hidden bg-fg text-on-fg" aria-label="Intro">
-  {
-    isVideo ? (
-      // Variant B: full-bleed background video. Poster paints first so video
-      // decoding never blocks LCP; text sits on an overlay. No `autoplay`
-      // attribute — a reduced-motion visitor gets the poster only (WCAG
-      // 2.2.2, clients#82); the inline script below starts playback for
-      // everyone else.
-      <>
-        <video
-          id="hero-video"
-          class="absolute inset-0 h-full w-full object-cover"
-          muted
-          loop
-          playsinline
-          preload="none"
-          poster={hero.videoPoster}
-        >
-          <source src={hero.videoSrc} type="video/mp4" />
-        </video>
-        <script is:inline>
-          if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            document.getElementById("hero-video")?.play();
-          }
-        </script>
-      </>
-    ) : (
-      hero.image && (
-        <div class="absolute inset-0">
-          <ResponsiveImage
-            src={hero.image}
-            alt=""
-            loading="eager"
-            fetchpriority="high"
-            sizes="100vw"
-            width={1600}
-            height={900}
-            class="h-full w-full object-cover"
-          />
-        </div>
-      )
-    )
-  }
-
-  <div class="absolute inset-0 bg-gradient-to-r from-fg/85 to-fg/40"></div>
-
-  <div
-    class:list={[
-      "relative mx-auto grid max-w-6xl gap-8 px-5 py-20 sm:py-28",
-      layout.variant === "A" ? "md:grid-cols-2 md:items-center" : "place-items-start",
-    ]}
-  >
-    <div class="rise max-w-2xl">
-      <h1 class="font-heading text-4xl font-bold leading-tight sm:text-5xl">
-        {copy.heroHeadline}
-      </h1>
-      <p class="mt-4 text-lg text-on-fg/90">{copy.heroSub}</p>
-
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a
-          href="#contact"
-          class="inline-flex items-center rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
-        >
-          {copy.ctaLabel}
-        </a>
-        <a
-          href={tel}
-          class="inline-flex items-center rounded-theme border border-on-fg/40 px-6 py-3 font-semibold text-on-fg transition hover:bg-on-fg/10"
-        >
-          Call {business.phone}
-        </a>
-      </div>
-
-      <p class="mt-6 text-sm text-on-fg/80">
-        Serving {business.serviceAreas.join(" • ")}
-      </p>
-    </div>
-  </div>
-</section>
+<Variant config={config} />

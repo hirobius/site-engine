@@ -100,6 +100,7 @@ const CONTRAST_TOKEN_PAIRS: Array<{
 }> = [
   { code: "low-contrast-cta", a: "--brand-primary", b: "--brand-on-primary", label: "primary/on-primary (CTA button)" },
   { code: "low-contrast-hero", a: "--brand-fg", b: "--brand-bg", label: "fg/bg (body text + hero surface pairing)" },
+  { code: "low-contrast-muted", a: "--brand-fg", b: "--brand-muted", label: "fg/muted (muted sections + banner hero surface)" },
 ];
 
 /**
@@ -163,10 +164,10 @@ export function checkClientAcceptance(
     }
   }
 
-  if (config.layout.variant === "B" && !config.hero.videoSrc) {
+  if (config.layout.sections.hero.variant === "video" && !config.hero.videoSrc) {
     issues.push({
       code: "empty-video-hero",
-      message: 'layout.variant is "B" (full-bleed video) but hero.videoSrc is missing — renders an empty dark hero',
+      message: 'hero variant is "video" (full-bleed video) but hero.videoSrc is missing — renders an empty dark hero',
     });
   }
 

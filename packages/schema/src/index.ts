@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PALETTE_PRESET_IDS, FONT_IDS, type PalettePresetId } from "./presets.js";
 import { CONTENT_PACKS } from "./content-packs.js";
+import { SECTION_VARIANTS } from "./section-variants.js";
 
 /**
  * Client configuration schema.
@@ -93,7 +94,45 @@ export const BrandSchema = z.object({
 });
 
 export const LayoutSchema = z.object({
+  /**
+   * @deprecated Legacy hero variant switch. Prefer
+   * `layout.sections.hero.variant` ("classic" / "video" / harvested ids);
+   * `defineClient()` maps "B" onto "video" when no explicit hero variant is
+   * set. Kept so existing configs (and the ops agent) stay valid; removed in
+   * a future deliberate schema change.
+   */
   variant: z.enum(["A", "B"]).default("A"),
+  /**
+   * Per-section style variants (closed enums — see section-variants.ts).
+   * Fully defaulted: omitting this renders the classic design everywhere,
+   * so existing configs are untouched. `.strict()` so an unknown section key
+   * fails the build instead of being silently dropped.
+   */
+  sections: z
+    .object({
+      // Inlined per section (not a generic helper) so tsc can verify the
+      // defaulted `{}` against each concrete enum tuple.
+      hero: z
+        .object({ variant: z.enum(SECTION_VARIANTS.hero).default("classic") })
+        .default({}),
+      services: z
+        .object({ variant: z.enum(SECTION_VARIANTS.services).default("grid") })
+        .default({}),
+      gallery: z
+        .object({ variant: z.enum(SECTION_VARIANTS.gallery).default("grid") })
+        .default({}),
+      reviews: z
+        .object({ variant: z.enum(SECTION_VARIANTS.reviews).default("cards") })
+        .default({}),
+      serviceAreaMap: z
+        .object({ variant: z.enum(SECTION_VARIANTS.serviceAreaMap).default("standard") })
+        .default({}),
+      contact: z
+        .object({ variant: z.enum(SECTION_VARIANTS.contact).default("standard") })
+        .default({}),
+    })
+    .strict()
+    .default({}),
   /**
    * Order of sections on the page. Unknown ids are rejected so a typo can't
    * silently drop a section. Hero and Footer are always rendered (first/last)
@@ -258,6 +297,27 @@ function applyContentPack(config: ClientConfigDraft): ClientConfigInput {
 }
 
 /**
+ * Bridge the deprecated `layout.variant` hero switch onto the variant system:
+ * `"B"` means the full-bleed video hero, so it resolves to
+ * `layout.sections.hero.variant = "video"` — unless the config sets an
+ * explicit hero variant, which always wins. `"A"` needs no mapping; it is the
+ * `"classic"` default.
+ */
+function applyLegacyHeroVariant(config: ClientConfigInput): ClientConfigInput {
+  const layout = config.layout;
+  if (!layout || layout.variant !== "B" || layout.sections?.hero?.variant) {
+    return config;
+  }
+  return {
+    ...config,
+    layout: {
+      ...layout,
+      sections: { ...layout.sections, hero: { variant: "video" } },
+    },
+  };
+}
+
+/**
  * Validate and normalize a client config.
  *
  * Use this in every `client.config.ts`. It throws a readable error on invalid
@@ -265,7 +325,7 @@ function applyContentPack(config: ClientConfigDraft): ClientConfigInput {
  * loudly rather than shipping a broken site.
  */
 export function defineClient(config: ClientConfigDraft): ClientConfig {
-  const draft = applyContentPack(config);
+  const draft = applyLegacyHeroVariant(applyContentPack(config));
   const result = ClientConfigSchema.safeParse(draft);
   if (!result.success) {
     const issues = result.error.issues
@@ -281,3 +341,4 @@ export function defineClient(config: ClientConfigDraft): ClientConfig {
 export * from "./presets.js";
 export * from "./content-packs.js";
 export * from "./lead-to-config.js";
+export * from "./section-variants.js";

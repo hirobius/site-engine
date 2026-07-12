@@ -1,0 +1,79 @@
+---
+import Shell from "../components/Shell.astro";
+import { FIXTURES, withSectionVariant } from "../fixtures.js";
+import { brandStyle, SECTION_VARIANTS } from "@hirobius/template";
+import Hero from "@hirobius/template/components/Hero.astro";
+import ServicesGrid from "@hirobius/template/components/ServicesGrid.astro";
+import Gallery from "@hirobius/template/components/Gallery.astro";
+import Reviews from "@hirobius/template/components/Reviews.astro";
+import ServiceAreaMap from "@hirobius/template/components/ServiceAreaMap.astro";
+import ContactForm from "@hirobius/template/components/ContactForm.astro";
+
+// Every (section, variant) pair from the schema's SECTION_VARIANTS registry,
+// under ONE fixed preset — palette × variant adds no information because
+// variants share the same contrast-checked semantic tokens (the presets page
+// covers palettes). Each config goes back through defineClient() via
+// withSectionVariant, so this page can only show shippable combinations.
+const fx = FIXTURES.find((f) => f.preset === "pressure-washing") ?? FIXTURES[0]!;
+const base = fx.config;
+
+const COMPONENTS = {
+  hero: Hero,
+  services: ServicesGrid,
+  gallery: Gallery,
+  reviews: Reviews,
+  serviceAreaMap: ServiceAreaMap,
+  contact: ContactForm,
+} satisfies Record<keyof typeof SECTION_VARIANTS, unknown>;
+
+const NOTES: Partial<Record<keyof typeof SECTION_VARIANTS, string>> = {
+  hero: 'The "video" variant shows its no-video fallback here (fixtures ship no assets).',
+  gallery: "Renders nothing without photos — fixtures are deliberately asset-free.",
+};
+
+const sections = Object.entries(SECTION_VARIANTS) as Array<
+  [keyof typeof SECTION_VARIANTS, readonly string[]]
+>;
+---
+
+<Shell title="Variants" active="variants">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight">Section style variants</h1>
+    <p class="mt-1 text-slate-600">
+      Every variant in <code class="text-sm">SECTION_VARIANTS</code>, themed by the
+      <code class="text-sm">pressure-washing</code> preset. Selected per client via
+      <code class="text-sm">layout.sections.&lt;section&gt;.variant</code> — a closed
+      enum, validated at build.
+    </p>
+  </div>
+
+  <div class="space-y-14">
+    {
+      sections.map(([sectionId, variantIds]) => (
+        <section id={`variants-${sectionId}`}>
+          <h2 class="mb-4 font-mono text-lg font-semibold text-slate-900">{sectionId}</h2>
+          {NOTES[sectionId] && <p class="mb-4 text-xs text-slate-500">{NOTES[sectionId]}</p>}
+          <div class="space-y-8">
+            {variantIds.map((variantId) => {
+              const config = withSectionVariant(base, sectionId, variantId as never);
+              const Component = COMPONENTS[sectionId];
+              return (
+                <div>
+                  <p class="mb-2 font-mono text-sm text-slate-500">
+                    {sectionId}.variant = "{variantId}"
+                  </p>
+                  <div
+                    class="overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+                    style={brandStyle(config)}
+                  >
+                    <Component config={config} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</Shell>
