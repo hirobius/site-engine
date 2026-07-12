@@ -945,3 +945,64 @@ README.md, docs/INTAKE.md.
 
 Branch: ralph/issue-106-favicon-monogram.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-12
+
+Issue #109: eject-client — minimal CI + acceptance parity for ejected handoff repos
+
+What shipped (smallest complete slice — DoD items 2-4, plus a bug the fix
+surfaced; item 1's full network-install smoke deferred, see below):
+- scripts/eject-client.ts now writes `.github/workflows/ci.yml` into every
+  ejected repo: install (frozen lockfile), build (Zod config gate), test
+  (acceptance suite). No monorepo assumptions (no turbo, no --filter, no
+  Playwright) — matches the DoD literally.
+- Ejected package.json: added `packageManager` (copied from root, required
+  for pnpm/action-setup@v4 in the new CI) and a `test: "vitest run"` script +
+  `vitest` devDep (previously the ejected app had no test script at all, so
+  even a hand-run `pnpm test` did nothing).
+- readVersion() no longer falls back to "latest" when a dep isn't found in
+  any candidate node_modules — it throws, and the CLI dies loudly instead
+  (issue's core ask: an un-pinned ejected dep is a silent handoff-time
+  landmine). Added apps/_template/node_modules as a resolution candidate
+  (every scaffolded app inherits _template's exact dep set before its own
+  `pnpm install` has run) so the fix doesn't regress the golden path.
+- Real bug found + fixed while manually smoke-testing the new CI end-to-end
+  (install+build+test in a real /tmp ejection, not just unit tests): eject
+  vendored packages/{template,schema}/src verbatim, including their OWN
+  monorepo-fleet-wide test files (astro-config-gate.test.ts,
+  middleware-gate.test.ts, ops-drift.test.ts — they read apps/ across the
+  whole fleet and an ops snapshot file). Those don't exist/resolve once
+  vendored into a standalone repo, so `pnpm test` failed on every single
+  ejection before this fix. Now `*.test.ts` is excluded from the two vendor
+  cpSync calls (app's own tests/acceptance.test.ts is unaffected — that's
+  copied in step 1, from the app dir, not the vendored packages).
+- eject-client.ts refactored: CLI body moved into runEject(), gated behind
+  isMain() (same pattern as go-live.ts/verify-live.ts) so readVersion and
+  buildCiWorkflow are importable/unit-testable without side effects.
+- README template: new "CI" section ("green build = safe to deploy").
+- Tests (scripts/tooling.test.ts): version-pinning has no "latest", ci.yml
+  content/shape, package.json test script + vitest dep, README mentions CI,
+  no vendored *.test.ts files leak through, plus two direct unit tests for
+  readVersion's throw-vs-resolve behavior. 34/34 green.
+- Manually verified end-to-end (not part of the fast gate, per the issue's
+  own guidance that a real install doesn't belong there): ejected
+  apps/_template to /tmp, `pnpm install && pnpm build && pnpm test` all green
+  standalone, and `SITE_LIVE=true pnpm build` correctly fails on the
+  placeholder config (armed gate survives ejection).
+
+Deferred (commented back on #109, not in this PR):
+- DoD item 1's automated smoke test (scaffold → eject → real `pnpm install`
+  in a vitest suite) — a real install mutates pnpm-lock.yaml as a side
+  effect when run from inside the workspace, which the existing tooling.test
+  docstring already flags as wrong for the per-commit gate. Needs its own
+  isolated CI job (a separate workflow step), which is follow-up work.
+
+Verify: `bash ralph/gate.sh` green (build, check, full turbo test run,
+34 scripts/*.test.ts assertions including the new eject-client coverage).
+
+Files changed: scripts/eject-client.ts, scripts/tooling.test.ts.
+
+Branch: ralph/issue-109-eject-ci-gate.
+Next iteration: none picked — Ralph selects the next issue.
