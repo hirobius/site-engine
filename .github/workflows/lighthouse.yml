@@ -1,0 +1,65 @@
+name: Lighthouse + Accessibility Budgets
+
+# Perf/a11y/SEO budget gate (issue #88): the pipeline proves "config valid +
+# builds + smoke assertions", but nothing measures performance or
+# accessibility, so a packages/* change can silently regress LCP or a11y
+# fleet-wide while CI stays green. This builds the demo, serves the static
+# output, and fails the job if Lighthouse or axe find a regression. Same
+# trigger paths + pinned container as visual.yml (#74) for determinism.
+on:
+  pull_request:
+    paths:
+      - "packages/**"
+      - "apps/_template/**"
+      - "apps/demo-pressure-pros/**"
+      - ".github/workflows/lighthouse.yml"
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    # Pinned to the resolved Playwright version so Chrome + OS match across
+    # runs — perf scores are otherwise sensitive to whatever Chrome build a
+    # generic ubuntu-latest happens to have installed.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+    env:
+      # lhci's chrome-launcher looks for a system Chrome; point it at the
+      # Chromium the Playwright image already ships instead of installing a
+      # second copy.
+      CHROME_PATH: /ms-playwright/chromium-1223/chrome-linux64/chrome
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm version comes from "packageManager" in package.json
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build demo
+        run: pnpm --filter @hirobius/demo-pressure-pros build
+
+      - name: Lighthouse CI (perf ≥ 95, a11y = 100, seo = 100, LCP < 2.5s)
+        working-directory: apps/demo-pressure-pros
+        run: pnpm exec lhci autorun
+
+      - name: Axe accessibility scan
+        working-directory: apps/demo-pressure-pros
+        run: pnpm exec playwright test --config=playwright.a11y.config.ts
+
+      - name: Upload Lighthouse + axe reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: |
+            apps/demo-pressure-pros/.lighthouseci/
+            apps/demo-pressure-pros/playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
