@@ -141,12 +141,23 @@ at `apps/<slug>/middleware.ts` — **not** Astro middleware, which does not run 
 static output. This is a platform feature that runs on the edge for every
 request regardless of framework, which is why it works on a static Astro site.
 
-- HTTP Basic auth via `PREVIEW_USER` / `PREVIEW_PASS`, **only** when
-  `VERCEL_ENV !== "production"`. Production passes straight through.
-- Previews also get `X-Robots-Tag: noindex`. This lives in the middleware, **not
-  `vercel.json`**, because `vercel.json` headers can't be scoped to an
-  environment (they'd noindex production too).
-- Fails closed: if creds aren't set on a preview, the site returns 503.
+- **Tokenized link — the sales artifact.** `https://<preview>/?key=<PREVIEW_TOKEN>`
+  is the one link to send in cold outreach: no Basic auth prompt, no credentials
+  to share mid-funnel. A matching `?key=` sets an httpOnly cookie so every later
+  request on that browser passes with no query param. Set the per-site secret
+  with `vercel env add PREVIEW_TOKEN preview --cwd apps/<slug>` (`new-client`
+  prints this). If `PREVIEW_TOKEN` isn't set, this path is inert and behavior is
+  Basic-auth-only, unchanged.
+- HTTP Basic auth via `PREVIEW_USER` / `PREVIEW_PASS` stays the operator path —
+  always available, only when `VERCEL_ENV !== "production"`. Production passes
+  straight through.
+- Previews (both paths) also get `X-Robots-Tag: noindex`. This lives in the
+  middleware, **not `vercel.json`**, because `vercel.json` headers can't be
+  scoped to an environment (they'd noindex production too). A token grants
+  *viewing*, never indexing — and the token (like Basic auth) stops mattering
+  the moment `SITE_LIVE=true`, since that flip bypasses the gate entirely.
+- Fails closed: if neither a valid token nor creds are presented, the site
+  returns 503 (nothing configured) or 401 (wrong Basic auth).
 
 **Verification:** the pattern is confirmed against Vercel's `routing-middleware`
 docs (a non-Next project exports a default `(request: Request) => Response` and

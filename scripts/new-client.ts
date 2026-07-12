@@ -116,6 +116,11 @@ Vercel setup (run from repo root; one project per client):
   vercel env add PREVIEW_USER preview --cwd apps/${slug}
   vercel env add PREVIEW_PASS preview --cwd apps/${slug}
 
+  # Optional: one-click prospect link for cold outreach — https://<preview>/?key=<token>
+  # sets a cookie so the link works with no Basic auth prompt. Still noindex'd,
+  # still dies the moment SITE_LIVE flips (see README → Preview gating).
+  vercel env add PREVIEW_TOKEN preview --cwd apps/${slug}
+
   # Production form/captcha secrets if you keep them in env (optional):
   #   vercel env add WEB3FORMS_KEY production --cwd apps/${slug}
 
