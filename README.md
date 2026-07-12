@@ -284,13 +284,8 @@ actual / diff PNGs so you decide if it's intended. The browser context forces
 `prefers-reduced-motion: reduce`, so scroll-reveal motion never arms and the
 baselines stay deterministic regardless of a preset's `brand.motion`.
 
-Baselines are platform-specific, so they're seeded in the same **pinned
-Playwright container** CI uses. **To reseed, run the workflow**: Actions →
-`Visual Baseline Seed` → Run workflow. It builds the gallery, regenerates
-snapshots, and opens a PR with the updated images — review the diffs, then
-merge; baselines are never pushed straight to main.
-
-Fallback (manual container run, e.g. if the workflow itself needs debugging):
+Baselines are platform-specific, so generate them in the same **pinned
+Playwright container** CI uses, then commit the snapshots:
 
 ```bash
 docker run --rm -it --ipc=host -v "$PWD":/work -w /work \
@@ -301,10 +296,14 @@ docker run --rm -it --ipc=host -v "$PWD":/work -w /work \
 git add apps/_gallery/tests/**/*-snapshots && git commit -m "Seed visual baselines"
 ```
 
+You can also trigger `.github/workflows/visual.yml` manually (Actions → Visual
+Regression → Run workflow) with `update: true` — it regenerates snapshots and
+uploads them as a downloadable **artifact** (it does not commit anything or open
+a PR), so you can pull the container-rendered images down and commit them
+yourself instead of running Docker locally.
+
 After baselines are seeded, every PR touching `packages/**` or
-`apps/_gallery/**` runs the diff automatically. (You can also trigger
-`visual.yml` manually with `update: true` to refresh baselines and download
-them as an artifact, without opening a PR.)
+`apps/_gallery/**` runs the diff automatically.
 
 ### Performance & accessibility budgets
 
