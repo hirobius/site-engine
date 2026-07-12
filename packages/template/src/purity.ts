@@ -40,7 +40,7 @@ export interface PurityOptions {
  * Motion island's CSS classes instead of bringing their own scripts.
  */
 export const SCRIPT_ALLOWLIST: ReadonlyArray<{ file: string; reason: string }> = [
-  { file: "Hero.astro", reason: "reduced-motion-guarded video playback starter (WCAG 2.2.2)" },
+  { file: "hero/video.astro", reason: "reduced-motion-guarded video playback starter (WCAG 2.2.2)" },
   { file: "BaseHead.astro", reason: "JSON-LD structured data script tag" },
   { file: "Motion.astro", reason: "the one IntersectionObserver motion island" },
   { file: "Document.astro", reason: "motion-ready class bootstrap, reduced-motion-guarded" },

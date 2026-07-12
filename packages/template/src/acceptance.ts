@@ -163,10 +163,10 @@ export function checkClientAcceptance(
     }
   }
 
-  if (config.layout.variant === "B" && !config.hero.videoSrc) {
+  if (config.layout.sections.hero.variant === "video" && !config.hero.videoSrc) {
     issues.push({
       code: "empty-video-hero",
-      message: 'layout.variant is "B" (full-bleed video) but hero.videoSrc is missing — renders an empty dark hero',
+      message: 'hero variant is "video" (full-bleed video) but hero.videoSrc is missing — renders an empty dark hero',
     });
   }
 
