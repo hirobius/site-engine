@@ -1006,3 +1006,49 @@ Files changed: scripts/eject-client.ts, scripts/tooling.test.ts.
 
 Branch: ralph/issue-109-eject-ci-gate.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-12
+
+Issue #113: ci(visual): workflow_dispatch baseline-seed job — remove the
+manual container step
+
+What shipped (smallest complete slice — hit the same permission boundary
+the issue's own sequencing note anticipated, followed its documented
+fallback instead of failing):
+- Wrote .github/workflows/visual-seed.yml: workflow_dispatch-only job, same
+  pinned mcr.microsoft.com/playwright:v1.60.0-noble container as visual.yml,
+  runs `pnpm --filter @hirobius/gallery test:visual:update`, then opens a PR
+  with the regenerated baselines via peter-evans/create-pull-request@v7
+  (never auto-merges — a human still eyeballs the images). Scoped
+  add-paths to apps/_gallery/tests/**/*-snapshots/** so only the snapshot
+  diffs land in the reseed PR.
+- git push rejected the workflow file: "refusing to allow a GitHub App to
+  create or update workflow ... without `workflows` permission" — the exact
+  boundary PR #99 hit, and #113's own "Sequencing note" called this out in
+  advance (workflows scope is #112 item 1, not yet granted). Followed the
+  issue's documented fallback: shipped the README doc change alone, and put
+  the full visual-seed.yml YAML + paste instructions in the PR body (#99
+  pattern) instead of failing the iteration.
+- README.md "Visual regression" section: reseeding now documented as "run
+  the workflow" (Actions → Visual Baseline Seed → Run workflow) as primary;
+  the manual pinned-container docker command kept as a fallback for
+  debugging the container itself.
+
+Deferred (needs a human, noted in PR + on #112):
+- Paste .github/workflows/visual-seed.yml into the repo (or grant the App
+  `workflows` permission and re-run ralph on #113).
+- After it lands: run once, review + merge the baselines PR it opens,
+  confirm visual.yml flips from "missing snapshots" to green on a no-op PR
+  (DoD's last item — needs the workflow to exist first).
+
+Verify: `bash ralph/gate.sh` green (docs-only change on this branch; no
+code touched).
+
+Files changed: README.md (committed). .github/workflows/visual-seed.yml
+written locally but NOT committed/pushed (blocked — see above); full
+contents in PR #117's description for manual paste.
+
+Branch: ralph/issue-113-visual-seed-workflow. PR: #117.
+Next iteration: none picked — Ralph selects the next issue.
