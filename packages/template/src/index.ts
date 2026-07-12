@@ -8,8 +8,10 @@
  */
 export * from "./lib/theme.js";
 export * from "./lib/seo.js";
+export * from "./lib/og-image.js";
 export * from "./acceptance.js";
 export * from "./build-gate.js";
+export * from "./og-image-integration.js";
 export { defineClient, SECTION_VARIANTS } from "@hirobius/schema";
 export type { ClientConfig, SectionId } from "@hirobius/schema";
 import type { SectionVariantId, VariantSectionId } from "@hirobius/schema";

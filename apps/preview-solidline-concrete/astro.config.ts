@@ -1,7 +1,7 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import { armAcceptanceGate } from "@hirobius/template";
+import { armAcceptanceGate, ogImageIntegration } from "@hirobius/template";
 import { client } from "./client.config";
 
 // Arms checkClientAcceptance's realData checks on SITE_LIVE=true /
@@ -12,7 +12,7 @@ armAcceptanceGate(client);
 // ./middleware.ts — NOT Astro middleware, which does not run on static output.
 export default defineConfig({
   site: client.seo.siteUrl,
-  integrations: [sitemap()],
+  integrations: [sitemap(), ogImageIntegration(client)],
   vite: {
     plugins: [tailwindcss()],
   },

@@ -15,7 +15,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hirobius/schema": "workspace:*"
+    "@hirobius/schema": "workspace:*",
+    "sharp": "^0.33.5"
   },
   "peerDependencies": {
     "astro": "^5.0.0"
