@@ -341,6 +341,130 @@
                 "optional": false,
                 "hasDefault": true
               },
+              "sections": {
+                "shape": {
+                  "kind": "object",
+                  "fields": {
+                    "contact": {
+                      "shape": {
+                        "kind": "object",
+                        "fields": {
+                          "variant": {
+                            "shape": {
+                              "kind": "enum",
+                              "values": [
+                                "standard"
+                              ]
+                            },
+                            "optional": false,
+                            "hasDefault": true
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "hasDefault": true
+                    },
+                    "gallery": {
+                      "shape": {
+                        "kind": "object",
+                        "fields": {
+                          "variant": {
+                            "shape": {
+                              "kind": "enum",
+                              "values": [
+                                "grid"
+                              ]
+                            },
+                            "optional": false,
+                            "hasDefault": true
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "hasDefault": true
+                    },
+                    "hero": {
+                      "shape": {
+                        "kind": "object",
+                        "fields": {
+                          "variant": {
+                            "shape": {
+                              "kind": "enum",
+                              "values": [
+                                "classic",
+                                "video"
+                              ]
+                            },
+                            "optional": false,
+                            "hasDefault": true
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "hasDefault": true
+                    },
+                    "reviews": {
+                      "shape": {
+                        "kind": "object",
+                        "fields": {
+                          "variant": {
+                            "shape": {
+                              "kind": "enum",
+                              "values": [
+                                "cards"
+                              ]
+                            },
+                            "optional": false,
+                            "hasDefault": true
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "hasDefault": true
+                    },
+                    "serviceAreaMap": {
+                      "shape": {
+                        "kind": "object",
+                        "fields": {
+                          "variant": {
+                            "shape": {
+                              "kind": "enum",
+                              "values": [
+                                "standard"
+                              ]
+                            },
+                            "optional": false,
+                            "hasDefault": true
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "hasDefault": true
+                    },
+                    "services": {
+                      "shape": {
+                        "kind": "object",
+                        "fields": {
+                          "variant": {
+                            "shape": {
+                              "kind": "enum",
+                              "values": [
+                                "grid"
+                              ]
+                            },
+                            "optional": false,
+                            "hasDefault": true
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "hasDefault": true
+                    }
+                  }
+                },
+                "optional": false,
+                "hasDefault": true
+              },
               "variant": {
                 "shape": {
                   "kind": "enum",
