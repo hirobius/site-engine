@@ -15,14 +15,16 @@ run_step() {
 # clients: no `typecheck` script (lint==check); a passing build is the
 # load-bearing gate — never touch live client output without one.
 #
-# The @hirobius/demo-pressure-pros Playwright browser smoke is EXCLUDED from
-# the gate: it needs a served build + SITE_LIVE env this fast per-PR gate does
-# not provision, so it fails here for reasons unrelated to the change under
-# review. Browser E2E stays covered by the dedicated CI job (ci.yml). The gate
-# still runs the full build, check, and every vitest suite. This file is the
-# ONLY per-repo part of the gate.
+# The @hirobius/demo-pressure-pros Playwright browser smoke runs against
+# `astro preview` (a plain local static file server) — SITE_LIVE gating is
+# Vercel Routing Middleware, a platform feature that does not run there, so
+# it cannot be the cause of a failure in this suite. The real prerequisite is
+# the Chromium browser binary, which isn't present by default in a fresh
+# checkout; install it below (idempotent — a few hundred ms once cached) so
+# the suite runs in the fast per-PR gate the same as it does in ci.yml.
+run_step pnpm --filter @hirobius/demo-pressure-pros exec playwright install chromium
 run_step pnpm build
 run_step pnpm check
-run_step pnpm exec turbo run test --filter='!@hirobius/demo-pressure-pros'
+run_step pnpm exec turbo run test
 
 echo "── gate: all green"
