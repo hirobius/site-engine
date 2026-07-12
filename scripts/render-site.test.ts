@@ -137,3 +137,54 @@ describe("render-site CLI", () => {
     expect(res.stderr).toMatch(/does not exist/);
   });
 });
+
+describe("writeClientConfig overwrite guard", () => {
+  // A slug collision or accidental re-dispatch must never silently clobber a
+  // client that has already gone live — the destructive path `new-client`'s
+  // `existsSync(dest)` guard prevents for the app directory, but that render-site
+  // itself had no analogous check for client.config.ts (see PR review).
+  const FIXTURE = "zzz-ralph-rendersite-live-guard";
+  const appDir = () => resolve(ROOT, "apps", FIXTURE);
+
+  afterAll(() => {
+    rmSync(appDir(), { recursive: true, force: true });
+  });
+
+  it("refuses to overwrite an already-live client.config.ts, and --force overrides it", () => {
+    rmSync(appDir(), { recursive: true, force: true });
+    const scaffold = spawnSync(TSX, [NEW_CLIENT, FIXTURE, "--preset", "pressure-washing"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    expect(scaffold.status, scaffold.stderr).toBe(0);
+
+    // Seed a fully "live" config directly — real phone/email/domain, a
+    // UUID-shaped Web3Forms key, and no leftover intake placeholders. Mirrors
+    // a client that has already been taken live via `pnpm go-live`.
+    const { config: leadConfig } = leadToConfig(ROLLING_SUDS);
+    const liveConfig = {
+      ...leadConfig,
+      business: { ...leadConfig.business, phone: "(206) 442-9051", email: "info@rollingsudsseattle.com" },
+      form: {
+        ...leadConfig.form,
+        accessKey: "a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
+        hcaptchaSiteKey: "10000000-ffff-ffff-ffff-000000000001",
+      },
+      seo: { ...leadConfig.seo, siteUrl: "https://rollingsudsseattle.com", ogImage: "/og.jpg" },
+    };
+    writeClientConfig(appDir(), JSON.stringify(liveConfig));
+
+    // A re-dispatch mapping a *different* lead onto the same slug must not
+    // clobber the live client's config.
+    const otherLead: LeadRow = { ...ROLLING_SUDS, name: "Different Business", slug: "different-business" };
+    const { config: otherConfig } = leadToConfig(otherLead);
+    expect(() => writeClientConfig(appDir(), JSON.stringify(otherConfig))).toThrow(/already has real business data/);
+    const stillLive = readFileSync(resolve(appDir(), "client.config.ts"), "utf8");
+    expect(stillLive).toContain(`"name": "Rolling Suds of Seattle"`);
+
+    // --force is the explicit, intentional escape hatch.
+    writeClientConfig(appDir(), JSON.stringify(otherConfig), { force: true });
+    const overwritten = readFileSync(resolve(appDir(), "client.config.ts"), "utf8");
+    expect(overwritten).toContain(`"name": "Different Business"`);
+  });
+});
