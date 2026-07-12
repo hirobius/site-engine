@@ -909,3 +909,39 @@ package.json, scripts/new-client.ts, README.md.
 Branch: ralph/issue-104-go-live-verify-live. PR #114 opened (Closes #104).
 Issue commented.
 Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #106 — brand-colored monogram favicon at new-client time
+
+- New scripts/favicon.ts: generateFaviconSvg(name, preset) — single source of
+  truth. Business initial (first char of name, uppercased, XML-escaped) on
+  the preset's --brand-primary, text colored with --brand-on-primary for
+  contrast (fixes junk-removal, whose primary is too light for white text —
+  the old hardcoded stub only ever used white). Same rounded-square shape as
+  the pre-existing stub.
+- new-client.ts now writes public/favicon.svg from generateFaviconSvg() right
+  after stubbing client.config.ts, overwriting _template's copied stub.
+- apps/_template/public/favicon.svg regenerated via the same function
+  (name "Acme Service Co.", preset pressure-washing) so the template's own
+  stub and the generator can never drift. Only diff from the old hand-written
+  file: fill="#ffffff" instead of "#fff" (the on-primary token's literal hex)
+  — same rendered color.
+- Tests: scripts/favicon.test.ts (initial extraction, per-preset hex, XML
+  escaping, empty-name fallback) + one new assertion in tooling.test.ts's
+  new-client suite (generated favicon.svg contains the right initial + hex).
+- Docs: README step 3 and docs/INTAKE.md's assets checklist both note the
+  monogram is auto-generated and a real logo file overrides it.
+- Screenshots: not feasible from this CLI session (no browser). Verified by
+  generating all four presets' SVG output directly (see PR body) — hex per
+  preset and initial are correct; left for a human to eyeball rendered PNGs
+  if desired.
+
+Verify: `bash ralph/gate.sh` green — build, check, full turbo test run,
+including new scripts/favicon.test.ts (4 tests) and the extra tooling.test.ts
+assertion.
+
+Files changed: scripts/favicon.ts (new), scripts/favicon.test.ts (new),
+scripts/new-client.ts, scripts/tooling.test.ts, apps/_template/public/favicon.svg,
+README.md, docs/INTAKE.md.
+
+Branch: ralph/issue-106-favicon-monogram.
+Next iteration: none picked — Ralph selects the next issue.

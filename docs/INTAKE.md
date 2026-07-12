@@ -91,7 +91,8 @@ For each: **author**, **rating 1–5**, **text**, optional **source** (Google/Ye
 - [ ] Service photos → `src/assets/photos/`
 - [ ] Gallery photos (compressed at intake) → `src/assets/photos/`
 - [ ] OG image (1200×630) → `public/photos/og.jpg`
-- [ ] Favicon → `public/favicon.svg`
+- [ ] Favicon → `public/favicon.svg` (a monogram in the preset's brand color is
+      generated at `new-client` time; drop a real logo here to override it)
 
 ## 12. Handoff terms (fill `docs/HANDOFF.md` at launch)
 

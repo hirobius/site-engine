@@ -113,7 +113,9 @@ so it always wins the cascade. Four trade presets ship today: `landscaping`,
 
 3. **Add photos** (≈3 min) — optimized photos go in `src/assets/photos`
    (astro:assets makes responsive WebP), verbatim assets (og image, favicon) in
-   `public`. See **Images** below for the intake rule.
+   `public`. See **Images** below for the intake rule. `new-client` already
+   generated a brand-colored monogram `favicon.svg` (business initial on the
+   preset primary) — drop a real logo file over it if the client has one.
 
 4. **Verify** (≈1 min)
    ```bash

@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { PALETTE_PRESETS } from "../packages/schema/src/presets.js";
 
 /**
  * Golden-path coverage for the two sanctioned scaffolding tools (CLAUDE.md rule
@@ -99,6 +100,12 @@ describe("new-client", () => {
     for (const junk of ["node_modules", "dist", ".astro", ".turbo"]) {
       expect(existsSync(resolve(appDir(FIXTURE), junk)), junk).toBe(false);
     }
+  });
+
+  it("generates a brand-colored monogram favicon.svg (issue #106)", () => {
+    const svg = readFileSync(resolve(appDir(FIXTURE), "public/favicon.svg"), "utf8");
+    expect(svg).toContain(">R<"); // "Ralph Fixture Co" -> R
+    expect(svg).toContain(`fill="${PALETTE_PRESETS.landscaping["--brand-primary"]}"`);
   });
 
   it("produces a config that PASSES defineClient()", () => {
