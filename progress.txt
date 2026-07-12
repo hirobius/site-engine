@@ -1323,3 +1323,34 @@ back on #112 flagging the discrepancy).
   astro.config.ts, pnpm-lock.yaml.
 - Branch: ralph/issue-105-og-image-fallback. PR opened (Closes #105).
 - Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #108 — fleet health monitor (cross-repo tracking) — site-engine slice
+- Cross-repo tracking issue (2026-07-11 upgrade round). Placement decision
+  (adr-eng, 2026-07-12): scheduler + monthly canary form submit live in ops
+  (cron), alerts on ops dashboard + email. site-engine's scope is narrowed to
+  exactly one DoD item: "verify-live assertions exported as a reusable module
+  the ops monitor can call" — the other three DoD items (decision recording,
+  generator/version meta tag → folds into #12, filing the ops-side issue) are
+  either already done or need ops-repo access this session doesn't have.
+- verifyLive/verifyGated/CheckResult (scripts/verify-live.ts, landed in #104)
+  were already pure functions over an injected fetch with zero Node-only APIs
+  in the exported logic — vendorable as-is. What was missing was a declared
+  package export surface (matching the packages/schema convention) rather
+  than an internal script export only reachable via relative import.
+- Change: added `"exports": {"./verify-live": "./verify-live.ts"}` to
+  scripts/package.json so ops can import `@hirobius/scripts/verify-live`
+  (or vendor the single file) per the "reuse, don't rewrite" pattern in
+  docs/OPS-INTEGRATION.md. Documented the module's dual role (CLI + library)
+  in verify-live.ts's header comment and added a README Deploy-section bullet
+  pointing at it for the future ops health-monitor cron.
+- No behavior change — verifyLive/verifyGated/CheckResult unchanged; existing
+  verify-live.test.ts (7 tests) still covers the assertions.
+- Verify: bash ralph/gate.sh green (19/19 turbo tasks incl. scripts test +
+  Playwright demo smoke).
+- Files changed: scripts/package.json, scripts/verify-live.ts, README.md.
+- PR uses "Refs #108" (not "Closes") — this is a cross-repo tracking issue;
+  the ops-side scheduler/canary-submit implementation and the #12 meta-tag
+  decision remain open after this PR, so auto-closing on merge would be
+  wrong. Left a comment on #108 noting the site-engine-side scope is done.
+- Branch: ralph/issue-108-verify-live-module-export.
+- Next iteration: none picked — Ralph selects the next issue.

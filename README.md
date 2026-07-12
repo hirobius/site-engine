@@ -195,6 +195,11 @@ pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod depl
 - `pnpm verify-live <preview-url> --expect-gated` asserts the opposite — 401
   with `WWW-Authenticate` + noindex — the behavioral proof of the preview gate
   above, runnable against any real preview deploy.
+- `verifyLive` / `verifyGated` are also exported as a module
+  (`@hirobius/scripts/verify-live`) — pure functions over an injected
+  `fetch`, no CLI side effects — so the fleet health monitor (ops cron,
+  issue #108) can import them for the scheduled per-site checks instead of
+  reimplementing the assertions.
 
 ---
 
