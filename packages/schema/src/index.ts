@@ -280,3 +280,4 @@ export function defineClient(config: ClientConfigDraft): ClientConfig {
 
 export * from "./presets.js";
 export * from "./content-packs.js";
+export * from "./lead-to-config.js";
