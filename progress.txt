@@ -1250,3 +1250,29 @@ landing the workflow file itself once #112's workflows-scope grant is
 confirmed actually effective for this bot's token (its "item 1 done" note
 in #112 did not hold on push, same as #88/#113 before it — worth a comment
 back on #112 flagging the discrepancy).
+
+## Issue #67 — fix(ralph): demo-pressure-pros e2e gate exclusion misdiagnosis
+- Verified issue #67's finding by reproducing directly: in a fresh sandbox
+  with no ~/.cache/ms-playwright, `bash ralph/gate.sh` (pre-fix, with the
+  `--filter='!@hirobius/demo-pressure-pros'` exclusion) is green — masking
+  the real state. Running `pnpm exec turbo run test` (no exclusion) without
+  Chromium installed fails on a missing browser executable, not a
+  SITE_LIVE/hero-render content assertion. Installing Chromium
+  (`pnpm --filter @hirobius/demo-pressure-pros exec playwright install
+  chromium`) then made the full suite (incl. demo-pressure-pros's 5
+  Playwright tests) pass end-to-end — confirms PR #64's stated root cause
+  (SITE_LIVE blocking astro preview) was wrong; astro:preview is a plain
+  local static server and Vercel Routing Middleware (SITE_LIVE gating)
+  never runs there, as the app's own middleware.ts/astro.config.ts already
+  document. The real, mundane cause (missing Chromium binary) matches what
+  progress.txt already recorded twice for #37/#50.
+- Fix: added `playwright install chromium` as a gate step (idempotent,
+  ~1s once cached — safe to run every gate invocation) and removed the
+  `--filter='!@hirobius/demo-pressure-pros'` exclusion so `turbo run test`
+  covers every workspace again. Rewrote the misleading comment above the
+  test steps to state the correct mechanism.
+- Verify: `bash ralph/gate.sh` green end-to-end (19/19 turbo tasks incl.
+  demo-pressure-pros's 5 Playwright tests, no exclusion).
+- Files changed: ralph/gate.sh only.
+- Branch: ralph/issue-67-gate-chromium-install. PR opened (Closes #67).
+- Next iteration: none picked — Ralph selects the next issue.
