@@ -15,6 +15,7 @@
     "lint": "turbo run check",
     "new-client": "tsx scripts/new-client.ts",
     "eject-client": "tsx scripts/eject-client.ts",
+    "render-site": "tsx scripts/render-site.ts",
     "go-live": "tsx scripts/go-live.ts",
     "verify-live": "tsx scripts/verify-live.ts",
     "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts",
