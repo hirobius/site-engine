@@ -1276,3 +1276,50 @@ back on #112 flagging the discrepancy).
 - Files changed: ralph/gate.sh only.
 - Branch: ralph/issue-67-gate-chromium-install. PR opened (Closes #67).
 - Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #105 — feat(template): auto-generate a branded OG image at build when none is provided
+- Dep decision: sharp-only SVG->PNG composite (recommended first attempt per
+  issue). Typography held up fine on visual inspection (all 4 presets +
+  an extreme-length name) — no escalation to astro-og-canvas needed.
+- New: packages/template/src/lib/og-image.ts — ogImageSvg()/renderOgImagePng()
+  build a 1200x630 card (business name + "Trade · City, Region" line) on the
+  resolved brand palette (bg/fg/primary/accent + brand.font). Headline uses a
+  pixel-width-estimate fitter (HEADLINE_FONT_SIZES ladder, conservative
+  0.62*fontSize/glyph) that shrinks font size before truncating with an
+  ellipsis, so long business names degrade gracefully instead of overflowing
+  the card — verified visually via Read on rendered PNGs (initial char-count
+  heuristic let a 46-char name overflow past the right edge; replaced with
+  the width estimate before shipping).
+- New: packages/template/src/og-image-integration.ts — ogImageIntegration()
+  Astro integration, astro:build:done hook, writes dist/og-image.png only
+  when client.seo.ogImage is unset (explicit config always wins).
+- seo.ts: metaTags().ogImage and localBusinessJsonLd()'s `image` now always
+  resolve (explicit seo.ogImage ?? OG_IMAGE_PATH) — MetaTags.ogImage is no
+  longer optional. BaseHead.astro renders og:image/twitter:card unconditionally.
+- acceptance.ts: removed the `missing-og-image` realData check — the
+  generated fallback makes it always satisfiable now, per issue DoD.
+- Wired `ogImageIntegration(client)` into every app's astro.config.ts
+  (mechanical edit, all apps are byte-identical to apps/_template's config —
+  astro-config-gate.test.ts asserts this, so all 6 got the same edit).
+  packages/template/package.json gained sharp as a real dependency (was
+  already a devDependency in every app for astro:assets — no new package
+  introduced to the fleet).
+- Tests: packages/template/src/lib/og-image.test.ts (SVG content, palette
+  resolution incl. cssVarOverrides, XML escaping, headline fit/truncation,
+  PNG dimensions for all 4 presets via sharp metadata) and
+  og-image-integration.test.ts (writes file when ogImage absent, no-ops
+  when explicit). Updated acceptance.test.ts's og-image case to assert the
+  check no longer fires.
+- Verify: bash ralph/gate.sh green (build/check/test across all 19 turbo
+  tasks). Confirmed a real app's dist/ output: preview-solidline-concrete's
+  dist/og-image.png is a valid 1200x630 PNG; demo-pressure-pros (explicit
+  ogImage) has no generated file, confirming explicit-wins.
+- Files changed: packages/template/{package.json,src/index.ts,
+  src/acceptance.ts,src/acceptance.test.ts,src/components/BaseHead.astro,
+  src/lib/seo.ts,src/lib/og-image.ts (new),src/lib/og-image.test.ts (new),
+  src/og-image-integration.ts (new),src/og-image-integration.test.ts (new)},
+  apps/{_template,demo-pressure-pros,monroe-street-power-wash,
+  preview-evergreen-lawn,preview-clearout-junk,preview-solidline-concrete}/
+  astro.config.ts, pnpm-lock.yaml.
+- Branch: ralph/issue-105-og-image-fallback. PR opened (Closes #105).
+- Next iteration: none picked — Ralph selects the next issue.

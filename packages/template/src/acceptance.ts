@@ -156,12 +156,6 @@ export function checkClientAcceptance(
         message: `seo.siteUrl must be a real https URL: ${config.seo.siteUrl}`,
       });
     }
-    if (!config.seo.ogImage) {
-      issues.push({
-        code: "missing-og-image",
-        message: "seo.ogImage is required once realData is true (social/link previews need it)",
-      });
-    }
   }
 
   if (config.layout.sections.hero.variant === "video" && !config.hero.videoSrc) {

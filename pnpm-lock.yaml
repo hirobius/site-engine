@@ -314,6 +314,9 @@ importers:
       '@hirobius/schema':
         specifier: workspace:*
         version: link:../schema
+      sharp:
+        specifier: ^0.33.5
+        version: 0.33.5
     devDependencies:
       astro:
         specifier: ^5.7.0

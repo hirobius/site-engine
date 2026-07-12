@@ -1,4 +1,5 @@
 import type { ClientConfig } from "@hirobius/schema";
+import { OG_IMAGE_PATH } from "./og-image.js";
 
 /**
  * `days`/`hours` on a config's `business.hours` row are free-form display
@@ -116,9 +117,7 @@ export function localBusinessJsonLd(config: ClientConfig): Record<string, unknow
     openingHoursSpecification: openingHoursSpecification(business.hours),
   };
 
-  if (seo.ogImage) {
-    jsonLd.image = absoluteUrl(seo.siteUrl, seo.ogImage);
-  }
+  jsonLd.image = absoluteUrl(seo.siteUrl, seo.ogImage ?? OG_IMAGE_PATH);
 
   if (config.reviews.length > 0) {
     const avg =
@@ -149,7 +148,8 @@ export interface MetaTags {
   canonical: string;
   ogTitle: string;
   ogDescription: string;
-  ogImage?: string;
+  /** Explicit `seo.ogImage` when set, otherwise the build-generated fallback card (see og-image.ts). Always present. */
+  ogImage: string;
   ogUrl: string;
   ogSiteName: string;
   /** Every client in this fleet is a US local-service business (see `seo.region`). */
@@ -164,7 +164,7 @@ export function metaTags(config: ClientConfig): MetaTags {
     canonical: seo.siteUrl,
     ogTitle: seo.title,
     ogDescription: seo.description,
-    ogImage: seo.ogImage ? absoluteUrl(seo.siteUrl, seo.ogImage) : undefined,
+    ogImage: absoluteUrl(seo.siteUrl, seo.ogImage ?? OG_IMAGE_PATH),
     ogUrl: seo.siteUrl,
     ogSiteName: business.name,
     ogLocale: "en_US",

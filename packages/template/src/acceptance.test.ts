@@ -125,12 +125,12 @@ describe("checkClientAcceptance", () => {
     expect(issues.map((i) => i.code)).toContain("missing-hcaptcha-key");
   });
 
-  it("flags a missing seo.ogImage once realData is true", () => {
+  it("does not flag a missing seo.ogImage — the build generates a fallback card (issue #105)", () => {
     const issues = checkClientAcceptance(
       config({ seo: { ...BASE_INPUT.seo, ogImage: undefined } }),
       { realData: true },
     );
-    expect(issues.map((i) => i.code)).toContain("missing-og-image");
+    expect(issues.map((i) => i.code)).not.toContain("missing-og-image");
   });
 
   it("flags a stub business name once realData is true", () => {

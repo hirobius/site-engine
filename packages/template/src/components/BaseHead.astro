@@ -35,8 +35,8 @@ const webFont = fontHref(config);
 <meta property="og:title" content={meta.ogTitle} />
 <meta property="og:description" content={meta.ogDescription} />
 <meta property="og:url" content={meta.ogUrl} />
-{meta.ogImage && <meta property="og:image" content={meta.ogImage} />}
-<meta name="twitter:card" content={meta.ogImage ? "summary_large_image" : "summary"} />
+<meta property="og:image" content={meta.ogImage} />
+<meta name="twitter:card" content="summary_large_image" />
 
 {/* Web font (only when the chosen stack needs loading). Preconnect first to
     keep it off the LCP critical path. */}
