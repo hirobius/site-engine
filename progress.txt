@@ -1115,3 +1115,85 @@ content-packs.ts (new), packages/schema/src/content-packs.test.ts (new).
 
 Branch: ralph/issue-85-content-packs.
 Next iteration: none picked — Ralph selects the next issue.
+
+---
+
+Ralph iteration — 2026-07-12
+
+Issue #121: feat(pipeline): one-click render — leadToConfig() + render-site
+dispatch workflow (create-site button backend)
+
+Smallest complete slice shipped: Deliverable 1 only — leadToConfig() in
+packages/schema (no-LLM lead-row → ClientConfig mapper). Deliverable 2
+(.github/workflows/render-site.yml + live dispatch proof) deferred — see
+below.
+
+What shipped:
+- packages/schema/src/lead-to-config.ts (new): `leadToConfig(lead: LeadRow)
+  -> { config: ClientConfig, todos: string[] }`. Deterministic, validated
+  through defineClient() per the issue's explicit direction. Consumes #85's
+  content packs directly (already merged when this was picked up, per the
+  issue's own contingency note) via ClientConfigDraft's `contentPack` field
+  — services/ctaLabel come from the pack, never hand-rolled here.
+  - `mapCategoryToTrade(category)`: keyword match against the 4 shipped
+    trades' free-form Google-category strings (e.g. "Fence contractor" ->
+    concrete-fencing); falls back to pressure-washing (the exterior-cleaning
+    beachhead) with `matched: false` when nothing hits.
+  - Never fabricates (golden rule #5): missing phone/email/hours get the
+    fleet's EXISTING placeholder conventions (`(555) 010-0000` phone,
+    `hello@<slug>.example` email — both already recognized by
+    packages/template/src/acceptance.ts's placeholder detectors,
+    `REPLACE_WITH_WEB3FORMS_ACCESS_KEY` form key matching apps/_template's
+    stub) plus a todos[] entry each. serviceAreas/map.embedQuery fall back
+    to the lead's own city+region (a known fact, not a fabrication) when no
+    explicit service_area is given.
+  - Deliberate design call not spelled out in the issue: layout.sectionOrder
+    is set explicitly to ["services","serviceAreaMap","contact"] rather than
+    letting the content pack's recommended order (which includes
+    gallery/reviews) win. A lead row never carries photos or reviews, and
+    checkClientAcceptance's incomplete-section check
+    (packages/template/src/acceptance.ts) runs UNCONDITIONALLY on every
+    build — armed or not (confirmed by reading build-gate.ts) — so shipping
+    the pack's default order here would fail the render-site workflow's
+    `pnpm build` step every time. todos[] always flags gallery/reviews as
+    deferred instead.
+  - seo.title/description composed from name+city/region within 70/180 via
+    a truncate() helper; siteUrl `https://<slug>.example` per the issue
+    (armed gate blocks it from ever going live un-replaced).
+  - No ClientConfigSchema change — pnpm schema:snapshot-ops resync NOT
+    needed (confirmed: ops-drift.test.ts stays green untouched).
+- packages/schema/src/lead-to-config.test.ts (new, 8 cases): Rolling Suds of
+  Seattle fixture (the exact lead named in the issue's diagnosis) — valid
+  config out with real data; missing phone/email/hours each stub + flag a
+  todo, city/region-derived serviceAreas isn't flagged as fabrication;
+  comma-separated serviceArea string parsing; unmapped category defaults +
+  flags; mapCategoryToTrade covers all 4 shipped trades from realistic
+  category strings + the unmatched fallback.
+- packages/schema/src/index.ts: `export * from "./lead-to-config.js"`.
+
+Deferred (commented on #121, not in this PR):
+- Deliverable 2 (.github/workflows/render-site.yml, the Supabase
+  status='rendered'/failure-path callback, Vercel deploy + PREVIEW_TOKEN
+  env) — needs VERCEL_TOKEN/SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY (tracked
+  on #112, not yet granted) AND the `workflows` scope grant (#112 item 1,
+  still open) to push a new .github/workflows/*.yml file at all — same wall
+  hit by #88/#113. Per the issue's own #99-style fallback and its explicit
+  "autonomous-fit: ralph (except the secrets + the live dispatch proof which
+  need Adrian's keys)" note, this needs a human either way. Will hand the
+  YAML in a follow-up PR description once #112 item 1 lands, so it can
+  actually be committed and dispatch-tested rather than living inert in a
+  PR body indefinitely.
+- Ops-side spec (button wiring, repository_dispatch caller, board rendering)
+  is explicitly NOT buildable in this repo per the issue itself.
+
+Verify: `pnpm --filter @hirobius/schema test` (62/62, incl. new 8 cases) and
+`bash ralph/gate.sh` both green (17/17 turbo tasks).
+
+Files changed: packages/schema/src/{lead-to-config.ts (new),
+lead-to-config.test.ts (new), index.ts}.
+
+Branch: ralph/issue-121-lead-to-config. PR opened (Closes #121, partial —
+see PR body). Issue commented.
+Next iteration: none picked — Ralph selects the next issue. Deliverable 2
+of #121 stays open for a future iteration once #112 item 1 (workflows
+scope) lands.
