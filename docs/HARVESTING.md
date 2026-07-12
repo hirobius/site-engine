@@ -5,6 +5,10 @@ variant in `packages/template` — with the same guarantee as everything else in
 the factory: **agents building client sites pick variants via a closed enum in
 `client.config.ts`; they never touch markup.** See ADR-0002 for the design.
 
+> **Skins are the unit, variants are the rail (ADR-0003):** harvest a variant
+> only in service of a skin's section vocabulary — ~3 variants per section
+> max, pruned when no skin uses them. Don't grow this library for its own sake.
+
 ## Sources (three sanctioned types)
 
 | Type | Rule |
