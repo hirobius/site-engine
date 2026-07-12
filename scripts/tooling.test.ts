@@ -14,6 +14,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PALETTE_PRESETS } from "../packages/schema/src/presets.js";
+import { readVersion } from "./eject-client.js";
 
 /**
  * Golden-path coverage for the two sanctioned scaffolding tools (CLAUDE.md rule
@@ -193,11 +194,69 @@ describe("eject-client", () => {
     }
   });
 
+  it("does not vendor the packages' own monorepo-fleet-wide tests (issue #109)", () => {
+    // packages/template/src and packages/schema/src ship tests that assert
+    // fleet-wide invariants (every app under apps/, an ops snapshot file) and
+    // don't resolve their paths once vendored into a standalone repo — copying
+    // them made `pnpm test` fail on every fresh ejection.
+    const vendoredTests = walk(resolve(outDir, "src/_vendor")).filter((f) => f.endsWith(".test.ts"));
+    expect(vendoredTests).toEqual([]);
+  });
+
   it("writes the standalone support files and copies no build artifacts", () => {
     for (const f of ["tsconfig.json", ".gitignore", "README.md"]) {
       expect(existsSync(resolve(outDir, f)), f).toBe(true);
     }
     expect(existsSync(resolve(outDir, "node_modules"))).toBe(false);
     expect(existsSync(resolve(outDir, "dist"))).toBe(false);
+  });
+
+  it("pins every dependency to a real version — never the 'latest' fallback (issue #109)", () => {
+    const pkg = JSON.parse(readFileSync(resolve(outDir, "package.json"), "utf8"));
+    const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+    for (const [name, version] of Object.entries(allDeps)) {
+      expect(String(version), name).not.toBe("latest");
+      expect(String(version), name).toMatch(/^\^\d+\.\d+\.\d+/);
+    }
+    expect(pkg.packageManager).toMatch(/^pnpm@/);
+  });
+
+  it("ships a runnable test script + vitest devDep, so the ejected CI's test step works", () => {
+    const pkg = JSON.parse(readFileSync(resolve(outDir, "package.json"), "utf8"));
+    expect(pkg.scripts.test).toBe("vitest run");
+    expect(pkg.devDependencies).toHaveProperty("vitest");
+  });
+
+  it("writes a minimal ejected-repo CI workflow: install, build, acceptance test — nothing else (issue #109)", () => {
+    const workflow = readFileSync(resolve(outDir, ".github/workflows/ci.yml"), "utf8");
+    expect(workflow).toContain("pnpm install --frozen-lockfile");
+    expect(workflow).toContain("pnpm build");
+    expect(workflow).toContain("pnpm test");
+    // No monorepo assumptions: no turbo, no --filter, no Playwright/browser step.
+    expect(workflow).not.toContain("turbo");
+    expect(workflow).not.toContain("--filter");
+    expect(workflow).not.toContain("playwright");
+  });
+
+  it("documents the CI gate in the handoff README", () => {
+    const readme = readFileSync(resolve(outDir, "README.md"), "utf8");
+    expect(readme).toMatch(/ci\.yml/);
+    expect(readme).toMatch(/green build/i);
+  });
+});
+
+describe("readVersion", () => {
+  it("throws instead of silently falling back to 'latest' when no candidate resolves (issue #109)", () => {
+    expect(() => readVersion("some-unresolvable-pkg", ["/nonexistent/a/package.json", "/nonexistent/b/package.json"])).toThrow(
+      /some-unresolvable-pkg/,
+    );
+  });
+
+  it("returns the caret-pinned version from the first candidate that exists", () => {
+    const io: Parameters<typeof readVersion>[2] = {
+      existsSync: (p) => p === "/fake/exists/package.json",
+      readFileSync: () => JSON.stringify({ version: "1.2.3" }),
+    };
+    expect(readVersion("some-pkg", ["/fake/missing/package.json", "/fake/exists/package.json"], io)).toBe("^1.2.3");
   });
 });
