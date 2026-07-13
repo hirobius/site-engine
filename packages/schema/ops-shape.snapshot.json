@@ -4,6 +4,31 @@
     "shape": {
       "kind": "object",
       "fields": {
+        "analytics": {
+          "shape": {
+            "kind": "object",
+            "fields": {
+              "domain": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": false,
+                "hasDefault": false
+              },
+              "provider": {
+                "shape": {
+                  "kind": "literal",
+                  "value": "plausible"
+                },
+                "optional": false,
+                "hasDefault": false
+              }
+            }
+          },
+          "optional": true,
+          "hasDefault": false
+        },
         "brand": {
           "shape": {
             "kind": "object",

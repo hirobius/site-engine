@@ -365,4 +365,38 @@ describe("defineClient", () => {
       expect(result.reviews).toHaveLength(1);
     });
   });
+
+  describe("analytics", () => {
+    it("is optional — a config without it still validates", () => {
+      const result = defineClient(config());
+      expect(result.analytics).toBeUndefined();
+    });
+
+    it("accepts a plausible provider with the site domain", () => {
+      const result = defineClient(
+        config({ analytics: { provider: "plausible", domain: "monroepressure.com" } }),
+      );
+      expect(result.analytics).toEqual({ provider: "plausible", domain: "monroepressure.com" });
+    });
+
+    it("rejects an unknown provider", () => {
+      expect(() =>
+        defineClient(config({ analytics: { provider: "gtag", domain: "x.com" } as never })),
+      ).toThrow();
+    });
+
+    it("rejects an empty domain", () => {
+      expect(() =>
+        defineClient(config({ analytics: { provider: "plausible", domain: "" } })),
+      ).toThrow();
+    });
+
+    it("rejects a domain pasted as a URL instead of a bare hostname", () => {
+      expect(() =>
+        defineClient(
+          config({ analytics: { provider: "plausible", domain: "https://monroepressure.com" } }),
+        ),
+      ).toThrow();
+    });
+  });
 });

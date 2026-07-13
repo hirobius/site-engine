@@ -232,6 +232,23 @@ export const MapSchema = z.object({
 // Root schema
 // ---------------------------------------------------------------------------
 
+/**
+ * Optional per-site analytics (decision: Plausible, se#84 2026-07-13).
+ * `domain` is the bare site hostname as registered in the Plausible dashboard
+ * (e.g. "monroepressure.com" — no scheme/path); BaseHead emits the script tag
+ * only when this block is present.
+ */
+export const AnalyticsSchema = z.object({
+  provider: z.literal("plausible"),
+  domain: z
+    .string()
+    .min(1)
+    .regex(
+      /^[a-z0-9]+(?:[.-][a-z0-9]+)*\.[a-z]{2,}$/i,
+      "analytics.domain must be a bare hostname, e.g. monroepressure.com (no https://, no path)",
+    ),
+});
+
 export const ClientConfigSchema = z.object({
   /** URL-safe slug; doubles as the apps/<slug> directory name. */
   slug: z
@@ -248,6 +265,7 @@ export const ClientConfigSchema = z.object({
   map: MapSchema.default({}),
   form: FormSchema,
   seo: SeoSchema,
+  analytics: AnalyticsSchema.optional(),
 });
 
 // ---------------------------------------------------------------------------
