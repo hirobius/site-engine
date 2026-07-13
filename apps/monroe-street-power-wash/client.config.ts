@@ -1,24 +1,42 @@
 import { defineClient } from "@hirobius/schema";
 
 /**
- * PLACEHOLDER preview — first lead → preview site (Monroe Street Power Wash,
- * Spokane WA). Highly-rated pressure washer with no existing website; this is
- * a cold-outreach preview, so contact details are clearly-fictional
- * placeholders (phone, email, form key) pending real intake. Photo-less by
- * design, like the other preview apps (see issue #14 for real imagery).
+ * Monroe Street Power Wash (Spokane, WA) — regenerated from the REAL ops
+ * `leads` row (Supabase), replacing the earlier fabricated config that
+ * mispresented this business as a pressure-washing contractor.
+ *
+ * What the lead row actually says (golden rule #5 — facts from intake only):
+ *   category        "Car wash" (self-serve / touchless automatic)
+ *   phone           +1 509-327-9641
+ *   street_address  3121 N Monroe St, Spokane, WA 99205
+ *   hours           Open 24 hours, every day
+ *   rating/reviews  3.8 ★ over 335 Google reviews
+ *   description     "Car-washing facility featuring touchless automatic
+ *                    options along with self-serve bays."
+ *   email / website / service_area / individual reviews  → NONE in intake
+ *
+ * Copy below is written to match that real description; nothing is invented
+ * beyond it. Palette uses "pressure-washing" (closest shipped preset — there
+ * is no car-wash pack; a clean-water blue suits a wash).
+ *
+ * TODO before go-live (intake had no value — placeholders, not facts):
+ *   - business.email — real address unknown; using a stub
+ *   - form.accessKey — set a real Web3Forms key
+ *   - seo.siteUrl — set the real production URL
+ *   - reviews — only the 3.8/335 aggregate exists; no individual review text
+ *     to show, so the reviews section is intentionally omitted (no fabrication)
+ *   - photos — one real Google photo exists but is an external URL; kept
+ *     photo-less like the other preview apps until it's downloaded locally
  */
 export const client = defineClient({
   slug: "monroe-street-power-wash",
   business: {
     name: "Monroe Street Power Wash",
-    phone: "(509) 555-0100",
-    email: "hello@monroestreetpowerwash.example",
-    hours: [
-      { days: "Mon–Fri", hours: "8:00 AM – 6:00 PM" },
-      { days: "Sat", hours: "9:00 AM – 3:00 PM" },
-      { days: "Sun", hours: "Closed" },
-    ],
-    serviceAreas: ["Spokane", "Spokane Valley", "Liberty Lake", "Cheney", "Mead"],
+    phone: "(509) 327-9641",
+    email: "hello@monroe-street-power-wash-spokane.example", // TODO: real email (none in intake)
+    address: "3121 N Monroe St, Spokane, WA 99205",
+    hours: [{ days: "Every day", hours: "Open 24 hours" }],
+    serviceAreas: ["Spokane, WA"],
   },
   brand: {
     palettePreset: "pressure-washing",
@@ -26,80 +44,48 @@ export const client = defineClient({
     radius: "md",
   },
   layout: {
-    variant: "A",
-    // No "gallery" — this preview is photo-less by design (see issue #14);
-    // an empty gallery section would render blank.
-    sectionOrder: ["services", "reviews", "serviceAreaMap", "contact"],
+    // No reviews/gallery sections — no individual review text or local photos
+    // exist in intake, and an empty section renders blank / fails acceptance.
+    sectionOrder: ["services", "serviceAreaMap", "contact"],
   },
   services: [
     {
-      title: "House Soft Washing",
+      title: "Touchless Automatic Wash",
       description:
-        "Low-pressure, chemical soft-wash treatment that lifts mold, algae, and grime from siding without damaging paint, stucco, or trim.",
+        "Drive-through touchless bays clean your vehicle without brushes or contact — a gentle, hands-off wash any time of day.",
     },
     {
-      title: "Roof Soft Washing",
+      title: "Self-Serve Wash Bays",
       description:
-        "Manufacturer-safe soft wash removes black streaks, moss, and lichen from asphalt shingles — no high-pressure spray, no shingle damage.",
+        "Do-it-yourself stalls with the equipment to foam, wash, and rinse your car, truck, or SUV at your own pace.",
     },
     {
-      title: "Driveway & Concrete Cleaning",
+      title: "Open 24 Hours",
       description:
-        "High-pressure surface cleaning strips oil stains, tire marks, and years of built-up grime from driveways, walkways, and patios.",
-    },
-    {
-      title: "Deck & Fence Restoration",
-      description:
-        "Wood-safe cleaning lifts dirt and graying from decks and fences and preps the surface for staining or sealing.",
-    },
-    {
-      title: "Commercial Pressure Washing",
-      description:
-        "Storefronts, sidewalks, parking lots, and dumpster pads kept looking sharp for Spokane businesses, scheduled around your hours.",
+        "Both the touchless automatic and self-serve options are available around the clock, every day — wash on your schedule.",
     },
   ],
   copy: {
-    heroHeadline: "Spokane's Soft Wash & Pressure Washing Pros",
+    heroHeadline: "Spokane's 24-Hour Self-Serve & Touchless Car Wash",
     heroSub:
-      "House washing, roofs, driveways, decks, and commercial exteriors — done right, fully insured, free estimates.",
-    ctaLabel: "Get a Free Quote",
+      "Touchless automatic bays and self-serve stalls on N Monroe St — open 24 hours, every day. Drive in whenever it's convenient.",
+    ctaLabel: "Visit Us on N Monroe St",
     about:
-      "Monroe Street Power Wash is a locally owned pressure washing company serving Spokane and the surrounding area. We specialize in gentle soft-washing for siding and roofs alongside driveway, deck, fence, and commercial cleaning — using techniques that lift years of grime without damaging your property. Fast scheduling, upfront pricing, and a satisfaction guarantee on every job.",
+      "Monroe Street Power Wash is a self-serve and touchless automatic car wash at 3121 N Monroe St in Spokane. Open 24 hours a day, every day — pull into a touchless automatic bay for a hands-off clean, or use a self-serve stall when you'd rather do it yourself. A long-standing local spot with hundreds of Google reviews.",
   },
-  gallery: [],
-  reviews: [
-    {
-      author: "Denise H.",
-      rating: 5,
-      text: "Our siding looked brand new after they soft-washed the house. Careful around the flower beds too. Highly recommend.",
-      source: "Google",
-    },
-    {
-      author: "Marcus T.",
-      rating: 5,
-      text: "Driveway had years of oil stains from the previous owners — gone in an afternoon. Fair price, showed up right on time.",
-      source: "Google",
-    },
-    {
-      author: "Katie R.",
-      rating: 5,
-      text: "Roof moss was getting bad and they cleared it without any damage to the shingles. Would use again in a heartbeat.",
-      source: "Google",
-    },
-  ],
   map: {
-    embedQuery: "Spokane, WA",
+    embedQuery: "3121 N Monroe St, Spokane, WA 99205",
   },
   form: {
     provider: "web3forms",
-    accessKey: "00000000-0000-0000-0000-000000000000",
+    accessKey: "REPLACE_WITH_WEB3FORMS_ACCESS_KEY", // TODO: real Web3Forms key
   },
   seo: {
-    title: "Monroe Street Power Wash | Spokane Pressure Washing",
+    title: "Monroe Street Power Wash | 24-Hour Spokane Car Wash",
     description:
-      "Spokane's soft wash and pressure washing experts. House, roof, driveway, deck, fence, and commercial cleaning. Free estimates, fully insured.",
+      "Self-serve and touchless automatic car wash at 3121 N Monroe St, Spokane. Open 24 hours, every day.",
     city: "Spokane",
     region: "WA",
-    siteUrl: "https://monroestreetpowerwash.example",
+    siteUrl: "https://monroe-street-power-wash-spokane.example", // TODO: real production URL
   },
 });
