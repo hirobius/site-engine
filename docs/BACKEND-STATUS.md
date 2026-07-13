@@ -1,8 +1,11 @@
 # Hirobius — Backend Build Status & Roadmap
 
-> Single source of truth for **what the backend is, what exists, and what's left
-> to build.** Strategy/why lives in `PROJECT-CONTEXT.md`; this is the build status.
-> Reconciles and supersedes the old `HC-` checklist in `PROJECT-CONTEXT.md §8`.
+> **What this is.** A status/architecture narrative — what the backend is, what
+> exists, and the shape of what's left — for orientation. It is **not** a task
+> tracker: open work items are tracked as **GitHub Issues** in this repo (see
+> `CLAUDE.md` → Fleet hub). Strategy/why lives in `PROJECT-CONTEXT.md`; this
+> reconciled and superseded the old `HC-` checklist that used to live in
+> `PROJECT-CONTEXT.md §8` (now retired, see #20).
 >
 > Last updated: 2026-07-02.
 >

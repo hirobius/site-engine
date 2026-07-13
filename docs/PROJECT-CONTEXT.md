@@ -96,32 +96,15 @@ Turborepo · Zod · astro:assets · Web3Forms + hCaptcha · Vercel · `@anthropi
 
 ---
 
-## 3. Git / PR state (important)
+## 3. Git / PR state (retired)
 
-> ⚠️ **Superseded (2026-07-11).** The specific PR/branch snapshot below is a
-> 2026-06-18 point-in-time and is stale — PR #2/#3/#4 and the "local-only agent
-> commits" no longer describe reality. **Live git/PR state is GitHub itself; live
-> project state is `status.json` + `docs/BACKEND-STATUS.md`; open work is tracked
-> as GitHub Issues in this repo** (see CLAUDE.md → Fleet hub). The repo is now
-> `hirobius/site-engine`. Kept below as history; full retirement of this section
-> is tracked in #20.
-
-- **Repo:** `hirobius/clients` (old `hirobius/sites` URLs redirect).
-- **`main`:** contains the full monorepo (PR #2 merged).
-- **`claude/hirobius-clients-monorepo-j6k3sd`** (dev branch):
-  - **PR #3 (OPEN):** visual-regression safety net. https://github.com/hirobius/clients/pull/3
-    - ⚠️ The `visual` CI job is **red until baselines are seeded** in the pinned
-      Playwright container (one command in README → Visual regression). Expected.
-  - **LOCAL-ONLY commits (unpushed):** the **AI agent** (`packages/agent`) + **loop
-    engineering** + `docs/AI-ENGINEERING.md`. Pending a branch decision.
-- **`claude/lead-gen-pnw`:**
-  - **PR #4 (OPEN):** the lead puller (`scripts/lead-gen`). https://github.com/hirobius/clients/pull/4
-- **Commit identity:** use `Claude <noreply@anthropic.com>`. Commit **signing is
-  not available in the sandbox**, so commits show "Unverified" until pushed — this
-  is harmless (author/email are correct).
-
-**Pending decision:** push the agent commits to their **own branch + PR**
-(`claude/agent-pipeline`, recommended) vs. onto the dev branch / PR #3.
+> ⚠️ **Retired (2026-07-13, #20).** This section held a 2026-06-18 point-in-time
+> PR/branch snapshot (`hirobius/clients`, PR #2/#3/#4, "local-only agent
+> commits") that no longer describes reality and has been removed. **Live git/PR
+> state is GitHub itself; live project state is `status.json` +
+> `docs/BACKEND-STATUS.md`; open work is tracked as GitHub Issues in this repo**
+> (see CLAUDE.md → Fleet hub). The repo is now `hirobius/site-engine`. The
+> original snapshot is preserved in this file's git history if ever needed.
 
 ---
 
@@ -235,35 +218,15 @@ Output = a drop-in `client.config.ts` + loop trace + eval scorecard.
 
 ---
 
-## 8. Open tasks (the tracker — prefix `HC-`)
+## 8. Open tasks (retired)
 
-> ⚠️ **Retired (2026-07-11).** The `HC-` list is a legacy 2026-06-18 tracker and
-> **no longer exists as a live board.** Open work is tracked as **GitHub Issues in
-> this repo** (CLAUDE.md → Fleet hub), which also sync to `ops/ops/tasks`; current
-> project state is `status.json` + `docs/BACKEND-STATUS.md`. The items below are
-> kept only as historical record — do not treat any as open. Full retirement of
-> this file is tracked in #20.
-
-- [ ] **HC-01** Push agent commits to own branch + PR `claude/agent-pipeline` *(needs OK)*
-- [ ] **HC-02** Run Phase A live on a real lead (set `ANTHROPIC_API_KEY`)
-- [ ] **HC-03** Build Phase B — `apps/studio` interactive streaming console
-- [ ] **HC-04** Phase C — eval harness (score across prompt/model versions)
-- [ ] **HC-05** Phase D — deploy flagship + write case study
-- [ ] **HC-06** Re-run the PNW lead sweep cleanly (raise budget ~$15, run while active)
-- [ ] **HC-07** Seed visual-regression baselines in the Playwright container; get PR #3 green + merge
-- [ ] **HC-08** Merge PR #4 (lead puller)
-- [ ] **HC-09** Live-deploy demo to Vercel `--prod`; verify the middleware preview gate
-- [ ] **HC-10** Write up **Apply Board** case study (Piece 1)
-- [ ] **HC-11** Formalize **design system** via `apps/_gallery` (Piece 2)
-- [ ] **HC-12** Build **portfolio site** + 2 interactive prototypes (Piece 4)
-- [ ] **HC-13** (optional) KONG game + multi-LLM showcase
-- [ ] **HC-14** (optional) AI-assisted GRC tool (cleared/GRC track)
-- [ ] **HC-15** Learning: Azure **AI-102** anchor cert; DeepLearning.AI (RAG/Agents/Evals); Python+SDK basics
-- [ ] **HC-16** Decide photo object storage before ~client 20 (S3/R2/Vercel Blob)
-- [ ] **HC-17** Wire `new-client` to append launched clients to `apps/_gallery` fleet list; tag `@hirobius/template` v0.1.0
-
-> The live backlog now lives in **`docs/BACKEND-STATUS.md`** (status + critical path).
-> The `HC-` list above is legacy; treat BACKEND-STATUS as the source of truth.
+> ⚠️ **Retired (2026-07-13, #20).** The `HC-` tracker that used to live here was a
+> legacy 2026-06-18 checklist and has been removed — it no longer exists as a live
+> board (every item was already done, retired, or reconciled into
+> `docs/BACKEND-STATUS.md §3` before removal). **Open work is tracked as GitHub
+> Issues in this repo** (CLAUDE.md → Fleet hub), which also sync to
+> `ops/ops/tasks`; current project state is `status.json` + `docs/BACKEND-STATUS.md`.
+> The original checklist is preserved in this file's git history if ever needed.
 
 ---
 
