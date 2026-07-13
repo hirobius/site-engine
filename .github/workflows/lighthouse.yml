@@ -17,7 +17,7 @@ on:
 
 jobs:
   lighthouse:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RALPH_RUNNER || 'ubuntu-latest' }}
     # Pinned to the resolved Playwright version so Chrome + OS match across
     # runs — perf scores are otherwise sensitive to whatever Chrome build a
     # generic ubuntu-latest happens to have installed.

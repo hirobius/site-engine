@@ -18,7 +18,7 @@ on:
 
 jobs:
   visual:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RALPH_RUNNER || 'ubuntu-latest' }}
     # contents: write lets the dispatched update run commit the refreshed
     # baselines directly (previously they were only uploaded as an artifact,
     # leaving a manual download-and-commit step).
