@@ -18,13 +18,14 @@ describe("verifyLive", () => {
     "https://acme.com": new Response(LOCAL_BUSINESS_HTML, { status: 200 }),
     "https://acme.com/sitemap-index.xml": new Response("", { status: 200 }),
     "https://acme.com/robots.txt": new Response("", { status: 200 }),
+    "https://acme.com/llms.txt": new Response("", { status: 200 }),
     "https://acme.com/thanks": new Response("", { status: 200 }),
   });
 
   it("passes every check for a healthy live site", async () => {
     const results = await verifyLive("https://acme.com", fakeFetch(ok()));
     expect(results.every((r) => r.pass)).toBe(true);
-    expect(results).toHaveLength(6);
+    expect(results).toHaveLength(7);
   });
 
   it("fails the noindex check when X-Robots-Tag: noindex is present", async () => {
