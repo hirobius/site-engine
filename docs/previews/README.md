@@ -1,33 +1,51 @@
-# Recovered spec previews (realtor kit)
+# Spec previews (realtor kit)
 
-Landing zone for the real-estate preview builds recovered from published
-Artifacts (see site-engine #23/#24). Each preview is a single self-contained
-HTML file, committed **as-is** — these are design references / spec-client
-showcases, NOT factory client apps (no `apps/<slug>` scaffold, no
-`client.config.ts`). Harvesting them into the Astro factory is tracked in #23.
+Self-contained HTML previews of the three real-estate design directions from the
+realtor preview kit (see site-engine #23/#24). Each is one standalone file —
+open it in a browser. These are design references / spec-client showcases, NOT
+factory client apps (no `apps/<slug>`, no `client.config.ts`). Harvesting the
+warm-serif direction into the Astro factory is tracked in #23.
 
-## Expected files
+## Files
 
-| File | Source artifact | Notes |
+| File | Direction | Source spec |
 |---|---|---|
-| `elizabeth-beard.html` | [Elizabeth Beard — Spokane Real Estate](https://claude.ai/code/artifact/c9adf062-1ad3-480f-87d1-a2947f616734) (2026-07-05) | Warm-serif editorial, multi-page (hash-routed): Home / About / Buying / Selling / Referrals / Journal / Contact |
-| `meridian.html` | [Meridian — Modern Real Estate](https://claude.ai/code/artifact/c903fc21-598f-4ceb-859b-4fb6f2d2070c) (2026-07-05) | Modern-grotesk skin (Archivo + Inter, paper + clay) — see #24 |
-| `ironridge.html` | [IRONRIDGE — Residential Real Estate](https://claude.ai/code/artifact/a016dada-e51a-4161-8e7d-5a7c7ed7f96a) (2026-07-05) | Rugged / no-photo direction, parked |
+| `elizabeth-beard.html` | Warm-serif editorial, multi-page (Home / About / Buying / Selling / Referrals / Journal / Contact, hash-routed) | `aura-hirobius-core.md` warm skin |
+| `meridian.html` | Modern-grotesk, paper + clay, near-black inversion; home-forward | #24, grotesk swing |
+| `ironridge.html` | Rugged / no-photo, type-forward, ember accent (parked direction) | #23 IRONRIDGE |
 
-Earlier Elizabeth Beard iterations (Direction 2/3, first preview, 2026-07-03)
-remain as Artifacts only; the table above pins the latest of each direction.
+## Provenance — reconstructions, not the originals (2026-07-14)
 
-## Recovery status (2026-07-14)
+The original builds existed **only** as published claude.ai Artifacts. Their
+content lives on `*.frame.claudeusercontent.com`, a host this repo's build/agent
+environment is firewalled from (egress policy denies it at CONNECT), and the
+files were never committed to any branch — so the exact original HTML could not
+be retrieved.
 
-The HTML is not yet committed: artifact **content** fetches return HTTP 403
-from the remote session environment (metadata/list works; content does not),
-and no branch in site-engine / ops / hds / Ralph ever carried these files —
-the Artifacts are the sole surviving copies. Unblock: Adrian shares the three
-artifacts (or drops the downloaded HTML into a session), then the files land
-here verbatim.
+These three files are therefore **faithful rebuilds to the documented design
+system**, not byte-for-byte copies of the artifacts. They implement the recovered
+spec exactly:
 
-Companion docs recovered from `claude/realtor-starter` in the same commit:
-`docs/realtor-template.md` (ClientConfig extension spec),
-`docs/aura-hirobius-core.md` (structured aura DESIGN.md, warm skin),
-`docs/hirobius-core-brief.md` (prose brief),
-`claude-config/skills/generate-client-config/SKILL.md`.
+- **Skin** (`aura-hirobius-core.md`): warm cream ground `#F4EFE7`, surface
+  `#FBF8F2`, warm near-black `#2B2A26`, one deep-sage accent `#4A5443`, hairline
+  `#E4DDD0`. Serif display (Fraunces) + Inter body + mono eyebrows.
+- **Signature patterns**: bracket/numbered mono eyebrows, roman+italic emphasis
+  word, stat rail, label↔value spec list, inversion CTA block, crop-mark hero
+  frame, live status line — all per the CORE spec.
+- **Sections** (`realtor-template.md`): Hero → Featured listings → Agent bio →
+  Stats → Neighborhoods → Testimonials → Home-valuation CTA → Contact/footer with
+  fair-housing disclaimer.
+
+Content is **sample/curated copy with placeholder contact details** (`555-01xx`
+numbers, sample addresses) — appropriate for a showcase, and per repo rule never
+fabricated as real business facts. Photography is rendered as CSS treatments with
+labelled photo slots (stock hosts were always blocked in the preview env).
+
+If the original artifact HTML is ever recovered (e.g. via a browser DevTools
+Network capture from a logged-in session), drop it in over these to replace the
+reconstruction.
+
+## Companion docs (recovered from `claude/realtor-starter`)
+
+`../realtor-template.md` · `../aura-hirobius-core.md` · `../hirobius-core-brief.md`
+· `../../claude-config/skills/generate-client-config/SKILL.md`

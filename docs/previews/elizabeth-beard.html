@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elizabeth Beard — Spokane Real Estate</title>
+<meta name="description" content="Elizabeth Beard — a Spokane real estate agent selling the South Hill, Kendall Yards, and the river neighborhoods with an editorial eye and a straight answer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4EFE7; --surface:#FBF8F2; --primary:#2B2A26; --ink:#2B2A26;
+    --muted:#6B655A; --accent:#4A5443; --border:#E4DDD0;
+    --serif:"Fraunces","Cormorant Garamond",Georgia,serif;
+    --sans:"Inter",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --pad:clamp(24px,6vw,96px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+
+  /* ── eyebrow / mono label ── */
+  .eyebrow{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .eyebrow.num{color:var(--muted)}
+
+  /* ── display type ── */
+  .display{font-family:var(--serif);font-weight:340;line-height:1.02;letter-spacing:-.015em}
+  .display em{font-style:italic;font-weight:340}
+  h1.display{font-size:clamp(44px,8vw,84px)}
+  h2.display{font-size:clamp(32px,5vw,56px);line-height:1.05}
+  h3.display{font-size:clamp(24px,3vw,32px)}
+  .lead{font-size:clamp(18px,2.2vw,22px);color:var(--muted);max-width:60ch;line-height:1.55}
+
+  /* ── layout ── */
+  section{padding:clamp(64px,10vw,120px) var(--pad)}
+  .wrap{max-width:1200px;margin:0 auto}
+  .divider{height:1px;background:var(--border);border:0}
+
+  /* ── header / nav ── */
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px var(--pad)}
+  .brand{font-family:var(--serif);font-size:22px;letter-spacing:-.01em}
+  .brand b{font-weight:500}
+  .nav-links{display:flex;gap:26px;align-items:center}
+  .nav-links a{font-size:14px;color:var(--muted);transition:color .2s}
+  .nav-links a:hover,.nav-links a.active{color:var(--ink)}
+  .nav-cta{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--ink);border-radius:9999px;padding:9px 16px;color:var(--ink);transition:.2s}
+  .nav-cta:hover{background:var(--ink);color:var(--surface)}
+  .menu-btn{display:none;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);border-radius:9999px;padding:8px 14px}
+
+  /* ── pages ── */
+  .page{display:none;animation:fade .5s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ── hero ── */
+  .hero{padding-top:clamp(48px,7vw,88px);padding-bottom:clamp(48px,7vw,88px)}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4vw,64px);align-items:center}
+  .hero-copy .eyebrow{margin-bottom:22px;display:inline-block}
+  .hero-copy h1{margin:0 0 24px}
+  .status{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:26px}
+  .status .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+  .btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+  .btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;padding:14px 24px;border-radius:9999px;transition:.2s;border:1px solid var(--ink)}
+  .btn.solid{background:var(--ink);color:var(--surface)}
+  .btn.solid:hover{background:var(--accent);border-color:var(--accent)}
+  .btn.ghost:hover{background:var(--ink);color:var(--surface)}
+
+  /* photo frame with crop marks */
+  .frame{position:relative;padding:14px}
+  .frame::before,.frame::after{content:"";position:absolute;width:14px;height:14px;border:1.5px solid var(--accent)}
+  .frame::before{top:0;left:0;border-right:0;border-bottom:0}
+  .frame::after{bottom:0;right:0;border-left:0;border-top:0}
+  .photo{position:relative;aspect-ratio:4/5;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+  .photo .slot{position:absolute;inset:0;display:flex;align-items:flex-end;padding:20px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.82)}
+  .ph-portrait{background:
+    radial-gradient(120% 90% at 70% 15%, #8d8574 0%, transparent 55%),
+    linear-gradient(160deg,#6f6a5c 0%,#4a5443 60%,#2f352b 100%)}
+  .ph-home{background:linear-gradient(165deg,#c9b79b 0%,#9a8a6f 45%,#4a5443 100%)}
+  .ph-wide{aspect-ratio:16/10}
+  .ph-river{background:linear-gradient(180deg,#a9b4a6 0%,#7f8b78 40%,#4a5443 100%)}
+  .ph-street{background:linear-gradient(160deg,#d8c6a6,#8a7f68 70%,#3c4034)}
+  .ph-loft{background:linear-gradient(160deg,#cbb9a0,#726a58 70%,#2f352b)}
+  .ph-hill{background:linear-gradient(160deg,#bcae95,#6f6a5c 70%,#39392f)}
+
+  /* ── stat rail ── */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .stat{padding:34px 24px 34px 0}
+  .stat .v{font-family:var(--serif);font-size:clamp(38px,5vw,54px);font-weight:340;line-height:1;letter-spacing:-.02em}
+  .stat:nth-child(2) .v{color:var(--accent)}
+  .stat .l{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+
+  /* ── listings ── */
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:48px;flex-wrap:wrap}
+  .sec-head .lead{margin-top:14px}
+  .listings{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:transform .25s,box-shadow .25s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -24px rgba(43,42,38,.4)}
+  .card .img{position:relative;aspect-ratio:3/2}
+  .badge{position:absolute;top:14px;left:14px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:6px 11px;border-radius:9999px;background:var(--surface);color:var(--ink)}
+  .badge.pending{background:#8a6f3a;color:#fff}
+  .badge.sold{background:var(--accent);color:#fff}
+  .card .body{padding:20px 22px 24px}
+  .card .price{font-family:var(--serif);font-size:26px;font-weight:400}
+  .card .addr{color:var(--muted);font-size:14.5px;margin-top:4px}
+  .specrow{display:flex;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
+
+  /* ── spec list (label ↔ value) ── */
+  .speclist{max-width:640px}
+  .speclist .row{display:flex;justify-content:space-between;align-items:baseline;gap:24px;padding:18px 0;border-bottom:1px solid var(--border)}
+  .speclist .row .k{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .speclist .row .val{font-family:var(--serif);font-size:22px}
+
+  /* ── neighborhoods ── */
+  .hoods{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .hood{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:4/5;border:1px solid var(--border)}
+  .hood .cap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:24px;background:linear-gradient(180deg,transparent 40%,rgba(31,30,26,.72));color:#fff}
+  .hood .cap h3{font-family:var(--serif);font-size:26px;font-weight:400}
+  .hood .cap p{font-size:14px;color:rgba(255,255,255,.85);margin-top:6px}
+
+  /* ── testimonials ── */
+  .quotes{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .quote{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:34px}
+  .quote p{font-family:var(--serif);font-size:23px;line-height:1.4;font-weight:340}
+  .quote .who{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:22px}
+
+  /* ── process / numbered ── */
+  .steps .step{display:grid;grid-template-columns:120px 1fr;gap:32px;padding:34px 0;border-top:1px solid var(--border);align-items:baseline}
+  .steps .step:last-child{border-bottom:1px solid var(--border)}
+  .steps .step .n{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .steps .step h3{font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:10px}
+
+  /* mono checklist */
+  .checklist{list-style:none;columns:2;column-gap:48px;max-width:720px}
+  .checklist li{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);padding:12px 0 12px 24px;position:relative;border-bottom:1px solid var(--border);break-inside:avoid}
+  .checklist li::before{content:"+";position:absolute;left:0;color:var(--accent)}
+
+  /* ── inversion CTA ── */
+  .invert{background:var(--primary);color:var(--surface);border-radius:12px;margin:0 var(--pad);padding:clamp(40px,7vw,88px)}
+  .invert .eyebrow{color:#c7cbbd}
+  .invert h2{color:var(--surface)}
+  .invert .lead{color:#cbc7bd}
+  .valform{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:560px;margin-top:32px}
+  .valform input{grid-column:span 1;background:transparent;border:1px solid #55534b;border-radius:8px;padding:15px 16px;color:var(--surface);font-family:var(--sans);font-size:15px}
+  .valform input::placeholder{color:#9b978d}
+  .valform input:focus{outline:none;border-color:#c7cbbd}
+  .valform input.full,.valform button{grid-column:1 / -1}
+  .valform button{background:var(--surface);color:var(--primary);border:0;border-radius:9999px;padding:15px;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.2s}
+  .valform button:hover{background:#c7cbbd}
+  .invert .stat-stack{display:flex;gap:40px;margin-top:44px;flex-wrap:wrap}
+  .invert .stat-stack .v{font-family:var(--serif);font-size:40px;font-weight:340}
+  .invert .stat-stack .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#a7a399;margin-top:8px}
+
+  /* ── footer ── */
+  footer.site{border-top:1px solid var(--border);padding:clamp(48px,7vw,80px) var(--pad) 40px}
+  .foot-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+  .foot-grid h4{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+  .foot-grid a{display:block;color:var(--muted);font-size:14.5px;padding:5px 0;transition:.2s}
+  .foot-grid a:hover{color:var(--ink)}
+  .foot-brand{font-family:var(--serif);font-size:26px;margin-bottom:14px}
+  .fairhousing{max-width:1200px;margin:48px auto 0;padding-top:26px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .fh-note{max-width:60ch;line-height:1.55}
+
+  .spec-tag{max-width:1200px;margin:0 auto 8px;padding:0 var(--pad)}
+  .spec-tag span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--border);border-radius:9999px;padding:5px 12px;display:inline-block;margin-top:20px}
+
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:36px}
+    .listings,.hoods{grid-template-columns:1fr 1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .quotes,.valform,.foot-grid{grid-template-columns:1fr}
+    .steps .step{grid-template-columns:1fr;gap:8px}
+    .checklist{columns:1}
+    .nav-links{display:none}
+    .menu-btn{display:inline-block}
+    .nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:2px;background:var(--surface);border-bottom:1px solid var(--border);padding:18px var(--pad)}
+    .nav-links.open a{padding:10px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a href="#home" class="brand" data-nav><b>Elizabeth</b> Beard</a>
+    <div class="nav-links" id="navlinks">
+      <a href="#home" data-nav>Home</a>
+      <a href="#about" data-nav>About</a>
+      <a href="#buying" data-nav>Buying</a>
+      <a href="#selling" data-nav>Selling</a>
+      <a href="#referrals" data-nav>Referrals</a>
+      <a href="#journal" data-nav>Journal</a>
+      <a href="#contact" data-nav>Contact</a>
+      <a href="#contact" class="nav-cta" data-nav>What's my home worth?</a>
+    </div>
+    <button class="menu-btn" id="menubtn">Menu</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="page active" id="home">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">[ Spokane · South Hill · Kendall Yards ]</span>
+        <div class="status"><span class="dot"></span> Taking 2 new listings this month</div>
+        <h1 class="display">Selling Spokane's<br>best-kept streets,<br><em>quietly</em> and well.</h1>
+        <p class="lead">Twelve years, 218 homes, and a straight answer every time. I sell the South Hill, Kendall Yards, and the river neighborhoods with an editorial eye and a negotiator's patience.</p>
+        <div class="btn-row">
+          <a href="#contact" class="btn solid" data-nav>What's my home worth?</a>
+          <a href="#buying" class="btn ghost" data-nav>Start with a call</a>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="photo ph-portrait"><div class="slot">Portrait / Elizabeth on the South Hill</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat"><div class="v">218</div><div class="l">Homes sold</div></div>
+        <div class="stat"><div class="v">11 days</div><div class="l">Avg on market</div></div>
+        <div class="stat"><div class="v">99.4%</div><div class="l">List-to-sale</div></div>
+        <div class="stat"><div class="v">12 yrs</div><div class="l">In Spokane</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow num">01 / Featured</span>
+          <h2 class="display" style="margin-top:16px">A few homes,<br><em>chosen</em> carefully.</h2>
+        </div>
+        <a href="#buying" class="btn ghost" data-nav>View all listings</a>
+      </div>
+      <div class="listings">
+        <article class="card">
+          <div class="img ph-home"><span class="badge">Active</span></div>
+          <div class="body">
+            <div class="price">$685,000</div>
+            <div class="addr">1214 W Sumner Ave · South Hill</div>
+            <div class="specrow"><span>4 bd</span><span>3 ba</span><span>2,940 sqft</span></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="img ph-loft"><span class="badge pending">Pending</span></div>
+          <div class="body">
+            <div class="price">$512,000</div>
+            <div class="addr">318 N Cedar St · Kendall Yards</div>
+            <div class="specrow"><span>2 bd</span><span>2 ba</span><span>1,610 sqft</span></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="img ph-river"><span class="badge sold">Sold</span></div>
+          <div class="body">
+            <div class="price">$1,240,000</div>
+            <div class="addr">6 E Rockwood Blvd · Rockwood</div>
+            <div class="specrow"><span>5 bd</span><span>4 ba</span><span>4,120 sqft</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider wrap" style="max-width:1200px">
+
+  <section>
+    <div class="wrap sec-head">
+      <div>
+        <span class="eyebrow num">02 / Neighborhoods</span>
+        <h2 class="display" style="margin-top:16px">Where I know<br>every block.</h2>
+      </div>
+      <p class="lead">Local expertise isn't a tagline — it's knowing which South Hill blocks hold value and which Kendall Yards floor plans actually live well.</p>
+    </div>
+    <div class="wrap">
+      <div class="hoods">
+        <div class="hood ph-hill"><div class="cap"><h3>South Hill</h3><p>Craftsman bones, mature trees, and the schools families move for.</p></div></div>
+        <div class="hood ph-river"><div class="cap"><h3>Kendall Yards</h3><p>Walkable river-bluff living, new-build and loft, at the city's edge.</p></div></div>
+        <div class="hood ph-street"><div class="cap"><h3>Rockwood &amp; Manito</h3><p>Spokane's most storied streets — where legacy homes trade quietly.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sec-head">
+      <div>
+        <span class="eyebrow num">03 / In their words</span>
+        <h2 class="display" style="margin-top:16px">Clients, after<br>the keys change hands.</h2>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="quotes">
+        <figure class="quote"><p>"Elizabeth read the market better than the three agents we interviewed. Sold in nine days, over asking, no drama."</p><figcaption class="who">Marcus &amp; Dana R. · Sold, South Hill</figcaption></figure>
+        <figure class="quote"><p>"First-time buyers, terrified. She never once made us feel rushed and talked us out of two houses she knew we'd regret."</p><figcaption class="who">Priya N. · Bought, Kendall Yards</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="invert-wrap" style="padding-left:0;padding-right:0">
+    <div class="invert">
+      <span class="eyebrow">[ What's my home worth? ]</span>
+      <h2 class="display" style="margin:20px 0 16px;max-width:16ch">A real number, from someone who sells here weekly.</h2>
+      <p class="lead">No auto-estimate. I'll walk your block, pull the true comps, and send a considered valuation within two business days.</p>
+      <form class="valform" onsubmit="return false">
+        <input placeholder="Your name">
+        <input placeholder="Email" type="email">
+        <input class="full" placeholder="Property address">
+        <button>Request my valuation</button>
+      </form>
+      <div class="stat-stack">
+        <div><div class="v">11 days</div><div class="l">Avg on market</div></div>
+        <div><div class="v">99.4%</div><div class="l">List-to-sale</div></div>
+        <div><div class="v">2 days</div><div class="l">To your valuation</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ ABOUT ══════════ -->
+<div class="page" id="about">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">[ About ]</span>
+        <h1 class="display" style="margin-top:20px">A dozen years<br>on <em>these</em> streets.</h1>
+        <p class="lead">I didn't move to Spokane for the market — I grew up on it. That's the difference clients feel: I'm not learning your neighborhood on your timeline.</p>
+        <div class="speclist" style="margin-top:40px">
+          <div class="row"><span class="k">Brokerage</span><span class="val">Ridgeline &amp; Co.</span></div>
+          <div class="row"><span class="k">License</span><span class="val">WA #SP-00-114820</span></div>
+          <div class="row"><span class="k">Serving</span><span class="val">Spokane County</span></div>
+          <div class="row"><span class="k">Since</span><span class="val">2014</span></div>
+        </div>
+      </div>
+      <div class="frame"><div class="photo ph-portrait"><div class="slot">Portrait / editorial</div></div></div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap" style="max-width:760px">
+      <span class="eyebrow num">Credentials</span>
+      <ul class="checklist" style="margin-top:24px">
+        <li>Accredited Buyer's Rep</li>
+        <li>Certified Negotiation Expert</li>
+        <li>Luxury Home Marketing</li>
+        <li>Relocation Specialist</li>
+        <li>Top 2% Spokane, 2021–2025</li>
+        <li>Historic Homes certified</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ BUYING ══════════ -->
+<div class="page" id="buying">
+  <section class="hero">
+    <div class="wrap" style="max-width:900px">
+      <span class="eyebrow">[ Buying ]</span>
+      <h1 class="display" style="margin:20px 0 24px">Buy the right<br>house, not the<br><em>available</em> one.</h1>
+      <p class="lead">Most buyers settle because they're tired. My job is to keep you patient and informed until the right home shows up — then move fast and win it.</p>
+      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>Book a buyer call</a></div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow num">How it goes</span>
+      <div class="steps" style="margin-top:28px">
+        <div class="step"><div class="n">01 / Align</div><div><h3>We define "right."</h3><p class="lead">Budget, block, non-negotiables, and the deal-breakers you haven't named yet.</p></div></div>
+        <div class="step"><div class="n">02 / Search</div><div><h3>You see the real list.</h3><p class="lead">On-market, coming-soon, and the quiet ones I hear about before they post.</p></div></div>
+        <div class="step"><div class="n">03 / Win</div><div><h3>We write to win, not to overpay.</h3><p class="lead">Structured offers that stand out without emptying your reserves.</p></div></div>
+        <div class="step"><div class="n">04 / Close</div><div><h3>Nothing falls through quietly.</h3><p class="lead">Inspection, appraisal, financing — I chase every thread so you don't.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <section class="invert-wrap" style="padding-left:0;padding-right:0">
+    <div class="invert">
+      <span class="eyebrow">[ Free guide ]</span>
+      <h2 class="display" style="margin:18px 0 14px;max-width:18ch">The Spokane Buyer's Guide — the one I give every client.</h2>
+      <p class="lead">Neighborhood-by-neighborhood pricing, the inspection traps unique to older Spokane housing stock, and a financing checklist. Sent instantly.</p>
+      <form class="valform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="Email" type="email">
+        <button>Send me the guide</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ SELLING ══════════ -->
+<div class="page" id="selling">
+  <section class="hero">
+    <div class="wrap" style="max-width:900px">
+      <span class="eyebrow">[ Selling ]</span>
+      <h1 class="display" style="margin:20px 0 24px">Priced right,<br>shown beautifully,<br><em>sold</em> in days.</h1>
+      <p class="lead">My listings average 11 days on market at 99.4% of asking. That's not luck — it's pricing discipline, real staging, and photography that makes buyers drive over.</p>
+      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>What's my home worth?</a></div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow num">What's included</span>
+      <ul class="checklist" style="margin-top:24px">
+        <li>Editorial photography</li>
+        <li>Pre-list staging plan</li>
+        <li>True-comp pricing</li>
+        <li>Single-property site</li>
+        <li>Targeted social launch</li>
+        <li>Broker-network preview</li>
+        <li>Weekly seller report</li>
+        <li>Negotiation to close</li>
+      </ul>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="speclist">
+        <div class="row"><span class="k">Avg days on market</span><span class="val">11 days</span></div>
+        <div class="row"><span class="k">List-to-sale price</span><span class="val">99.4%</span></div>
+        <div class="row"><span class="k">Homes sold</span><span class="val">218</span></div>
+        <div class="row"><span class="k">Over-asking rate</span><span class="val">61%</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ REFERRALS ══════════ -->
+<div class="page" id="referrals">
+  <section class="hero">
+    <div class="wrap" style="max-width:900px">
+      <span class="eyebrow">[ Referrals ]</span>
+      <h1 class="display" style="margin:20px 0 24px">Moving out of<br>Spokane — or<br>sending someone <em>in</em>?</h1>
+      <p class="lead">Half my business comes from past clients. If you're relocating, I'll personally connect you with a vetted agent in your new city; if you're sending a friend my way, I'll treat them like family.</p>
+      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>Make a referral</a></div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="steps">
+        <div class="step"><div class="n">01 / Tell me</div><div><h3>Who's moving, and where.</h3><p class="lead">A name and a city is enough to start.</p></div></div>
+        <div class="step"><div class="n">02 / I vet</div><div><h3>I hand-pick their agent.</h3><p class="lead">From a national network I've built over twelve years — not a lead-sale.</p></div></div>
+        <div class="step"><div class="n">03 / I stay on it</div><div><h3>I check in through closing.</h3><p class="lead">Your referral is my reputation; I don't hand it off and disappear.</p></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ JOURNAL ══════════ -->
+<div class="page" id="journal">
+  <section class="hero">
+    <div class="wrap sec-head">
+      <div>
+        <span class="eyebrow">[ Journal ]</span>
+        <h1 class="display" style="margin-top:20px">Notes from<br>the market.</h1>
+      </div>
+      <p class="lead">Unhurried thinking on Spokane housing — pricing, neighborhoods, and the occasional strong opinion.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="listings">
+        <article class="card">
+          <div class="img ph-hill"></div>
+          <div class="body"><div class="eyebrow num">Oct 2026 · Pricing</div><h3 class="display" style="font-size:24px;margin:12px 0 8px">Why "priced to sell" beats "priced to test."</h3><p class="addr">The homes that linger are almost always the ones that reached in week one.</p></div>
+        </article>
+        <article class="card">
+          <div class="img ph-river"></div>
+          <div class="body"><div class="eyebrow num">Sep 2026 · Neighborhoods</div><h3 class="display" style="font-size:24px;margin:12px 0 8px">Kendall Yards, five years in.</h3><p class="addr">What's held its value, what hasn't, and where I'd buy today.</p></div>
+        </article>
+        <article class="card">
+          <div class="img ph-loft"></div>
+          <div class="body"><div class="eyebrow num">Aug 2026 · Buyers</div><h3 class="display" style="font-size:24px;margin:12px 0 8px">Inspecting a 1920s Spokane home.</h3><p class="addr">The four things I flag before you fall in love with the built-ins.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ CONTACT ══════════ -->
+<div class="page" id="contact">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">[ Contact ]</span>
+        <h1 class="display" style="margin:20px 0 22px">Let's talk<br>about your<br><em>next</em> move.</h1>
+        <p class="lead">Buying, selling, or just curious what your home would bring today — send a note and I'll reply personally, usually same day.</p>
+        <div class="speclist" style="margin-top:36px">
+          <div class="row"><span class="k">Call / text</span><span class="val">(509) 555-0148</span></div>
+          <div class="row"><span class="k">Email</span><span class="val">elizabeth@ridgeline.co</span></div>
+          <div class="row"><span class="k">Office</span><span class="val">Kendall Yards, Spokane</span></div>
+        </div>
+      </div>
+      <div class="invert" style="margin:0">
+        <span class="eyebrow">[ Send a note ]</span>
+        <h2 class="display" style="margin:16px 0 20px;font-size:34px">Start here.</h2>
+        <form class="valform" style="margin-top:8px" onsubmit="return false">
+          <input placeholder="Your name"><input placeholder="Email" type="email">
+          <input class="full" placeholder="Property address (optional)">
+          <input class="full" placeholder="How can I help?">
+          <button>Send</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="foot-grid">
+    <div>
+      <div class="foot-brand">Elizabeth Beard</div>
+      <p style="color:var(--muted);max-width:38ch">Spokane real estate — South Hill, Kendall Yards, and the river neighborhoods. Ridgeline &amp; Co., WA License #SP-00-114820.</p>
+      <div class="status" style="margin-top:22px"><span class="dot"></span> Taking 2 new listings this month</div>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <a href="#about" data-nav>About</a><a href="#buying" data-nav>Buying</a><a href="#selling" data-nav>Selling</a><a href="#journal" data-nav>Journal</a>
+    </div>
+    <div>
+      <h4>Reach</h4>
+      <a href="#contact" data-nav>(509) 555-0148</a><a href="#contact" data-nav>elizabeth@ridgeline.co</a><a href="#referrals" data-nav>Referrals</a>
+    </div>
+  </div>
+  <div class="fairhousing">
+    <p class="fh-note">Equal Housing Opportunity. Elizabeth Beard is a licensed real estate broker in the State of Washington. Information deemed reliable but not guaranteed. If you have a disability that is preventing you from experiencing this website, call for assistance.</p>
+    <p>© 2026 Elizabeth Beard · Ridgeline &amp; Co.</p>
+  </div>
+</footer>
+
+<div class="spec-tag"><span>Hirobius spec preview · warm-editorial skin · reconstruction from design spec — sample copy, placeholder contact</span></div>
+
+<script>
+  const pages = document.querySelectorAll('.page');
+  const links = document.querySelectorAll('.nav-links a');
+  function show(id){
+    id = (id||'home').replace('#','');
+    let found=false;
+    pages.forEach(p=>{const on=p.id===id;p.classList.toggle('active',on);if(on)found=true;});
+    if(!found){document.getElementById('home').classList.add('active');id='home';}
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id && !a.classList.contains('nav-cta')));
+    document.getElementById('navlinks').classList.remove('open');
+    window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'});
+  }
+  document.querySelectorAll('[data-nav]').forEach(a=>{
+    a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();history.replaceState(null,'',h);show(h);}});
+  });
+  document.getElementById('menubtn').addEventListener('click',()=>document.getElementById('navlinks').classList.toggle('open'));
+  show(location.hash);
+  window.addEventListener('hashchange',()=>show(location.hash));
+</script>
+</body>
+</html>

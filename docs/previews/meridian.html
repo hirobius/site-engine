@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian — Modern Real Estate</title>
+<meta name="description" content="Meridian — a modern real estate studio helping buyers imagine living here. Architectural homes, curated and represented with a designer's eye.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F1EC; --surface:#FBFAF7; --ink:#141310; --ink2:#3C3A34;
+    --muted:#6C685E; --clay:#B4552F; --border:#E2DDD2; --dark:#141310;
+    --grotesk:"Archivo",system-ui,sans-serif;
+    --sans:"Inter",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --pad:clamp(24px,6vw,104px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+
+  .eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--clay)}
+  .eyebrow.n{color:var(--muted)}
+  .display{font-family:var(--grotesk);font-weight:700;line-height:.98;letter-spacing:-.03em;text-transform:none}
+  h1.display{font-size:clamp(52px,11vw,150px)}
+  h2.display{font-size:clamp(36px,6vw,76px)}
+  h3.display{font-size:clamp(22px,3vw,30px);letter-spacing:-.02em}
+  .lead{font-size:clamp(17px,1.6vw,20px);color:var(--muted);max-width:62ch;line-height:1.55}
+
+  section{padding:clamp(64px,9vw,128px) var(--pad)}
+  .wrap{max-width:1280px;margin:0 auto}
+  .divider{height:1px;background:var(--border);border:0;max-width:1280px;margin:0 auto}
+
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .nav{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad)}
+  .brand{font-family:var(--grotesk);font-weight:800;font-size:22px;letter-spacing:-.04em;text-transform:uppercase}
+  .brand span{color:var(--clay)}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);transition:.2s}
+  .nav-links a:hover,.nav-links a.active{color:var(--ink)}
+  .nav-cta{background:var(--ink);color:var(--paper)!important;padding:10px 18px;border-radius:6px}
+  .nav-cta:hover{background:var(--clay)}
+  .menu-btn{display:none;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);border-radius:6px;padding:9px 14px}
+
+  .page{display:none;animation:fade .5s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* hero — big type + home-forward image */
+  .hero{padding-top:clamp(40px,6vw,80px)}
+  .hero .eyebrow{display:inline-block;margin-bottom:26px}
+  .hero h1{margin-bottom:30px}
+  .hero h1 .clay{color:var(--clay)}
+  .hero-sub{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;margin-bottom:44px}
+  .hero-img{position:relative;aspect-ratio:16/8;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+  .ph{position:relative;overflow:hidden}
+  .ph .slot{position:absolute;left:22px;bottom:20px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.82)}
+  .ph-hero{background:linear-gradient(120deg,#c9c2b3 0%,#8f8a7d 45%,#3c3a34 100%)}
+  .ph-ext1{background:linear-gradient(160deg,#d6cdb9,#9a9484 60%,#2f2d28)}
+  .ph-ext2{background:linear-gradient(150deg,#b4552f 0%,#7c3f26 55%,#241d18 100%)}
+  .ph-int1{background:linear-gradient(165deg,#e3dccb,#b3a992 60%,#5b564a)}
+  .ph-int2{background:linear-gradient(160deg,#cdc5b4,#8a8474 70%,#33312b)}
+  .ph-wide{background:linear-gradient(120deg,#bdb5a4,#6f6a5c 60%,#26241f)}
+  .ph-city{background:linear-gradient(160deg,#c8b9a4,#b4552f 80%,#2a2119)}
+
+  .btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;padding:15px 26px;border-radius:6px;transition:.2s;display:inline-block}
+  .btn.solid{background:var(--ink);color:var(--paper)}
+  .btn.solid:hover{background:var(--clay)}
+  .btn.ghost{border:1px solid var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--paper)}
+  .btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+
+  /* spec-sheet lockup */
+  .lockup{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+  .lockup .cell{padding:28px 24px;border-right:1px solid var(--border)}
+  .lockup .cell:last-child{border-right:0}
+  .lockup .cell .v{font-family:var(--grotesk);font-weight:700;font-size:clamp(30px,4vw,44px);letter-spacing:-.03em;line-height:1}
+  .lockup .cell:nth-child(3) .v{color:var(--clay)}
+  .lockup .cell .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:52px}
+
+  /* listings — large photography, spec lockups */
+  .listings{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  .listing{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface);transition:transform .25s,box-shadow .25s}
+  .listing:hover{transform:translateY(-4px);box-shadow:0 24px 50px -30px rgba(20,19,16,.5)}
+  .listing .img{position:relative;aspect-ratio:16/10}
+  .badge{position:absolute;top:16px;left:16px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 12px;border-radius:6px;background:var(--paper);color:var(--ink)}
+  .badge.sold{background:var(--clay);color:#fff}
+  .badge.pending{background:var(--ink);color:#fff}
+  .listing .body{padding:26px}
+  .listing .price{font-family:var(--grotesk);font-weight:700;font-size:34px;letter-spacing:-.03em}
+  .listing .addr{color:var(--muted);margin-top:6px}
+  .listing .spec{display:grid;grid-template-columns:repeat(3,1fr);margin-top:22px;border-top:1px solid var(--border)}
+  .listing .spec div{padding:16px 0;border-right:1px solid var(--border);font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .listing .spec div:last-child{border-right:0;padding-left:14px}
+  .listing .spec b{display:block;font-family:var(--grotesk);font-size:20px;color:var(--ink);letter-spacing:-.02em;margin-bottom:2px}
+
+  /* full-bleed image band */
+  .band{position:relative;aspect-ratio:21/8;border-radius:0;overflow:hidden;margin:0}
+  .band .cap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad);color:#fff;background:linear-gradient(90deg,rgba(20,19,16,.6),transparent 60%)}
+  .band .cap h2{color:#fff;max-width:16ch}
+
+  /* process steps */
+  .steps .step{display:grid;grid-template-columns:80px 1fr;gap:28px;padding:36px 0;border-top:1px solid var(--border);align-items:baseline}
+  .steps .step:last-child{border-bottom:1px solid var(--border)}
+  .steps .n{font-family:var(--mono);font-size:12px;color:var(--clay);letter-spacing:.1em}
+  .steps h3{font-family:var(--grotesk);font-weight:700;font-size:30px;letter-spacing:-.03em;margin-bottom:10px}
+
+  /* approach cards */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .tile{border:1px solid var(--border);border-radius:12px;padding:34px;background:var(--surface)}
+  .tile .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--clay);margin-bottom:18px}
+  .tile h3{font-family:var(--grotesk);font-weight:700;font-size:24px;letter-spacing:-.02em;margin-bottom:10px}
+
+  /* dark inversion CTA */
+  .invert{background:var(--dark);color:var(--paper);padding:clamp(48px,8vw,120px) var(--pad)}
+  .invert .eyebrow{color:#c98a6f}
+  .invert h2{color:var(--paper)}
+  .invert .lead{color:#b6b1a6}
+  .invert .btn.solid{background:var(--clay)}
+  .invert .btn.solid:hover{background:#fff;color:var(--ink)}
+  .invert .btn.ghost{border-color:#4a4740;color:var(--paper)}
+  .invert .btn.ghost:hover{background:var(--paper);color:var(--ink)}
+  .quotes{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .quote{border:1px solid var(--border);border-radius:12px;padding:36px;background:var(--surface)}
+  .quote p{font-family:var(--grotesk);font-weight:500;font-size:24px;line-height:1.32;letter-spacing:-.02em}
+  .quote .who{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:22px}
+
+  .valform{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:600px;margin-top:34px}
+  .valform input{background:transparent;border:1px solid #46433c;border-radius:6px;padding:16px;color:var(--paper);font-family:var(--sans);font-size:15px}
+  .valform input::placeholder{color:#8f8b81}
+  .valform input:focus{outline:none;border-color:var(--clay)}
+  .valform .full,.valform button{grid-column:1/-1}
+  .valform button{background:var(--clay);color:#fff;border:0;border-radius:6px;padding:16px;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.2s}
+  .valform button:hover{background:#fff;color:var(--ink)}
+
+  footer.site{background:var(--dark);color:#b6b1a6;padding:clamp(56px,8vw,96px) var(--pad) 44px}
+  .foot-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:44px}
+  .foot-brand{font-family:var(--grotesk);font-weight:800;font-size:30px;letter-spacing:-.04em;text-transform:uppercase;color:var(--paper);margin-bottom:16px}
+  .foot-brand span{color:var(--clay)}
+  .foot-grid h4{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8f8b81;margin-bottom:16px}
+  .foot-grid a{display:block;color:#b6b1a6;padding:6px 0;font-size:14.5px;transition:.2s}
+  .foot-grid a:hover{color:var(--paper)}
+  .fairhousing{max-width:1280px;margin:48px auto 0;padding-top:26px;border-top:1px solid #33312b;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:12px;color:#8f8b81}
+  .fairhousing p{max-width:62ch;line-height:1.55}
+
+  .spec-tag{max-width:1280px;margin:0 auto;padding:22px var(--pad) 40px}
+  .spec-tag span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--border);border-radius:9999px;padding:5px 12px;display:inline-block}
+
+  @media(max-width:900px){
+    .hero-img{aspect-ratio:4/3}
+    .lockup{grid-template-columns:1fr 1fr}
+    .lockup .cell:nth-child(2){border-right:0}
+    .listings,.grid3,.quotes,.valform{grid-template-columns:1fr}
+    .steps .step{grid-template-columns:1fr;gap:6px}
+    .foot-grid{grid-template-columns:1fr}
+    .band{aspect-ratio:4/3}
+    .nav-links{display:none}
+    .menu-btn{display:inline-block}
+    .nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;background:var(--surface);border-bottom:1px solid var(--border);padding:16px var(--pad)}
+    .nav-links.open a{padding:11px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a href="#home" class="brand" data-nav>Merid<span>ian</span></a>
+    <div class="nav-links" id="navlinks">
+      <a href="#home" data-nav>Home</a>
+      <a href="#listings" data-nav>Listings</a>
+      <a href="#studio" data-nav>Studio</a>
+      <a href="#approach" data-nav>Approach</a>
+      <a href="#contact" class="nav-cta" data-nav>Enquire</a>
+    </div>
+    <button class="menu-btn" id="menubtn">Menu</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="page active" id="home">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">[ Modern real estate · Pacific Northwest ]</span>
+      <h1 class="display">Imagine<br>living <span class="clay">here.</span></h1>
+      <div class="hero-sub">
+        <p class="lead">Meridian is a design-led real estate studio. We represent architectural homes the way they deserve to be seen — and help you picture the life inside them.</p>
+        <div class="btn-row" style="margin-top:0">
+          <a href="#listings" class="btn solid" data-nav>View collection</a>
+          <a href="#contact" class="btn ghost" data-nav>Book a viewing</a>
+        </div>
+      </div>
+      <div class="hero-img ph ph-hero"><div class="slot">Hero / architectural exterior at dusk</div></div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="lockup">
+        <div class="cell"><div class="v">$4.2M</div><div class="l">Avg sale, 2026</div></div>
+        <div class="cell"><div class="v">17</div><div class="l">Homes represented</div></div>
+        <div class="cell"><div class="v">103%</div><div class="l">Of list, avg</div></div>
+        <div class="cell"><div class="v">24 dy</div><div class="l">Avg on market</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sec-head">
+      <div>
+        <span class="eyebrow n">01 / The collection</span>
+        <h2 class="display" style="margin-top:16px">Homes worth<br>the drive over.</h2>
+      </div>
+      <a href="#listings" class="btn ghost" data-nav>All listings</a>
+    </div>
+    <div class="wrap">
+      <div class="listings">
+        <article class="listing">
+          <div class="img ph ph-ext1"><span class="badge">For sale</span></div>
+          <div class="body">
+            <div class="price">$3,850,000</div>
+            <div class="addr">The Cedar House · Bainbridge Island</div>
+            <div class="spec"><div><b>4</b>Beds</div><div><b>4.5</b>Baths</div><div><b>5,120</b>Sqft</div></div>
+          </div>
+        </article>
+        <article class="listing">
+          <div class="img ph ph-int1"><span class="badge pending">Pending</span></div>
+          <div class="body">
+            <div class="price">$2,190,000</div>
+            <div class="addr">Glasshouse 12 · Portland Heights</div>
+            <div class="spec"><div><b>3</b>Beds</div><div><b>3</b>Baths</div><div><b>3,340</b>Sqft</div></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band ph ph-wide">
+    <div class="cap"><span class="eyebrow" style="color:#c98a6f">[ Now showing ]</span><h2 class="display" style="margin-top:14px">The Ridgeline Residence.</h2><p class="lead" style="color:#e6e2d8;margin-top:12px">Six acres, one glass wall, and a view that does the selling.</p></div>
+  </section>
+
+  <section>
+    <div class="wrap sec-head">
+      <div>
+        <span class="eyebrow n">02 / In their words</span>
+        <h2 class="display" style="margin-top:16px">The people<br>who moved in.</h2>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="quotes">
+        <figure class="quote"><p>"Meridian made our home look like the magazine spread it always could've been. Three offers in a week."</p><figcaption class="who">The Halvorsen Family · Sold</figcaption></figure>
+        <figure class="quote"><p>"They understood the architecture better than we did. It never felt like a sale — it felt curated."</p><figcaption class="who">D. Osei · Bought, Portland</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <div class="invert">
+    <span class="eyebrow">[ Considering a sale? ]</span>
+    <h2 class="display" style="margin:18px 0 16px;max-width:14ch">Your home, represented like architecture.</h2>
+    <p class="lead">Tell us about the property. We'll come see it, and send a considered opinion of value and a marketing plan — no obligation.</p>
+    <form class="valform" onsubmit="return false">
+      <input placeholder="Your name"><input placeholder="Email" type="email">
+      <input class="full" placeholder="Property address">
+      <button>Request a consultation</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════ LISTINGS ══════════ -->
+<div class="page" id="listings">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">[ The collection ]</span>
+      <h1 class="display" style="font-size:clamp(44px,8vw,96px);margin:20px 0 26px">Every home,<br>a point of <span class="clay">view.</span></h1>
+      <p class="lead">A small, deliberate roster of architectural homes across the Pacific Northwest. We take on what we believe in.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="listings">
+        <article class="listing"><div class="img ph ph-ext1"><span class="badge">For sale</span></div><div class="body"><div class="price">$3,850,000</div><div class="addr">The Cedar House · Bainbridge Island</div><div class="spec"><div><b>4</b>Beds</div><div><b>4.5</b>Baths</div><div><b>5,120</b>Sqft</div></div></div></article>
+        <article class="listing"><div class="img ph ph-int1"><span class="badge pending">Pending</span></div><div class="body"><div class="price">$2,190,000</div><div class="addr">Glasshouse 12 · Portland Heights</div><div class="spec"><div><b>3</b>Beds</div><div><b>3</b>Baths</div><div><b>3,340</b>Sqft</div></div></div></article>
+        <article class="listing"><div class="img ph ph-city"><span class="badge">For sale</span></div><div class="body"><div class="price">$6,400,000</div><div class="addr">The Ridgeline Residence · Hood River</div><div class="spec"><div><b>5</b>Beds</div><div><b>6</b>Baths</div><div><b>7,800</b>Sqft</div></div></div></article>
+        <article class="listing"><div class="img ph ph-int2"><span class="badge sold">Sold</span></div><div class="body"><div class="price">$1,975,000</div><div class="addr">Founders Loft · Seattle, Pioneer Sq</div><div class="spec"><div><b>2</b>Beds</div><div><b>2.5</b>Baths</div><div><b>2,610</b>Sqft</div></div></div></article>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ STUDIO ══════════ -->
+<div class="page" id="studio">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">[ The studio ]</span>
+      <h1 class="display" style="font-size:clamp(44px,8vw,100px);margin:20px 0 30px">Not a brokerage.<br>A <span class="clay">studio.</span></h1>
+      <div class="hero-img ph ph-ext2" style="aspect-ratio:16/7"><div class="slot">Studio / the team, on site</div></div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap sec-head">
+      <div><span class="eyebrow n">Why we're different</span></div>
+      <p class="lead">We cap our roster on purpose. Fewer homes, more attention, and a marketing standard closer to a design magazine than a listing service.</p>
+    </div>
+    <div class="wrap">
+      <div class="grid3">
+        <div class="tile"><div class="k">Represent</div><h3>We're selective.</h3><p style="color:var(--muted)">A capped roster means every home gets a full creative treatment, not a template.</p></div>
+        <div class="tile"><div class="k">Produce</div><h3>We shoot like editors.</h3><p style="color:var(--muted)">Architectural photography, film, and a single-property site for every listing.</p></div>
+        <div class="tile"><div class="k">Represent</div><h3>We negotiate quietly.</h3><p style="color:var(--muted)">Discretion and leverage — most of our sales close without a sign in the yard.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ APPROACH ══════════ -->
+<div class="page" id="approach">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">[ Approach ]</span>
+      <h1 class="display" style="font-size:clamp(44px,8vw,100px);margin:20px 0 26px">How a home<br>becomes a <span class="clay">story.</span></h1>
+      <p class="lead">Selling an architectural home isn't about square footage — it's about helping the right buyer imagine their life inside it.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="steps">
+        <div class="step"><div class="n">01 / See</div><div><h3>We come, and we study.</h3><p class="lead">Light, sightlines, the architect's intent. We learn the home before we market it.</p></div></div>
+        <div class="step"><div class="n">02 / Produce</div><div><h3>We build the narrative.</h3><p class="lead">Photography, film, floor plans, and a dedicated site — a full editorial package.</p></div></div>
+        <div class="step"><div class="n">03 / Place</div><div><h3>We find the buyer, not a buyer.</h3><p class="lead">Targeted, discreet outreach to the people who'll value what makes it singular.</p></div></div>
+        <div class="step"><div class="n">04 / Close</div><div><h3>We hold the line to the keys.</h3><p class="lead">Considered negotiation, clean process, and a sale you're proud of.</p></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ CONTACT ══════════ -->
+<div class="page" id="contact">
+  <div class="invert" style="min-height:70vh;display:flex;flex-direction:column;justify-content:center">
+    <span class="eyebrow">[ Enquire ]</span>
+    <h1 class="display" style="color:var(--paper);font-size:clamp(44px,8vw,96px);margin:18px 0 22px">Let's talk<br>about your <span style="color:var(--clay)">home.</span></h1>
+    <p class="lead" style="max-width:52ch">Buying, selling, or simply curious what a design-led sale could do for your property — send a note and a principal will reply personally.</p>
+    <form class="valform" onsubmit="return false">
+      <input placeholder="Your name"><input placeholder="Email" type="email">
+      <input class="full" placeholder="Property address (optional)">
+      <input class="full" placeholder="Tell us about it">
+      <button>Send enquiry</button>
+    </form>
+    <div style="display:flex;gap:36px;flex-wrap:wrap;margin-top:44px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#b6b1a6">
+      <span>(206) 555-0132</span><span>studio@meridian.re</span><span>Seattle · Portland</span>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="foot-grid">
+    <div>
+      <div class="foot-brand">Merid<span>ian</span></div>
+      <p style="max-width:40ch">A design-led real estate studio representing architectural homes across the Pacific Northwest.</p>
+    </div>
+    <div><h4>Studio</h4><a href="#listings" data-nav>Listings</a><a href="#studio" data-nav>The studio</a><a href="#approach" data-nav>Approach</a></div>
+    <div><h4>Reach</h4><a href="#contact" data-nav>(206) 555-0132</a><a href="#contact" data-nav>studio@meridian.re</a><a href="#contact" data-nav>Enquire</a></div>
+  </div>
+  <div class="fairhousing">
+    <p>Equal Housing Opportunity. Meridian is a licensed real estate brokerage. All property information deemed reliable but not guaranteed and subject to change. This is a speculative concept brand.</p>
+    <p>© 2026 Meridian Studio</p>
+  </div>
+</footer>
+
+<div class="spec-tag"><span>Hirobius spec preview · modern-grotesk skin · speculative concept brand — invented copy, placeholder contact, photo slots wired</span></div>
+
+<script>
+  const pages=document.querySelectorAll('.page');
+  const links=document.querySelectorAll('.nav-links a');
+  function show(id){
+    id=(id||'home').replace('#','');let found=false;
+    pages.forEach(p=>{const on=p.id===id;p.classList.toggle('active',on);if(on)found=true;});
+    if(!found){document.getElementById('home').classList.add('active');id='home';}
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id && !a.classList.contains('nav-cta')));
+    document.getElementById('navlinks').classList.remove('open');
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('[data-nav]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();history.replaceState(null,'',h);show(h);}}));
+  document.getElementById('menubtn').addEventListener('click',()=>document.getElementById('navlinks').classList.toggle('open'));
+  show(location.hash);window.addEventListener('hashchange',()=>show(location.hash));
+</script>
+</body>
+</html>

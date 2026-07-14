@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRONRIDGE — Residential Real Estate</title>
+<meta name="description" content="IRONRIDGE — residential real estate for people who mean it. A rugged, no-nonsense brokerage built on straight talk and hard work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#111110; --panel:#181816; --ink:#F2EFE6; --muted:#9C9789;
+    --line:#2C2B27; --ember:#C7501E; --steel:#6F7B7A;
+    --grotesk:"Archivo",system-ui,sans-serif;
+    --sans:"Inter",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --pad:clamp(22px,6vw,96px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+
+  .eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ember)}
+  .eyebrow.n{color:var(--muted)}
+  .display{font-family:var(--grotesk);font-weight:900;line-height:.9;letter-spacing:-.02em;text-transform:uppercase}
+  h1.display{font-size:clamp(54px,13vw,180px)}
+  h2.display{font-size:clamp(38px,7vw,88px)}
+  h3.display{font-size:clamp(22px,3vw,30px);letter-spacing:-.01em}
+  .lead{font-size:clamp(17px,1.6vw,20px);color:var(--muted);max-width:60ch;line-height:1.55}
+
+  section{padding:clamp(60px,9vw,120px) var(--pad)}
+  .wrap{max-width:1280px;margin:0 auto}
+  .rule{height:1px;background:var(--line);border:0}
+
+  /* hairline grid texture instead of photos */
+  .grid-tex{background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:44px 44px}
+
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px var(--pad)}
+  .brand{font-family:var(--grotesk);font-weight:900;font-size:22px;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+  .brand .mk{width:12px;height:12px;background:var(--ember);transform:rotate(45deg)}
+  .nav-links{display:flex;gap:28px;align-items:center}
+  .nav-links a{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);transition:.2s}
+  .nav-links a:hover,.nav-links a.active{color:var(--ink)}
+  .nav-cta{background:var(--ember);color:#fff!important;padding:10px 18px;clip-path:polygon(0 0,100% 0,100% 100%,8px 100%)}
+  .nav-cta:hover{background:#e0612c}
+  .menu-btn{display:none;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);padding:9px 14px}
+
+  .page{display:none;animation:fade .5s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* hero — huge type, no photo */
+  .hero{position:relative;padding-top:clamp(48px,8vw,110px);padding-bottom:clamp(48px,8vw,110px);overflow:hidden}
+  .hero .grid-tex{position:absolute;inset:0;opacity:.5;mask-image:radial-gradient(120% 90% at 70% 20%,#000 20%,transparent 75%)}
+  .hero .inner{position:relative}
+  .hero .eyebrow{display:inline-block;margin-bottom:26px}
+  .hero h1{margin-bottom:26px}
+  .hero h1 .ember{color:var(--ember)}
+  .hero h1 .outline{color:transparent;-webkit-text-stroke:2px var(--ink)}
+  .hero-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;margin-top:44px;border-top:1px solid var(--line);padding-top:34px}
+  .status{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .status .dot{width:8px;height:8px;background:var(--ember);border-radius:2px;box-shadow:0 0 12px 1px var(--ember)}
+
+  .btn{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:16px 30px;transition:.2s;display:inline-block}
+  .btn.solid{background:var(--ember);color:#fff;clip-path:polygon(0 0,100% 0,100% 100%,10px 100%)}
+  .btn.solid:hover{background:#e0612c}
+  .btn.ghost{border:1px solid var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--bg)}
+  .btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+
+  /* stat slab */
+  .slabs{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line)}
+  .slab{padding:34px 26px;border-right:1px solid var(--line)}
+  .slab:last-child{border-right:0}
+  .slab .v{font-family:var(--grotesk);font-weight:900;font-size:clamp(34px,5vw,60px);line-height:.9;letter-spacing:-.02em}
+  .slab:nth-child(2) .v{color:var(--ember)}
+  .slab .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:48px}
+
+  /* service ledger */
+  .ledger{border-top:1px solid var(--line)}
+  .ledger .row{display:grid;grid-template-columns:70px 1fr auto;gap:28px;align-items:center;padding:30px 0;border-bottom:1px solid var(--line);transition:.2s}
+  .ledger .row:hover{background:var(--panel);padding-left:16px}
+  .ledger .row .n{font-family:var(--mono);font-size:12px;color:var(--ember)}
+  .ledger .row h3{font-family:var(--grotesk);font-weight:800;font-size:clamp(22px,3vw,32px);text-transform:uppercase;letter-spacing:-.01em}
+  .ledger .row p{color:var(--muted);font-size:14.5px;margin-top:6px;max-width:52ch}
+  .ledger .row .go{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+  /* listing ledger (no photos — spec-forward rows) */
+  .props{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .prop{border:1px solid var(--line);background:var(--panel);padding:30px}
+  .prop .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+  .prop .price{font-family:var(--grotesk);font-weight:900;font-size:38px;letter-spacing:-.02em}
+  .badge{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:6px 11px;border:1px solid var(--line);color:var(--muted)}
+  .badge.active{border-color:var(--ember);color:var(--ember)}
+  .badge.sold{background:var(--ember);color:#fff;border-color:var(--ember)}
+  .prop .addr{color:var(--ink);margin-top:8px}
+  .prop .spec{display:flex;gap:26px;margin-top:22px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .prop .spec b{color:var(--ink)}
+
+  /* checklist */
+  .checklist{list-style:none;columns:2;column-gap:44px;max-width:760px}
+  .checklist li{font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding:14px 0 14px 26px;position:relative;border-bottom:1px solid var(--line);break-inside:avoid}
+  .checklist li::before{content:"›";position:absolute;left:0;color:var(--ember);font-weight:700}
+
+  /* quotes */
+  .quotes{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .quote{border-left:2px solid var(--ember);padding:14px 0 14px 28px}
+  .quote p{font-family:var(--grotesk);font-weight:700;font-size:24px;line-height:1.28;text-transform:none}
+  .quote .who{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:18px}
+
+  /* inversion CTA — light slab on dark */
+  .invert{background:var(--ink);color:var(--bg);padding:clamp(48px,8vw,110px) var(--pad)}
+  .invert .eyebrow{color:var(--ember)}
+  .invert .lead{color:#4a4740}
+  .invert h2{color:var(--bg)}
+  .valform{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:600px;margin-top:32px}
+  .valform input{background:transparent;border:1px solid #cbc6b8;padding:16px;color:var(--bg);font-family:var(--sans);font-size:15px}
+  .valform input::placeholder{color:#7a766b}
+  .valform input:focus{outline:none;border-color:var(--ember)}
+  .valform .full,.valform button{grid-column:1/-1}
+  .valform button{background:var(--ember);color:#fff;border:0;padding:16px;font-family:var(--mono);font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;clip-path:polygon(0 0,100% 0,100% 100%,10px 100%);transition:.2s}
+  .valform button:hover{background:#e0612c}
+
+  footer.site{border-top:1px solid var(--line);padding:clamp(52px,8vw,88px) var(--pad) 40px}
+  .foot-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+  .foot-brand{font-family:var(--grotesk);font-weight:900;font-size:30px;letter-spacing:.02em;display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .foot-brand .mk{width:12px;height:12px;background:var(--ember);transform:rotate(45deg)}
+  .foot-grid h4{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+  .foot-grid a{display:block;color:var(--muted);padding:6px 0;font-size:14.5px;transition:.2s}
+  .foot-grid a:hover{color:var(--ink)}
+  .fairhousing{max-width:1280px;margin:46px auto 0;padding-top:26px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .fairhousing p{max-width:62ch;line-height:1.55}
+
+  .spec-tag{max-width:1280px;margin:0 auto;padding:22px var(--pad) 40px}
+  .spec-tag span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);padding:5px 12px;display:inline-block}
+
+  @media(max-width:900px){
+    .slabs{grid-template-columns:1fr 1fr}
+    .slab:nth-child(2){border-right:0}
+    .props,.quotes,.valform{grid-template-columns:1fr}
+    .ledger .row{grid-template-columns:40px 1fr;gap:16px}
+    .ledger .row .go{display:none}
+    .checklist{columns:1}
+    .foot-grid{grid-template-columns:1fr}
+    .nav-links{display:none}
+    .menu-btn{display:inline-block}
+    .nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;background:var(--panel);border-bottom:1px solid var(--line);padding:16px var(--pad)}
+    .nav-links.open a{padding:11px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a href="#home" class="brand" data-nav><span class="mk"></span>IRONRIDGE</a>
+    <div class="nav-links" id="navlinks">
+      <a href="#home" data-nav>Home</a>
+      <a href="#work" data-nav>What we do</a>
+      <a href="#listings" data-nav>Listings</a>
+      <a href="#crew" data-nav>The crew</a>
+      <a href="#contact" class="nav-cta" data-nav>Get a number</a>
+    </div>
+    <button class="menu-btn" id="menubtn">Menu</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="page active" id="home">
+  <section class="hero">
+    <div class="grid-tex"></div>
+    <div class="wrap inner">
+      <span class="eyebrow">[ Residential real estate · est. 2013 ]</span>
+      <div class="status" style="margin-bottom:22px"><span class="dot"></span> Now taking listings — spring market</div>
+      <h1 class="display">Real estate<br>for people<br>who <span class="ember">mean it.</span></h1>
+      <div class="hero-foot">
+        <p class="lead">No fluff, no fake urgency, no glossy nonsense. Straight numbers, hard work, and a handshake that holds. We sell homes across the high country and the valley floor.</p>
+        <div class="btn-row" style="margin-top:0">
+          <a href="#contact" class="btn solid" data-nav>Get a straight number</a>
+          <a href="#work" class="btn ghost" data-nav>How we work</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="slabs">
+        <div class="slab"><div class="v">340+</div><div class="l">Homes closed</div></div>
+        <div class="slab"><div class="v">13</div><div class="l">Years on the ground</div></div>
+        <div class="slab"><div class="v">18 dy</div><div class="l">Avg to contract</div></div>
+        <div class="slab"><div class="v">98%</div><div class="l">List to sale</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sec-head">
+      <div>
+        <span class="eyebrow n">01 / What we do</span>
+        <h2 class="display" style="margin-top:16px">Two jobs.<br>Done right.</h2>
+      </div>
+      <a href="#work" class="btn ghost" data-nav>The whole rundown</a>
+    </div>
+    <div class="wrap">
+      <div class="ledger">
+        <div class="row"><div class="n">01</div><div><h3>Selling</h3><p>Priced honest, marketed hard, negotiated like it's our own money on the table.</p></div><div class="go">See more →</div></div>
+        <div class="row"><div class="n">02</div><div><h3>Buying</h3><p>We'll talk you out of the wrong house as fast as we'll fight to win the right one.</p></div><div class="go">See more →</div></div>
+        <div class="row"><div class="n">03</div><div><h3>Land &amp; acreage</h3><p>High-country lots, working land, and the parcels that never hit the open market.</p></div><div class="go">See more →</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sec-head">
+      <div><span class="eyebrow n">02 / Straight talk</span><h2 class="display" style="margin-top:16px">From the folks<br>we've worked for.</h2></div>
+    </div>
+    <div class="wrap">
+      <div class="quotes">
+        <figure class="quote"><p>"They told me my price was too high, backed it up with numbers, and sold it in two weeks anyway. No games."</p><figcaption class="who">Ray T. · Sold, the valley</figcaption></figure>
+        <figure class="quote"><p>"First honest realtor I've dealt with. Walked me off two money pits before we found the right one."</p><figcaption class="who">Anna &amp; Cole D. · Bought, the ridge</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <div class="invert">
+    <span class="eyebrow">[ What's it worth? ]</span>
+    <h2 class="display" style="margin:18px 0 16px;max-width:16ch">A real number. Not a robot's guess.</h2>
+    <p class="lead">Give us the address. We'll walk it, run the true comps, and tell you straight what it'll bring — no obligation, no sales pitch.</p>
+    <form class="valform" onsubmit="return false">
+      <input placeholder="Your name"><input placeholder="Phone or email">
+      <input class="full" placeholder="Property address">
+      <button>Get my number</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════ WHAT WE DO ══════════ -->
+<div class="page" id="work">
+  <section class="hero" style="padding-bottom:0">
+    <div class="grid-tex"></div>
+    <div class="wrap inner">
+      <span class="eyebrow">[ What we do ]</span>
+      <h1 class="display" style="font-size:clamp(48px,10vw,120px);margin-top:20px">No corners<br><span class="ember">cut.</span></h1>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <span class="eyebrow n">Every listing gets</span>
+      <ul class="checklist" style="margin-top:26px">
+        <li>Honest pricing</li>
+        <li>Pro photography</li>
+        <li>Yard-to-close marketing</li>
+        <li>Straight weekly updates</li>
+        <li>Hard negotiation</li>
+        <li>Full inspection support</li>
+        <li>Local buyer network</li>
+        <li>No surprise fees</li>
+      </ul>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="ledger">
+        <div class="row"><div class="n">01</div><div><h3>Selling</h3><p>Price it on real comps, market it like it matters, and hold the line at the table. 98% of list, 18 days to contract, on average.</p></div><div class="go"></div></div>
+        <div class="row"><div class="n">02</div><div><h3>Buying</h3><p>We show you everything — on-market and the quiet ones — and we don't stop until it's the right house at the right price.</p></div><div class="go"></div></div>
+        <div class="row"><div class="n">03</div><div><h3>Land &amp; acreage</h3><p>Working land, high-country lots, and off-market acreage. We know the parcels and the people who own them.</p></div><div class="go"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ LISTINGS ══════════ -->
+<div class="page" id="listings">
+  <section class="hero" style="padding-bottom:0">
+    <div class="grid-tex"></div>
+    <div class="wrap inner">
+      <span class="eyebrow">[ Listings ]</span>
+      <h1 class="display" style="font-size:clamp(48px,10vw,120px);margin-top:20px">On the<br><span class="ember">market.</span></h1>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="props">
+        <div class="prop"><div class="top"><div class="price">$525,000</div><span class="badge active">Active</span></div><div class="addr">148 Ridgeline Rd · High Country</div><div class="spec"><span><b>3</b> BD</span><span><b>2</b> BA</span><span><b>2,140</b> SQFT</span><span><b>5.2</b> AC</span></div></div>
+        <div class="prop"><div class="top"><div class="price">$389,000</div><span class="badge active">Active</span></div><div class="addr">22 Millrace Ln · Valley Floor</div><div class="spec"><span><b>4</b> BD</span><span><b>2</b> BA</span><span><b>1,880</b> SQFT</span></div></div>
+        <div class="prop"><div class="top"><div class="price">$740,000</div><span class="badge">Pending</span></div><div class="addr">9 Quarry Bend · The Ridge</div><div class="spec"><span><b>4</b> BD</span><span><b>3</b> BA</span><span><b>3,020</b> SQFT</span><span><b>12</b> AC</span></div></div>
+        <div class="prop"><div class="top"><div class="price">$298,000</div><span class="badge sold">Sold</span></div><div class="addr">401 Foundry St · Old Town</div><div class="spec"><span><b>2</b> BD</span><span><b>1</b> BA</span><span><b>1,240</b> SQFT</span></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ THE CREW ══════════ -->
+<div class="page" id="crew">
+  <section class="hero" style="padding-bottom:0">
+    <div class="grid-tex"></div>
+    <div class="wrap inner">
+      <span class="eyebrow">[ The crew ]</span>
+      <h1 class="display" style="font-size:clamp(48px,10vw,120px);margin-top:20px">Built<br><span class="ember">local.</span></h1>
+      <p class="lead" style="margin-top:26px">We're not a franchise with a call center. We're a small crew that lives here, works here, and answers our own phones.</p>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="slabs">
+        <div class="slab"><div class="v">4</div><div class="l">Agents, no assistants-answering</div></div>
+        <div class="slab"><div class="v">100%</div><div class="l">Locally owned</div></div>
+        <div class="slab"><div class="v">13 yr</div><div class="l">Same town, same crew</div></div>
+        <div class="slab"><div class="v">1</div><div class="l">Handshake that holds</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════ CONTACT ══════════ -->
+<div class="page" id="contact">
+  <div class="invert" style="min-height:72vh;display:flex;flex-direction:column;justify-content:center">
+    <span class="eyebrow">[ Get a number ]</span>
+    <h1 class="display" style="color:var(--bg);font-size:clamp(48px,10vw,120px);margin:18px 0 22px">Let's<br>talk <span style="color:var(--ember)">straight.</span></h1>
+    <p class="lead" style="max-width:52ch">Buying, selling, or just want to know what your place is worth — call, text, or send a note. You'll get a real person and a real answer.</p>
+    <form class="valform" onsubmit="return false">
+      <input placeholder="Your name"><input placeholder="Phone or email">
+      <input class="full" placeholder="Property address (optional)">
+      <input class="full" placeholder="What do you need?">
+      <button>Send it</button>
+    </form>
+    <div style="display:flex;gap:36px;flex-wrap:wrap;margin-top:44px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a4740">
+      <span>(406) 555-0176</span><span>crew@ironridge.re</span><span>The valley &amp; the ridge</span>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="foot-grid">
+    <div>
+      <div class="foot-brand"><span class="mk"></span>IRONRIDGE</div>
+      <p style="max-width:40ch">Residential real estate for people who mean it. Locally owned, straight talking, since 2013.</p>
+      <div class="status" style="margin-top:22px"><span class="dot"></span> Now taking listings — spring market</div>
+    </div>
+    <div><h4>Do</h4><a href="#work" data-nav>What we do</a><a href="#listings" data-nav>Listings</a><a href="#crew" data-nav>The crew</a></div>
+    <div><h4>Reach</h4><a href="#contact" data-nav>(406) 555-0176</a><a href="#contact" data-nav>crew@ironridge.re</a><a href="#contact" data-nav>Get a number</a></div>
+  </div>
+  <div class="fairhousing">
+    <p>Equal Housing Opportunity. IRONRIDGE is a licensed real estate brokerage. Information deemed reliable but not guaranteed. This is a speculative concept brand.</p>
+    <p>© 2026 IRONRIDGE</p>
+  </div>
+</footer>
+
+<div class="spec-tag"><span>Hirobius spec preview · rugged / no-photo direction (parked) — invented copy, placeholder contact</span></div>
+
+<script>
+  const pages=document.querySelectorAll('.page');
+  const links=document.querySelectorAll('.nav-links a');
+  function show(id){
+    id=(id||'home').replace('#','');let found=false;
+    pages.forEach(p=>{const on=p.id===id;p.classList.toggle('active',on);if(on)found=true;});
+    if(!found){document.getElementById('home').classList.add('active');id='home';}
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id && !a.classList.contains('nav-cta')));
+    document.getElementById('navlinks').classList.remove('open');
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('[data-nav]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();history.replaceState(null,'',h);show(h);}}));
+  document.getElementById('menubtn').addEventListener('click',()=>document.getElementById('navlinks').classList.toggle('open'));
+  show(location.hash);window.addEventListener('hashchange',()=>show(location.hash));
+</script>
+</body>
+</html>
