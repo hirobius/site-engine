@@ -14,6 +14,24 @@ warm-serif direction into the Astro factory is tracked in #23.
 | `meridian.html` | Modern-grotesk, paper + clay, near-black inversion; home-forward | #24, grotesk swing |
 | `ironridge.html` | Rugged / no-photo, type-forward, ember accent (parked direction) | #23 IRONRIDGE |
 
+## Update (2026-07-14, later) — rebuilt to match the originals from screenshots
+
+Adrian supplied full-page screenshots of all three artifacts. The three files
+were then rebuilt a second time to **match the originals**: correct multi-page
+structure (EB: About/Buying/Selling/Referrals/Journal/Contact; Meridian:
+Buy/Sell/Build/Contact; IRONRIDGE: Buy/Sell/Invest/Contact), real markets
+(Spokane & North Idaho / Spokane Inland NW / Colorado Front Range), exact copy,
+brokerage (eXp Realty), the credential-stat rail, clay/ember accents, stats, and
+closing tables. Two known deltas from the originals:
+
+1. **Photography** — the originals use real photos (Elizabeth's B&W portrait,
+   warm interiors, the mountain hero). These rebuilds use tonal CSS placeholders
+   with the same labels/crops; drop in the real image files to finish.
+2. **EB "Selling" page** — the only page not screenshotted; reconstructed in the
+   identical system from the Selling card + valuation pattern. Swap when captured.
+
+The section below documents the original (spec-only) reconstruction context.
+
 ## Provenance — reconstructions, not the originals (2026-07-14)
 
 The original builds existed **only** as published claude.ai Artifacts. Their

@@ -4,181 +4,222 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Elizabeth Beard — Spokane Real Estate</title>
-<meta name="description" content="Elizabeth Beard — a Spokane real estate agent selling the South Hill, Kendall Yards, and the river neighborhoods with an editorial eye and a straight answer.">
+<meta name="description" content="Elizabeth Beard, MA, SRES — relationship-led real estate for buyers and sellers across Spokane, WA and North Idaho. From first showing to closing day.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F4EFE7; --surface:#FBF8F2; --primary:#2B2A26; --ink:#2B2A26;
-    --muted:#6B655A; --accent:#4A5443; --border:#E4DDD0;
-    --serif:"Fraunces","Cormorant Garamond",Georgia,serif;
+    --bg:#F4EFE7; --surface:#FAF6EE; --ink:#26251F; --muted:#6E685C;
+    --sage:#5E6B47; --eyebrow:#8A8171; --forest:#2E3626; --dark:#25251E;
+    --border:#E4DDCF;
+    --serif:"Fraunces",Georgia,serif;
     --sans:"Inter",system-ui,sans-serif;
     --mono:"IBM Plex Mono",ui-monospace,monospace;
-    --pad:clamp(24px,6vw,96px);
+    --pad:clamp(22px,5.5vw,88px);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  img{max-width:100%;display:block}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   a{color:inherit;text-decoration:none}
 
-  /* ── eyebrow / mono label ── */
-  .eyebrow{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
-  .eyebrow.num{color:var(--muted)}
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--eyebrow)}
+  .display{font-family:var(--serif);font-weight:360;line-height:1.03;letter-spacing:-.012em}
+  .display em{font-style:italic;font-weight:360;color:var(--sage)}
+  h1.display{font-size:clamp(40px,6.4vw,72px)}
+  h2.display{font-size:clamp(30px,4.4vw,50px);line-height:1.06}
+  h3.display{font-size:clamp(22px,2.6vw,29px)}
+  .lead{font-size:clamp(16.5px,1.5vw,19px);color:var(--muted);max-width:56ch;line-height:1.55}
 
-  /* ── display type ── */
-  .display{font-family:var(--serif);font-weight:340;line-height:1.02;letter-spacing:-.015em}
-  .display em{font-style:italic;font-weight:340}
-  h1.display{font-size:clamp(44px,8vw,84px)}
-  h2.display{font-size:clamp(32px,5vw,56px);line-height:1.05}
-  h3.display{font-size:clamp(24px,3vw,32px)}
-  .lead{font-size:clamp(18px,2.2vw,22px);color:var(--muted);max-width:60ch;line-height:1.55}
+  section{padding:clamp(56px,8vw,104px) var(--pad)}
+  .wrap{max-width:1180px;margin:0 auto}
+  hr.divider{height:1px;background:var(--border);border:0;max-width:1180px;margin:0 auto}
 
-  /* ── layout ── */
-  section{padding:clamp(64px,10vw,120px) var(--pad)}
-  .wrap{max-width:1200px;margin:0 auto}
-  .divider{height:1px;background:var(--border);border:0}
-
-  /* ── header / nav ── */
-  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
-  .nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px var(--pad)}
-  .brand{font-family:var(--serif);font-size:22px;letter-spacing:-.01em}
-  .brand b{font-weight:500}
+  /* header */
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .nav{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px var(--pad)}
+  .brand{display:flex;flex-direction:column;line-height:1}
+  .brand .n{font-family:var(--serif);font-size:21px;font-weight:420;letter-spacing:-.01em}
+  .brand .t{font-family:var(--mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-top:4px}
   .nav-links{display:flex;gap:26px;align-items:center}
-  .nav-links a{font-size:14px;color:var(--muted);transition:color .2s}
-  .nav-links a:hover,.nav-links a.active{color:var(--ink)}
-  .nav-cta{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--ink);border-radius:9999px;padding:9px 16px;color:var(--ink);transition:.2s}
-  .nav-cta:hover{background:var(--ink);color:var(--surface)}
-  .menu-btn{display:none;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);border-radius:9999px;padding:8px 14px}
+  .nav-links a{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid transparent;transition:.2s}
+  .nav-links a:hover,.nav-links a.active{color:var(--ink);border-bottom-color:var(--ink)}
+  .menu-btn{display:none;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);border-radius:4px;padding:8px 13px}
 
-  /* ── pages ── */
-  .page{display:none;animation:fade .5s ease}
+  .page{display:none;animation:fade .45s ease}
   .page.active{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-  /* ── hero ── */
-  .hero{padding-top:clamp(48px,7vw,88px);padding-bottom:clamp(48px,7vw,88px)}
-  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4vw,64px);align-items:center}
-  .hero-copy .eyebrow{margin-bottom:22px;display:inline-block}
-  .hero-copy h1{margin:0 0 24px}
-  .status{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:26px}
-  .status .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
-  .btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
-  .btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;padding:14px 24px;border-radius:9999px;transition:.2s;border:1px solid var(--ink)}
+  /* buttons */
+  .btn{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;padding:14px 22px;border-radius:5px;transition:.2s;display:inline-block;border:1px solid var(--ink)}
   .btn.solid{background:var(--ink);color:var(--surface)}
-  .btn.solid:hover{background:var(--accent);border-color:var(--accent)}
+  .btn.solid:hover{background:var(--forest);border-color:var(--forest)}
   .btn.ghost:hover{background:var(--ink);color:var(--surface)}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+  .mlink{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);border-bottom:1px solid var(--sage);padding-bottom:3px;transition:.2s}
+  .mlink:hover{color:var(--sage)}
 
-  /* photo frame with crop marks */
-  .frame{position:relative;padding:14px}
-  .frame::before,.frame::after{content:"";position:absolute;width:14px;height:14px;border:1.5px solid var(--accent)}
-  .frame::before{top:0;left:0;border-right:0;border-bottom:0}
-  .frame::after{bottom:0;right:0;border-left:0;border-top:0}
-  .photo{position:relative;aspect-ratio:4/5;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-  .photo .slot{position:absolute;inset:0;display:flex;align-items:flex-end;padding:20px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.82)}
-  .ph-portrait{background:
-    radial-gradient(120% 90% at 70% 15%, #8d8574 0%, transparent 55%),
-    linear-gradient(160deg,#6f6a5c 0%,#4a5443 60%,#2f352b 100%)}
-  .ph-home{background:linear-gradient(165deg,#c9b79b 0%,#9a8a6f 45%,#4a5443 100%)}
-  .ph-wide{aspect-ratio:16/10}
-  .ph-river{background:linear-gradient(180deg,#a9b4a6 0%,#7f8b78 40%,#4a5443 100%)}
-  .ph-street{background:linear-gradient(160deg,#d8c6a6,#8a7f68 70%,#3c4034)}
-  .ph-loft{background:linear-gradient(160deg,#cbb9a0,#726a58 70%,#2f352b)}
-  .ph-hill{background:linear-gradient(160deg,#bcae95,#6f6a5c 70%,#39392f)}
+  /* hero */
+  .hero{padding-top:clamp(40px,5.5vw,72px)}
+  .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(28px,4vw,60px);align-items:center}
+  .hero-copy .eyebrow{display:inline-block;margin-bottom:20px}
+  .hero-copy h1{margin-bottom:22px}
+  .credline{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:30px}
+  .photo{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+  .photo .lbl{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:16px 18px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.9);background:linear-gradient(180deg,transparent,rgba(20,22,16,.55))}
+  .p-portrait{aspect-ratio:4/5;background:linear-gradient(155deg,#b8b3a8 0%,#8f8a7e 45%,#4c4a42 100%);filter:grayscale(.9) contrast(1.02)}
+  .p-portrait2{aspect-ratio:1/1;background:linear-gradient(160deg,#c7bfae,#9c8d74 60%,#5a5142)}
+  .p-kitchen{aspect-ratio:4/3;background:linear-gradient(160deg,#e0d6c1,#b3a488 55%,#6b6047)}
+  .p-bed{aspect-ratio:4/3;background:linear-gradient(165deg,#eae2d2,#c3b79c 60%,#7d715a)}
+  .p-clock{aspect-ratio:3/4;background:linear-gradient(160deg,#b7b2a7,#82806f 60%,#40403a);filter:grayscale(.9)}
+  .p-manito{aspect-ratio:3/4;background:linear-gradient(160deg,#bfb9ad,#8a8474 60%,#45443b);filter:grayscale(.9)}
+  .p-clients{aspect-ratio:4/3;background:linear-gradient(160deg,#ddd3c0,#b0a184 60%,#655b45)}
 
-  /* ── stat rail ── */
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-  .stat{padding:34px 24px 34px 0}
-  .stat .v{font-family:var(--serif);font-size:clamp(38px,5vw,54px);font-weight:340;line-height:1;letter-spacing:-.02em}
-  .stat:nth-child(2) .v{color:var(--accent)}
-  .stat .l{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+  /* credential stat rail */
+  .rail{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .rail .c{padding:32px 26px 32px 0;border-right:1px solid var(--border)}
+  .rail .c:last-child{border-right:0}
+  .rail .v{font-family:var(--serif);font-size:clamp(26px,3vw,34px);font-weight:400;line-height:1;letter-spacing:-.01em}
+  .rail .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:12px;line-height:1.5}
 
-  /* ── listings ── */
-  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:48px;flex-wrap:wrap}
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:44px}
   .sec-head .lead{margin-top:14px}
-  .listings{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:transform .25s,box-shadow .25s}
-  .card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -24px rgba(43,42,38,.4)}
-  .card .img{position:relative;aspect-ratio:3/2}
-  .badge{position:absolute;top:14px;left:14px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:6px 11px;border-radius:9999px;background:var(--surface);color:var(--ink)}
-  .badge.pending{background:#8a6f3a;color:#fff}
-  .badge.sold{background:var(--accent);color:#fff}
-  .card .body{padding:20px 22px 24px}
-  .card .price{font-family:var(--serif);font-size:26px;font-weight:400}
-  .card .addr{color:var(--muted);font-size:14.5px;margin-top:4px}
-  .specrow{display:flex;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
 
-  /* ── spec list (label ↔ value) ── */
-  .speclist{max-width:640px}
-  .speclist .row{display:flex;justify-content:space-between;align-items:baseline;gap:24px;padding:18px 0;border-bottom:1px solid var(--border)}
-  .speclist .row .k{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .speclist .row .val{font-family:var(--serif);font-size:22px}
+  /* three-cards */
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .icard{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:30px 28px 28px}
+  .icard .num{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--eyebrow);margin-bottom:20px}
+  .icard h3{font-family:var(--serif);font-size:25px;font-weight:400;margin-bottom:10px}
+  .icard p{color:var(--muted);font-size:15px;margin-bottom:22px}
 
-  /* ── neighborhoods ── */
-  .hoods{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-  .hood{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:4/5;border:1px solid var(--border)}
-  .hood .cap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:24px;background:linear-gradient(180deg,transparent 40%,rgba(31,30,26,.72));color:#fff}
-  .hood .cap h3{font-family:var(--serif);font-size:26px;font-weight:400}
-  .hood .cap p{font-size:14px;color:rgba(255,255,255,.85);margin-top:6px}
+  /* forest band — featured listing */
+  .forest{background:var(--forest);color:#EDE9DD}
+  .forest .eyebrow{color:#A9B098}
+  .forest h2,.forest h3{color:#F3EFE3}
+  .forest .lead{color:#C4C6B4}
+  .feat{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(28px,4vw,56px);align-items:center}
+  .feat .specrow{display:flex;gap:30px;margin:22px 0;flex-wrap:wrap}
+  .feat .specrow .s{font-family:var(--serif);font-size:30px;font-weight:400}
+  .feat .specrow .s small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#9EA48D;margin-top:6px;font-weight:400}
+  .btn.onforest{border-color:#5c6450;color:#EDE9DD}
+  .btn.onforest:hover{background:#EDE9DD;color:var(--forest)}
 
-  /* ── testimonials ── */
-  .quotes{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-  .quote{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:34px}
-  .quote p{font-family:var(--serif);font-size:23px;line-height:1.4;font-weight:340}
-  .quote .who{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:22px}
+  /* free guide */
+  .guide{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(30px,5vw,64px);align-items:center}
+  .book{aspect-ratio:3/4;max-width:300px;margin:0 auto;background:linear-gradient(155deg,#3a4230,#2a3021);border-radius:3px 6px 6px 3px;box-shadow:-3px 0 0 #222719,0 24px 44px -22px rgba(30,34,22,.6);position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:34px 30px;color:#Dfe0d0}
+  .book .bt{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:#9aa088}
+  .book .bm{font-family:var(--serif);font-size:30px;font-weight:400;line-height:1.1}
+  .book .bm em{font-style:italic;color:#c3caa8}
+  .check{list-style:none;margin:22px 0}
+  .check li{position:relative;padding:11px 0 11px 30px;border-bottom:1px solid var(--border);font-size:15px}
+  .check li::before{content:"✓";position:absolute;left:0;color:var(--sage);font-weight:600}
+  .inlineform{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+  .inlineform input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:13px 15px;font-family:var(--sans);font-size:14.5px;color:var(--ink)}
+  .inlineform input:focus{outline:none;border-color:var(--sage)}
 
-  /* ── process / numbered ── */
-  .steps .step{display:grid;grid-template-columns:120px 1fr;gap:32px;padding:34px 0;border-top:1px solid var(--border);align-items:baseline}
+  /* closings list */
+  .closings{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(28px,4vw,56px);align-items:start}
+  .clist{border-top:1px solid var(--border)}
+  .clist .row{display:grid;grid-template-columns:26px 1fr auto auto;gap:18px;align-items:center;padding:20px 0;border-bottom:1px solid var(--border)}
+  .clist .row .i{font-family:var(--mono);font-size:11px;color:var(--eyebrow)}
+  .clist .row .nm{font-family:var(--serif);font-size:21px}
+  .clist .row .meta{font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--muted);text-align:right}
+  .clist .row .pill{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);border-radius:9999px;padding:5px 11px;color:var(--sage)}
+
+  /* dark CTA form */
+  .ctaform{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;margin-top:30px}
+  .ctaform input{background:transparent;border:0;border-bottom:1px solid #5c6450;padding:13px 2px;color:#F3EFE3;font-family:var(--sans);font-size:15px}
+  .ctaform input::placeholder{color:#9299820}
+  .ctaform input::placeholder{color:#8f9680}
+  .ctaform input:focus{outline:none;border-bottom-color:#A9B098}
+  .ctaform .full,.ctaform button{grid-column:1/-1}
+  .ctaform button{justify-self:start;background:var(--surface);color:var(--forest);border:0;border-radius:5px;padding:14px 22px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:8px;transition:.2s}
+  .ctaform button:hover{background:#fff}
+  .status{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#A9B098;margin-bottom:22px}
+  .status .dot{width:7px;height:7px;border-radius:50%;background:#A9B098}
+
+  /* steps */
+  .steps .step{display:grid;grid-template-columns:90px 1fr;gap:26px;padding:28px 0;border-top:1px solid var(--border);align-items:baseline}
   .steps .step:last-child{border-bottom:1px solid var(--border)}
-  .steps .step .n{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
-  .steps .step h3{font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:10px}
+  .steps .step .n{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--eyebrow);text-transform:uppercase;line-height:1.5}
+  .steps .step h3{font-family:var(--serif);font-size:25px;font-weight:400;margin-bottom:8px}
+  .steps .step p{color:var(--muted);font-size:15px;max-width:60ch}
 
-  /* mono checklist */
-  .checklist{list-style:none;columns:2;column-gap:48px;max-width:720px}
-  .checklist li{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);padding:12px 0 12px 24px;position:relative;border-bottom:1px solid var(--border);break-inside:avoid}
-  .checklist li::before{content:"+";position:absolute;left:0;color:var(--accent)}
+  /* faq */
+  .faq .q{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding:26px 0;border-bottom:1px solid var(--border)}
+  .faq .q h3{font-family:var(--serif);font-size:24px;font-weight:400}
+  .faq .q p{color:var(--muted);font-size:15px}
 
-  /* ── inversion CTA ── */
-  .invert{background:var(--primary);color:var(--surface);border-radius:12px;margin:0 var(--pad);padding:clamp(40px,7vw,88px)}
-  .invert .eyebrow{color:#c7cbbd}
-  .invert h2{color:var(--surface)}
-  .invert .lead{color:#cbc7bd}
-  .valform{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:560px;margin-top:32px}
-  .valform input{grid-column:span 1;background:transparent;border:1px solid #55534b;border-radius:8px;padding:15px 16px;color:var(--surface);font-family:var(--sans);font-size:15px}
-  .valform input::placeholder{color:#9b978d}
-  .valform input:focus{outline:none;border-color:#c7cbbd}
-  .valform input.full,.valform button{grid-column:1 / -1}
-  .valform button{background:var(--surface);color:var(--primary);border:0;border-radius:9999px;padding:15px;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.2s}
-  .valform button:hover{background:#c7cbbd}
-  .invert .stat-stack{display:flex;gap:40px;margin-top:44px;flex-wrap:wrap}
-  .invert .stat-stack .v{font-family:var(--serif);font-size:40px;font-weight:340}
-  .invert .stat-stack .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#a7a399;margin-top:8px}
+  /* expect grid */
+  .grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:36px 40px}
+  .grid6 .it .num{font-family:var(--mono);font-size:11px;color:var(--eyebrow);margin-bottom:12px}
+  .grid6 .it h3{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:8px}
+  .grid6 .it p{color:var(--muted);font-size:14.5px}
+  .grid6 .it{padding-top:20px;border-top:1px solid var(--border)}
 
-  /* ── footer ── */
-  footer.site{border-top:1px solid var(--border);padding:clamp(48px,7vw,80px) var(--pad) 40px}
-  .foot-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
-  .foot-grid h4{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
-  .foot-grid a{display:block;color:var(--muted);font-size:14.5px;padding:5px 0;transition:.2s}
-  .foot-grid a:hover{color:var(--ink)}
-  .foot-brand{font-family:var(--serif);font-size:26px;margin-bottom:14px}
-  .fairhousing{max-width:1200px;margin:48px auto 0;padding-top:26px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
-  .fh-note{max-width:60ch;line-height:1.55}
+  /* timeline (about) */
+  .tl{border-top:1px solid var(--border);margin-top:8px}
+  .tl .row{display:grid;grid-template-columns:70px 1fr;gap:20px;padding:15px 0;border-bottom:1px solid var(--border);align-items:baseline}
+  .tl .row .y{font-family:var(--mono);font-size:12px;color:var(--sage)}
+  .tl .row .d{font-size:15px}
 
-  .spec-tag{max-width:1200px;margin:0 auto 8px;padding:0 var(--pad)}
-  .spec-tag span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--border);border-radius:9999px;padding:5px 12px;display:inline-block;margin-top:20px}
+  /* quote band */
+  .qband{text-align:center}
+  .qband p{font-family:var(--serif);font-size:clamp(24px,3.2vw,38px);font-weight:360;line-height:1.32;max-width:22ch;margin:0 auto;color:#F3EFE3}
+  .qband p em{font-style:italic;color:#C3CAA8}
+  .qband .who{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#A9B098;margin-top:24px}
+
+  /* testimonials */
+  .quotes{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+  .quote .mark{font-family:var(--serif);font-size:40px;line-height:.6;color:var(--sage)}
+  .quote p{font-family:var(--serif);font-size:20px;line-height:1.4;font-weight:360;margin-top:12px}
+  .quote .who{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:18px}
+
+  /* areas photos */
+  .areas{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+  /* journal grid */
+  .jgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 40px}
+  .jcard{padding-top:22px;border-top:1px solid var(--border)}
+  .jcard .cat{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eyebrow)}
+  .jcard h3{font-family:var(--serif);font-size:23px;font-weight:400;margin:12px 0 10px;line-height:1.15}
+  .jcard p{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+  .jcard .foot{display:flex;justify-content:space-between;align-items:center}
+  .jcard .date{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted)}
+
+  /* contact split */
+  .contact-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,72px)}
+  .cinfo a{color:#F3EFE3;display:block;font-family:var(--mono);font-size:13px;letter-spacing:.02em;padding:3px 0}
+
+  /* newsletter */
+  .news{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+
+  /* footer */
+  footer.site{background:var(--dark);color:#B7B1A2;padding:clamp(48px,7vw,80px) var(--pad) 36px}
+  .foot-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1.2fr 1fr;gap:36px}
+  .foot-brand .n{font-family:var(--serif);font-size:24px;color:#F3EFE3}
+  .foot-brand .t{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#8a8474;margin:5px 0 16px}
+  .foot-grid h4{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a8474;margin-bottom:14px}
+  .foot-grid a{display:block;color:#B7B1A2;font-size:14px;padding:5px 0;transition:.2s}
+  .foot-grid a:hover{color:#F3EFE3}
+  .foot-note{color:#8a8474;font-size:13px}
+  .fairhousing{max-width:1180px;margin:40px auto 0;padding-top:24px;border-top:1px solid #3a382f;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:11.5px;color:#8a8474}
+  .fairhousing p{max-width:64ch;line-height:1.55}
+
+  .spec-tag{max-width:1180px;margin:0 auto;padding:20px var(--pad) 36px}
+  .spec-tag span{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--border);border-radius:9999px;padding:5px 12px;display:inline-block}
 
   @media(max-width:900px){
-    .hero-grid{grid-template-columns:1fr;gap:36px}
-    .listings,.hoods{grid-template-columns:1fr 1fr}
-    .stats{grid-template-columns:1fr 1fr}
-    .quotes,.valform,.foot-grid{grid-template-columns:1fr}
-    .steps .step{grid-template-columns:1fr;gap:8px}
-    .checklist{columns:1}
+    .hero-grid,.feat,.guide,.closings,.contact-split,.news{grid-template-columns:1fr;gap:32px}
+    .rail{grid-template-columns:1fr 1fr}
+    .rail .c:nth-child(2){border-right:0}
+    .cards3,.grid6,.jgrid,.areas,.quotes,.faq .q,.ctaform{grid-template-columns:1fr}
+    .steps .step{grid-template-columns:1fr;gap:6px}
     .nav-links{display:none}
     .menu-btn{display:inline-block}
-    .nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:2px;background:var(--surface);border-bottom:1px solid var(--border);padding:18px var(--pad)}
-    .nav-links.open a{padding:10px 0}
+    .nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;background:var(--surface);border-bottom:1px solid var(--border);padding:14px var(--pad)}
+    .nav-links.open a{padding:11px 0}
+    .foot-grid{grid-template-columns:1fr 1fr}
   }
 </style>
 </head>
@@ -186,16 +227,14 @@
 
 <header class="site">
   <nav class="nav">
-    <a href="#home" class="brand" data-nav><b>Elizabeth</b> Beard</a>
+    <a href="#home" class="brand" data-nav><span class="n">Elizabeth Beard</span><span class="t">Real Estate</span></a>
     <div class="nav-links" id="navlinks">
-      <a href="#home" data-nav>Home</a>
       <a href="#about" data-nav>About</a>
       <a href="#buying" data-nav>Buying</a>
       <a href="#selling" data-nav>Selling</a>
       <a href="#referrals" data-nav>Referrals</a>
       <a href="#journal" data-nav>Journal</a>
       <a href="#contact" data-nav>Contact</a>
-      <a href="#contact" class="nav-cta" data-nav>What's my home worth?</a>
     </div>
     <button class="menu-btn" id="menubtn">Menu</button>
   </nav>
@@ -203,309 +242,358 @@
 
 <main>
 
-<!-- ══════════ HOME ══════════ -->
+<!-- ═══════ HOME ═══════ -->
 <div class="page active" id="home">
   <section class="hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <span class="eyebrow">[ Spokane · South Hill · Kendall Yards ]</span>
-        <div class="status"><span class="dot"></span> Taking 2 new listings this month</div>
-        <h1 class="display">Selling Spokane's<br>best-kept streets,<br><em>quietly</em> and well.</h1>
-        <p class="lead">Twelve years, 218 homes, and a straight answer every time. I sell the South Hill, Kendall Yards, and the river neighborhoods with an editorial eye and a negotiator's patience.</p>
+        <span class="eyebrow">Spokane, WA · North Idaho</span>
+        <h1 class="display">Your <em>Spokane</em><br>realtor.</h1>
+        <p class="lead">Relationship-led real estate for buyers and sellers — from first showing to closing day.</p>
         <div class="btn-row">
-          <a href="#contact" class="btn solid" data-nav>What's my home worth?</a>
-          <a href="#buying" class="btn ghost" data-nav>Start with a call</a>
+          <a href="#contact" class="btn solid" data-nav>What's your home worth?</a>
+          <a href="#contact" class="btn ghost" data-nav>Book a call</a>
         </div>
+        <div class="credline">MA · SRES&nbsp;&nbsp;/&nbsp;&nbsp;eXp Realty&nbsp;&nbsp;/&nbsp;&nbsp;Top 15% · 2024</div>
       </div>
-      <div class="frame">
-        <div class="photo ph-portrait"><div class="slot">Portrait / Elizabeth on the South Hill</div></div>
-      </div>
+      <div class="photo p-portrait"><div class="lbl"><span>Elizabeth Beard</span><span>Spokane · WA</span></div></div>
     </div>
   </section>
 
   <section style="padding-top:0">
     <div class="wrap">
-      <div class="stats">
-        <div class="stat"><div class="v">218</div><div class="l">Homes sold</div></div>
-        <div class="stat"><div class="v">11 days</div><div class="l">Avg on market</div></div>
-        <div class="stat"><div class="v">99.4%</div><div class="l">List-to-sale</div></div>
-        <div class="stat"><div class="v">12 yrs</div><div class="l">In Spokane</div></div>
+      <div class="rail">
+        <div class="c"><div class="v">Top 15%</div><div class="l">Spokane Realtors · 2024</div></div>
+        <div class="c"><div class="v">MA · SRES</div><div class="l">Seniors Real Estate Specialist</div></div>
+        <div class="c"><div class="v">WA + ID</div><div class="l">Licensed in both states</div></div>
+        <div class="c"><div class="v">—</div><div class="l">Homes sold · add your number</div></div>
       </div>
     </div>
   </section>
 
   <section>
     <div class="wrap">
-      <div class="sec-head">
-        <div>
-          <span class="eyebrow num">01 / Featured</span>
-          <h2 class="display" style="margin-top:16px">A few homes,<br><em>chosen</em> carefully.</h2>
+      <div class="sec-head"><div><span class="eyebrow">How can I help?</span><h2 class="display" style="margin-top:14px">Three ways we<br>can work together.</h2></div></div>
+      <div class="cards3">
+        <div class="icard"><div class="num">01</div><h3>Buying</h3><p>Find the right home in Spokane or North Idaho, with a guide who knows the market and negotiates hard for you.</p><a href="#buying" class="mlink" data-nav>Start your search →</a></div>
+        <div class="icard"><div class="num">02</div><h3>Selling</h3><p>Price it right, market it well, and close with confidence. Start with a no-pressure valuation.</p><a href="#selling" class="mlink" data-nav>What's my home worth →</a></div>
+        <div class="icard"><div class="num">03</div><h3>Refer</h3><p>Moving out of the area, or sending a client my way? Let's connect you with the right agent.</p><a href="#referrals" class="mlink" data-nav>Make a referral →</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="forest">
+    <div class="wrap feat">
+      <div class="photo p-kitchen"><div class="lbl"><span>Featured listing</span><span>Sample</span></div></div>
+      <div>
+        <span class="eyebrow">Featured listing</span>
+        <h3 class="display" style="margin:14px 0 4px;font-size:clamp(26px,3.4vw,38px)">South Hill — light-<br>filled &amp; <em>move-in ready</em>.</h3>
+        <div class="specrow">
+          <div class="s">4<small>Beds</small></div><div class="s">3<small>Baths</small></div><div class="s">2,940<small>Sq ft</small></div><div class="s">$685K<small>Price</small></div>
         </div>
-        <a href="#buying" class="btn ghost" data-nav>View all listings</a>
-      </div>
-      <div class="listings">
-        <article class="card">
-          <div class="img ph-home"><span class="badge">Active</span></div>
-          <div class="body">
-            <div class="price">$685,000</div>
-            <div class="addr">1214 W Sumner Ave · South Hill</div>
-            <div class="specrow"><span>4 bd</span><span>3 ba</span><span>2,940 sqft</span></div>
-          </div>
-        </article>
-        <article class="card">
-          <div class="img ph-loft"><span class="badge pending">Pending</span></div>
-          <div class="body">
-            <div class="price">$512,000</div>
-            <div class="addr">318 N Cedar St · Kendall Yards</div>
-            <div class="specrow"><span>2 bd</span><span>2 ba</span><span>1,610 sqft</span></div>
-          </div>
-        </article>
-        <article class="card">
-          <div class="img ph-river"><span class="badge sold">Sold</span></div>
-          <div class="body">
-            <div class="price">$1,240,000</div>
-            <div class="addr">6 E Rockwood Blvd · Rockwood</div>
-            <div class="specrow"><span>5 bd</span><span>4 ba</span><span>4,120 sqft</span></div>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider wrap" style="max-width:1200px">
-
-  <section>
-    <div class="wrap sec-head">
-      <div>
-        <span class="eyebrow num">02 / Neighborhoods</span>
-        <h2 class="display" style="margin-top:16px">Where I know<br>every block.</h2>
-      </div>
-      <p class="lead">Local expertise isn't a tagline — it's knowing which South Hill blocks hold value and which Kendall Yards floor plans actually live well.</p>
-    </div>
-    <div class="wrap">
-      <div class="hoods">
-        <div class="hood ph-hill"><div class="cap"><h3>South Hill</h3><p>Craftsman bones, mature trees, and the schools families move for.</p></div></div>
-        <div class="hood ph-river"><div class="cap"><h3>Kendall Yards</h3><p>Walkable river-bluff living, new-build and loft, at the city's edge.</p></div></div>
-        <div class="hood ph-street"><div class="cap"><h3>Rockwood &amp; Manito</h3><p>Spokane's most storied streets — where legacy homes trade quietly.</p></div></div>
+        <p class="lead">Sample spotlight — drop in a real listing or connect an IDX / MLS feed.</p>
+        <div class="btn-row"><a href="#contact" class="btn onforest" data-nav>Book a private showing →</a></div>
       </div>
     </div>
   </section>
 
   <section>
-    <div class="wrap sec-head">
+    <div class="wrap guide">
+      <div class="book"><span class="bt">Elizabeth Beard · Real Estate</span><span class="bm">The Spokane<br><em>Home Guide</em></span><span class="bt">MA · SRES · Spokane &amp; North Idaho</span></div>
       <div>
-        <span class="eyebrow num">03 / In their words</span>
-        <h2 class="display" style="margin-top:16px">Clients, after<br>the keys change hands.</h2>
-      </div>
-    </div>
-    <div class="wrap">
-      <div class="quotes">
-        <figure class="quote"><p>"Elizabeth read the market better than the three agents we interviewed. Sold in nine days, over asking, no drama."</p><figcaption class="who">Marcus &amp; Dana R. · Sold, South Hill</figcaption></figure>
-        <figure class="quote"><p>"First-time buyers, terrified. She never once made us feel rushed and talked us out of two houses she knew we'd regret."</p><figcaption class="who">Priya N. · Bought, Kendall Yards</figcaption></figure>
+        <span class="eyebrow">Free guide</span>
+        <h2 class="display" style="margin:14px 0 12px">Everything, <em>start to finish</em>.</h2>
+        <p class="lead">My step-by-step guide to buying or selling in Spokane — neighborhoods, timelines, and what your money actually gets you here. Free, no strings.</p>
+        <ul class="check">
+          <li>A neighborhood-by-neighborhood price map</li>
+          <li>The real Spokane buy &amp; sell timelines</li>
+          <li>What to fix (and skip) before you list</li>
+          <li>My trusted lender, inspector &amp; contractor list</li>
+        </ul>
+        <div class="inlineform"><input placeholder="you@email.com" type="email"><a href="#contact" class="btn solid" data-nav>Get the guide →</a></div>
       </div>
     </div>
   </section>
 
-  <section class="invert-wrap" style="padding-left:0;padding-right:0">
-    <div class="invert">
-      <span class="eyebrow">[ What's my home worth? ]</span>
-      <h2 class="display" style="margin:20px 0 16px;max-width:16ch">A real number, from someone who sells here weekly.</h2>
-      <p class="lead">No auto-estimate. I'll walk your block, pull the true comps, and send a considered valuation within two business days.</p>
-      <form class="valform" onsubmit="return false">
-        <input placeholder="Your name">
-        <input placeholder="Email" type="email">
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">Recent · Spokane</span><h2 class="display" style="margin-top:14px">Homes closed<br><em>around Spokane</em>.</h2></div><p class="eyebrow" style="max-width:34ch;line-height:1.7">Sample results — swap in real closings once confirmed.</p></div>
+      <div class="closings">
+        <div class="photo p-bed"><div class="lbl"><span>South Hill</span><span>Sold · 2026</span></div></div>
+        <div class="clist">
+          <div class="row"><span class="i">01</span><span class="nm">South Hill</span><span class="meta">$685,000 · 6 days on market</span><span class="pill">Sold</span></div>
+          <div class="row"><span class="i">02</span><span class="nm">Kendall Yards</span><span class="meta">$349,000 · sold over asking</span><span class="pill">Sold</span></div>
+          <div class="row"><span class="i">03</span><span class="nm">Liberty Lake</span><span class="meta">$509,000 · represented the buyer</span><span class="pill">Sold</span></div>
+          <div class="row"><span class="i">04</span><span class="nm">Coeur d'Alene, ID</span><span class="meta">$740,000 · 5 days on market</span><span class="pill">Sold</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="forest">
+    <div class="wrap">
+      <div class="status"><span class="dot"></span> Taking new clients this month</div>
+      <h2 class="display" style="max-width:18ch">What's your home <em>worth</em> in today's market?</h2>
+      <p class="lead" style="margin-top:14px">Tell me a little about your place and I'll send back a thoughtful, no-pressure estimate — grounded in what's actually selling near you.</p>
+      <form class="ctaform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
         <input class="full" placeholder="Property address">
-        <button>Request my valuation</button>
+        <button>Send my valuation request →</button>
       </form>
-      <div class="stat-stack">
-        <div><div class="v">11 days</div><div class="l">Avg on market</div></div>
-        <div><div class="v">99.4%</div><div class="l">List-to-sale</div></div>
-        <div><div class="v">2 days</div><div class="l">To your valuation</div></div>
-      </div>
     </div>
   </section>
 </div>
 
-<!-- ══════════ ABOUT ══════════ -->
+<!-- ═══════ ABOUT ═══════ -->
 <div class="page" id="about">
   <section class="hero">
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow">[ About ]</span>
-        <h1 class="display" style="margin-top:20px">A dozen years<br>on <em>these</em> streets.</h1>
-        <p class="lead">I didn't move to Spokane for the market — I grew up on it. That's the difference clients feel: I'm not learning your neighborhood on your timeline.</p>
-        <div class="speclist" style="margin-top:40px">
-          <div class="row"><span class="k">Brokerage</span><span class="val">Ridgeline &amp; Co.</span></div>
-          <div class="row"><span class="k">License</span><span class="val">WA #SP-00-114820</span></div>
-          <div class="row"><span class="k">Serving</span><span class="val">Spokane County</span></div>
-          <div class="row"><span class="k">Since</span><span class="val">2014</span></div>
-        </div>
-      </div>
-      <div class="frame"><div class="photo ph-portrait"><div class="slot">Portrait / editorial</div></div></div>
+    <div class="wrap">
+      <span class="eyebrow">About Elizabeth</span>
+      <h1 class="display" style="margin:18px 0 18px;max-width:16ch">Local <em>expertise</em>, backed by real training.</h1>
+      <p class="lead">Elizabeth Beard, MA, SRES — a Spokane &amp; North Idaho realtor who brings business rigor and genuine care to every move.</p>
     </div>
   </section>
   <section style="padding-top:0">
-    <div class="wrap" style="max-width:760px">
-      <span class="eyebrow num">Credentials</span>
-      <ul class="checklist" style="margin-top:24px">
-        <li>Accredited Buyer's Rep</li>
-        <li>Certified Negotiation Expert</li>
-        <li>Luxury Home Marketing</li>
-        <li>Relocation Specialist</li>
-        <li>Top 2% Spokane, 2021–2025</li>
-        <li>Historic Homes certified</li>
-      </ul>
+    <div class="wrap hero-grid" style="align-items:start">
+      <div class="photo p-portrait2"><div class="lbl"><span>Elizabeth Beard</span><span>MA · SRES</span></div></div>
+      <div>
+        <span class="eyebrow">About Elizabeth</span>
+        <h3 class="display" style="margin:12px 0 16px">Local expertise, backed by real training — and a lot of care.</h3>
+        <p style="color:var(--muted);margin-bottom:16px">I came to real estate by way of business and organizational leadership, and I bring that same rigor to every transaction. A well-planned approach turns a complex process into a clear, manageable journey — and thoughtful preparation keeps you informed, empowered, and moving forward with confidence.</p>
+        <p style="color:var(--muted)">Beyond the paperwork, I care about the places we all call home. Years of cultivating local connections — other agents, lenders, contractors, handymen — mean my clients benefit from trusted professionals at every step.</p>
+        <div class="tl">
+          <div class="row"><span class="y">2018</span><span class="d">B.A., Business — Providence Christian College</span></div>
+          <div class="row"><span class="y">2021</span><span class="d">M.A., Organizational Leadership — Gonzaga University</span></div>
+          <div class="row"><span class="y">2022</span><span class="d">Licensed Washington Realtor</span></div>
+          <div class="row"><span class="y">2024</span><span class="d">Top 15% of Spokane Realtors</span></div>
+          <div class="row"><span class="y">2025</span><span class="d">Licensed Idaho Realtor · SRES designation</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="forest qband">
+    <div class="wrap">
+      <p>Buying or selling is one of the biggest moves you'll ever make. I treat it like it's <em>my own</em>.</p>
+      <div class="who">Elizabeth Beard, MA, SRES</div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">Working with me means</span><h2 class="display" style="margin-top:14px">What you can<br>expect, start to finish.</h2></div></div>
+      <div class="grid6">
+        <div class="it"><div class="num">01</div><h3>Planning thoroughly</h3><p>A well-planned approach keeps a complex process clear and manageable at every turn.</p></div>
+        <div class="it"><div class="num">02</div><h3>Market education</h3><p>Knowledge is power. You'll have a clear view of the market so you decide with confidence.</p></div>
+        <div class="it"><div class="num">03</div><h3>Lasting connections</h3><p>Trusted local agents, lenders, and contractors make every transaction smoother and faster.</p></div>
+        <div class="it"><div class="num">04</div><h3>Celebrating the moments</h3><p>From the first showing to closing day, each milestone is worth marking — and enjoying.</p></div>
+        <div class="it"><div class="num">05</div><h3>Strategic advocacy</h3><p>Thorough negotiation and current market knowledge, with every clause handled expertly.</p></div>
+        <div class="it"><div class="num">06</div><h3>Community impact</h3><p>Collaborating with local nonprofits to strengthen the places we all call home.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">What clients say</span><h2 class="display" style="margin-top:14px">In their <em>words</em>.</h2></div></div>
+      <div class="quotes">
+        <figure class="quote"><div class="mark">"</div><p>Elizabeth made a stressful move feel completely handled. She was two steps ahead the entire time.</p><figcaption class="who">Client name · Bought in South Hill</figcaption></figure>
+        <figure class="quote"><div class="mark">"</div><p>Knowledgeable, warm, and relentless on our behalf. We felt informed at every single step.</p><figcaption class="who">Client name · Sold in Liberty Lake</figcaption></figure>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">Areas I serve</span><h2 class="display" style="margin-top:14px">Spokane &amp; North<br>Idaho, neighborhood<br>by neighborhood.</h2></div></div>
+      <div class="areas">
+        <div class="photo p-clock"><div class="lbl"><span>Riverfront</span><span>Spokane</span></div></div>
+        <div class="photo p-bed"><div class="lbl"><span>South Hill</span><span>Spokane</span></div></div>
+        <div class="photo p-manito"><div class="lbl"><span>Manito</span><span>South Hill</span></div></div>
+      </div>
     </div>
   </section>
 </div>
 
-<!-- ══════════ BUYING ══════════ -->
+<!-- ═══════ BUYING ═══════ -->
 <div class="page" id="buying">
   <section class="hero">
     <div class="wrap" style="max-width:900px">
-      <span class="eyebrow">[ Buying ]</span>
-      <h1 class="display" style="margin:20px 0 24px">Buy the right<br>house, not the<br><em>available</em> one.</h1>
-      <p class="lead">Most buyers settle because they're tired. My job is to keep you patient and informed until the right home shows up — then move fast and win it.</p>
-      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>Book a buyer call</a></div>
+      <span class="eyebrow">For buyers</span>
+      <h1 class="display" style="margin:18px 0 18px">Buying a home should feel <em>exciting</em>, not overwhelming.</h1>
+      <p class="lead">I take the time to understand what home means to you, then guide you through every step with intention — from pre-approval to keys.</p>
     </div>
   </section>
   <section style="padding-top:0">
     <div class="wrap">
-      <span class="eyebrow num">How it goes</span>
-      <div class="steps" style="margin-top:28px">
-        <div class="step"><div class="n">01 / Align</div><div><h3>We define "right."</h3><p class="lead">Budget, block, non-negotiables, and the deal-breakers you haven't named yet.</p></div></div>
-        <div class="step"><div class="n">02 / Search</div><div><h3>You see the real list.</h3><p class="lead">On-market, coming-soon, and the quiet ones I hear about before they post.</p></div></div>
-        <div class="step"><div class="n">03 / Win</div><div><h3>We write to win, not to overpay.</h3><p class="lead">Structured offers that stand out without emptying your reserves.</p></div></div>
-        <div class="step"><div class="n">04 / Close</div><div><h3>Nothing falls through quietly.</h3><p class="lead">Inspection, appraisal, financing — I chase every thread so you don't.</p></div></div>
+      <div class="sec-head"><div><span class="eyebrow">How we'll work together · buyers</span><h2 class="display" style="margin-top:14px">From first conversation<br>to closing day.</h2></div></div>
+      <div class="steps">
+        <div class="step"><div class="n">01 /<br>Start</div><div><h3>We'll start the conversation</h3><p>I take the time to really get to know you — what you're looking for, what matters most, and what "home" means to you.</p></div></div>
+        <div class="step"><div class="n">02 /<br>Prep</div><div><h3>Get financially ready</h3><p>Before we tour homes, I'll connect you with a trusted lender to understand your options and get pre-approved.</p></div></div>
+        <div class="step"><div class="n">03 /<br>Search</div><div><h3>Search with purpose</h3><p>Together we'll explore neighborhoods and homes that fit your lifestyle, budget, and goals.</p></div></div>
+        <div class="step"><div class="n">04 /<br>Offer</div><div><h3>Make a strong offer</h3><p>I'll help determine market value and craft a thoughtful, competitive offer — then negotiate with care and strategy.</p></div></div>
+        <div class="step"><div class="n">05 /<br>Close</div><div><h3>Close with confidence</h3><p>I'll work closely with escrow so every document is in order and closing day is smooth and stress-free.</p></div></div>
+        <div class="step"><div class="n">06 /<br>Beyond</div><div><h3>Support beyond the sale</h3><p>My support doesn't stop at the keys — remodel plans, design advice, or a trusted contractor, I'm a call away.</p></div></div>
       </div>
     </div>
   </section>
-  <section class="invert-wrap" style="padding-left:0;padding-right:0">
-    <div class="invert">
-      <span class="eyebrow">[ Free guide ]</span>
-      <h2 class="display" style="margin:18px 0 14px;max-width:18ch">The Spokane Buyer's Guide — the one I give every client.</h2>
-      <p class="lead">Neighborhood-by-neighborhood pricing, the inspection traps unique to older Spokane housing stock, and a financing checklist. Sent instantly.</p>
-      <form class="valform" onsubmit="return false">
-        <input placeholder="Your name"><input placeholder="Email" type="email">
-        <button>Send me the guide</button>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">Common questions · buyers</span><h2 class="display" style="margin-top:14px">What buyers ask me <em>first</em>.</h2></div></div>
+      <div class="faq">
+        <div class="q"><h3>How much do I really need for a down payment?</h3><p>Less than most people think — many buyers put down far less than 20%. We'll connect you with a lender to look at your real options before you worry about it.</p></div>
+        <div class="q"><h3>How long does buying take in Spokane?</h3><p>From accepted offer to keys is usually 30–45 days once you're pre-approved. The search itself moves at your pace and the market's.</p></div>
+        <div class="q"><h3>Do I pay you as a buyer?</h3><p>In most cases the seller covers the buyer-agent commission. Either way I'll be clear about any costs up front — no surprises.</p></div>
+        <div class="q"><h3>What if I'm relocating from out of state?</h3><p>I do this all the time. We can tour by video, and I'll be your eyes on the ground for neighborhoods, inspections, and everything in between.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="forest">
+    <div class="wrap">
+      <div class="status"><span class="dot"></span> Taking new clients this month</div>
+      <h2 class="display">Ready to start the search?</h2>
+      <p class="lead" style="margin-top:14px">Tell me what you're looking for and your timeline — I'll send back a few homes worth seeing and a clear next step.</p>
+      <form class="ctaform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
+        <input class="full" placeholder="Property address">
+        <button>Start my search →</button>
       </form>
     </div>
   </section>
 </div>
 
-<!-- ══════════ SELLING ══════════ -->
+<!-- ═══════ SELLING (reconstructed — awaiting screenshot) ═══════ -->
 <div class="page" id="selling">
   <section class="hero">
     <div class="wrap" style="max-width:900px">
-      <span class="eyebrow">[ Selling ]</span>
-      <h1 class="display" style="margin:20px 0 24px">Priced right,<br>shown beautifully,<br><em>sold</em> in days.</h1>
-      <p class="lead">My listings average 11 days on market at 99.4% of asking. That's not luck — it's pricing discipline, real staging, and photography that makes buyers drive over.</p>
-      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>What's my home worth?</a></div>
+      <span class="eyebrow">For sellers</span>
+      <h1 class="display" style="margin:18px 0 18px">Sell for more, with <em>less</em> stress.</h1>
+      <p class="lead">Priced right, marketed well, and negotiated with care — I make selling in Spokane feel handled from the first walkthrough to the final signature.</p>
+      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>What's your home worth?</a></div>
     </div>
   </section>
   <section style="padding-top:0">
     <div class="wrap">
-      <span class="eyebrow num">What's included</span>
-      <ul class="checklist" style="margin-top:24px">
-        <li>Editorial photography</li>
-        <li>Pre-list staging plan</li>
-        <li>True-comp pricing</li>
-        <li>Single-property site</li>
-        <li>Targeted social launch</li>
-        <li>Broker-network preview</li>
-        <li>Weekly seller report</li>
-        <li>Negotiation to close</li>
-      </ul>
+      <div class="sec-head"><div><span class="eyebrow">How we'll work together · sellers</span><h2 class="display" style="margin-top:14px">From valuation<br>to closing day.</h2></div></div>
+      <div class="steps">
+        <div class="step"><div class="n">01 /<br>Value</div><div><h3>A true-comp valuation</h3><p>No auto-estimate — I walk your home, study what's actually selling near you, and price it to move at full value.</p></div></div>
+        <div class="step"><div class="n">02 /<br>Prep</div><div><h3>Prep &amp; stage with intention</h3><p>The high-return fixes, a staging plan, and the connections to get them done — so your home shows its best.</p></div></div>
+        <div class="step"><div class="n">03 /<br>Market</div><div><h3>Marketing that sells the feeling</h3><p>Editorial photography, a single-property presence, and a targeted launch to the buyers most likely to fall for it.</p></div></div>
+        <div class="step"><div class="n">04 /<br>Negotiate</div><div><h3>Negotiate every term</h3><p>Price, contingencies, timelines — I advocate hard on all of it, keeping your goals front and center.</p></div></div>
+        <div class="step"><div class="n">05 /<br>Close</div><div><h3>Close clean</h3><p>I chase inspection, appraisal, and financing threads so closing day is calm and on schedule.</p></div></div>
+      </div>
     </div>
   </section>
-  <section>
+  <section class="forest">
     <div class="wrap">
-      <div class="speclist">
-        <div class="row"><span class="k">Avg days on market</span><span class="val">11 days</span></div>
-        <div class="row"><span class="k">List-to-sale price</span><span class="val">99.4%</span></div>
-        <div class="row"><span class="k">Homes sold</span><span class="val">218</span></div>
-        <div class="row"><span class="k">Over-asking rate</span><span class="val">61%</span></div>
-      </div>
+      <div class="status"><span class="dot"></span> Taking new listings this month</div>
+      <h2 class="display" style="max-width:18ch">Curious what your home would bring?</h2>
+      <p class="lead" style="margin-top:14px">Tell me about your place and I'll send a considered, no-pressure valuation grounded in real Spokane comps.</p>
+      <form class="ctaform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
+        <input class="full" placeholder="Property address">
+        <button>Send my valuation request →</button>
+      </form>
     </div>
   </section>
 </div>
 
-<!-- ══════════ REFERRALS ══════════ -->
+<!-- ═══════ REFERRALS ═══════ -->
 <div class="page" id="referrals">
   <section class="hero">
     <div class="wrap" style="max-width:900px">
-      <span class="eyebrow">[ Referrals ]</span>
-      <h1 class="display" style="margin:20px 0 24px">Moving out of<br>Spokane — or<br>sending someone <em>in</em>?</h1>
-      <p class="lead">Half my business comes from past clients. If you're relocating, I'll personally connect you with a vetted agent in your new city; if you're sending a friend my way, I'll treat them like family.</p>
-      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>Make a referral</a></div>
+      <span class="eyebrow">Referrals</span>
+      <h1 class="display" style="margin:18px 0 18px">Moving away, or sending a client <em>my way?</em></h1>
+      <p class="lead">Whether you're relocating or you're an agent with a client headed to Spokane, I'll make sure they're looked after like my own.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap hero-grid" style="align-items:center">
+      <div class="photo p-clients"><div class="lbl"><span>With clients</span><span>Spokane</span></div></div>
+      <div>
+        <h3 class="display" style="margin-bottom:16px">If you know me, <em>you know I know people</em>.</h3>
+        <p class="lead">Through a network of trusted, top-performing agents across the country, I'll personally match you with the right fit — then handle the vetting, the introductions, and the follow-through so your move is seamless.</p>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap cards3" style="grid-template-columns:1fr 1fr;gap:40px">
+      <div><h3 class="display" style="margin-bottom:12px">If you're a <em>client</em></h3><p style="color:var(--muted);margin-bottom:18px">Planning a move to a new city, or buying and selling outside my area? Through my network of trusted, top-performing agents across the country, I'll personally match you with the right fit — handling the vetting, the introductions, and staying in your corner throughout.</p><a href="#contact" class="mlink" data-nav>Let's connect →</a></div>
+      <div><h3 class="display" style="margin-bottom:12px">If you're an <em>agent or lender</em></h3><p style="color:var(--muted);margin-bottom:18px">Your clients are in good hands. When you refer someone relocating to my area, I take it personally — clear communication, professionalism and warmth, and updates the whole way through.</p><a href="#contact" class="mlink" data-nav>Let's connect →</a></div>
     </div>
   </section>
   <section style="padding-top:0">
     <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">How it works</span><h2 class="display" style="margin-top:14px">A warm handoff,<br><em>every time</em>.</h2></div></div>
       <div class="steps">
-        <div class="step"><div class="n">01 / Tell me</div><div><h3>Who's moving, and where.</h3><p class="lead">A name and a city is enough to start.</p></div></div>
-        <div class="step"><div class="n">02 / I vet</div><div><h3>I hand-pick their agent.</h3><p class="lead">From a national network I've built over twelve years — not a lead-sale.</p></div></div>
-        <div class="step"><div class="n">03 / I stay on it</div><div><h3>I check in through closing.</h3><p class="lead">Your referral is my reputation; I don't hand it off and disappear.</p></div></div>
+        <div class="step"><div class="n">01 /<br>Intro</div><div><h3>Tell me about your client</h3><p>A quick call or email with the basics — who they are, where they're headed, and what they need.</p></div></div>
+        <div class="step"><div class="n">02 /<br>Match</div><div><h3>I vet and match</h3><p>Whether it's me here in Spokane or a trusted agent in my national network, I personally make sure the fit is right.</p></div></div>
+        <div class="step"><div class="n">03 /<br>Update</div><div><h3>You stay in the loop</h3><p>I keep you posted through the whole transaction, so you always know your client is in good hands.</p></div></div>
       </div>
     </div>
   </section>
 </div>
 
-<!-- ══════════ JOURNAL ══════════ -->
+<!-- ═══════ JOURNAL ═══════ -->
 <div class="page" id="journal">
   <section class="hero">
-    <div class="wrap sec-head">
-      <div>
-        <span class="eyebrow">[ Journal ]</span>
-        <h1 class="display" style="margin-top:20px">Notes from<br>the market.</h1>
-      </div>
-      <p class="lead">Unhurried thinking on Spokane housing — pricing, neighborhoods, and the occasional strong opinion.</p>
+    <div class="wrap" style="max-width:820px">
+      <span class="eyebrow">Journal</span>
+      <h1 class="display" style="margin:18px 0 16px">Notes on Spokane<br><em>real estate</em>.</h1>
+      <p class="lead">Neighborhood guides, market reads, and the things I tell every client — written down.</p>
     </div>
   </section>
   <section style="padding-top:0">
     <div class="wrap">
-      <div class="listings">
-        <article class="card">
-          <div class="img ph-hill"></div>
-          <div class="body"><div class="eyebrow num">Oct 2026 · Pricing</div><h3 class="display" style="font-size:24px;margin:12px 0 8px">Why "priced to sell" beats "priced to test."</h3><p class="addr">The homes that linger are almost always the ones that reached in week one.</p></div>
-        </article>
-        <article class="card">
-          <div class="img ph-river"></div>
-          <div class="body"><div class="eyebrow num">Sep 2026 · Neighborhoods</div><h3 class="display" style="font-size:24px;margin:12px 0 8px">Kendall Yards, five years in.</h3><p class="addr">What's held its value, what hasn't, and where I'd buy today.</p></div>
-        </article>
-        <article class="card">
-          <div class="img ph-loft"></div>
-          <div class="body"><div class="eyebrow num">Aug 2026 · Buyers</div><h3 class="display" style="font-size:24px;margin:12px 0 8px">Inspecting a 1920s Spokane home.</h3><p class="addr">The four things I flag before you fall in love with the built-ins.</p></div>
-        </article>
+      <div class="jgrid">
+        <article class="jcard"><div class="cat">Buying</div><h3>What $600K actually buys on the South Hill right now</h3><p>A real look at square footage, lot size, and trade-offs in one of Spokane's most-loved neighborhoods.</p><div class="foot"><a href="#journal" class="mlink" data-nav>Read →</a><span class="date">Jun 2026</span></div></article>
+        <article class="jcard"><div class="cat">Neighborhoods</div><h3>Kendall Yards vs. South Hill: which one fits you?</h3><p>Walkability, schools, resale, and vibe — how to choose between two very different Spokane lifestyles.</p><div class="foot"><a href="#journal" class="mlink" data-nav>Read →</a><span class="date">May 2026</span></div></article>
+        <article class="jcard"><div class="cat">Selling</div><h3>Five things to fix before you list in Spokane</h3><p>The low-cost updates that actually move the needle on offer price — and the ones that don't.</p><div class="foot"><a href="#journal" class="mlink" data-nav>Read →</a><span class="date">Apr 2026</span></div></article>
+        <article class="jcard"><div class="cat">Relocating</div><h3>Moving to Spokane: a newcomer's field guide</h3><p>Cost of living, the best time to buy, and what to know about winters before you commit.</p><div class="foot"><a href="#journal" class="mlink" data-nav>Read →</a><span class="date">Mar 2026</span></div></article>
+        <article class="jcard"><div class="cat">Market</div><h3>Is now a good time to buy in North Idaho?</h3><p>What the Coeur d'Alene and Post Falls numbers are really telling us this season.</p><div class="foot"><a href="#journal" class="mlink" data-nav>Read →</a><span class="date">Feb 2026</span></div></article>
+        <article class="jcard"><div class="cat">First-time</div><h3>The pre-approval conversation, demystified</h3><p>What lenders look at, what to have ready, and how to shop confidently without overextending.</p><div class="foot"><a href="#journal" class="mlink" data-nav>Read →</a><span class="date">Jan 2026</span></div></article>
       </div>
     </div>
   </section>
 </div>
 
-<!-- ══════════ CONTACT ══════════ -->
+<!-- ═══════ CONTACT ═══════ -->
 <div class="page" id="contact">
   <section class="hero">
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow">[ Contact ]</span>
-        <h1 class="display" style="margin:20px 0 22px">Let's talk<br>about your<br><em>next</em> move.</h1>
-        <p class="lead">Buying, selling, or just curious what your home would bring today — send a note and I'll reply personally, usually same day.</p>
-        <div class="speclist" style="margin-top:36px">
-          <div class="row"><span class="k">Call / text</span><span class="val">(509) 555-0148</span></div>
-          <div class="row"><span class="k">Email</span><span class="val">elizabeth@ridgeline.co</span></div>
-          <div class="row"><span class="k">Office</span><span class="val">Kendall Yards, Spokane</span></div>
-        </div>
+    <div class="wrap" style="max-width:820px">
+      <span class="eyebrow">Contact</span>
+      <h1 class="display" style="margin:18px 0 16px">Let's find your<br>next <em>move</em>.</h1>
+      <p class="lead">Reach out and I'll get back to you, usually within a day.</p>
+    </div>
+  </section>
+  <section class="forest">
+    <div class="wrap contact-split">
+      <div class="cinfo">
+        <div class="status"><span class="dot"></span> Usually replies within a day</div>
+        <h2 class="display" style="margin-bottom:16px">Let's talk.</h2>
+        <p class="lead" style="margin-bottom:26px">Buying, selling, or just weighing your options in Spokane or North Idaho — tell me a little and I'll be in touch.</p>
+        <a href="tel:6613130575">661.313.0575</a>
+        <a href="mailto:ElizabethBeardHomes@gmail.com">ElizabethBeardHomes@gmail.com</a>
+        <a href="#contact">@elizabethmbeard.realestate</a>
+        <a href="#contact">eXp Realty · Spokane, WA</a>
       </div>
-      <div class="invert" style="margin:0">
-        <span class="eyebrow">[ Send a note ]</span>
-        <h2 class="display" style="margin:16px 0 20px;font-size:34px">Start here.</h2>
-        <form class="valform" style="margin-top:8px" onsubmit="return false">
-          <input placeholder="Your name"><input placeholder="Email" type="email">
-          <input class="full" placeholder="Property address (optional)">
-          <input class="full" placeholder="How can I help?">
-          <button>Send</button>
+      <div>
+        <form class="ctaform" style="margin-top:0" onsubmit="return false">
+          <input placeholder="Your name"><input placeholder="(509) 000-0000">
+          <input class="full" placeholder="you@email.com" type="email">
+          <input class="full" placeholder="Buying, selling, a question...">
+          <button>Send →</button>
         </form>
       </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap news">
+      <div>
+        <span class="eyebrow">Spokane, delivered</span>
+        <h2 class="display" style="margin:14px 0 14px">Join my monthly <em>market letter</em>.</h2>
+        <p class="lead">Local updates, new listings, and what's really happening in Spokane &amp; North Idaho real estate — a few times a year, never spam.</p>
+      </div>
+      <div class="inlineform"><input placeholder="you@email.com" type="email"><a href="#contact" class="btn solid" data-nav>Join now →</a></div>
     </div>
   </section>
 </div>
@@ -514,46 +602,36 @@
 
 <footer class="site">
   <div class="foot-grid">
-    <div>
-      <div class="foot-brand">Elizabeth Beard</div>
-      <p style="color:var(--muted);max-width:38ch">Spokane real estate — South Hill, Kendall Yards, and the river neighborhoods. Ridgeline &amp; Co., WA License #SP-00-114820.</p>
-      <div class="status" style="margin-top:22px"><span class="dot"></span> Taking 2 new listings this month</div>
+    <div class="foot-brand">
+      <div class="n">Elizabeth Beard</div><div class="t">Real Estate</div>
+      <p class="foot-note" style="max-width:32ch">Relationship-led real estate across Spokane, WA and North Idaho.</p>
     </div>
-    <div>
-      <h4>Explore</h4>
-      <a href="#about" data-nav>About</a><a href="#buying" data-nav>Buying</a><a href="#selling" data-nav>Selling</a><a href="#journal" data-nav>Journal</a>
-    </div>
-    <div>
-      <h4>Reach</h4>
-      <a href="#contact" data-nav>(509) 555-0148</a><a href="#contact" data-nav>elizabeth@ridgeline.co</a><a href="#referrals" data-nav>Referrals</a>
-    </div>
+    <div><h4>Explore</h4><a href="#about" data-nav>About</a><a href="#buying" data-nav>Buying</a><a href="#selling" data-nav>Selling</a><a href="#referrals" data-nav>Referrals</a><a href="#journal" data-nav>Journal</a></div>
+    <div><h4>Contact</h4><a href="tel:6613130575">661.313.0575</a><a href="mailto:ElizabethBeardHomes@gmail.com">ElizabethBeardHomes@gmail.com</a><a href="#contact" data-nav>@elizabethmbeard.realestate</a></div>
+    <div><h4>Brokerage</h4><a href="#" style="pointer-events:none">eXp Realty</a><a href="#" style="pointer-events:none">License # — WA &amp; ID</a><span class="foot-note">add license numbers</span></div>
   </div>
   <div class="fairhousing">
-    <p class="fh-note">Equal Housing Opportunity. Elizabeth Beard is a licensed real estate broker in the State of Washington. Information deemed reliable but not guaranteed. If you have a disability that is preventing you from experiencing this website, call for assistance.</p>
-    <p>© 2026 Elizabeth Beard · Ridgeline &amp; Co.</p>
+    <p>Elizabeth Beard is a licensed real estate agent with eXp Realty. Equal Housing Opportunity. All information deemed reliable but not guaranteed.</p>
+    <p>© 2026 Elizabeth Beard Real Estate</p>
   </div>
 </footer>
 
-<div class="spec-tag"><span>Hirobius spec preview · warm-editorial skin · reconstruction from design spec — sample copy, placeholder contact</span></div>
+<div class="spec-tag"><span>Hirobius spec preview · warm-editorial skin · rebuilt to match the original — sample copy, photo slots pending real imagery</span></div>
 
 <script>
-  const pages = document.querySelectorAll('.page');
-  const links = document.querySelectorAll('.nav-links a');
+  const pages=document.querySelectorAll('.page');
+  const links=document.querySelectorAll('.nav-links a');
   function show(id){
-    id = (id||'home').replace('#','');
-    let found=false;
+    id=(id||'home').replace('#','');let found=false;
     pages.forEach(p=>{const on=p.id===id;p.classList.toggle('active',on);if(on)found=true;});
     if(!found){document.getElementById('home').classList.add('active');id='home';}
-    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id && !a.classList.contains('nav-cta')));
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id));
     document.getElementById('navlinks').classList.remove('open');
-    window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'});
+    window.scrollTo({top:0});
   }
-  document.querySelectorAll('[data-nav]').forEach(a=>{
-    a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();history.replaceState(null,'',h);show(h);}});
-  });
+  document.querySelectorAll('[data-nav]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();history.replaceState(null,'',h);show(h);}}));
   document.getElementById('menubtn').addEventListener('click',()=>document.getElementById('navlinks').classList.toggle('open'));
-  show(location.hash);
-  window.addEventListener('hashchange',()=>show(location.hash));
+  show(location.hash);window.addEventListener('hashchange',()=>show(location.hash));
 </script>
 </body>
 </html>
