@@ -1,0 +1,170 @@
+---
+/**
+ * Preview-only chrome shared by both design variants (hidden at go-live):
+ *  - a bottom-CENTER V1/V2 toggle (links between "/" and "/v2"; the gated-preview
+ *    cookie carries across so no ?key needed on the second hop),
+ *  - a bottom-LEFT hamburger that opens the Display/Body font explorer.
+ *
+ * The font id→family mapping lives here as :global so both pages share it; each
+ * page sets its own :root default + loads the font faces in its <head>, and a
+ * tiny "apply saved fonts before paint" script stays in each page head.
+ */
+interface Props {
+  variant: "v1" | "v2";
+  /** Font ids the page defaults to (so the dropdowns reflect reality). */
+  defaultDisplay?: string;
+  defaultBody?: string;
+}
+const { variant, defaultDisplay = "fraunces", defaultBody = "inter" } = Astro.props;
+const isPreview =
+  process.env.SITE_LIVE !== "true" && process.env.VERCEL_ENV !== "production";
+
+const DISPLAY_FONTS = [
+  { id: "fraunces", label: "Fraunces" },
+  { id: "cormorant", label: "Cormorant Garamond" },
+  { id: "playfair", label: "Playfair Display" },
+  { id: "quintessential", label: "Quintessential" },
+  { id: "kings", label: "Kings" },
+  { id: "molle", label: "Molle" },
+  { id: "mr-dafoe", label: "Mr Dafoe" },
+  { id: "felipa", label: "Felipa" },
+  { id: "mrs-sheppards", label: "Mrs Sheppards" },
+  { id: "niconne", label: "Niconne" },
+  { id: "dr-sugiyama", label: "Dr Sugiyama" },
+  { id: "smooch", label: "Smooch" },
+  { id: "norican", label: "Norican" },
+  { id: "bilbo", label: "Bilbo" },
+  { id: "satoshi", label: "Satoshi (sans)" },
+];
+const BODY_FONTS = [
+  { id: "inter", label: "Inter" },
+  { id: "eb-garamond", label: "EB Garamond" },
+  { id: "elms-sans", label: "Elms Sans" },
+  { id: "satoshi", label: "Satoshi" },
+];
+---
+
+{
+  isPreview && (
+    <div class="pv" data-variant={variant} data-dd={defaultDisplay} data-db={defaultBody}>
+      <div class="pv-toggle" role="group" aria-label="Preview: switch design version">
+        <a href="/" class:list={["pv-seg", variant === "v1" && "on"]}>V1 · Editorial</a>
+        <a href="/v2" class:list={["pv-seg", variant === "v2" && "on"]}>V2 · Modern</a>
+      </div>
+
+      <button class="pv-burger" id="pvBurger" aria-label="Font options" aria-expanded="false" aria-controls="pvMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <div class="pv-menu" id="pvMenu" hidden>
+        <span class="pv-grp">
+          <label for="displayfont">Display</label>
+          <select id="displayfont">
+            {DISPLAY_FONTS.map((f) => (
+              <option value={f.id}>{f.label}</option>
+            ))}
+          </select>
+        </span>
+        <span class="pv-grp">
+          <label for="bodyfont">Body</label>
+          <select id="bodyfont">
+            {BODY_FONTS.map((f) => (
+              <option value={f.id}>{f.label}</option>
+            ))}
+          </select>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+<style is:global>
+  /* Font id → family (shared by both variants; each page sets its own default) */
+  html[data-display="fraunces"] { --display-font: "Fraunces", Georgia, serif; --display-weight: 440; }
+  html[data-display="cormorant"] { --display-font: "Cormorant Garamond", Georgia, serif; --display-weight: 600; }
+  html[data-display="playfair"] { --display-font: "Playfair Display", Georgia, serif; --display-weight: 600; }
+  html[data-display="quintessential"] { --display-font: "Quintessential", Georgia, serif; --display-weight: 400; }
+  html[data-display="kings"] { --display-font: "Kings", cursive; --display-weight: 400; }
+  html[data-display="molle"] { --display-font: "Molle", cursive; --display-weight: 400; }
+  html[data-display="mr-dafoe"] { --display-font: "Mr Dafoe", cursive; --display-weight: 400; }
+  html[data-display="felipa"] { --display-font: "Felipa", cursive; --display-weight: 400; }
+  html[data-display="mrs-sheppards"] { --display-font: "Mrs Sheppards", cursive; --display-weight: 400; }
+  html[data-display="niconne"] { --display-font: "Niconne", cursive; --display-weight: 400; }
+  html[data-display="dr-sugiyama"] { --display-font: "Dr Sugiyama", cursive; --display-weight: 400; }
+  html[data-display="smooch"] { --display-font: "Smooch", cursive; --display-weight: 400; }
+  html[data-display="norican"] { --display-font: "Norican", cursive; --display-weight: 400; }
+  html[data-display="bilbo"] { --display-font: "Bilbo", cursive; --display-weight: 400; }
+  html[data-display="satoshi"] { --display-font: "Satoshi", ui-sans-serif, system-ui, sans-serif; --display-weight: 700; }
+  html[data-body="inter"] { --body-font: "Inter", ui-sans-serif, system-ui, sans-serif; }
+  html[data-body="eb-garamond"] { --body-font: "EB Garamond", Georgia, serif; }
+  html[data-body="elms-sans"] { --body-font: "Elms Sans", ui-sans-serif, system-ui, sans-serif; }
+  html[data-body="satoshi"] { --body-font: "Satoshi", ui-sans-serif, system-ui, sans-serif; }
+
+  .pv { position: fixed; inset: auto 0 0 0; z-index: 80; pointer-events: none; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; }
+  .pv > * { pointer-events: auto; }
+  .pv-toggle {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+    display: flex; background: #14201a; border-radius: 999px; padding: 4px;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+  }
+  .pv-seg { text-decoration: none; color: rgba(255, 255, 255, 0.62); font-size: 12px; font-weight: 600; letter-spacing: 0.02em; padding: 8px 16px; border-radius: 999px; white-space: nowrap; transition: color 0.2s, background 0.2s; }
+  .pv-seg.on { color: #14201a; background: #f2eee3; }
+  .pv-burger {
+    position: fixed; left: 16px; bottom: 16px; width: 44px; height: 44px;
+    display: grid; place-items: center; border: 0; cursor: pointer;
+    background: #14201a; color: #f2eee3; border-radius: 12px;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+  }
+  .pv-menu {
+    position: fixed; left: 16px; bottom: 70px;
+    display: flex; gap: 14px; background: #14201a; color: #f2eee3;
+    padding: 12px 16px; border-radius: 14px; box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+  }
+  .pv-menu[hidden] { display: none; }
+  .pv-grp { display: flex; flex-direction: column; gap: 2px; }
+  .pv-menu label { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(242, 238, 227, 0.55); }
+  .pv-menu select { appearance: none; -webkit-appearance: none; background: transparent; color: #f2eee3; border: 0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; max-width: 40vw; }
+  .pv-menu select option { color: #111; }
+  @media (max-width: 430px) { .pv-seg { padding: 8px 12px; font-size: 11px; } }
+  @media print { .pv { display: none; } }
+</style>
+
+<script is:inline>
+  (function () {
+    var burger = document.getElementById("pvBurger");
+    var menu = document.getElementById("pvMenu");
+    if (burger && menu) {
+      burger.addEventListener("click", function () {
+        var open = menu.hasAttribute("hidden");
+        if (open) menu.removeAttribute("hidden");
+        else menu.setAttribute("hidden", "");
+        burger.setAttribute("aria-expanded", String(open));
+      });
+      document.addEventListener("click", function (e) {
+        if (!menu.hidden && !menu.contains(e.target) && e.target !== burger && !burger.contains(e.target)) {
+          menu.setAttribute("hidden", "");
+          burger.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+    var pv = document.querySelector(".pv");
+    var d = document.getElementById("displayfont");
+    var b = document.getElementById("bodyfont");
+    var root = document.documentElement;
+    if (d) {
+      d.value = root.dataset.display || (pv && pv.dataset.dd) || d.value;
+      d.addEventListener("change", function () {
+        root.dataset.display = d.value;
+        try { localStorage.setItem("pnw-display", d.value); } catch (e) {}
+      });
+    }
+    if (b) {
+      b.value = root.dataset.body || (pv && pv.dataset.db) || b.value;
+      b.addEventListener("change", function () {
+        root.dataset.body = b.value;
+        try { localStorage.setItem("pnw-body", b.value); } catch (e) {}
+      });
+    }
+  })();
+</script>

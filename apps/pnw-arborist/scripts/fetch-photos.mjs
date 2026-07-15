@@ -27,6 +27,7 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "photo
 const SLOTS = {
   "hero.jpg": { query: "large lush green oak tree", orientation: "portrait" },
   "canopy.jpg": { query: "sunlight through green forest canopy", orientation: "landscape" },
+  "v2-hero.jpg": { query: "misty evergreen forest pacific northwest", orientation: "landscape" },
 };
 
 async function pick(key, { query, orientation }) {
