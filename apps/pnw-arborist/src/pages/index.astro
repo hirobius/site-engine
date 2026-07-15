@@ -21,6 +21,18 @@ const seo = client.seo;
 const tel = b.phone.replace(/[^\d+]/g, "");
 const thanksUrl = new URL("/thanks", seo.siteUrl).toString();
 
+// Preview-only display-font switcher (issue: art-direction exploration). Each
+// pack is a display + body pairing; the control is hidden once the site is live.
+const FONT_PACKS = [
+  { id: "fraunces", label: "Fraunces / Inter (default)" },
+  { id: "cormorant", label: "Cormorant / EB Garamond" },
+  { id: "playfair", label: "Playfair / Inter" },
+  { id: "quintessential", label: "Quintessential / EB Garamond" },
+  { id: "kings", label: "Kings / Inter" },
+];
+const isPreview =
+  process.env.SITE_LIVE !== "true" && process.env.VERCEL_ENV !== "production";
+
 // Split the hero headline so the last two words render in italic forest accent.
 const words = c.heroHeadline.trim().replace(/[.]$/, "").split(" ");
 const headLead = words.slice(0, -2).join(" ");
@@ -61,13 +73,19 @@ const jsonLd = {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,540;1,9..144,440;1,9..144,540&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,540;1,9..144,440;1,9..144,540&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Quintessential&family=Kings&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
     <script is:inline>
+      // Apply the saved display-font pack before first paint (no flash).
+      try {
+        var fp = localStorage.getItem("pnw-fontpack");
+        if (fp) document.documentElement.dataset.fontpack = fp;
+      } catch (e) {}
+
       // Arm the scroll-reveal only when motion is welcome. No-JS / reduced-motion
       // visitors keep everything visible (the .reveal base state is visible).
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
@@ -86,6 +104,29 @@ const jsonLd = {
         --dark: #141d17;
         --dark-paper: #ece6d7;
         --dark-muted: #9aa593;
+
+        /* Display + body font pack (swapped live via the preview switcher). */
+        --display-font: "Fraunces", Georgia, "Times New Roman", serif;
+        --display-weight: 440;
+        --body-font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      html[data-fontpack="cormorant"] {
+        --display-font: "Cormorant Garamond", Georgia, serif;
+        --display-weight: 600;
+        --body-font: "EB Garamond", Georgia, "Times New Roman", serif;
+      }
+      html[data-fontpack="playfair"] {
+        --display-font: "Playfair Display", Georgia, serif;
+        --display-weight: 500;
+      }
+      html[data-fontpack="quintessential"] {
+        --display-font: "Quintessential", Georgia, serif;
+        --display-weight: 400;
+        --body-font: "EB Garamond", Georgia, "Times New Roman", serif;
+      }
+      html[data-fontpack="kings"] {
+        --display-font: "Kings", "Brush Script MT", cursive;
+        --display-weight: 400;
       }
 
       * { box-sizing: border-box; }
@@ -96,7 +137,7 @@ const jsonLd = {
         margin: 0;
         background: var(--paper);
         color: var(--ink);
-        font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        font-family: var(--body-font);
         font-size: 17px;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
@@ -106,8 +147,8 @@ const jsonLd = {
       .wrap { width: 100%; max-width: 1140px; margin-inline: auto; padding-inline: 26px; }
 
       .serif {
-        font-family: "Fraunces", Georgia, "Times New Roman", serif;
-        font-weight: 440;
+        font-family: var(--display-font);
+        font-weight: var(--display-weight);
         letter-spacing: -0.015em;
       }
       .eyebrow {
@@ -161,7 +202,7 @@ const jsonLd = {
       .hero h1 {
         margin: 22px 0 0; line-height: 0.98;
         font-size: clamp(2.85rem, 10.5vw, 6.6rem);
-        font-weight: 440; letter-spacing: -0.025em; max-width: 15ch;
+        font-weight: var(--display-weight); letter-spacing: -0.025em; max-width: 15ch;
       }
       .hero h1 .accent { color: var(--forest); font-style: italic; }
       .hero p.sub {
@@ -175,7 +216,7 @@ const jsonLd = {
       section { padding: clamp(56px, 9vw, 104px) 0; border-top: 1px solid var(--line); }
       .sec-label { display: flex; align-items: baseline; gap: 14px; margin-bottom: 46px; }
       .sec-label .n { font-size: 12px; font-weight: 600; letter-spacing: 0.2em; color: var(--muted); }
-      .sec-label h2 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 440; letter-spacing: -0.02em; }
+      .sec-label h2 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: var(--display-weight); letter-spacing: -0.02em; }
 
       /* Statement / about */
       .statement { font-size: clamp(1.6rem, 4.6vw, 2.9rem); line-height: 1.22; font-weight: 340; max-width: 24ch; letter-spacing: -0.02em; }
@@ -191,7 +232,7 @@ const jsonLd = {
       }
       .index .item:hover { background: var(--paper-2); padding-left: 18px; }
       .index .num { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: var(--forest); padding-top: 10px; }
-      .index .item h3 { grid-column: 2; margin: 0; font-size: clamp(1.5rem, 4.4vw, 2.35rem); font-weight: 440; letter-spacing: -0.02em; }
+      .index .item h3 { grid-column: 2; margin: 0; font-size: clamp(1.5rem, 4.4vw, 2.35rem); font-weight: var(--display-weight); letter-spacing: -0.02em; }
       .index .item p { grid-column: 2; margin: 12px 0 0; color: var(--muted); max-width: 60ch; }
       @media (max-width: 560px) {
         .index .item { grid-template-columns: 1fr; gap: 6px; }
@@ -205,13 +246,13 @@ const jsonLd = {
       .dark .big { font-size: clamp(1.7rem, 5vw, 3rem); line-height: 1.2; font-weight: 340; max-width: 20ch; margin: 18px 0 0; letter-spacing: -0.02em; }
       .dark .big .accent { color: #8fbf9c; font-style: italic; }
       .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 58px; border-top: 1px solid rgba(236, 230, 215, 0.16); padding-top: 40px; }
-      .stats .k { font-family: "Fraunces", Georgia, serif; font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1; color: var(--dark-paper); }
+      .stats .k { font-family: var(--display-font); font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1; color: var(--dark-paper); }
       .stats .l { margin-top: 12px; font-size: 13px; letter-spacing: 0.06em; color: var(--dark-muted); text-transform: uppercase; }
       @media (max-width: 560px) { .stats { grid-template-columns: 1fr; gap: 26px; text-align: left; } }
 
       /* Service area */
       .areas { display: grid; grid-template-columns: 1.1fr 1fr; gap: 44px; align-items: center; }
-      .areas .list { font-family: "Fraunces", Georgia, serif; font-size: clamp(1.8rem, 5vw, 2.9rem); line-height: 1.3; letter-spacing: -0.02em; }
+      .areas .list { font-family: var(--display-font); font-size: clamp(1.8rem, 5vw, 2.9rem); line-height: 1.3; letter-spacing: -0.02em; }
       .areas .list span { color: var(--muted); }
       .map { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--paper-2); }
       .map iframe { width: 100%; height: 100%; border: 0; display: block; filter: grayscale(0.35) contrast(1.02); }
@@ -219,7 +260,7 @@ const jsonLd = {
 
       /* Contact */
       .contact { display: grid; grid-template-columns: 1fr 1fr; gap: 54px; }
-      .contact .lead-serif { font-family: "Fraunces", Georgia, serif; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.08; letter-spacing: -0.02em; margin: 14px 0 0; }
+      .contact .lead-serif { font-family: var(--display-font); font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.08; letter-spacing: -0.02em; margin: 14px 0 0; }
       form.quote { display: grid; gap: 20px; }
       .field label { display: block; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
       .field input, .field textarea {
@@ -242,6 +283,25 @@ const jsonLd = {
       footer.site .fm { font-weight: 600; letter-spacing: 0.28em; font-size: 14px; text-transform: uppercase; }
       footer.site .fm span { color: var(--forest); }
       footer.site small { color: var(--muted); font-size: 13px; line-height: 1.7; display: block; }
+
+      /* Preview-only display-font switcher */
+      .fontswitch {
+        position: fixed; left: 16px; bottom: 16px; z-index: 70;
+        display: flex; align-items: center; gap: 10px;
+        background: var(--ink); color: var(--paper);
+        padding: 9px 14px; border-radius: 999px;
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
+        font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+      }
+      .fontswitch label { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(242, 238, 227, 0.6); }
+      .fontswitch select {
+        appearance: none; -webkit-appearance: none;
+        background: transparent; color: var(--paper); border: 0;
+        font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding-right: 2px;
+      }
+      .fontswitch select option { color: #111; }
+      @media (max-width: 560px) { .fontswitch label { display: none; } }
+      @media print { .fontswitch { display: none; } }
 
       /* Reveal-on-scroll (armed only when html.io-ready) */
       .reveal { opacity: 1; transform: none; }
@@ -407,6 +467,34 @@ const jsonLd = {
         </small>
       </div>
     </footer>
+
+    {
+      isPreview && (
+        <div class="fontswitch" role="group" aria-label="Preview: switch display font pack">
+          <label for="fontpack">Display font</label>
+          <select id="fontpack">
+            {FONT_PACKS.map((p) => (
+              <option value={p.id}>{p.label}</option>
+            ))}
+          </select>
+        </div>
+      )
+    }
+
+    <script is:inline>
+      // Wire the preview font switcher: reflect current pack + persist changes.
+      (function () {
+        var sel = document.getElementById("fontpack");
+        if (!sel) return;
+        sel.value = document.documentElement.dataset.fontpack || "fraunces";
+        sel.addEventListener("change", function () {
+          document.documentElement.dataset.fontpack = sel.value;
+          try {
+            localStorage.setItem("pnw-fontpack", sel.value);
+          } catch (e) {}
+        });
+      })();
+    </script>
 
     <script is:inline>
       // Dependency-free scroll reveal. Only runs when armed (html.io-ready);
