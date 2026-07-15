@@ -22,6 +22,10 @@ const c = client.copy;
 const seo = client.seo;
 const tel = b.phone.replace(/[^\d+]/g, "");
 const thanksUrl = new URL("/thanks", seo.siteUrl).toString();
+// Real Google Business profile (from the lead row) — links the review proof to
+// the source, which keeps the rating/count claim honest and verifiable.
+const googleUrl =
+  "https://www.google.com/maps/place/PNW+Arborist+Consulting+Inc/@47.039404499999996,-122.962087,14z/data=!4m8!1m2!2m1!1sPNW+Arborist+Consulting+Inc!3m4!1s0x5491753684d57163:0x9f678c481890c294!8m2!3d47.039404499999996!4d-122.962087";
 
 // Preview-only font explorer (art-direction). Two independent dropdowns —
 // Display + Body — so any display face can be paired with any body sans. The
@@ -100,7 +104,7 @@ const jsonLd = {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bilbo&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Dr+Sugiyama&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Elms+Sans&family=Felipa&family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,540;1,9..144,440;1,9..144,540&family=Inter:wght@400;500;600&family=Kings&family=Molle:ital@1&family=Mr+Dafoe&family=Mrs+Sheppards&family=Niconne&family=Norican&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Quintessential&family=Smooch&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bilbo&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Dr+Sugiyama&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Elms+Sans:wght@400;500;600;700&family=Felipa&family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,540;1,9..144,440;1,9..144,540&family=Inter:wght@400;500;600;700&family=Kings&family=Molle:ital@1&family=Mr+Dafoe&family=Mrs+Sheppards&family=Niconne&family=Norican&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Quintessential&family=Smooch&display=swap"
       rel="stylesheet"
     />
     {/* Satoshi is a Fontshare face (not on Google Fonts). */}
@@ -200,10 +204,11 @@ const jsonLd = {
       .eyebrow {
         font-size: var(--fs-eyebrow);
         font-weight: 600;
-        letter-spacing: 0.26em;
+        letter-spacing: 0.24em;
         text-transform: uppercase;
         color: var(--forest);
       }
+      .eyebrow { font-weight: 700; }
       em, .ital { font-style: italic; }
 
       a { color: inherit; }
@@ -320,6 +325,8 @@ const jsonLd = {
       .stats .k { font-family: var(--display-font); font-size: var(--fs-stat); line-height: 1; color: var(--dark-paper); }
       .stats .l { margin-top: 12px; font-size: var(--fs-eyebrow); letter-spacing: 0.1em; color: var(--dark-muted); text-transform: uppercase; }
       @media (max-width: 560px) { .stats { grid-template-columns: 1fr; gap: 26px; text-align: left; } }
+      .dark-link { display: inline-block; margin-top: 36px; color: var(--dark-paper); text-decoration: none; font-size: var(--fs-body); border-bottom: 1px solid rgba(236, 230, 215, 0.32); padding-bottom: 3px; transition: color 0.25s ease, border-color 0.25s ease; }
+      .dark-link:hover { color: #8fbf9c; border-color: #8fbf9c; }
 
       /* Service area */
       .areas { display: grid; grid-template-columns: 1.1fr 1fr; gap: 44px; align-items: center; }
@@ -339,6 +346,14 @@ const jsonLd = {
       }
       .field input:focus, .field textarea:focus { outline: none; border-color: var(--forest); }
       .field textarea { resize: vertical; min-height: 96px; }
+      .field label { font-weight: 500; }
+      .req { color: var(--forest); }
+      .opt { color: var(--muted); opacity: 0.7; font-weight: 400; letter-spacing: 0.04em; }
+      .field .err { margin: 8px 0 0; color: #a8351d; font-size: var(--fs-eyebrow); letter-spacing: 0.03em; text-transform: none; }
+      .field.invalid input, .field.invalid textarea { border-color: #a8351d; }
+      .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+      .btn-primary:disabled:hover { background: var(--forest); transform: none; }
+      .form-note { margin: 16px 0 0; font-size: var(--fs-eyebrow); letter-spacing: 0.03em; color: var(--muted); text-transform: none; }
       .hp { position: absolute; left: -9999px; opacity: 0; }
       .contact aside dl { margin: 0; display: grid; gap: 20px; }
       .contact aside dt { font-size: var(--fs-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
@@ -351,14 +366,14 @@ const jsonLd = {
       footer.site { border-top: 1px solid var(--line); }
       footer.site .fm { font-weight: 600; letter-spacing: 0.28em; font-size: 14px; text-transform: uppercase; }
       footer.site .fm span { color: var(--forest); }
-      .foot-top { display: flex; justify-content: space-between; gap: 40px 64px; flex-wrap: wrap; padding: 58px 0 42px; }
+      .foot-top { display: flex; justify-content: space-between; gap: 36px 64px; flex-wrap: wrap; padding: 46px 0 30px; }
       .foot-brand { max-width: 38ch; }
       .foot-desc { margin: 16px 0 0; color: var(--muted); font-size: var(--fs-body); line-height: 1.55; }
       .foot-links { display: flex; flex-direction: column; gap: 12px; }
       .foot-links p { margin: 0 0 4px; font-size: var(--fs-eyebrow); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
       .foot-links a { text-decoration: none; color: var(--ink); font-size: var(--fs-body); }
       .foot-links a:hover { color: var(--forest); }
-      .foot-bar { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 22px 0 52px; border-top: 1px solid var(--line); }
+      .foot-bar { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 0 40px; border-top: 1px solid var(--line); }
       .foot-bar small { color: var(--muted); font-size: var(--fs-footer); }
 
       /* Preview-only font explorer (Display + Body) */
@@ -471,9 +486,12 @@ const jsonLd = {
           </p>
           <div class="stats">
             <div class="reveal"><div class="k">4.9★</div><div class="l">Google rating</div></div>
-            <div class="reveal"><div class="k">200+</div><div class="l">Five-star reviews</div></div>
-            <div class="reveal"><div class="k">Insured</div><div class="l">Free estimates</div></div>
+            <div class="reveal"><div class="k">233</div><div class="l">Google reviews</div></div>
+            <div class="reveal"><div class="k">Free</div><div class="l">On-site estimates</div></div>
           </div>
+          <a class="dark-link reveal" href={googleUrl} target="_blank" rel="noopener">
+            Read the reviews on Google →
+          </a>
         </div>
       </section>
 
@@ -510,7 +528,7 @@ const jsonLd = {
             <div>
               <div class="sec-head reveal">
                 <p class="eyebrow">/ Get in touch</p>
-                <h2 class="serif">Request a free quote.</h2>
+                <h2 class="serif">Get a Free Quote</h2>
               </div>
               <form class="quote reveal" action="https://api.web3forms.com/submit" method="POST">
                 <input type="hidden" name="access_key" value={client.form.accessKey} />
@@ -519,22 +537,25 @@ const jsonLd = {
                 <input type="hidden" name="redirect" value={thanksUrl} />
                 <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
                 <div class="field">
-                  <label for="name">Name</label>
-                  <input id="name" name="name" type="text" required autocomplete="name" />
+                  <label for="name">Name <span class="req" aria-hidden="true">*</span></label>
+                  <input id="name" name="name" type="text" required autocomplete="name" aria-describedby="err-name" />
+                  <p class="err" id="err-name" hidden>Please enter your name.</p>
                 </div>
                 <div class="field">
-                  <label for="email">Email</label>
-                  <input id="email" name="email" type="email" required autocomplete="email" />
+                  <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+                  <input id="email" name="email" type="email" required autocomplete="email" aria-describedby="err-email" />
+                  <p class="err" id="err-email" hidden>Please enter a valid email address.</p>
                 </div>
                 <div class="field">
-                  <label for="phone">Phone</label>
+                  <label for="phone">Phone <span class="opt">(optional)</span></label>
                   <input id="phone" name="phone" type="tel" autocomplete="tel" />
                 </div>
                 <div class="field">
-                  <label for="message">What do you need?</label>
+                  <label for="message">What do you need? <span class="opt">(optional)</span></label>
                   <textarea id="message" name="message" placeholder="Tree removal, pruning, a health assessment…"></textarea>
                 </div>
-                <button class="btn btn-primary" type="submit">{c.ctaLabel}</button>
+                <button class="btn btn-primary" type="submit" id="submitBtn">Submit</button>
+                <p class="form-note">* Required. We'll reply within one business day.</p>
               </form>
             </div>
             <aside class="reveal">
@@ -567,7 +588,7 @@ const jsonLd = {
       </div>
       <div class="wrap foot-bar">
         <small>{b.name} · {seo.city}, {seo.region}</small>
-        <small>Fully insured · Free estimates</small>
+        <small>Free, no-obligation estimates</small>
       </div>
     </footer>
 
@@ -614,6 +635,51 @@ const jsonLd = {
             try { localStorage.setItem("pnw-body", b.value); } catch (e) {}
           });
         }
+      })();
+    </script>
+
+    <script is:inline>
+      // Progressive form validation: required Name + Email, inline errors, and a
+      // Submit button that stays disabled until both are valid. No-JS visitors
+      // still get native `required` validation and an enabled button.
+      (function () {
+        var f = document.querySelector("form.quote");
+        if (!f) return;
+        var name = f.querySelector("#name");
+        var email = f.querySelector("#email");
+        var btn = f.querySelector("#submitBtn");
+        function emailOk(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+        function valid(input) {
+          if (input === name) return name.value.trim().length > 0;
+          if (input === email) return emailOk(email.value.trim());
+          return true;
+        }
+        function mark(input, showError) {
+          var field = input.closest(".field");
+          var err = field.querySelector(".err");
+          field.classList.toggle("invalid", showError);
+          if (err) err.hidden = !showError;
+        }
+        function refresh() { btn.disabled = !(valid(name) && valid(email)); }
+        [name, email].forEach(function (inp) {
+          inp.addEventListener("input", function () {
+            refresh();
+            if (inp.closest(".field").classList.contains("invalid")) mark(inp, !valid(inp));
+          });
+          inp.addEventListener("blur", function () { mark(inp, !valid(inp)); });
+        });
+        f.addEventListener("submit", function (e) {
+          var ok = true;
+          [name, email].forEach(function (inp) {
+            if (!valid(inp)) { mark(inp, true); ok = false; }
+          });
+          if (!ok) {
+            e.preventDefault();
+            var first = f.querySelector(".field.invalid input");
+            if (first) first.focus();
+          }
+        });
+        refresh();
       })();
     </script>
 

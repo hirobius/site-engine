@@ -64,7 +64,7 @@ export const client = defineClient({
   copy: {
     heroHeadline: "Olympia's Trusted Tree Care & Certified Arborists",
     heroSub:
-      "Tree removal, expert pruning, and honest arborist assessments — fully insured, with free estimates for Thurston County homeowners.",
+      "Tree removal, expert pruning, and honest arborist assessments — with free, no-obligation estimates for Thurston County homeowners.",
     ctaLabel: "Get a Free Quote",
     about:
       "PNW Arborist Consulting is a locally owned tree-care company serving Olympia and the surrounding Thurston County area, with a 4.9-star reputation earned across more than two hundred reviews. We specialize in tree removal, structural and health pruning, and certified arborist consultations — helping homeowners keep their trees safe, healthy, and beautiful. Fast scheduling, upfront pricing, and careful, professional crews on every job.",
@@ -81,7 +81,7 @@ export const client = defineClient({
   seo: {
     title: "PNW Arborist Consulting | Olympia Tree Service",
     description:
-      "Olympia's certified arborists and tree-care pros. Tree removal, expert pruning, and honest tree-health and risk assessments. Free estimates, fully insured.",
+      "Olympia's arborists and tree-care pros. Tree removal, expert pruning, and honest tree-health and risk assessments. Free, no-obligation estimates.",
     city: "Olympia",
     region: "WA",
     siteUrl: "https://pnw-arborist.example",
