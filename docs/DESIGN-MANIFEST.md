@@ -71,13 +71,16 @@ renders on the live deploy (couldn't reach `api.fontshare.com` from the sandbox)
 
 ## Imagery
 
-- **Pexels is NOT actually wired** (contrary to assumption) — no `PEXELS_API_KEY`
-  in env, no integration; still a 🔴 open item in `docs/BACKEND-STATUS.md`.
-- Prepared: `apps/pnw-arborist/scripts/fetch-photos.mjs` downloads a curated photo
-  per slot once `PEXELS_API_KEY` is set (free key: https://www.pexels.com/api/new/).
-  Pexels imagery is stock — swap for the client's OWN photos before go-live.
-- Needed from Adrian: a `PEXELS_API_KEY` (paste here, or set it in the Vercel
-  project env). Then one command populates real tree imagery.
+- `apps/pnw-arborist/scripts/fetch-photos.mjs` runs as a **build step** (wired into
+  package.json `build`) and downloads a curated photo per slot. Non-fatal: no key
+  or any error → warns and keeps placeholders, build stays green.
+- **Runs at Vercel build, not locally** — the dev sandbox's egress can't reach
+  `api.pexels.com` (blocked by the egress allowlist). Vercel's build network can.
+- **The key must live on the `hirobius-pnw-arborist` Vercel project** (Production +
+  Preview). The one on `hirobius-ops` is `sensitive` = write-only, so it can't be
+  read/copied across. Free key: https://www.pexels.com/api/new/ (56 chars, no
+  prefix — a `vcp_…` string is a *Vercel* token, not Pexels).
+- Pexels imagery is stock — swap for the client's OWN photos before go-live.
 
 ## Open questions / to-try
 
