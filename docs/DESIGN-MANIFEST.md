@@ -43,10 +43,11 @@ The `apps/pnw-arborist` preview has a live font explorer (preview-only, hidden a
 go-live): **two independent dropdowns** so any display face pairs with any body.
 Choices persist in localStorage and apply before first paint.
 
-- **Display (14):** Fraunces _(default)_, Cormorant Garamond, Playfair Display,
-  Quintessential, Kings, Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne,
-  Dr Sugiyama, Smooch, Norican, Bilbo.
-- **Body (4):** Inter _(default)_, EB Garamond, Elms Sans, Satoshi (Fontshare).
+- **Display (15):** Quintessential _(default)_, Fraunces, Cormorant Garamond,
+  Playfair Display, Kings, Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne,
+  Dr Sugiyama, Smooch, Norican, Bilbo, Satoshi.
+- **Body (4):** Elms Sans _(default)_, Inter, EB Garamond, Satoshi (Fontshare).
+- Satoshi is available in **both** slots (sans display or body).
 
 Everything on the shortlist is now wired. Satoshi loads from Fontshare — verify it
 renders on the live deploy (couldn't reach `api.fontshare.com` from the sandbox).
