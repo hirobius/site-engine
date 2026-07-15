@@ -30,6 +30,8 @@ name/foundry confirmed before use.
 | Niconne | Google Fonts | Script (semi-formal) | 👀 shortlist | Lighter script; a bit more legible than the ornate ones. |
 | Dr Sugiyama | Google Fonts | Script (formal calligraphy) | 👍 liked | Sudtipos; elegant flourished signature feel. |
 | Smooch | Google Fonts | Script (fine, connected) | 👀 shortlist | Delicate thin script; hero/accent only. |
+| Norican | Google Fonts | Script (brush) | 👀 shortlist | Casual brush script; friendlier, less formal. |
+| Bilbo | Google Fonts | Script (light handwriting) | 👀 shortlist | Thin handwriting; hero/accent only. |
 
 **Read:** most of the shortlist are decorative **script/display** faces — beautiful
 as an oversized hero/wordmark accent, but they need a clean **body** partner
@@ -46,9 +48,9 @@ hidden at go-live). Packs available today (display / body):
 4. Quintessential / EB Garamond
 5. Kings / Inter
 
-_To add:_ Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne, Dr Sugiyama, Smooch
-(Google — ready to wire in); Satoshi (needs Fontshare link); Elms Sans (confirm
-source first).
+_To add:_ Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne, Dr Sugiyama, Smooch,
+Norican, Bilbo (Google — ready to wire in); Satoshi (needs Fontshare link); Elms
+Sans (confirm source first).
 
 ## Live art-direction decisions
 
