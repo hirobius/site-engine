@@ -13,6 +13,8 @@
  * accent, oversized display type, numbered index of services, one dark full-bleed
  * statement. Motion is a dependency-free, reduced-motion-safe scroll reveal.
  */
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { client } from "../../client.config";
 
 const b = client.business;
@@ -25,10 +27,10 @@ const thanksUrl = new URL("/thanks", seo.siteUrl).toString();
 // Display + Body — so any display face can be paired with any body sans. The
 // whole control is hidden once the site is live. See docs/DESIGN-MANIFEST.md.
 const DISPLAY_FONTS = [
-  { id: "fraunces", label: "Fraunces (default)" },
+  { id: "fraunces", label: "Fraunces" },
   { id: "cormorant", label: "Cormorant Garamond" },
   { id: "playfair", label: "Playfair Display" },
-  { id: "quintessential", label: "Quintessential" },
+  { id: "quintessential", label: "Quintessential (default)" },
   { id: "kings", label: "Kings" },
   { id: "molle", label: "Molle" },
   { id: "mr-dafoe", label: "Mr Dafoe" },
@@ -41,13 +43,21 @@ const DISPLAY_FONTS = [
   { id: "bilbo", label: "Bilbo" },
 ];
 const BODY_FONTS = [
-  { id: "inter", label: "Inter (default)" },
+  { id: "inter", label: "Inter" },
   { id: "eb-garamond", label: "EB Garamond" },
-  { id: "elms-sans", label: "Elms Sans" },
+  { id: "elms-sans", label: "Elms Sans (default)" },
   { id: "satoshi", label: "Satoshi" },
 ];
 const isPreview =
   process.env.SITE_LIVE !== "true" && process.env.VERCEL_ENV !== "production";
+
+// Art-directed image slots. A real photo dropped at these public paths (by the
+// Pexels fetch, or the client's own imagery) replaces the gradient placeholder;
+// missing files fall back gracefully so the build never ships a broken <img>.
+const imgAt = (p: string): string | null =>
+  existsSync(join(process.cwd(), "public", p)) ? `/${p}` : null;
+const heroImg = imgAt("photos/hero.jpg");
+const bandImg = imgAt("photos/canopy.jpg");
 
 // Split the hero headline so the last two words render in italic forest accent.
 const words = c.heroHeadline.trim().replace(/[.]$/, "").split(" ");
@@ -125,12 +135,14 @@ const jsonLd = {
         --dark-paper: #ece6d7;
         --dark-muted: #9aa593;
 
-        /* Display + body font pack (swapped live via the preview switcher). */
-        --display-font: "Fraunces", Georgia, "Times New Roman", serif;
-        --display-weight: 440;
-        --body-font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        /* Current default = Quintessential (display) + Elms Sans (body).
+           Swappable live via the preview font explorer. */
+        --display-font: "Quintessential", Georgia, "Times New Roman", serif;
+        --display-weight: 400;
+        --body-font: "Elms Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       }
       /* Display face (data-display) */
+      html[data-display="fraunces"] { --display-font: "Fraunces", Georgia, "Times New Roman", serif; --display-weight: 440; }
       html[data-display="cormorant"] { --display-font: "Cormorant Garamond", Georgia, serif; --display-weight: 600; }
       html[data-display="playfair"] { --display-font: "Playfair Display", Georgia, serif; --display-weight: 500; }
       html[data-display="quintessential"] { --display-font: "Quintessential", Georgia, serif; --display-weight: 400; }
@@ -146,6 +158,7 @@ const jsonLd = {
       html[data-display="bilbo"] { --display-font: "Bilbo", cursive; --display-weight: 400; }
 
       /* Body face (data-body) */
+      html[data-body="inter"] { --body-font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
       html[data-body="eb-garamond"] { --body-font: "EB Garamond", Georgia, "Times New Roman", serif; }
       html[data-body="elms-sans"] { --body-font: "Elms Sans", ui-sans-serif, system-ui, sans-serif; }
       html[data-body="satoshi"] { --body-font: "Satoshi", ui-sans-serif, system-ui, sans-serif; }
@@ -232,6 +245,31 @@ const jsonLd = {
       }
       .hero .cta { margin-top: 40px; display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
       .rule-drop { width: 1px; height: 88px; margin: 54px 0 0; background: linear-gradient(var(--forest), transparent); }
+
+      /* Hero media column */
+      .hero-grid { display: grid; grid-template-columns: 1.12fr 0.88fr; gap: 54px; align-items: center; }
+      .hero-copy { min-width: 0; }
+      .hero-media { min-width: 0; }
+      .hero-media img, .hero-media .ph {
+        width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; border-radius: 6px;
+      }
+      .hero-media .ph {
+        display: grid; place-items: center;
+        background:
+          radial-gradient(120% 90% at 72% 12%, rgba(143, 191, 156, 0.22), transparent 55%),
+          linear-gradient(150deg, #2c5637, #1d3b26 55%, #14201a);
+      }
+      .ph span { font-family: "Inter", ui-sans-serif, sans-serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(236, 230, 215, 0.5); }
+      @media (max-width: 820px) {
+        .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+        .hero-media img, .hero-media .ph { aspect-ratio: 16 / 10; }
+      }
+
+      /* Optional full-bleed photo behind the dark band */
+      .dark.has-img {
+        background-image: linear-gradient(rgba(20, 29, 23, 0.82), rgba(20, 29, 23, 0.9)), var(--band-img);
+        background-size: cover; background-position: center;
+      }
 
       /* Section scaffolding */
       section { padding: clamp(56px, 9vw, 104px) 0; border-top: 1px solid var(--line); }
@@ -347,17 +385,28 @@ const jsonLd = {
     <main id="main">
       <!-- HERO -->
       <div id="top" class="hero">
-        <div class="wrap">
-          <p class="eyebrow reveal">Certified Arborists · {seo.city}, {seo.region}</p>
-          <h1 class="serif reveal">
-            {headLead} <span class="accent">{headAccent}</span>
-          </h1>
-          <p class="sub reveal">{c.heroSub}</p>
-          <div class="cta reveal">
-            <a class="btn btn-primary" href="#contact">{c.ctaLabel}</a>
-            <a class="btn btn-ghost" href={`tel:${tel}`}>Call {b.phone}</a>
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow reveal">Certified Arborists · {seo.city}, {seo.region}</p>
+            <h1 class="serif reveal">
+              {headLead} <span class="accent">{headAccent}</span>
+            </h1>
+            <p class="sub reveal">{c.heroSub}</p>
+            <div class="cta reveal">
+              <a class="btn btn-primary" href="#contact">{c.ctaLabel}</a>
+              <a class="btn btn-ghost" href={`tel:${tel}`}>Call {b.phone}</a>
+            </div>
+            <div class="rule-drop" aria-hidden="true"></div>
           </div>
-          <div class="rule-drop" aria-hidden="true"></div>
+          <div class="hero-media reveal">
+            {
+              heroImg ? (
+                <img src={heroImg} alt={`Tree care by ${b.name} in ${seo.city}`} loading="eager" />
+              ) : (
+                <div class="ph"><span>Imagery</span></div>
+              )
+            }
+          </div>
         </div>
       </div>
 
@@ -393,7 +442,11 @@ const jsonLd = {
       </section>
 
       <!-- DARK STATEMENT -->
-      <section class="dark" aria-label="Why us">
+      <section
+        class:list={["dark", bandImg && "has-img"]}
+        style={bandImg ? `--band-img:url(${bandImg})` : undefined}
+        aria-label="Why us"
+      >
         <div class="wrap">
           <p class="eyebrow kicker reveal">Trusted locally</p>
           <p class="big serif reveal">
@@ -522,14 +575,14 @@ const jsonLd = {
         var d = document.getElementById("displayfont");
         var b = document.getElementById("bodyfont");
         if (d) {
-          d.value = document.documentElement.dataset.display || "fraunces";
+          d.value = document.documentElement.dataset.display || "quintessential";
           d.addEventListener("change", function () {
             document.documentElement.dataset.display = d.value;
             try { localStorage.setItem("pnw-display", d.value); } catch (e) {}
           });
         }
         if (b) {
-          b.value = document.documentElement.dataset.body || "inter";
+          b.value = document.documentElement.dataset.body || "elms-sans";
           b.addEventListener("change", function () {
             document.documentElement.dataset.body = b.value;
             try { localStorage.setItem("pnw-body", b.value); } catch (e) {}

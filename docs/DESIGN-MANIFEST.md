@@ -59,10 +59,24 @@ renders on the live deploy (couldn't reach `api.fontshare.com` from the sandbox)
   index, one dark full-bleed stat band, dependency-free scroll reveal.
 - **Palette:** paper `#f2eee3` · ink `#1b241d` · muted `#5f665b` · forest accent
   `#2c5637` (deep `#1d3b26`) · dark band `#141d17`.
-- **Type:** display = Fraunces (under review via switcher); body/labels = Inter;
-  letter-spaced uppercase eyebrows.
+- **Type (chosen):** display = **Quintessential**, body = **Elms Sans**
+  (letter-spaced uppercase eyebrows). Set as the app default; still swappable in
+  the preview explorer.
 - **Motifs:** thin forest vertical rule under hero; italic forest accent on the
   last words of the hero headline; hairline row dividers with hover indent.
+- **Imagery slots:** hero (`public/photos/hero.jpg`, portrait) + dark band
+  (`public/photos/canopy.jpg`, landscape). Present files replace forest-gradient
+  placeholders automatically; missing files fall back cleanly.
+
+## Imagery
+
+- **Pexels is NOT actually wired** (contrary to assumption) — no `PEXELS_API_KEY`
+  in env, no integration; still a 🔴 open item in `docs/BACKEND-STATUS.md`.
+- Prepared: `apps/pnw-arborist/scripts/fetch-photos.mjs` downloads a curated photo
+  per slot once `PEXELS_API_KEY` is set (free key: https://www.pexels.com/api/new/).
+  Pexels imagery is stock — swap for the client's OWN photos before go-live.
+- Needed from Adrian: a `PEXELS_API_KEY` (paste here, or set it in the Vercel
+  project env). Then one command populates real tree imagery.
 
 ## Open questions / to-try
 
