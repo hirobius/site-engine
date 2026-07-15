@@ -283,9 +283,11 @@ const jsonLd = {
 
       /* Section scaffolding */
       section { padding: clamp(56px, 9vw, 104px) 0; border-top: 1px solid var(--line); }
-      .sec-label { display: flex; align-items: baseline; gap: 14px; margin-bottom: 46px; }
-      .sec-label .n { font-size: var(--fs-eyebrow); font-weight: 600; letter-spacing: 0.2em; color: var(--muted); }
-      .sec-label h2 { margin: 0; font-size: var(--fs-h2); font-weight: var(--display-weight); letter-spacing: -0.02em; }
+      /* One consistent section header everywhere: eyebrow stacked above a big
+         serif heading (Services · Service area · Get in touch all match). */
+      .sec-head { margin-bottom: 44px; }
+      .sec-head .eyebrow { display: block; margin-bottom: 16px; }
+      .sec-head h2 { margin: 0; font-size: var(--fs-display); font-weight: var(--display-weight); letter-spacing: -0.02em; line-height: 1.05; }
 
       /* Statement / about */
       .statement { font-size: var(--fs-display); line-height: 1.18; font-weight: 340; max-width: 24ch; letter-spacing: -0.02em; }
@@ -329,7 +331,6 @@ const jsonLd = {
 
       /* Contact */
       .contact { display: grid; grid-template-columns: 1fr 1fr; gap: 54px; }
-      .contact .lead-serif { font-family: var(--display-font); font-size: var(--fs-display); line-height: 1.08; letter-spacing: -0.02em; margin: 14px 0 34px; }
       form.quote { display: grid; gap: 20px; }
       .field label { display: block; font-size: var(--fs-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
       .field input, .field textarea {
@@ -347,11 +348,18 @@ const jsonLd = {
       @media (max-width: 760px) { .contact { grid-template-columns: 1fr; gap: 34px; } }
 
       /* Footer */
-      footer.site { border-top: 1px solid var(--line); padding: 54px 0; }
-      footer.site .row { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
+      footer.site { border-top: 1px solid var(--line); }
       footer.site .fm { font-weight: 600; letter-spacing: 0.28em; font-size: 14px; text-transform: uppercase; }
       footer.site .fm span { color: var(--forest); }
-      footer.site small { color: var(--muted); font-size: var(--fs-footer); line-height: 1.7; display: block; }
+      .foot-top { display: flex; justify-content: space-between; gap: 40px 64px; flex-wrap: wrap; padding: 58px 0 42px; }
+      .foot-brand { max-width: 38ch; }
+      .foot-desc { margin: 16px 0 0; color: var(--muted); font-size: var(--fs-body); line-height: 1.55; }
+      .foot-links { display: flex; flex-direction: column; gap: 12px; }
+      .foot-links p { margin: 0 0 4px; font-size: var(--fs-eyebrow); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+      .foot-links a { text-decoration: none; color: var(--ink); font-size: var(--fs-body); }
+      .foot-links a:hover { color: var(--forest); }
+      .foot-bar { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 22px 0 52px; border-top: 1px solid var(--line); }
+      .foot-bar small { color: var(--muted); font-size: var(--fs-footer); }
 
       /* Preview-only font explorer (Display + Body) */
       .fontswitch {
@@ -430,10 +438,10 @@ const jsonLd = {
       </section>
 
       <!-- SERVICES — numbered index -->
-      <section aria-label="Services">
+      <section id="services" aria-label="Services">
         <div class="wrap">
-          <div class="sec-label reveal">
-            <span class="n">/ SERVICES</span>
+          <div class="sec-head reveal">
+            <p class="eyebrow">/ Services</p>
             <h2 class="serif">What we do</h2>
           </div>
           <div class="index">
@@ -470,10 +478,10 @@ const jsonLd = {
       </section>
 
       <!-- SERVICE AREA -->
-      <section aria-label="Service area">
+      <section id="service-area" aria-label="Service area">
         <div class="wrap">
-          <div class="sec-label reveal">
-            <span class="n">/ SERVICE AREA</span>
+          <div class="sec-head reveal">
+            <p class="eyebrow">/ Service area</p>
             <h2 class="serif">Where we work</h2>
           </div>
           <div class="areas">
@@ -500,8 +508,10 @@ const jsonLd = {
         <div class="wrap">
           <div class="contact">
             <div>
-              <p class="eyebrow reveal">/ Get in touch</p>
-              <p class="lead-serif reveal">Request a free quote.</p>
+              <div class="sec-head reveal">
+                <p class="eyebrow">/ Get in touch</p>
+                <h2 class="serif">Request a free quote.</h2>
+              </div>
               <form class="quote reveal" action="https://api.web3forms.com/submit" method="POST">
                 <input type="hidden" name="access_key" value={client.form.accessKey} />
                 <input type="hidden" name="subject" value={`New quote request — ${b.name}`} />
@@ -541,16 +551,23 @@ const jsonLd = {
     </main>
 
     <footer class="site">
-      <div class="wrap row">
-        <div>
+      <div class="wrap foot-top">
+        <div class="foot-brand">
           <div class="fm">PNW <span>Arborist</span></div>
-          <small>{b.name} · {seo.city}, {seo.region}</small>
+          <p class="foot-desc">
+            Certified arborists serving {seo.city} and the surrounding Thurston County area.
+          </p>
         </div>
-        <small>
-          <a href={`tel:${tel}`} style="text-decoration:none">{b.phone}</a> ·
-          <a href={`mailto:${b.email}`} style="text-decoration:none">{b.email}</a><br />
-          Fully insured · Free estimates
-        </small>
+        <nav class="foot-links" aria-label="Footer">
+          <p>Explore</p>
+          <a href="#services">Services</a>
+          <a href="#service-area">Service area</a>
+          <a href="#contact">Get a quote</a>
+        </nav>
+      </div>
+      <div class="wrap foot-bar">
+        <small>{b.name} · {seo.city}, {seo.region}</small>
+        <small>Fully insured · Free estimates</small>
       </div>
     </footer>
 
