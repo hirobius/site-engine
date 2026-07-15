@@ -37,20 +37,19 @@ name/foundry confirmed before use.
 as an oversized hero/wordmark accent, but they need a clean **body** partner
 (Satoshi / Inter / EB Garamond) for legibility. Pair, don't solo.
 
-## Currently wired — arborist preview switcher
+## Currently wired — arborist preview font explorer
 
-The `apps/pnw-arborist` preview has a live display-font switcher (preview-only,
-hidden at go-live). Packs available today (display / body):
+The `apps/pnw-arborist` preview has a live font explorer (preview-only, hidden at
+go-live): **two independent dropdowns** so any display face pairs with any body.
+Choices persist in localStorage and apply before first paint.
 
-1. Fraunces / Inter — **default**
-2. Cormorant Garamond / EB Garamond
-3. Playfair Display / Inter
-4. Quintessential / EB Garamond
-5. Kings / Inter
+- **Display (14):** Fraunces _(default)_, Cormorant Garamond, Playfair Display,
+  Quintessential, Kings, Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne,
+  Dr Sugiyama, Smooch, Norican, Bilbo.
+- **Body (4):** Inter _(default)_, EB Garamond, Elms Sans, Satoshi (Fontshare).
 
-_To add:_ Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne, Dr Sugiyama, Smooch,
-Norican, Bilbo, Elms Sans (Google — ready to wire in); Satoshi (needs Fontshare
-link).
+Everything on the shortlist is now wired. Satoshi loads from Fontshare — verify it
+renders on the live deploy (couldn't reach `api.fontshare.com` from the sandbox).
 
 ## Live art-direction decisions
 
