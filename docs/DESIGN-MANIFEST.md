@@ -27,6 +27,9 @@ name/foundry confirmed before use.
 | Mr Dafoe | Google Fonts | Script (formal) | 👀 shortlist | Sudtipos "Mr" family; elegant signature feel. |
 | Felipa | Google Fonts | Display (calligraphic) | 👀 shortlist | Decorative display. |
 | Mrs Sheppards | Google Fonts | Script (formal calligraphy) | 👀 shortlist | Ornate; sparing use. |
+| Niconne | Google Fonts | Script (semi-formal) | 👀 shortlist | Lighter script; a bit more legible than the ornate ones. |
+| Dr Sugiyama | Google Fonts | Script (formal calligraphy) | 👍 liked | Sudtipos; elegant flourished signature feel. |
+| Smooch | Google Fonts | Script (fine, connected) | 👀 shortlist | Delicate thin script; hero/accent only. |
 
 **Read:** most of the shortlist are decorative **script/display** faces — beautiful
 as an oversized hero/wordmark accent, but they need a clean **body** partner
@@ -43,8 +46,9 @@ hidden at go-live). Packs available today (display / body):
 4. Quintessential / EB Garamond
 5. Kings / Inter
 
-_To add:_ Molle, Mr Dafoe, Felipa, Mrs Sheppards (Google — ready to wire in);
-Satoshi (needs Fontshare link); Elms Sans (confirm source first).
+_To add:_ Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne, Dr Sugiyama, Smooch
+(Google — ready to wire in); Satoshi (needs Fontshare link); Elms Sans (confirm
+source first).
 
 ## Live art-direction decisions
 
