@@ -17,7 +17,7 @@ name/foundry confirmed before use.
 | Font | Source | Category | Status | Notes |
 |---|---|---|---|---|
 | Satoshi | Fontshare | Sans (geometric) | 👍 liked | Clean modern body/UI sans. Not on Google Fonts — needs Fontshare `<link>` or self-host. |
-| Elms Sans | **TBC** | Sans (assumed) | 👍 liked | Couldn't confirm this exact name on Google Fonts or Fontshare — confirm spelling/foundry (voice-dictation capture). |
+| Elms Sans | Google Fonts | Sans | 👍 liked | Confirmed on the Google Fonts API. Candidate body/UI sans (alongside Satoshi). |
 | Fraunces | Google Fonts | Serif (display, optical, italic) | ✅ in use | Current arborist default display. Variable, high-contrast, has real italics. |
 | Cormorant Garamond | Google Fonts | Serif (display, high-contrast) | candidate | Elegant, safe "premium serif". |
 | Playfair Display | Google Fonts | Serif (display) | candidate | Classic editorial. |
@@ -49,8 +49,8 @@ hidden at go-live). Packs available today (display / body):
 5. Kings / Inter
 
 _To add:_ Molle, Mr Dafoe, Felipa, Mrs Sheppards, Niconne, Dr Sugiyama, Smooch,
-Norican, Bilbo (Google — ready to wire in); Satoshi (needs Fontshare link); Elms
-Sans (confirm source first).
+Norican, Bilbo, Elms Sans (Google — ready to wire in); Satoshi (needs Fontshare
+link).
 
 ## Live art-direction decisions
 
