@@ -22,16 +22,26 @@ normal for cold outreach. `armAcceptanceGate` (`packages/template/src/build-gate
 arms `checkClientAcceptance`'s placeholder checks the moment `SITE_LIVE=true`
 or `VERCEL_ENV=production`, so a build with any item below still unresolved
 **fails at build time**, before it ever reaches Vercel. `pnpm go-live <slug>`
-runs that armed build locally first for exactly this reason. This checklist
-is the human-readable mirror of that gate — work through it *before* running
-`pnpm go-live`, not after it fails.
+runs that armed build locally first for exactly this reason. §1–§2 below are
+the intake-facts half of that gate — work through them *before* running
+`pnpm go-live`, not after it fails. (`checkClientAcceptance` also runs two
+checks that aren't intake facts and so aren't checklist items — an
+unconditional WCAG AA contrast check on the resolved palette, and a
+video-hero check that `hero.videoSrc` is set whenever
+`layout.sections.hero.variant` is `"video"`. Both run on every build,
+preview included; if either fails, the fix is a `brand`/`layout` config
+change, not a missing intake fact.)
 
 ## 1. Required — the build will not go live without these
 
-Every field here is non-optional in `ClientConfigSchema`, and everything
-marked "(placeholder gate)" is additionally checked by `checkClientAcceptance`
-once `realData` is armed — a syntactically valid but fake value (a `.example`
-email, an all-zeros form key) passes Zod but still fails the armed build.
+Most fields here are non-optional in `ClientConfigSchema` itself (Zod rejects
+a config missing them, in preview or production). A few — flagged
+"(gate-only)" — are schema-*optional* but `checkClientAcceptance` still
+rejects an armed (go-live) build that omits or fakes them; Zod alone lets
+them through. Everything marked "(placeholder gate)" is additionally checked
+for fakeness once `realData` is armed — a syntactically valid but fake value
+(a `.example` email, an all-zeros form key) passes Zod but still fails the
+armed build.
 
 - [ ] **Business name** (`business.name`) — real legal/trade name, not a stub
       like "Acme" / "New Client" / "Test Business" (placeholder gate).
@@ -53,25 +63,33 @@ email, an all-zeros form key) passes Zod but still fails the armed build.
 - [ ] **Form provider key** (`form.accessKey`) — a real Web3Forms UUID-shaped
       access key. A scaffold string (`REPLACE_WITH_WEB3FORMS_ACCESS_KEY`) or
       an all-zeros key both fail the gate — only a real key passes.
-- [ ] **hCaptcha site key** (`form.hcaptchaSiteKey`) — required once the site
-      is real (optional only in preview/local dev); the gate fails a real
-      build with no key. Skipping it fills the client's inbox with spam.
+- [ ] **hCaptcha site key** (`form.hcaptchaSiteKey`, gate-only — schema
+      allows omitting it) — required once the site is real; the armed build
+      fails a real config with no key even though Zod alone would accept it.
+      Skipping it fills the client's inbox with spam.
 - [ ] **Production site URL** (`seo.siteUrl`) — the real `https://` domain the
       site will live at. Not `*.example` and not `http://` (placeholder gate
       requires `https://`).
-- [ ] **SEO title/description/city/region** (`seo.title` ≤ 70 chars,
-      `seo.description` ≤ 180 chars, `seo.city`, `seo.region`) — real, and
-      within the length limits (Zod enforces the limits; you supply the
-      content).
+- [ ] **SEO title** (`seo.title` ≤ 70 chars) — real, business-specific title.
+- [ ] **SEO description** (`seo.description` ≤ 180 chars) — real, not
+      boilerplate.
+- [ ] **SEO city / region** (`seo.city`, `seo.region`) — real, matches
+      `business.serviceAreas`.
 - [ ] **Section data matches `layout.sectionOrder`** — `checkClientAcceptance`
-      fails the build if a section is listed in `sectionOrder` but its data is
-      empty: `gallery` needs ≥1 photo, `reviews` needs ≥1 review, `serviceAreaMap`
-      needs `map.embedQuery` or `map.staticImage`, `contact` needs `form`. If a
-      fact for one of these genuinely isn't ready, drop that id from
-      `sectionOrder` rather than shipping it empty.
-- [ ] **Hero photo is optimized** (`hero.image`) — must resolve to a file
-      under `src/assets/photos/`, not only `public/`; a `public/`-only hero
-      image fails the armed build (protects LCP — see issue #81).
+      fails the build (in preview *and* production — this check is
+      unconditional, not gated on `realData`) if a section is listed in
+      `sectionOrder` but its data is empty: `gallery` needs ≥1 photo,
+      `reviews` needs ≥1 review, `serviceAreaMap` needs `map.embedQuery` or
+      `map.staticImage`. (`contact` needs `form`, which `ClientConfigSchema`
+      already requires at the root — this one can't actually fail.) If a fact
+      for `gallery`/`reviews`/`serviceAreaMap` genuinely isn't ready, drop
+      that id from `sectionOrder` rather than shipping it empty.
+- [ ] **Hero photo, if set, is optimized** (`hero.image` is schema-optional —
+      the build does not require a hero photo at all). *If* you set it, it
+      must resolve to a file under `src/assets/photos/`, not only `public/`;
+      a `public/`-only hero image fails the armed build (protects LCP — see
+      issue #81). In practice ship a real hero photo anyway — a site with no
+      hero image looks unfinished even though nothing enforces its presence.
 
 ## 2. Optional but recommended — schema allows omission, go-live shouldn't
 
@@ -83,9 +101,14 @@ but a client site missing them reads as unfinished:
 - [ ] **Gallery photos** (`gallery`, with alt text — required per photo when
       present) — real project photos, not stock. `GalleryPhotoSchema` rejects
       a photo with no `alt`.
-- [ ] **Reviews** (`reviews`) — real customer reviews only. Each entry needs
-      `author`, `rating` (1–5), `text`, optional `source` (e.g. "Google").
-      Never write a review that wasn't actually given.
+- [ ] **Reviews** (`reviews`) — real customer reviews only, and only with the
+      reviewer's **written permission to publish their name and words on the
+      site**. Each entry needs `author`, `rating` (1–5), `text`, optional
+      `source` (e.g. "Google"). Never write a review that wasn't actually
+      given, and never publish one you don't have permission for — the
+      schema has nowhere to record that permission, so track it outside
+      `client.config.ts` (e.g. the intake thread) and only copy the review
+      text in once you have it.
 - [ ] **OG image** (`seo.ogImage`) — a real 1200×630 social-share image, not
       the generated favicon monogram.
 - [ ] **Static map or map query** (`map.staticImage` / `map.embedQuery`) —
@@ -112,10 +135,11 @@ genuinely unknown at build time:
 ## 4. Not yet in scope (tracked separately, do not improvise)
 
 The original ask for this checklist also named license #, insurance carrier,
-certifications, testimonial-publish permission, and a Google Business Profile
-URL/rating. None of those have a `ClientConfigSchema` field today, so there is
-no config path for them yet — do not add ad hoc fields or free-text workarounds
-for them:
+certifications, and a Google Business Profile URL/rating (testimonial-publish
+permission is covered in §2 above — it doesn't need a new field, since
+`reviews` already exists). None of the items below have a `ClientConfigSchema`
+field today, so there is no config path for them yet — do not add ad hoc
+fields or free-text workarounds for them:
 
 - **License #, insurance carrier, certifications, GBP/social links, logo** —
   schema additions tracked in issue #87 (`feat(schema): trust/conversion

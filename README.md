@@ -188,8 +188,9 @@ pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod depl
 - `go-live` first runs `SITE_LIVE=true astro build` for the app locally — the
   same armed `checkClientAcceptance` gate described above — so placeholder
   intake data fails **here**, before anything touches Vercel. Work through
-  `docs/GO-LIVE-CHECKLIST.md` before running it — it's the human-readable
-  mirror of everything the armed gate checks.
+  `docs/GO-LIVE-CHECKLIST.md` before running it — it walks the intake facts
+  the armed gate checks (contrast/video-hero checks are separate and covered
+  there too, but aren't intake facts).
 - Without `--yes` it prints the exact `vercel env add SITE_LIVE production` +
   `vercel deploy --prod` commands (same print/execute pattern as `new-client`).
   With `--yes` it runs them, then verifies the live result.
