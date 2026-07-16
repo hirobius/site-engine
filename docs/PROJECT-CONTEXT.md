@@ -82,7 +82,7 @@ docs/
   HANDOFF.md            client handoff (7-day window + change fee)
   INTAKE.md             per-client intake questionnaire (maps 1:1 to schema)
   AI-ENGINEERING.md     ★ living architecture + AI-eng glossary + interview prep
-  BACKEND-STATUS.md     ★ backend build status + roadmap + critical path
+  BACKEND-STATUS.md     ★ backend status/architecture narrative (tasks are GitHub Issues)
   OPS-HANDOFF.md        ★ single brief to build the ops side (move engine + Astro render + dashboard)
   OPS-INTEGRATION.md    generic wrap-a-tool-into-ops recipe
   PROJECT-CONTEXT.md    ← this file
