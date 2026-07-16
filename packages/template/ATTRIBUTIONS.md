@@ -13,3 +13,8 @@ provenance but carry no attribution obligation.
 | `hero/video.astro` | original | — (factory's original full-bleed video hero, formerly `layout.variant: "B"`) | n/a | |
 | `hero/split-card.astro` | from-scratch | common "split with image card" marketing-hero pattern (Tailwind-UI-style); layout idea only, no code copied | n/a | 2026-07-12 |
 | `hero/banner.astro` | from-scratch | common "centered statement + framed screenshot" marketing-hero pattern; layout idea only, no code copied | n/a | 2026-07-12 |
+| `services/grid.astro` | original | — (factory's original service card grid, formerly `ServicesGrid.astro`) | n/a | 2026-07-16 |
+| `gallery/grid.astro` | original | — (factory's original responsive photo grid, formerly `Gallery.astro`) | n/a | 2026-07-16 |
+| `reviews/cards.astro` | original | — (factory's original rating + quote card grid, formerly `Reviews.astro`) | n/a | 2026-07-16 |
+| `services/cards.astro` | from-scratch | common "numbered service card grid" pattern (Tailwind-UI-style); layout idea only, no code copied | n/a | 2026-07-16 |
+| `services/alternating.astro` | from-scratch | common "alternating zig-zag feature rows" marketing pattern; layout idea only, no code copied | n/a | 2026-07-16 |

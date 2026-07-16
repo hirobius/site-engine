@@ -5,6 +5,10 @@ variant in `packages/template` — with the same guarantee as everything else in
 the factory: **agents building client sites pick variants via a closed enum in
 `client.config.ts`; they never touch markup.** See ADR-0002 for the design.
 
+> **Skins are the unit, variants are the rail (ADR-0003):** harvest a variant
+> only in service of a skin's section vocabulary — ~3 variants per section
+> max, pruned when no skin uses them. Don't grow this library for its own sake.
+
 ## Sources (three sanctioned types)
 
 | Type | Rule |
@@ -45,6 +49,21 @@ Most of #3–#8 is enforced deterministically by
 `packages/template/src/purity.test.ts` — it sweeps every component and fails
 `pnpm test` on violations. Script/external-URL exceptions are the explicit
 allowlists in `purity.ts`; editing them is a reviewed diff.
+
+### Shared partials within a section
+
+When two or more variants of the same section repeat identical markup (e.g.
+a CTA block, a background-image treatment), extract it to
+`components/<section>/_<name>.astro` — the leading underscore marks it as an
+internal atom, never itself a `SECTION_VARIANTS` entry or dispatcher target.
+Rule #1's `{ config: ClientConfig }`-only prop shape applies to the
+harvestable **variant** files (what the dispatcher's closed enum can select);
+a shared partial may take a small additional prop when the variants it
+serves render on genuinely different surfaces (e.g. a `tone` toggle for
+dark-hero vs. light-hero CTA styling) — swept by the same purity gate either
+way. Extracting is still a refactor, not a harvest: it must reproduce the
+existing variants' rendered HTML byte-for-byte (see "prove the refactor
+invisible" below); it never restyles or changes behavior.
 
 ## Touch list per NEW VARIANT of an existing section
 

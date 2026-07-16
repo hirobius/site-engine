@@ -67,10 +67,18 @@ apps/
   preview-evergreen-lawn/      cold-outreach preview
   preview-solidline-concrete/  cold-outreach preview
 scripts/
-  new-client.ts   scaffold a client + print Vercel CLI commands
-  eject-client.ts flatten one client into a standalone repo for handoff
+  new-client.ts      scaffold a client + print Vercel CLI commands
+  eject-client.ts    flatten one client into a standalone repo for handoff
+  skin-critique.ts   deterministic half of the skin critic loop (impeccable detect over a rendered skin)
 docs/
-  HANDOFF.md      one-page client handoff (the 7-day window + change fee)
+  INTAKE.md            per-client intake worksheet (maps 1:1 to client.config.ts)
+  GO-LIVE-CHECKLIST.md the facts a site needs before SITE_LIVE=true (issue #151)
+  HANDOFF.md           one-page client handoff (the 7-day window + change fee)
+  HARVESTING.md        how a section design becomes a config-selectable variant
+  AUTHORING-SKINS.md   deterministic playbook: inspiration brief -> skin PR (epic #173)
+  SKIN-CRITIC.md       taste rubric the critic loop (AUTHORING-SKINS.md step 7) scores a skin against (issue #177)
+  inspiration/         "the pot" — reference links/images/video -> a skin brief (epic #173)
+  adr/0004-inspiration-intake.md  inspiration feeds skin authoring, never bespoke output
 ```
 
 ### How a page is composed
@@ -185,13 +193,16 @@ pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod depl
 
 - `go-live` first runs `SITE_LIVE=true astro build` for the app locally — the
   same armed `checkClientAcceptance` gate described above — so placeholder
-  intake data fails **here**, before anything touches Vercel.
+  intake data fails **here**, before anything touches Vercel. Work through
+  `docs/GO-LIVE-CHECKLIST.md` before running it — it walks the intake facts
+  the armed gate checks (contrast/video-hero checks are separate and covered
+  there too, but aren't intake facts).
 - Without `--yes` it prints the exact `vercel env add SITE_LIVE production` +
   `vercel deploy --prod` commands (same print/execute pattern as `new-client`).
   With `--yes` it runs them, then verifies the live result.
 - `pnpm verify-live <url>` asserts a live site works: 200, no
   `X-Robots-Tag: noindex`, a LocalBusiness JSON-LD block, `/sitemap-index.xml`
-  + `robots.txt` reachable, `/thanks` renders.
+  + `robots.txt` + `llms.txt` reachable, `/thanks` renders.
 - `pnpm verify-live <preview-url> --expect-gated` asserts the opposite — 401
   with `WWW-Authenticate` + noindex — the behavioral proof of the preview gate
   above, runnable against any real preview deploy.
@@ -200,6 +211,9 @@ pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod depl
   `fetch`, no CLI side effects — so the fleet health monitor (ops cron,
   issue #108) can import them for the scheduled per-site checks instead of
   reimplementing the assertions.
+
+**Full runbook (real Web3Forms/hCaptcha keys, arming `SITE_LIVE`, pointing a
+Porkbun domain at Vercel, and verifying the result):** `docs/GO-LIVE.md`.
 
 ---
 

@@ -8,7 +8,10 @@ import type { ImageMetadata } from "astro";
  * Optimized path: when the photo lives in the app's `src/assets/photos/`, it is
  * processed by astro:assets — responsive `srcset`, modern formats, hashed URLs.
  * Verbatim path: anything else (e.g. files served from `public/`) renders as a
- * plain <img> with explicit dimensions so layout doesn't shift.
+ * plain img element with explicit dimensions so layout doesn't shift.
+ * (Spelled out as "img element" rather than the literal HTML tag: writing
+ * the tag itself here trips impeccable's broken-image rule; see
+ * design-quality.ts.)
  *
  * The glob below is root-relative, so it resolves against the *app's* src dir
  * even though this component ships from the template package.

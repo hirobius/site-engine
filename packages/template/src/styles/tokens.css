@@ -1,9 +1,12 @@
-/* Trimmed HDS token spine — vendored into the factory (clients #42).
- * Only the 125 custom properties the template actually references
- * (transitive closure), of the 403 in the full
- * @hirobius/design-system/variables.css. The dark-mode block is dropped — the
- * factory ships light-only. Regenerate if the template's token usage changes.
- * Source: @hirobius/design-system@0.13.0 dist/variables.css. */
+/* Fleet token spine — this file IS the source of truth for the factory's
+ * design tokens (clients #42). It was originally forked from
+ * @hirobius/design-system@0.13.0 dist/variables.css (125 of the 403 custom
+ * properties in that snapshot — the transitive closure the template
+ * actually references — with the dark-mode block dropped, since the factory
+ * ships light-only), but that fork is deliberate and final: there is no
+ * upstream and no ongoing sync/pinning relationship with HDS. Token changes
+ * are made directly here and roll out across the fleet per the rebuild
+ * policy in README → "Fleet rebuild drift". */
 :root {
   --primitive-color-neutral-50: #fafafa;
   --primitive-color-neutral-100: #f5f5f5;
@@ -130,4 +133,12 @@
   --semantic-shadow-subtle: 0 1px 2px hsl(var(--primitive-shadow-color) / 0.04), 0 1px 1px hsl(var(--primitive-shadow-color) / 0.06);
   --semantic-shadow-floating: 0 4px 6px hsl(var(--primitive-shadow-color) / 0.05), 0 10px 15px hsl(var(--primitive-shadow-color) / 0.08);
   --semantic-shadow-overlay: 0 10px 15px hsl(var(--primitive-shadow-color) / 0.08), 0 25px 50px hsl(var(--primitive-shadow-color) / 0.12);
+  /* Spacing-density dial (issue #86, spacing-density slice). These two values
+     ARE `Section.astro`'s existing `py-16 sm:py-20` rhythm — the "comfortable"
+     tier is deliberately just today's values restated as vars, so the default
+     path is byte-identical. `compact`/`airy` overrides land only via
+     `brand-overlay.ts` (never edited here), same override-only pattern as the
+     `--semantic-shadow-*` shadow dial above. */
+  --semantic-spacing-section-y: var(--primitive-space-16);
+  --semantic-spacing-section-y-lg: var(--primitive-space-20);
 }

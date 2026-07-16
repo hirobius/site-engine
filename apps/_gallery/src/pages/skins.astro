@@ -1,0 +1,91 @@
+---
+import Shell from "../components/Shell.astro";
+import { withDesignSkin } from "../fixtures.js";
+import { SKIN_IDS } from "@hirobius/schema";
+import { brandStyle, resolvePalette } from "@hirobius/template";
+import Hero from "@hirobius/template/components/Hero.astro";
+import ServicesGrid from "@hirobius/template/components/ServicesGrid.astro";
+import Reviews from "@hirobius/template/components/Reviews.astro";
+
+const SWATCH_KEYS = [
+  "--brand-primary",
+  "--brand-accent",
+  "--brand-bg",
+  "--brand-fg",
+  "--brand-muted",
+  "--brand-on-primary",
+] as const;
+
+// Same business facts and copy held fixed across every skin (see
+// `withDesignSkin` in fixtures.ts) — the whole point of a skin is that it
+// changes the SITE while the underlying client facts don't. Real client
+// sites still pick their own `brand.palettePreset`; a skin's
+// `cssVarOverrides` (when it sets one, e.g. warm-editorial) wins over that
+// preset, same override-only contract as every other skin field.
+const skins = SKIN_IDS.map((id) => ({
+  id,
+  config: withDesignSkin(id),
+}));
+---
+
+<Shell title="Skins" active="skins">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight">Design skins</h1>
+    <p class="mt-1 text-slate-600">
+      One coherent art direction per skin — hero variant + matching section
+      treatments + font pairing + palette family, selected by
+      <code class="text-sm">design: "…"</code> in <code class="text-sm">client.config.ts</code>.
+      Same base business facts and copy across every card below; only the skin changes.
+      (A dedicated type-scale dial — font sizes/line-heights, not just typeface —
+      is a separate, not-yet-built follow-up: issue #86.)
+      See <code class="text-sm">packages/schema/src/skins.ts</code> (ADR-0003).
+    </p>
+  </div>
+
+  <div class="space-y-12">
+    {
+      skins.map(({ id, config }) => {
+        const palette = resolvePalette(config);
+        return (
+          <section id={`skin-${id}`}>
+            <div class="mb-3 flex flex-wrap items-center gap-3">
+              <h2 class="text-lg font-semibold">{id}</h2>
+              <code class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                design: "{id}"
+              </code>
+              <span class="rounded-full bg-slate-900 px-2 py-0.5 text-xs text-white">
+                Hero variant {config.layout.sections.hero.variant}
+              </span>
+              <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                {config.brand.fontPairing ? `fontPairing: ${config.brand.fontPairing}` : `font: ${config.brand.font}`}
+              </span>
+              <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                radius: {config.brand.radius} · shadow: {config.brand.shadow} · motion: {config.brand.motion}
+              </span>
+              <div class="ml-auto flex items-center gap-1">
+                {SWATCH_KEYS.map((k) => (
+                  <span
+                    class="h-5 w-5 rounded border border-slate-200"
+                    style={`background:${palette[k]}`}
+                    title={`${k}: ${palette[k]}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Inline brand vars on the wrapper => the components inside resolve
+                their utilities to THIS skin's resolved palette + font pairing. */}
+            <div
+              class="overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+              style={brandStyle(config)}
+            >
+              <Hero config={config} />
+              <ServicesGrid config={config} />
+              <Reviews config={config} />
+            </div>
+          </section>
+        );
+      })
+    }
+  </div>
+</Shell>

@@ -12,7 +12,7 @@
  * Live mode expects what `apps/<slug>/middleware.ts` does once `SITE_LIVE=true`
  * (pass-through, no gate): 200, no `X-Robots-Tag: noindex`, a LocalBusiness
  * JSON-LD block (see `packages/template/src/lib/seo.ts`), `/sitemap-index.xml`
- * + `/robots.txt` + `/thanks` all reachable.
+ * + `/robots.txt` + `/llms.txt` + `/thanks` all reachable.
  *
  * `--expect-gated` expects the OPPOSITE — the closed-by-default preview gate:
  * 401 with `WWW-Authenticate` + `X-Robots-Tag: noindex`. Point it at any
@@ -86,7 +86,7 @@ export async function verifyLive(
     detail: jsonLd.length > 0 ? `found ${jsonLd.length} JSON-LD block(s), none LocalBusiness` : "no JSON-LD script found",
   });
 
-  for (const path of ["/sitemap-index.xml", "/robots.txt", "/thanks"]) {
+  for (const path of ["/sitemap-index.xml", "/robots.txt", "/llms.txt", "/thanks"]) {
     const res = await fetchImpl(`${root}${path}`);
     results.push({
       name: `${path} reachable`,

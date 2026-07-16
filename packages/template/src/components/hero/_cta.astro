@@ -1,0 +1,39 @@
+---
+// Shared hero CTA — the primary action link plus the "Call {phone}" link
+// every hero variant repeats verbatim (issue #133). Only the two `<a>`
+// elements live here; the wrapping `<div>` stays in each variant file since
+// its layout classes differ per variant (justify-center, conditional
+// centering, etc.).
+//
+// `tone` selects the secondary link's styling to match the variant's
+// background: "on-dark" for heroes on `bg-fg` (classic, video), "on-light"
+// for heroes on `bg-bg` / `bg-muted` (split-card, banner).
+import type { ClientConfig } from "@hirobius/schema";
+import { telHref } from "../../lib/theme.js";
+
+interface Props {
+  config: ClientConfig;
+  tone: "on-dark" | "on-light";
+}
+
+const { config, tone } = Astro.props;
+const { copy, business } = config;
+const tel = telHref(business.phone);
+
+const SECONDARY_CLASS = {
+  "on-dark":
+    "inline-flex items-center rounded-theme border border-on-fg/40 px-6 py-3 font-semibold text-on-fg transition hover:bg-on-fg/10",
+  "on-light":
+    "inline-flex items-center rounded-theme border border-fg/20 px-6 py-3 font-semibold text-fg transition hover:bg-fg/5",
+} as const;
+---
+
+<a
+  href="#contact"
+  class="inline-flex items-center rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
+>
+  {copy.ctaLabel}
+</a>
+<a href={tel} class={SECONDARY_CLASS[tone]}>
+  Call {business.phone}
+</a>

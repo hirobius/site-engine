@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { PALETTE_PRESET_IDS, FONT_IDS, type PalettePresetId } from "./presets.js";
+import { PALETTE_PRESET_IDS, FONT_IDS, FONT_PAIRING_IDS, type PalettePresetId } from "./presets.js";
 import { CONTENT_PACKS } from "./content-packs.js";
 import { SECTION_VARIANTS } from "./section-variants.js";
+import { SKINS, SKIN_IDS, type SkinId } from "./skins.js";
 
 /**
  * Client configuration schema.
@@ -63,6 +64,45 @@ export const BusinessSchema = z.object({
   hours: z.array(BusinessHoursSchema).min(1, "list at least one hours row"),
   /** Cities / regions served, used for copy and LocalBusiness areaServed. */
   serviceAreas: z.array(z.string().min(1)).min(1),
+  /**
+   * issue #87: full Google Business Profile listing URL (the
+   * `g.page/...` or `google.com/maps/place/...` link), used for a "Read our
+   * Google reviews" / "See us on Google" trust link. Optional and unset by
+   * default — every existing config stays valid. Intake-only, same as every
+   * other field on this schema — never fabricate one.
+   */
+  gbpUrl: z.string().url().optional(),
+  /**
+   * issue #87: data side of #33's licensed/insured/bonded trust bar.
+   * Each flag is independently optional and unset by default — deliberately
+   * *not* `.default(false)`, because a missing value must render as "unknown
+   * / not shown," never as an implied "no" (golden rule #5: never fabricate
+   * a business fact, and an absent negative claim is still a claim).
+   * `licenseNumber` is independent of `licensed` — not cross-validated (e.g.
+   * requiring `licensed: true` to set a number); kept optional as-is per
+   * approval on #87.
+   */
+  licensed: z.boolean().optional(),
+  insured: z.boolean().optional(),
+  bonded: z.boolean().optional(),
+  licenseNumber: z.string().min(1).optional(),
+});
+
+/**
+ * issue #87: social profile links, one optional URL per platform.
+ * All optional so a client with only two active profiles doesn't need to
+ * pad the rest — the template (once wired) renders only the icons present.
+ * Intake-only, never invented.
+ */
+export const SocialLinksSchema = z.object({
+  facebook: z.string().url().optional(),
+  instagram: z.string().url().optional(),
+  linkedin: z.string().url().optional(),
+  x: z.string().url().optional(),
+  youtube: z.string().url().optional(),
+  tiktok: z.string().url().optional(),
+  yelp: z.string().url().optional(),
+  nextdoor: z.string().url().optional(),
 });
 
 export const BrandSchema = z.object({
@@ -76,8 +116,34 @@ export const BrandSchema = z.object({
     .record(z.string().regex(/^--brand-[a-z-]+$/), hexColor)
     .default({}),
   font: z.enum(FONT_IDS).default("system"),
+  /**
+   * Heading↔body font pairing (issue #155, `presets.ts` `FONT_PAIRINGS`).
+   * Optional and unset by default: when omitted, `lib/theme.ts` derives both
+   * stacks from `font` above (today's single-stack behavior), so every
+   * existing config renders byte-identical. Set it to free the heading stack
+   * from the body stack — `font` is then ignored for the pair (still used
+   * elsewhere as the site's nominal font id).
+   */
+  fontPairing: z.enum(FONT_PAIRING_IDS).optional(),
   /** Corner radius applied site-wide via `--brand-radius`. */
   radius: z.enum(["none", "sm", "md", "lg", "xl"]).default("md"),
+  /**
+   * Shadow-character dial (issue #157). `soft` (default) reproduces today's
+   * `--semantic-shadow-{subtle,floating,overlay}` values exactly — additive,
+   * does not change any existing client's output. `flat` removes shadows
+   * entirely (borders carry the depth cue); `hard` swaps in solid,
+   * no-blur drop shadows. Wired in `packages/template/src/lib/brand-overlay.ts`.
+   */
+  shadow: z.enum(["flat", "soft", "hard"]).default("soft"),
+  /**
+   * Spacing-density dial (issue #86, spacing-density slice). `comfortable`
+   * (default) reproduces today's `Section.astro` vertical rhythm exactly —
+   * additive, does not change any existing client's output. `compact` tightens
+   * the rhythm, `airy` loosens it. Scoped to section vertical rhythm only
+   * (`--semantic-spacing-section-y*`); card padding/grid gaps are out of scope
+   * for this slice. Wired in `packages/template/src/lib/brand-overlay.ts`.
+   */
+  spacingDensity: z.enum(["compact", "comfortable", "airy"]).default("comfortable"),
   /**
    * Scroll-motion intensity, applied dependency-free (CSS + one
    * IntersectionObserver island; no GSAP, no Lenis):
@@ -91,6 +157,19 @@ export const BrandSchema = z.object({
    * `subtle`/`none` per client. See docs/adr/0001-motion-foundation.md.
    */
   motion: z.enum(["none", "subtle", "rich"]).default("rich"),
+  /**
+   * issue #87: site logo image, rendered in the header/footer in
+   * place of the text wordmark once wired. Optional — omitting it keeps
+   * today's text-wordmark rendering. Schema-only for now: no template
+   * consumes this field yet (rendering is a separate, follow-up change).
+   */
+  logo: publicPath.optional(),
+  /**
+   * issue #87: alt text for `logo`. Required to be non-empty when
+   * present so a client that sets a logo can't ship it without accessible
+   * alt text — same "explicit alt" posture as `GalleryPhotoSchema.alt`.
+   */
+  logoAlt: z.string().min(1).optional(),
 });
 
 export const LayoutSchema = z.object({
@@ -158,13 +237,38 @@ export const LayoutSchema = z.object({
     }),
 });
 
-export const ServiceSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-  /** Optional icon id (template ships a small inline set) or image path. */
-  icon: z.string().optional(),
-  image: publicPath.optional(),
-});
+export const ServiceSchema = z
+  .object({
+    title: z.string().min(1),
+    description: z.string().min(1),
+    /** Optional icon id (template ships a small inline set) or image path. */
+    icon: z.string().optional(),
+    image: publicPath.optional(),
+    /**
+     * Alt text for `image`. Required whenever `image` is set (enforced below
+     * via `.superRefine` — a11y, issue #87); both omitted is still valid, so
+     * a service with no photo renders exactly as today.
+     */
+    imageAlt: z.string().min(1).optional(),
+    /**
+     * issue #87: per-service display price. Deliberately a free-form
+     * string, not a number — service pricing is commonly a range ("$150–$300"),
+     * a qualifier ("Starting at $99", "Free estimate"), or a unit ("$0.15/sqft"),
+     * none of which fit a single numeric field. Optional; a service with no
+     * price renders exactly as today. Capped at 40 chars to keep it a label,
+     * not a paragraph. Intake-only — never invented.
+     */
+    price: z.string().min(1).max(40).optional(),
+  })
+  .superRefine((service, ctx) => {
+    if (service.image && !service.imageAlt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "imageAlt is required when image is set (accessibility)",
+        path: ["imageAlt"],
+      });
+    }
+  });
 
 export const ReviewSchema = z.object({
   author: z.string().min(1),
@@ -210,13 +314,30 @@ export const SeoSchema = z.object({
   ogImage: publicPath.optional(),
 });
 
-export const HeroSchema = z.object({
-  image: publicPath.optional(),
-  /** Used only by layout variant "B" (full-bleed video). */
-  videoSrc: publicPath.optional(),
-  /** Poster shown before the video loads — protects LCP. */
-  videoPoster: publicPath.optional(),
-});
+export const HeroSchema = z
+  .object({
+    image: publicPath.optional(),
+    /**
+     * Alt text for `image`, same "explicit alt" posture as
+     * `GalleryPhotoSchema.alt` / `ServiceSchema.imageAlt`. Required whenever
+     * `image` is set (enforced below via `.superRefine` — a11y, issue #87);
+     * both omitted is still valid.
+     */
+    imageAlt: z.string().min(1).optional(),
+    /** Used only by layout variant "B" (full-bleed video). */
+    videoSrc: publicPath.optional(),
+    /** Poster shown before the video loads — protects LCP. */
+    videoPoster: publicPath.optional(),
+  })
+  .superRefine((hero, ctx) => {
+    if (hero.image && !hero.imageAlt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "imageAlt is required when image is set (accessibility)",
+        path: ["imageAlt"],
+      });
+    }
+  });
 
 export const MapSchema = z.object({
   /**
@@ -248,6 +369,14 @@ export const ClientConfigSchema = z.object({
   map: MapSchema.default({}),
   form: FormSchema,
   seo: SeoSchema,
+  /**
+   * issue #87: social profile links (see `SocialLinksSchema`).
+   * Optional and unset by default — every existing config stays valid.
+   * A root-level section (not nested under `business`) so it mirrors `hero`
+   * / `map`: a distinct, independently-omittable concern the template will
+   * render as its own icon row (footer/header) once wired.
+   */
+  social: SocialLinksSchema.optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -265,12 +394,25 @@ export type SectionId = ClientConfig["layout"]["sectionOrder"][number];
  * (hours, phone, service areas, about copy) are never in a pack, so they stay
  * required here same as `ClientConfigInput`.
  */
-export type ClientConfigDraft =
+export type ClientConfigDraft = (
   | ClientConfigInput
   | (Omit<ClientConfigInput, "services"> & {
       contentPack: PalettePresetId;
       services?: ClientConfigInput["services"];
-    });
+    })
+) & {
+  /**
+   * Optional design skin (issue #140, ADR-0003 §3): a closed-enum preset
+   * (`skins.ts`) that pins `layout.sections.*.variant` choices + `brand`
+   * token defaults for one coherent art direction. Override-only, same
+   * contract as the sibling `contentPack` field above (merged by
+   * `applyContentPack`) — any field the draft sets explicitly wins, the skin
+   * only fills gaps — and stripped before Zod in
+   * `applyDesignSkin`, so it never reaches `ClientConfigSchema` and the ops
+   * schema-drift guard (#75) is unaffected by picking a skin.
+   */
+  design?: SkinId;
+};
 
 /**
  * Merge a content pack's defaults under a draft config. Override-only: any
@@ -293,6 +435,64 @@ function applyContentPack(config: ClientConfigDraft): ClientConfigInput {
     services: rest.services && rest.services.length > 0 ? rest.services : pack.services,
     copy: { ...rest.copy, ctaLabel: rest.copy.ctaLabel ?? pack.ctaLabel },
     layout: { ...rest.layout, sectionOrder: rest.layout.sectionOrder ?? pack.sectionOrder },
+  };
+}
+
+/**
+ * Pick an explicit section-variant override if the config set one, otherwise
+ * fall through to the skin's pin (if it has one for this section). Generic
+ * over the variant's own enum so each call site below still typechecks
+ * against that section's specific tuple.
+ */
+function pickSectionVariant<V extends string>(
+  explicit: { variant?: V } | undefined,
+  skinVariant: V | undefined,
+): { variant?: V } | undefined {
+  if (explicit?.variant !== undefined) return explicit;
+  if (skinVariant !== undefined) return { variant: skinVariant };
+  return explicit;
+}
+
+/**
+ * Merge a design skin's pins under a draft config. Override-only, the exact
+ * pattern of `applyContentPack` above: any `layout.sections.<id>.variant` or
+ * `brand.*` field the draft sets explicitly wins, the skin only fills gaps.
+ * Returns a plain `ClientConfigInput` (the `design` key never reaches Zod).
+ *
+ * Takes `ClientConfigInput & { design?: SkinId }` rather than plain
+ * `ClientConfigInput` — honest about needing `design` still attached (an
+ * object missing an optional property is assignable to a type declaring it,
+ * so callers upstream that are typed `ClientConfigInput` still typecheck
+ * here without a cast; see `defineClient`, which chains this after
+ * `applyLegacyHeroVariant`/`applyContentPack`, both declared to return plain
+ * `ClientConfigInput` even though the `design` field survives their spreads
+ * at runtime).
+ */
+function applyDesignSkin(config: ClientConfigInput & { design?: SkinId }): ClientConfigInput {
+  if (config.design === undefined) {
+    return config;
+  }
+  const { design, ...rest } = config;
+  const skin = SKINS[design];
+  if (!skin) {
+    throw new Error(`Unknown design "${design}" — expected one of ${SKIN_IDS.join(", ")}`);
+  }
+  const sections = rest.layout?.sections ?? {};
+  return {
+    ...rest,
+    brand: { ...skin.brand, ...rest.brand },
+    layout: {
+      ...rest.layout,
+      sections: {
+        ...sections,
+        hero: pickSectionVariant(sections.hero, skin.sections.hero),
+        services: pickSectionVariant(sections.services, skin.sections.services),
+        gallery: pickSectionVariant(sections.gallery, skin.sections.gallery),
+        reviews: pickSectionVariant(sections.reviews, skin.sections.reviews),
+        serviceAreaMap: pickSectionVariant(sections.serviceAreaMap, skin.sections.serviceAreaMap),
+        contact: pickSectionVariant(sections.contact, skin.sections.contact),
+      },
+    },
   };
 }
 
@@ -325,7 +525,7 @@ function applyLegacyHeroVariant(config: ClientConfigInput): ClientConfigInput {
  * loudly rather than shipping a broken site.
  */
 export function defineClient(config: ClientConfigDraft): ClientConfig {
-  const draft = applyLegacyHeroVariant(applyContentPack(config));
+  const draft = applyDesignSkin(applyLegacyHeroVariant(applyContentPack(config)));
   const result = ClientConfigSchema.safeParse(draft);
   if (!result.success) {
     const issues = result.error.issues
@@ -342,3 +542,4 @@ export * from "./presets.js";
 export * from "./content-packs.js";
 export * from "./lead-to-config.js";
 export * from "./section-variants.js";
+export * from "./skins.js";

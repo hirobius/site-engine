@@ -1,7 +1,10 @@
 import {
   defineClient,
   type ClientConfig,
+  type ClientConfigDraft,
+  type ClientConfigInput,
   type SectionVariantId,
+  type SkinId,
   type VariantSectionId,
 } from "@hirobius/schema";
 import type { PalettePresetId } from "@hirobius/schema/presets";
@@ -147,4 +150,71 @@ export function withSectionVariant<S extends VariantSectionId>(
       sections: { ...base.layout.sections, [section]: { variant } },
     },
   });
+}
+
+/**
+ * Base input for the skins page (issue #141) — same business content as the
+ * "Pressure Pros" preset fixture, but its `brand` sets ONLY `palettePreset`
+ * (no `font`/`radius`, unlike `build()` above). That matters: `applyDesignSkin`
+ * is override-only — an explicit field always wins over the skin's pin, even
+ * when that "explicit" value is just a Zod default that got baked in by an
+ * earlier `defineClient()` call. Feeding an already-resolved `ClientConfig`
+ * (e.g. a `FIXTURES` entry, which has concrete `font: "inter"`, `radius: "lg"`,
+ * `cssVarOverrides: {}`, `layout.sections.hero.variant: "classic"`, …) back in
+ * as a skin's base would make every one of THOSE pins lose to values that
+ * only look explicit — the skin would visibly do nothing. `withDesignSkin`
+ * below applies `design` to this raw, mostly-empty draft instead, so a
+ * skin's hero variant, font pairing, palette, radius, shadow, and motion all
+ * actually show through.
+ */
+const SKIN_DEMO_INPUT: ClientConfigInput = {
+  slug: "skin-demo",
+  business: {
+    name: "Pressure Pros",
+    phone: "(512) 555-0100",
+    email: "hello@example.com",
+    hours: [
+      { days: "Mon–Fri", hours: "8:00 AM – 6:00 PM" },
+      { days: "Sat", hours: "9:00 AM – 2:00 PM" },
+      { days: "Sun", hours: "Closed" },
+    ],
+    serviceAreas: ["Austin", "Round Rock", "Cedar Park"],
+  },
+  brand: { palettePreset: "pressure-washing" },
+  layout: { sectionOrder: ["services", "reviews", "contact"] },
+  services: [
+    { title: "House Washing", description: "Gentle soft-wash that lifts mildew without harming your siding." },
+    { title: "Driveways & Concrete", description: "Oil stains and grime gone; concrete back to its original color." },
+    { title: "Roof Cleaning", description: "Low-pressure treatment that protects your shingles and warranty." },
+  ],
+  copy: {
+    heroHeadline: "Driveways & Siding, Restored",
+    heroSub: "Soft-wash and surface cleaning that brings back the curb appeal. Free quotes.",
+    ctaLabel: "Get a Free Quote",
+    about: "Pressure Pros is a local, family-owned crew. Licensed, insured, and obsessed with the before-and-after.",
+  },
+  reviews: [
+    { author: "Maria G.", rating: 5, text: "Showed up on time, fair price, fantastic result.", source: "Google" },
+    { author: "Dave R.", rating: 5, text: "Booked one job, ended up doing three. Worth every penny.", source: "Google" },
+  ],
+  map: { embedQuery: "Austin, TX" },
+  form: { provider: "web3forms", accessKey: "00000000-0000-0000-0000-000000000000" },
+  seo: {
+    title: "Pressure Pros | Austin, TX",
+    description: "Soft-wash and surface cleaning that brings back the curb appeal. Free quotes.",
+    city: "Austin",
+    region: "TX",
+    siteUrl: "https://example.com",
+  },
+};
+
+/**
+ * Resolve the skins page's demo config for one skin (issue #141). See
+ * `SKIN_DEMO_INPUT` above for why this starts from a raw, unresolved draft
+ * instead of reusing a `FIXTURES` entry. Still runs through `defineClient()`,
+ * so the page can only ever show a (skin) combination a real client config
+ * could ship.
+ */
+export function withDesignSkin(design: SkinId): ClientConfig {
+  return defineClient({ ...SKIN_DEMO_INPUT, design } as ClientConfigDraft);
 }
