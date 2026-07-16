@@ -294,8 +294,9 @@ export type ClientConfigDraft = (
    * Optional design skin (issue #140, ADR-0003 §3): a closed-enum preset
    * (`skins.ts`) that pins `layout.sections.*.variant` choices + `brand`
    * token defaults for one coherent art direction. Override-only, same
-   * contract as `contentPack` below — any field the draft sets explicitly
-   * wins, the skin only fills gaps — and stripped before Zod in
+   * contract as the sibling `contentPack` field above (merged by
+   * `applyContentPack`) — any field the draft sets explicitly wins, the skin
+   * only fills gaps — and stripped before Zod in
    * `applyDesignSkin`, so it never reaches `ClientConfigSchema` and the ops
    * schema-drift guard (#75) is unaffected by picking a skin.
    */
@@ -346,13 +347,21 @@ function pickSectionVariant<V extends string>(
  * pattern of `applyContentPack` above: any `layout.sections.<id>.variant` or
  * `brand.*` field the draft sets explicitly wins, the skin only fills gaps.
  * Returns a plain `ClientConfigInput` (the `design` key never reaches Zod).
+ *
+ * Takes `ClientConfigInput & { design?: SkinId }` rather than plain
+ * `ClientConfigInput` — honest about needing `design` still attached (an
+ * object missing an optional property is assignable to a type declaring it,
+ * so callers upstream that are typed `ClientConfigInput` still typecheck
+ * here without a cast; see `defineClient`, which chains this after
+ * `applyLegacyHeroVariant`/`applyContentPack`, both declared to return plain
+ * `ClientConfigInput` even though the `design` field survives their spreads
+ * at runtime).
  */
-function applyDesignSkin(config: ClientConfigInput): ClientConfigInput {
-  const draft = config as ClientConfigInput & { design?: SkinId };
-  if (draft.design === undefined) {
+function applyDesignSkin(config: ClientConfigInput & { design?: SkinId }): ClientConfigInput {
+  if (config.design === undefined) {
     return config;
   }
-  const { design, ...rest } = draft;
+  const { design, ...rest } = config;
   const skin = SKINS[design];
   if (!skin) {
     throw new Error(`Unknown design "${design}" — expected one of ${SKIN_IDS.join(", ")}`);

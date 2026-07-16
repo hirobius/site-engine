@@ -102,6 +102,21 @@ describe("design skins", () => {
     expect(result).not.toHaveProperty("design");
   });
 
+  it("the deprecated layout.variant: 'B' hero mapping pre-empts the skin's hero pin (legacy resolves before the skin merges)", () => {
+    // applyLegacyHeroVariant runs before applyDesignSkin in defineClient, so
+    // by the time the skin sees layout.sections.hero it's already explicitly
+    // "video" — pickSectionVariant treats that the same as a hand-written
+    // override and leaves it alone. Documents the precedence rather than
+    // asserting it's the only sane choice; see index.ts's defineClient.
+    const result = defineClient(
+      config({ design: "classic", layout: { variant: "B" } }),
+    );
+    expect(result.layout.sections.hero.variant).toBe("video");
+    // Other sections are untouched by the legacy bridge, so they still get
+    // the skin's pin.
+    expect(result.layout.sections.services.variant).toBe("grid");
+  });
+
   it("composes with a contentPack: skin pins section variants, pack fills services", () => {
     const result = defineClient({
       ...config(),

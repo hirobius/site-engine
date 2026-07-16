@@ -1,4 +1,4 @@
-import type { FontPairingId } from "./presets.js";
+import type { FontId, FontPairingId } from "./presets.js";
 import type { SectionVariantId } from "./section-variants.js";
 
 /**
@@ -31,9 +31,19 @@ export interface SkinSections {
   contact?: SectionVariantId<"contact">;
 }
 
-/** Brand token defaults a skin can pin. Mirrors the defaulted `BrandSchema` fields. */
+/**
+ * Brand token defaults a skin can pin — every `BrandSchema` field that has an
+ * ordinary Zod default (i.e. every field a config can omit). `palettePreset`
+ * is deliberately excluded: it's `BrandSchema`'s one required field (the
+ * trade palette is picked per client, not per skin) and stays a config-only
+ * choice, same axis as `contentPack`. `cssVarOverrides` lets a future skin
+ * pin the "palette family" ADR-0003 point 1 calls for beyond the four
+ * trade presets; `font`/`fontPairing` cover its "type scale" axis.
+ */
 export interface SkinBrand {
+  font?: FontId;
   fontPairing?: FontPairingId;
+  cssVarOverrides?: Record<string, string>;
   radius?: "none" | "sm" | "md" | "lg" | "xl";
   shadow?: "flat" | "soft" | "hard";
   motion?: "none" | "subtle" | "rich";
