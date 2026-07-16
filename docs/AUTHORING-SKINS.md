@@ -38,7 +38,7 @@ description), not adjectives — adjectives already live in the brief's §3.
 
 | Reference type | How to extract |
 | --- | --- |
-| Links | `WebFetch` the page for a first read, then a **Playwright screenshot** (Chromium at `/opt/pw-browsers` in remote sessions) for the actual visual — hero framing, palette, type, spacing. Fetching text alone misses everything this playbook needs. |
+| Links | `WebFetch` the page for a first read, then a **Playwright screenshot** for the actual visual — hero framing, palette, type, spacing. Fetching text alone misses everything this playbook needs. Whatever Chromium install the authoring session has is fine; this repo's own documented Playwright convention is the pinned `mcr.microsoft.com/playwright:v1.60.0-noble` container (README.md's visual-regression section) — reach for that if the session doesn't already have a browser available. Don't assume a specific host path (e.g. `/opt/pw-browsers`) exists; that's an environment detail, not a repo convention. |
 | Images (`assets/*.png`, `*.jpg`, …) | View directly (multimodal read) — pull palette, type character, spacing/shape, hero framing straight from the image. |
 | Video (`assets/*.mp4`, …) | Sample frames with `ffmpeg` (e.g. `ffmpeg -i clip.mp4 -vf fps=1 frame-%03d.png`), then treat the frames like dropped images above. Motion *character* (settle vs. snap, calm vs. energetic) comes from watching a couple seconds, not a single frame. |
 
