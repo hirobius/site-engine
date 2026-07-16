@@ -196,6 +196,9 @@ pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod depl
   with `WWW-Authenticate` + noindex — the behavioral proof of the preview gate
   above, runnable against any real preview deploy.
 
+**Full runbook (real Web3Forms/hCaptcha keys, arming `SITE_LIVE`, pointing a
+Porkbun domain at Vercel, and verifying the result):** `docs/GO-LIVE.md`.
+
 ---
 
 ## Images
