@@ -35,7 +35,7 @@ export const client = defineClient({
     name: "Septic Response",
     phone: "(206) 962-2600",
     email: "hello@septic-response.example",
-    hours: [{ days: "Mon–Sun", hours: "Call for hours" }],
+    hours: [{ days: "Every day", hours: "Open 24 hours" }],
     serviceAreas: ["Kirkland", "Redmond", "Bellevue", "Bothell", "Woodinville"],
   },
   brand: {
@@ -75,7 +75,7 @@ export const client = defineClient({
   copy: {
     heroHeadline: "Kirkland's Trusted Septic Pros — Fast Response",
     heroSub:
-      "Septic pumping, inspections, repairs, and emergency service for Eastside homeowners — dependable, upfront, and fully insured.",
+      "Septic pumping, inspections, repairs, and 24/7 emergency service for Eastside homeowners — dependable, upfront, and fast.",
     ctaLabel: "Get a Free Quote",
     about:
       "Septic Response is a locally owned septic company serving Kirkland and the surrounding Eastside, with a 4.9-star reputation earned across more than two hundred reviews. From routine pumping and inspections to repairs and emergency service, we keep your system running and give you honest, upfront answers — no upsells, no surprises. Fast scheduling and careful, professional crews on every call.",
@@ -92,7 +92,7 @@ export const client = defineClient({
   seo: {
     title: "Septic Response | Kirkland Septic Service",
     description:
-      "Kirkland's trusted septic pros. Septic tank pumping, inspections, repairs, and fast emergency service for the Eastside. Free estimates, fully insured.",
+      "Kirkland's trusted septic pros. Septic tank pumping, inspections, repairs, and 24/7 emergency service for the Eastside. Free estimates.",
     city: "Kirkland",
     region: "WA",
     siteUrl: "https://septic-response.example",
