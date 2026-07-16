@@ -128,3 +128,62 @@ describe("design skins", () => {
     expect(result.layout.sections.hero.variant).toBe("classic");
   });
 });
+
+describe("warm-editorial skin (issue #141)", () => {
+  it("pins the editorial hero + font pairing + warm palette + brand dials", () => {
+    const result = defineClient(config({ design: "warm-editorial" }));
+    expect(result.layout.sections.hero.variant).toBe("split-card");
+    // Only variant each section has today — pinned anyway (see skins.ts doc
+    // comment), so this also documents "no new section components" (#141's
+    // constraint) rather than silently relying on the schema default.
+    expect(result.layout.sections.services.variant).toBe("grid");
+    expect(result.layout.sections.gallery.variant).toBe("grid");
+    expect(result.layout.sections.reviews.variant).toBe("cards");
+    expect(result.layout.sections.serviceAreaMap.variant).toBe("standard");
+    expect(result.layout.sections.contact.variant).toBe("standard");
+
+    expect(result.brand.fontPairing).toBe("editorial");
+    expect(result.brand.font).toBe("slab");
+    expect(result.brand.cssVarOverrides).toEqual({
+      "--brand-primary": "#4f6350",
+      "--brand-accent": "#9a4f2c",
+      "--brand-bg": "#faf6ee",
+      "--brand-fg": "#2a2420",
+      "--brand-muted": "#ede2ce",
+      "--brand-on-primary": "#faf6ee",
+    });
+    expect(result.brand.radius).toBe("lg");
+    expect(result.brand.shadow).toBe("flat");
+    expect(result.brand.motion).toBe("subtle");
+  });
+
+  it("is visibly distinct from the classic skin (different hero, palette, and brand dials)", () => {
+    const classicResult = defineClient(config({ design: "classic" }));
+    const warmResult = defineClient(config({ design: "warm-editorial" }));
+    expect(warmResult.layout.sections.hero.variant).not.toBe(classicResult.layout.sections.hero.variant);
+    expect(warmResult.brand.cssVarOverrides).not.toEqual(classicResult.brand.cssVarOverrides);
+    expect(warmResult.brand.fontPairing).not.toBe(classicResult.brand.fontPairing);
+    expect(warmResult.brand.shadow).not.toBe(classicResult.brand.shadow);
+    expect(warmResult.brand.motion).not.toBe(classicResult.brand.motion);
+  });
+
+  it("lets an explicit brand.cssVarOverrides override the skin's palette", () => {
+    const result = defineClient(
+      config({
+        design: "warm-editorial",
+        brand: { palettePreset: "pressure-washing", cssVarOverrides: { "--brand-bg": "#ffffff" } },
+      }),
+    );
+    expect(result.brand.cssVarOverrides).toEqual({ "--brand-bg": "#ffffff" });
+  });
+
+  it("renders byte-identical to today when design is omitted (additive)", () => {
+    const withoutDesign = defineClient(config());
+    const withClassic = defineClient(config({ design: "classic" }));
+    expect(withoutDesign).toEqual(withClassic);
+    // ...and is NOT the same as warm-editorial, proving the new skin actually
+    // changes output rather than being a no-op.
+    const withWarm = defineClient(config({ design: "warm-editorial" }));
+    expect(withoutDesign).not.toEqual(withWarm);
+  });
+});
