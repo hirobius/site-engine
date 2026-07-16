@@ -1,5 +1,5 @@
 /**
- * Design-quality gate — wraps `npx impeccable detect --json` (pbakaus/impeccable
+ * Design-quality gate — wraps `impeccable detect --json` (pbakaus/impeccable
  * v3, 46 deterministic anti-pattern rules: overused AI-default fonts,
  * bounce/elastic easing, layout-property animation, "AI slop" gradient/border
  * tells, WCAG contrast, cramped padding, etc. — no LLM, no API key) over the
@@ -12,21 +12,28 @@
  * gap ops#209 flagged ("impeccable is opt-in and wired to nothing that
  * fires") and mirroring hds's own `check-impeccable-detect.mjs` (hds#182).
  *
- * Offline-safe by construction: `npx` needs network the first time it fetches
- * the `impeccable` package; `detect` itself then runs fully locally (jsdom +
- * regex matching, no further network calls). If npx/network/the tool itself
- * is unavailable, this resolves `{ skipped: true, reason }` instead of
- * throwing — `design-quality.test.ts` turns that into a vitest dynamic
- * `ctx.skip()` rather than a hard failure, so a sandboxed/offline run never
- * blocks on infra it can't reach.
+ * `impeccable` is pinned as an exact-version devDependency of this package
+ * (see `package.json`) rather than invoked via a floating `npx impeccable@3`
+ * — a "deterministic" gate that resolves a different tool version every run
+ * isn't actually deterministic. The pinned binary lives in this package's own
+ * `node_modules/.bin`, resolved relative to this source file (`IMPECCABLE_BIN`
+ * below) so it works regardless of the caller's `cwd` (targets are resolved
+ * against `cwd`; the binary is not).
  *
- * Deliberately async (spawn, not spawnSync): the first-run `npx` package
- * fetch can take well over a minute under load, and a long *synchronous*
+ * Still offline-safe: `detect` runs fully locally (jsdom + regex matching, no
+ * network calls) once the workspace is `pnpm install`ed, which is required
+ * infra everywhere this gate runs. If the binary isn't installed (fresh
+ * checkout, no install) or the tool itself is unavailable, this resolves
+ * `{ skipped: true, reason }` instead of throwing — `design-quality.test.ts`
+ * turns that into a vitest dynamic `ctx.skip()` rather than a hard failure,
+ * so a sandboxed/pre-install run never blocks on infra it can't reach.
+ *
+ * Deliberately async (spawn, not spawnSync): a long *synchronous*
  * child-process wait blocks the whole event loop — inside a vitest worker
  * that starves the worker's own RPC heartbeat to the main process
  * ("Timeout calling onTaskUpdate"), failing the suite even though the test
- * itself would have passed. Async spawn keeps the event loop free while npx
- * runs, so a slow-but-successful run never masquerades as a crash.
+ * itself would have passed. Async spawn keeps the event loop free while
+ * impeccable runs, so a slow-but-successful run never masquerades as a crash.
  *
  * Exemptions for deliberate design choices are impeccable's own inline
  * `// impeccable-disable-line <rule> -- <reason>` comments (honored by the
@@ -37,6 +44,8 @@
  * into, not a default this engine imposes.
  */
 import { spawn as nodeSpawn } from "node:child_process";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export interface ImpeccableFinding {
   antipattern: string;
@@ -70,13 +79,29 @@ export interface RunImpeccableOptions {
 }
 
 /**
- * Covers a slow first-run `npx` package fetch. Exported so callers that wrap
- * this in their own timeout (e.g. design-quality.test.ts's real end-to-end
- * test, which needs vitest's own per-test timeout to exceed this) derive
- * from one number instead of a second, undocumented copy of the same "npx
- * fetch is slow" assumption.
+ * Generous headroom for a cold run (jsdom parsing the whole scanned surface
+ * under load). Exported so callers that wrap this in their own timeout (e.g.
+ * design-quality.test.ts's real end-to-end test, which needs vitest's own
+ * per-test timeout to exceed this) derive from one number instead of a
+ * second, undocumented copy of the same assumption.
  */
 export const DEFAULT_TIMEOUT_MS = 120_000;
+
+/**
+ * Absolute path to the `impeccable` binary installed as this package's own
+ * pinned devDependency. Resolved relative to this source file rather than a
+ * caller-supplied `cwd` — the caller's `cwd`/`targets` describe what to scan,
+ * not where the tool itself lives, and `packages/template/node_modules/.bin`
+ * is the one place pnpm actually places the symlink for a package-local
+ * devDependency (it does not get hoisted to the workspace root).
+ */
+const IMPECCABLE_BIN = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "node_modules",
+  ".bin",
+  process.platform === "win32" ? "impeccable.cmd" : "impeccable",
+);
 
 /**
  * Adapts `node:child_process.spawn`'s real (heavily overloaded) type down to
@@ -90,11 +115,11 @@ function defaultSpawn(command: string, args: string[], options: { cwd: string; s
 }
 
 /**
- * Run `npx --yes impeccable@3 detect --json <targets>` and resolve its
- * findings, or `{ skipped: true, reason }` when the tool/network is
- * unavailable. Never rejects — unavailability (no network for the first-run
- * npx fetch, a registry outage, an npx timeout, an upstream contract change)
- * is treated as "can't run right now", not as design debt.
+ * Run the pinned local `impeccable detect --json <targets>` binary and
+ * resolve its findings, or `{ skipped: true, reason }` when the tool is
+ * unavailable. Never rejects — unavailability (not yet `pnpm install`ed, a
+ * bad install, a timeout, an upstream contract change) is treated as "can't
+ * run right now", not as design debt.
  */
 export function runImpeccableDetect(
   targets: string[],
@@ -114,15 +139,15 @@ export function runImpeccableDetect(
 
     let child: SpawnLike;
     try {
-      child = spawn("npx", ["--yes", "impeccable@3", "detect", "--json", ...targets], { cwd, shell: false });
+      child = spawn(IMPECCABLE_BIN, ["detect", "--json", ...targets], { cwd, shell: false });
     } catch (err) {
-      settle({ skipped: true, reason: `npx failed to launch: ${(err as Error).message}` });
+      settle({ skipped: true, reason: `impeccable failed to launch: ${(err as Error).message}` });
       return;
     }
 
     timer = setTimeout(() => {
       child.kill();
-      settle({ skipped: true, reason: "npx timed out (offline?)" });
+      settle({ skipped: true, reason: "impeccable timed out" });
     }, timeoutMs);
 
     let stdout = "";
@@ -135,14 +160,14 @@ export function runImpeccableDetect(
     });
 
     child.on("error", (err) => {
-      settle({ skipped: true, reason: `npx failed: ${err.message}` });
+      settle({ skipped: true, reason: `impeccable failed: ${err.message}` });
     });
 
     child.on("close", (status) => {
       // impeccable's own exit-code contract: 0 = clean, 2 = findings
-      // (eslint-style). Anything else means the tool itself failed (fetch
-      // error, bad install, no network for the first-run npx fetch) —
-      // that's unavailability, not debt.
+      // (eslint-style). Anything else means the tool itself failed (missing
+      // install, bad binary, corrupt output) — that's unavailability, not
+      // debt.
       if (status !== 0 && status !== 2) {
         const firstErrLine = stderr.trim().split("\n")[0] || "no stderr";
         settle({ skipped: true, reason: `impeccable exited ${status ?? "null"}: ${firstErrLine}` });
