@@ -72,6 +72,20 @@ export const BusinessSchema = z.object({
    * other field on this schema — never fabricate one.
    */
   gbpUrl: z.string().url().optional(),
+  /**
+   * DRAFT (issue #87): data side of #33's licensed/insured/bonded trust bar.
+   * Each flag is independently optional and unset by default — deliberately
+   * *not* `.default(false)`, because a missing value must render as "unknown
+   * / not shown," never as an implied "no" (golden rule #5: never fabricate
+   * a business fact, and an absent negative claim is still a claim).
+   * `licenseNumber` is independent of `licensed` in this draft — not
+   * cross-validated (e.g. requiring `licensed: true` to set a number) to
+   * keep the diff minimal; open question in the PR body.
+   */
+  licensed: z.boolean().optional(),
+  insured: z.boolean().optional(),
+  bonded: z.boolean().optional(),
+  licenseNumber: z.string().min(1).optional(),
 });
 
 /**

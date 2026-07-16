@@ -135,6 +135,14 @@
                 "optional": true,
                 "hasDefault": false
               },
+              "bonded": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "boolean"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
               "email": {
                 "shape": {
                   "kind": "primitive",
@@ -181,6 +189,30 @@
                   }
                 },
                 "optional": false,
+                "hasDefault": false
+              },
+              "insured": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "boolean"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "licenseNumber": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "licensed": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "boolean"
+                },
+                "optional": true,
                 "hasDefault": false
               },
               "name": {

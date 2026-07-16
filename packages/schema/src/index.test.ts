@@ -446,6 +446,42 @@ describe("defineClient", () => {
     });
   });
 
+  describe("business.licensed/insured/bonded/licenseNumber (DRAFT #87)", () => {
+    it("are unset by default (never a fabricated false)", () => {
+      const result = defineClient(config());
+      expect(result.business.licensed).toBeUndefined();
+      expect(result.business.insured).toBeUndefined();
+      expect(result.business.bonded).toBeUndefined();
+      expect(result.business.licenseNumber).toBeUndefined();
+    });
+
+    it("accepts explicit true/false flags and a license number", () => {
+      const result = defineClient(
+        config({
+          business: {
+            ...BASE_INPUT.business,
+            licensed: true,
+            insured: true,
+            bonded: false,
+            licenseNumber: "WA-LIC-12345",
+          },
+        }),
+      );
+      expect(result.business.licensed).toBe(true);
+      expect(result.business.insured).toBe(true);
+      expect(result.business.bonded).toBe(false);
+      expect(result.business.licenseNumber).toBe("WA-LIC-12345");
+    });
+
+    it("rejects an empty licenseNumber", () => {
+      expect(() =>
+        defineClient(
+          config({ business: { ...BASE_INPUT.business, licenseNumber: "" } }),
+        ),
+      ).toThrow();
+    });
+  });
+
   describe("social (DRAFT #87)", () => {
     it("is unset by default", () => {
       const result = defineClient(config());
