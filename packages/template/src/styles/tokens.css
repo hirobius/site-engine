@@ -130,4 +130,12 @@
   --semantic-shadow-subtle: 0 1px 2px hsl(var(--primitive-shadow-color) / 0.04), 0 1px 1px hsl(var(--primitive-shadow-color) / 0.06);
   --semantic-shadow-floating: 0 4px 6px hsl(var(--primitive-shadow-color) / 0.05), 0 10px 15px hsl(var(--primitive-shadow-color) / 0.08);
   --semantic-shadow-overlay: 0 10px 15px hsl(var(--primitive-shadow-color) / 0.08), 0 25px 50px hsl(var(--primitive-shadow-color) / 0.12);
+  /* Spacing-density dial (issue #86, spacing-density slice). These two values
+     ARE `Section.astro`'s existing `py-16 sm:py-20` rhythm — the "comfortable"
+     tier is deliberately just today's values restated as vars, so the default
+     path is byte-identical. `compact`/`airy` overrides land only via
+     `brand-overlay.ts` (never edited here), same override-only pattern as the
+     `--semantic-shadow-*` shadow dial above. */
+  --semantic-spacing-section-y: var(--primitive-space-16);
+  --semantic-spacing-section-y-lg: var(--primitive-space-20);
 }

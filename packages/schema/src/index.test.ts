@@ -46,6 +46,7 @@ describe("defineClient", () => {
     expect(result.brand.fontPairing).toBeUndefined();
     expect(result.brand.radius).toBe("md");
     expect(result.brand.shadow).toBe("soft");
+    expect(result.brand.spacingDensity).toBe("comfortable");
     expect(result.brand.cssVarOverrides).toEqual({});
     expect(result.layout.variant).toBe("A");
     expect(result.copy.ctaLabel).toBe("Get a Free Quote");
@@ -248,6 +249,33 @@ describe("defineClient", () => {
       expect(() =>
         defineClient(
           config({ brand: { palettePreset: "pressure-washing", shadow: "glow" as never } }),
+        ),
+      ).toThrow();
+    });
+  });
+
+  describe("brand.spacingDensity", () => {
+    it("defaults to comfortable", () => {
+      const result = defineClient(config({ brand: { palettePreset: "pressure-washing" } }));
+      expect(result.brand.spacingDensity).toBe("comfortable");
+    });
+
+    it("resolves compact, comfortable, and airy", () => {
+      for (const spacingDensity of ["compact", "comfortable", "airy"] as const) {
+        expect(() =>
+          defineClient(
+            config({ brand: { palettePreset: "pressure-washing", spacingDensity } }),
+          ),
+        ).not.toThrow();
+      }
+    });
+
+    it("rejects an unknown spacingDensity value", () => {
+      expect(() =>
+        defineClient(
+          config({
+            brand: { palettePreset: "pressure-washing", spacingDensity: "dense" as never },
+          }),
         ),
       ).toThrow();
     });

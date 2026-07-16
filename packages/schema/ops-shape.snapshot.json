@@ -101,6 +101,18 @@
                 },
                 "optional": false,
                 "hasDefault": true
+              },
+              "spacingDensity": {
+                "shape": {
+                  "kind": "enum",
+                  "values": [
+                    "airy",
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                "optional": false,
+                "hasDefault": true
               }
             }
           },

@@ -56,6 +56,14 @@ export interface BrandPalette {
    * `'flat'`/`'hard'` swap in {@link SHADOW_SETS}.
    */
   shadow?: 'flat' | 'soft' | 'hard';
+  /**
+   * Spacing-density dial (issue #86, spacing-density slice). `'comfortable'`
+   * (or omitted) leaves the `--semantic-spacing-section-y*` vars untouched —
+   * `tokens.css`'s own values ARE the "comfortable" set, so this is what keeps
+   * the default path byte-identical. `'compact'`/`'airy'` swap in
+   * {@link SPACING_DENSITY_SETS}. Scoped to section vertical rhythm only.
+   */
+  spacingDensity?: 'compact' | 'comfortable' | 'airy';
 }
 
 /**
@@ -81,6 +89,27 @@ const SHADOW_SETS: Record<'flat' | 'hard', { subtle: string; floating: string; o
   },
 };
 
+/**
+ * The `compact` and `airy` tiers for the `brand.spacingDensity` dial
+ * (issue #86, spacing-density slice). `comfortable` is deliberately absent —
+ * it's `tokens.css`'s existing default (`--primitive-space-16`/`-20`, i.e.
+ * `Section.astro`'s `py-16 sm:py-20`), so leaving it out of this table (no
+ * override emitted) is what guarantees the default path renders
+ * byte-identical. Both tiers keep the base→lg step on the same primitive
+ * scale as the default (one scale rung apart), just shifted down/up it:
+ * `compact` ~0.75-0.8x the comfortable values, `airy` ~1.5-1.6x.
+ */
+const SPACING_DENSITY_SETS: Record<'compact' | 'airy', { sectionY: string; sectionYLg: string }> = {
+  compact: {
+    sectionY: 'var(--primitive-space-12)', // 48px (comfortable: 64px)
+    sectionYLg: 'var(--primitive-space-16)', // 64px (comfortable: 80px)
+  },
+  airy: {
+    sectionY: 'var(--primitive-space-24)', // 96px (comfortable: 64px)
+    sectionYLg: 'var(--primitive-space-32)', // 128px (comfortable: 80px)
+  },
+};
+
 /** How dark/light a derived accent state sits relative to the primary. */
 const ACCENT_HOVER_MIX = 88; // % primary, remainder black
 const ACCENT_PRESSED_MIX = 76; // % primary, remainder black
@@ -102,7 +131,8 @@ const blend = (a: string, b: string, pct: number) => `color-mix(in srgb, ${a} ${
  * unchanged, so a partial palette still yields a coherent theme.
  */
 export function brandOverlayVars(palette: BrandPalette): Record<string, string> {
-  const { primary, onPrimary, bg, fg, muted, accent, radius, fontHeading, fontBody, shadow } = palette;
+  const { primary, onPrimary, bg, fg, muted, accent, radius, fontHeading, fontBody, shadow, spacingDensity } =
+    palette;
 
   const vars: Record<string, string> = {
     // ── accent ramp (rest + derived interactive states) ──
@@ -145,6 +175,12 @@ export function brandOverlayVars(palette: BrandPalette): Record<string, string> 
     vars['--semantic-shadow-subtle'] = set.subtle;
     vars['--semantic-shadow-floating'] = set.floating;
     vars['--semantic-shadow-overlay'] = set.overlay;
+  }
+
+  if (spacingDensity && spacingDensity !== 'comfortable') {
+    const set = SPACING_DENSITY_SETS[spacingDensity];
+    vars['--semantic-spacing-section-y'] = set.sectionY;
+    vars['--semantic-spacing-section-y-lg'] = set.sectionYLg;
   }
 
   return vars;

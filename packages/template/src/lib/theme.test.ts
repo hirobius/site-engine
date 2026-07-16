@@ -108,3 +108,27 @@ describe("brand.shadow (#157)", () => {
     expect(style).toMatch(/--semantic-shadow-overlay:6px 6px 0 0 /);
   });
 });
+
+describe("brand.spacingDensity (#86, spacing-density slice)", () => {
+  it("defaults to comfortable — emits no --semantic-spacing-section-y* override", () => {
+    const style = brandStyle(withBrand({}));
+    expect(style).not.toContain("--semantic-spacing-section-y");
+  });
+
+  it("explicit 'comfortable' also emits no override (identical to default)", () => {
+    const style = brandStyle(withBrand({ spacingDensity: "comfortable" }));
+    expect(style).not.toContain("--semantic-spacing-section-y");
+  });
+
+  it("'compact' tightens the section rhythm", () => {
+    const style = brandStyle(withBrand({ spacingDensity: "compact" }));
+    expect(style).toContain("--semantic-spacing-section-y:var(--primitive-space-12)");
+    expect(style).toContain("--semantic-spacing-section-y-lg:var(--primitive-space-16)");
+  });
+
+  it("'airy' loosens the section rhythm", () => {
+    const style = brandStyle(withBrand({ spacingDensity: "airy" }));
+    expect(style).toContain("--semantic-spacing-section-y:var(--primitive-space-24)");
+    expect(style).toContain("--semantic-spacing-section-y-lg:var(--primitive-space-32)");
+  });
+});

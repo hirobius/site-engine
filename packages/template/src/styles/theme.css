@@ -49,6 +49,16 @@
   --font-body: var(--primitive-typography-family-primary);
 
   --radius-theme: var(--semantic-radius-action);
+
+  /* Spacing-density dial (issue #86, spacing-density slice) — extends
+     Tailwind's spacing scale so `py-section-y`/`py-section-y-lg` resolve to
+     the semantic vars, same `--<utility-namespace>-<name>` @theme-key idiom
+     as `--color-*`/`--radius-theme` above (a Tailwind theme key that maps
+     straight onto a semantic var). `Section.astro` is the only consumer for
+     this slice; card padding/grid gaps are a separate dial, out of scope
+     here. */
+  --spacing-section-y: var(--semantic-spacing-section-y);
+  --spacing-section-y-lg: var(--semantic-spacing-section-y-lg);
 }
 
 /* Brand-level default for the one var HDS does not own (secondary accent).
