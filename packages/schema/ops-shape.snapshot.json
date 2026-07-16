@@ -37,6 +37,20 @@
                 "optional": false,
                 "hasDefault": true
               },
+              "fontPairing": {
+                "shape": {
+                  "kind": "enum",
+                  "values": [
+                    "editorial",
+                    "industrial",
+                    "modern",
+                    "slab",
+                    "system"
+                  ]
+                },
+                "optional": true,
+                "hasDefault": false
+              },
               "motion": {
                 "shape": {
                   "kind": "enum",
@@ -71,6 +85,18 @@
                     "none",
                     "sm",
                     "xl"
+                  ]
+                },
+                "optional": false,
+                "hasDefault": true
+              },
+              "shadow": {
+                "shape": {
+                  "kind": "enum",
+                  "values": [
+                    "flat",
+                    "hard",
+                    "soft"
                   ]
                 },
                 "optional": false,

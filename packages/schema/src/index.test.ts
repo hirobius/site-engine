@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defineClient, PALETTE_PRESET_IDS, FONT_IDS } from "./index.js";
+import { FONT_PAIRING_IDS } from "./presets.js";
 import type { ClientConfigInput } from "./index.js";
 
 const BASE_INPUT: ClientConfigInput = {
@@ -42,7 +43,9 @@ describe("defineClient", () => {
   it("applies documented defaults", () => {
     const result = defineClient(config());
     expect(result.brand.font).toBe("system");
+    expect(result.brand.fontPairing).toBeUndefined();
     expect(result.brand.radius).toBe("md");
+    expect(result.brand.shadow).toBe("soft");
     expect(result.brand.cssVarOverrides).toEqual({});
     expect(result.layout.variant).toBe("A");
     expect(result.copy.ctaLabel).toBe("Get a Free Quote");
@@ -199,6 +202,54 @@ describe("defineClient", () => {
           defineClient(config({ brand: { palettePreset: "pressure-washing", font } })),
         ).not.toThrow();
       }
+    });
+  });
+
+  describe("brand.fontPairing", () => {
+    it("is unset by default", () => {
+      const result = defineClient(config({ brand: { palettePreset: "pressure-washing" } }));
+      expect(result.brand.fontPairing).toBeUndefined();
+    });
+
+    it("resolves every shipped pairing id", () => {
+      for (const fontPairing of FONT_PAIRING_IDS) {
+        expect(() =>
+          defineClient(config({ brand: { palettePreset: "pressure-washing", fontPairing } })),
+        ).not.toThrow();
+      }
+    });
+
+    it("rejects an unknown pairing id", () => {
+      expect(() =>
+        defineClient(
+          config({
+            brand: { palettePreset: "pressure-washing", fontPairing: "not-a-pairing" as never },
+          }),
+        ),
+      ).toThrow();
+    });
+  });
+
+  describe("brand.shadow", () => {
+    it("defaults to soft", () => {
+      const result = defineClient(config({ brand: { palettePreset: "pressure-washing" } }));
+      expect(result.brand.shadow).toBe("soft");
+    });
+
+    it("resolves flat and hard", () => {
+      for (const shadow of ["flat", "soft", "hard"] as const) {
+        expect(() =>
+          defineClient(config({ brand: { palettePreset: "pressure-washing", shadow } })),
+        ).not.toThrow();
+      }
+    });
+
+    it("rejects an unknown shadow value", () => {
+      expect(() =>
+        defineClient(
+          config({ brand: { palettePreset: "pressure-washing", shadow: "glow" as never } }),
+        ),
+      ).toThrow();
     });
   });
 
