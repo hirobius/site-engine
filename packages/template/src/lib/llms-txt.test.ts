@@ -86,4 +86,49 @@ describe("llmsTxt", () => {
   it("is a plain-text derivation with no stub scaffolding", () => {
     expect(output).not.toMatch(/TODO|PLACEHOLDER|\[object Object\]|undefined/i);
   });
+
+  /** Extract the exact substrings llmsTxt() wrote into the "## Contact"
+   *  section and run the fleet-wide placeholder detectors against *those*
+   *  — not against REAL_CONFIG's own fields — so a formatting bug that
+   *  corrupted the emitted text (not just the input) would be caught too. */
+  function extractContactLine(text: string, label: "Phone" | "Email" | "Website"): string {
+    const match = text.match(new RegExp(`^- ${label}: (.+)$`, "m"));
+    if (!match) throw new Error(`no "${label}" line found in llms.txt output`);
+    return match[1]!;
+  }
+
+  it("reuses the acceptance detectors on the emitted output itself, and they pass for real data", () => {
+    expect(isPlaceholderPhone(extractContactLine(output, "Phone"))).toBe(false);
+    expect(isPlaceholderEmail(extractContactLine(output, "Email"))).toBe(false);
+    expect(isPlaceholderSiteUrl(extractContactLine(output, "Website"))).toBe(false);
+  });
 });
+
+describe("llmsTxt with placeholder intake stubs", () => {
+  // Mirrors apps/_template's actual scaffold stubs (555 exchange, .example
+  // domains) — proves the same acceptance detectors, run against the
+  // *emitted* llms.txt text, do flag a still-unfilled preview site as fake.
+  const PLACEHOLDER_INPUT: ClientConfigInput = {
+    ...REAL_INPUT,
+    slug: "new-client",
+    business: {
+      ...REAL_INPUT.business,
+      phone: "(555) 010-0000",
+      email: "hello@example.com",
+    },
+    seo: { ...REAL_INPUT.seo, siteUrl: "https://example.com" },
+  };
+  const output = llmsTxt(defineClient(PLACEHOLDER_INPUT));
+
+  it("flags the emitted phone, email, and site URL as placeholders", () => {
+    expect(isPlaceholderPhone(extractContactLine(output, "Phone"))).toBe(true);
+    expect(isPlaceholderEmail(extractContactLine(output, "Email"))).toBe(true);
+    expect(isPlaceholderSiteUrl(extractContactLine(output, "Website"))).toBe(true);
+  });
+});
+
+function extractContactLine(text: string, label: "Phone" | "Email" | "Website"): string {
+  const match = text.match(new RegExp(`^- ${label}: (.+)$`, "m"));
+  if (!match) throw new Error(`no "${label}" line found in llms.txt output`);
+  return match[1]!;
+}

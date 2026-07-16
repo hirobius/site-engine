@@ -39,9 +39,10 @@ const WEB3FORMS_KEY_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
 
 /** Fleet convention for fake phones: area code 555, or the FCC-reserved
  *  555-01XX exchange (see `apps/_template`'s stub `(555) 010-0000`). Exported
- *  so other generated build outputs (e.g. `llms.txt`, `lib/llms-txt.ts`) can
- *  assert against the same fleet-wide placeholder convention instead of
- *  re-deriving it. */
+ *  (with `isPlaceholderEmail`/`isPlaceholderSiteUrl` below) so this stays the
+ *  one fleet-wide placeholder convention instead of being re-derived —
+ *  currently reused by `lib/llms-txt.test.ts`, which runs these detectors
+ *  against the text `llmsTxt()` actually emits, not just the input config. */
 export function isPlaceholderPhone(phone: string): boolean {
   const digits = phone.replace(/\D/g, "");
   const local = digits.slice(-10);
@@ -57,10 +58,12 @@ function hasPlaceholderDomain(domain: string): boolean {
   return PLACEHOLDER_EMAIL_DOMAIN.test(domain) || domain.toLowerCase() === "example.com";
 }
 
+/** See `isPlaceholderPhone` above — exported for the same reason. */
 export function isPlaceholderEmail(email: string): boolean {
   return hasPlaceholderDomain(email.split("@").pop() ?? "");
 }
 
+/** See `isPlaceholderPhone` above — exported for the same reason. */
 export function isPlaceholderSiteUrl(siteUrl: string): boolean {
   let hostname: string;
   try {
