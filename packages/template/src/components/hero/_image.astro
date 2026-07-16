@@ -15,6 +15,15 @@ const { hero } = config;
 ---
 
 {
+  // The `{" "}` markers reproduce whitespace the pre-extraction inline
+  // markup got "for free": when this <div> lived directly inside
+  // classic.astro's <section> template, it had sibling nodes on either
+  // side, so Astro kept a single space around <ResponsiveImage>. Now that
+  // it is the only thing this file renders, Astro instead discards that
+  // same whitespace at the file's outer edge — dropping both spaces and
+  // de-syncing the rendered HTML from every hero variant that used to
+  // write this markup inline. Byte-for-byte output (see issue #133) needs
+  // them; deleting them quietly reopens that gap.
   hero.image && (
     <div class="absolute inset-0">{" "}<ResponsiveImage
         src={hero.image}
