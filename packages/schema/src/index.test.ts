@@ -416,4 +416,178 @@ describe("defineClient", () => {
       expect(result.reviews).toHaveLength(1);
     });
   });
+
+  // --- DRAFT (issue #87): trust/conversion fields — schema-only proposal. ---
+
+  describe("business.gbpUrl (DRAFT #87)", () => {
+    it("is unset by default", () => {
+      const result = defineClient(config());
+      expect(result.business.gbpUrl).toBeUndefined();
+    });
+
+    it("accepts a valid Google Business Profile URL", () => {
+      const result = defineClient(
+        config({
+          business: {
+            ...BASE_INPUT.business,
+            gbpUrl: "https://g.page/realbusinessco",
+          },
+        }),
+      );
+      expect(result.business.gbpUrl).toBe("https://g.page/realbusinessco");
+    });
+
+    it("rejects a non-URL value", () => {
+      expect(() =>
+        defineClient(
+          config({ business: { ...BASE_INPUT.business, gbpUrl: "not-a-url" } }),
+        ),
+      ).toThrow();
+    });
+  });
+
+  describe("social (DRAFT #87)", () => {
+    it("is unset by default", () => {
+      const result = defineClient(config());
+      expect(result.social).toBeUndefined();
+    });
+
+    it("accepts a partial set of valid platform URLs", () => {
+      const result = defineClient(
+        config({
+          social: {
+            facebook: "https://facebook.com/realbusinessco",
+            instagram: "https://instagram.com/realbusinessco",
+          },
+        }),
+      );
+      expect(result.social).toEqual({
+        facebook: "https://facebook.com/realbusinessco",
+        instagram: "https://instagram.com/realbusinessco",
+      });
+    });
+
+    it("rejects an invalid URL on any platform", () => {
+      expect(() =>
+        defineClient(config({ social: { facebook: "not-a-url" } })),
+      ).toThrow();
+    });
+  });
+
+  describe("brand.logo / brand.logoAlt (DRAFT #87)", () => {
+    it("are unset by default", () => {
+      const result = defineClient(config());
+      expect(result.brand.logo).toBeUndefined();
+      expect(result.brand.logoAlt).toBeUndefined();
+    });
+
+    it("accepts a public-rooted logo path and non-empty alt", () => {
+      const result = defineClient(
+        config({
+          brand: {
+            palettePreset: "pressure-washing",
+            logo: "/logo.svg",
+            logoAlt: "Real Business Co logo",
+          },
+        }),
+      );
+      expect(result.brand.logo).toBe("/logo.svg");
+      expect(result.brand.logoAlt).toBe("Real Business Co logo");
+    });
+
+    it("rejects a logo path not rooted under public/", () => {
+      expect(() =>
+        defineClient(
+          config({ brand: { palettePreset: "pressure-washing", logo: "logo.svg" } }),
+        ),
+      ).toThrow();
+    });
+
+    it("rejects an empty logoAlt", () => {
+      expect(() =>
+        defineClient(
+          config({
+            brand: { palettePreset: "pressure-washing", logo: "/logo.svg", logoAlt: "" },
+          }),
+        ),
+      ).toThrow();
+    });
+  });
+
+  describe("hero.imageAlt (DRAFT #87)", () => {
+    it("is unset by default", () => {
+      const result = defineClient(config());
+      expect(result.hero.imageAlt).toBeUndefined();
+    });
+
+    it("accepts a non-empty value", () => {
+      const result = defineClient(
+        config({ hero: { image: "/photos/hero.jpg", imageAlt: "Crew on a job site" } }),
+      );
+      expect(result.hero.imageAlt).toBe("Crew on a job site");
+    });
+
+    it("rejects an empty value", () => {
+      expect(() =>
+        defineClient(config({ hero: { image: "/photos/hero.jpg", imageAlt: "" } })),
+      ).toThrow();
+    });
+  });
+
+  describe("services[].price / services[].imageAlt (DRAFT #87)", () => {
+    it("are unset by default", () => {
+      const result = defineClient(config());
+      expect(result.services[0]!.price).toBeUndefined();
+      expect(result.services[0]!.imageAlt).toBeUndefined();
+    });
+
+    it("accepts a free-form price string", () => {
+      for (const price of ["$150", "$150–$300", "Starting at $99", "Free estimate"]) {
+        const result = defineClient(
+          config({ services: [{ title: "Washing", description: "We wash things.", price }] }),
+        );
+        expect(result.services[0]!.price).toBe(price);
+      }
+    });
+
+    it("rejects a price over 40 chars", () => {
+      expect(() =>
+        defineClient(
+          config({
+            services: [
+              { title: "Washing", description: "We wash things.", price: "x".repeat(41) },
+            ],
+          }),
+        ),
+      ).toThrow();
+    });
+
+    it("accepts a non-empty imageAlt paired with image", () => {
+      const result = defineClient(
+        config({
+          services: [
+            {
+              title: "Washing",
+              description: "We wash things.",
+              image: "/photos/service.jpg",
+              imageAlt: "Freshly pressure-washed driveway",
+            },
+          ],
+        }),
+      );
+      expect(result.services[0]!.imageAlt).toBe("Freshly pressure-washed driveway");
+    });
+
+    it("rejects an empty imageAlt", () => {
+      expect(() =>
+        defineClient(
+          config({
+            services: [
+              { title: "Washing", description: "We wash things.", imageAlt: "" },
+            ],
+          }),
+        ),
+      ).toThrow();
+    });
+  });
 });
