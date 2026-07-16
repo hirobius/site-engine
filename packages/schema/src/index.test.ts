@@ -417,9 +417,9 @@ describe("defineClient", () => {
     });
   });
 
-  // --- DRAFT (issue #87): trust/conversion fields — schema-only proposal. ---
+  // --- issue #87: trust/conversion fields. ---
 
-  describe("business.gbpUrl (DRAFT #87)", () => {
+  describe("business.gbpUrl (#87)", () => {
     it("is unset by default", () => {
       const result = defineClient(config());
       expect(result.business.gbpUrl).toBeUndefined();
@@ -446,7 +446,7 @@ describe("defineClient", () => {
     });
   });
 
-  describe("business.licensed/insured/bonded/licenseNumber (DRAFT #87)", () => {
+  describe("business.licensed/insured/bonded/licenseNumber (#87)", () => {
     it("are unset by default (never a fabricated false)", () => {
       const result = defineClient(config());
       expect(result.business.licensed).toBeUndefined();
@@ -482,7 +482,7 @@ describe("defineClient", () => {
     });
   });
 
-  describe("social (DRAFT #87)", () => {
+  describe("social (#87)", () => {
     it("is unset by default", () => {
       const result = defineClient(config());
       expect(result.social).toBeUndefined();
@@ -510,7 +510,7 @@ describe("defineClient", () => {
     });
   });
 
-  describe("brand.logo / brand.logoAlt (DRAFT #87)", () => {
+  describe("brand.logo / brand.logoAlt (#87)", () => {
     it("are unset by default", () => {
       const result = defineClient(config());
       expect(result.brand.logo).toBeUndefined();
@@ -550,7 +550,7 @@ describe("defineClient", () => {
     });
   });
 
-  describe("hero.imageAlt (DRAFT #87)", () => {
+  describe("hero.imageAlt (#87)", () => {
     it("is unset by default", () => {
       const result = defineClient(config());
       expect(result.hero.imageAlt).toBeUndefined();
@@ -568,9 +568,19 @@ describe("defineClient", () => {
         defineClient(config({ hero: { image: "/photos/hero.jpg", imageAlt: "" } })),
       ).toThrow();
     });
+
+    it("requires imageAlt when image is set", () => {
+      expect(() => defineClient(config({ hero: { image: "/photos/hero.jpg" } }))).toThrow(
+        /imageAlt is required when image is set/,
+      );
+    });
+
+    it("stays valid when both image and imageAlt are omitted", () => {
+      expect(() => defineClient(config({ hero: {} }))).not.toThrow();
+    });
   });
 
-  describe("services[].price / services[].imageAlt (DRAFT #87)", () => {
+  describe("services[].price / services[].imageAlt (#87)", () => {
     it("are unset by default", () => {
       const result = defineClient(config());
       expect(result.services[0]!.price).toBeUndefined();
@@ -624,6 +634,24 @@ describe("defineClient", () => {
           }),
         ),
       ).toThrow();
+    });
+
+    it("requires imageAlt when image is set", () => {
+      expect(() =>
+        defineClient(
+          config({
+            services: [
+              { title: "Washing", description: "We wash things.", image: "/photos/service.jpg" },
+            ],
+          }),
+        ),
+      ).toThrow(/imageAlt is required when image is set/);
+    });
+
+    it("stays valid when both image and imageAlt are omitted", () => {
+      expect(() =>
+        defineClient(config({ services: [{ title: "Washing", description: "We wash things." }] })),
+      ).not.toThrow();
     });
   });
 });

@@ -65,7 +65,7 @@ export const BusinessSchema = z.object({
   /** Cities / regions served, used for copy and LocalBusiness areaServed. */
   serviceAreas: z.array(z.string().min(1)).min(1),
   /**
-   * DRAFT (issue #87): full Google Business Profile listing URL (the
+   * issue #87: full Google Business Profile listing URL (the
    * `g.page/...` or `google.com/maps/place/...` link), used for a "Read our
    * Google reviews" / "See us on Google" trust link. Optional and unset by
    * default — every existing config stays valid. Intake-only, same as every
@@ -73,14 +73,14 @@ export const BusinessSchema = z.object({
    */
   gbpUrl: z.string().url().optional(),
   /**
-   * DRAFT (issue #87): data side of #33's licensed/insured/bonded trust bar.
+   * issue #87: data side of #33's licensed/insured/bonded trust bar.
    * Each flag is independently optional and unset by default — deliberately
    * *not* `.default(false)`, because a missing value must render as "unknown
    * / not shown," never as an implied "no" (golden rule #5: never fabricate
    * a business fact, and an absent negative claim is still a claim).
-   * `licenseNumber` is independent of `licensed` in this draft — not
-   * cross-validated (e.g. requiring `licensed: true` to set a number) to
-   * keep the diff minimal; open question in the PR body.
+   * `licenseNumber` is independent of `licensed` — not cross-validated (e.g.
+   * requiring `licensed: true` to set a number); kept optional as-is per
+   * approval on #87.
    */
   licensed: z.boolean().optional(),
   insured: z.boolean().optional(),
@@ -89,7 +89,7 @@ export const BusinessSchema = z.object({
 });
 
 /**
- * DRAFT (issue #87): social profile links, one optional URL per platform.
+ * issue #87: social profile links, one optional URL per platform.
  * All optional so a client with only two active profiles doesn't need to
  * pad the rest — the template (once wired) renders only the icons present.
  * Intake-only, never invented.
@@ -149,14 +149,14 @@ export const BrandSchema = z.object({
    */
   motion: z.enum(["none", "subtle", "rich"]).default("rich"),
   /**
-   * DRAFT (issue #87): site logo image, rendered in the header/footer in
+   * issue #87: site logo image, rendered in the header/footer in
    * place of the text wordmark once wired. Optional — omitting it keeps
-   * today's text-wordmark rendering; this draft is schema-only (see file
-   * header), so nothing consumes this field yet.
+   * today's text-wordmark rendering. Schema-only for now: no template
+   * consumes this field yet (rendering is a separate, follow-up change).
    */
   logo: publicPath.optional(),
   /**
-   * DRAFT (issue #87): alt text for `logo`. Required to be non-empty when
+   * issue #87: alt text for `logo`. Required to be non-empty when
    * present so a client that sets a logo can't ship it without accessible
    * alt text — same "explicit alt" posture as `GalleryPhotoSchema.alt`.
    */
@@ -228,28 +228,38 @@ export const LayoutSchema = z.object({
     }),
 });
 
-export const ServiceSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-  /** Optional icon id (template ships a small inline set) or image path. */
-  icon: z.string().optional(),
-  image: publicPath.optional(),
-  /**
-   * DRAFT (issue #87): alt text for `image`. Only meaningful when `image` is
-   * set; not cross-validated against it in this draft (open question — see
-   * PR body) to keep the diff minimal for shape review.
-   */
-  imageAlt: z.string().min(1).optional(),
-  /**
-   * DRAFT (issue #87): per-service display price. Deliberately a free-form
-   * string, not a number — service pricing is commonly a range ("$150–$300"),
-   * a qualifier ("Starting at $99", "Free estimate"), or a unit ("$0.15/sqft"),
-   * none of which fit a single numeric field. Optional; a service with no
-   * price renders exactly as today. Capped at 40 chars to keep it a label,
-   * not a paragraph. Intake-only — never invented.
-   */
-  price: z.string().min(1).max(40).optional(),
-});
+export const ServiceSchema = z
+  .object({
+    title: z.string().min(1),
+    description: z.string().min(1),
+    /** Optional icon id (template ships a small inline set) or image path. */
+    icon: z.string().optional(),
+    image: publicPath.optional(),
+    /**
+     * Alt text for `image`. Required whenever `image` is set (enforced below
+     * via `.superRefine` — a11y, issue #87); both omitted is still valid, so
+     * a service with no photo renders exactly as today.
+     */
+    imageAlt: z.string().min(1).optional(),
+    /**
+     * issue #87: per-service display price. Deliberately a free-form
+     * string, not a number — service pricing is commonly a range ("$150–$300"),
+     * a qualifier ("Starting at $99", "Free estimate"), or a unit ("$0.15/sqft"),
+     * none of which fit a single numeric field. Optional; a service with no
+     * price renders exactly as today. Capped at 40 chars to keep it a label,
+     * not a paragraph. Intake-only — never invented.
+     */
+    price: z.string().min(1).max(40).optional(),
+  })
+  .superRefine((service, ctx) => {
+    if (service.image && !service.imageAlt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "imageAlt is required when image is set (accessibility)",
+        path: ["imageAlt"],
+      });
+    }
+  });
 
 export const ReviewSchema = z.object({
   author: z.string().min(1),
@@ -295,19 +305,30 @@ export const SeoSchema = z.object({
   ogImage: publicPath.optional(),
 });
 
-export const HeroSchema = z.object({
-  image: publicPath.optional(),
-  /**
-   * DRAFT (issue #87): alt text for `image`, same "explicit alt" posture as
-   * `GalleryPhotoSchema.alt` / the new `ServiceSchema.imageAlt`. Optional;
-   * not cross-validated against `image` in this draft — see PR body.
-   */
-  imageAlt: z.string().min(1).optional(),
-  /** Used only by layout variant "B" (full-bleed video). */
-  videoSrc: publicPath.optional(),
-  /** Poster shown before the video loads — protects LCP. */
-  videoPoster: publicPath.optional(),
-});
+export const HeroSchema = z
+  .object({
+    image: publicPath.optional(),
+    /**
+     * Alt text for `image`, same "explicit alt" posture as
+     * `GalleryPhotoSchema.alt` / `ServiceSchema.imageAlt`. Required whenever
+     * `image` is set (enforced below via `.superRefine` — a11y, issue #87);
+     * both omitted is still valid.
+     */
+    imageAlt: z.string().min(1).optional(),
+    /** Used only by layout variant "B" (full-bleed video). */
+    videoSrc: publicPath.optional(),
+    /** Poster shown before the video loads — protects LCP. */
+    videoPoster: publicPath.optional(),
+  })
+  .superRefine((hero, ctx) => {
+    if (hero.image && !hero.imageAlt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "imageAlt is required when image is set (accessibility)",
+        path: ["imageAlt"],
+      });
+    }
+  });
 
 export const MapSchema = z.object({
   /**
@@ -340,7 +361,7 @@ export const ClientConfigSchema = z.object({
   form: FormSchema,
   seo: SeoSchema,
   /**
-   * DRAFT (issue #87): social profile links (see `SocialLinksSchema`).
+   * issue #87: social profile links (see `SocialLinksSchema`).
    * Optional and unset by default — every existing config stays valid.
    * A root-level section (not nested under `business`) so it mirrors `hero`
    * / `map`: a distinct, independently-omittable concern the template will

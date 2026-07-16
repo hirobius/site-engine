@@ -28,6 +28,7 @@ export const client = defineClient({
   },
   hero: {
     image: "/photos/hero.jpg",
+    imageAlt: "Pressure Pros technician washing a home's exterior siding",
   },
   services: [
     {
@@ -35,18 +36,21 @@ export const client = defineClient({
       description:
         "Soft-wash that lifts dirt, mildew, and algae without damaging your siding, brick, or stucco.",
       image: "/photos/service-house.jpg",
+      imageAlt: "Soft-washed house siding, clean and streak-free",
     },
     {
       title: "Driveways & Concrete",
       description:
         "Surface-cleaned driveways, sidewalks, and patios — oil stains and grime gone, curb appeal back.",
       image: "/photos/service-driveway.jpg",
+      imageAlt: "Freshly pressure-washed concrete driveway",
     },
     {
       title: "Roof & Gutter Cleaning",
       description:
         "Low-pressure roof treatment and gutter flush-outs that protect your shingles and your warranty.",
       image: "/photos/service-roof.jpg",
+      imageAlt: "Clean roof and gutters after a low-pressure treatment",
     },
   ],
   copy: {
