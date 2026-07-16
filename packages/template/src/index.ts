@@ -44,7 +44,11 @@ export const SECTION_VARIANT_COMPONENTS = {
     "split-card": "hero/split-card.astro",
     banner: "hero/banner.astro",
   },
-  services: { grid: "services/grid.astro" },
+  services: {
+    grid: "services/grid.astro",
+    cards: "services/cards.astro",
+    alternating: "services/alternating.astro",
+  },
   gallery: { grid: "gallery/grid.astro" },
   reviews: { cards: "reviews/cards.astro" },
   serviceAreaMap: { standard: "ServiceAreaMap.astro" },

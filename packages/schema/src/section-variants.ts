@@ -18,7 +18,7 @@
  */
 export const SECTION_VARIANTS = {
   hero: ["classic", "video", "split-card", "banner"],
-  services: ["grid"],
+  services: ["grid", "cards", "alternating"],
   gallery: ["grid"],
   reviews: ["cards"],
   serviceAreaMap: ["standard"],

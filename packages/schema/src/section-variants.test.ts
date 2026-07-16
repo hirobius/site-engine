@@ -58,6 +58,25 @@ describe("SECTION_VARIANTS", () => {
     );
     expect(result.layout.sections.hero.variant).toBe("split-card");
   });
+
+  it("offers the harvested services variants", () => {
+    expect(SECTION_VARIANTS.services).toContain("cards");
+    expect(SECTION_VARIANTS.services).toContain("alternating");
+  });
+
+  it("accepts a harvested services variant via config", () => {
+    const result = defineClient(
+      config({ layout: { sections: { services: { variant: "cards" } } } }),
+    );
+    expect(result.layout.sections.services.variant).toBe("cards");
+  });
+
+  it("accepts the alternating services variant via config", () => {
+    const result = defineClient(
+      config({ layout: { sections: { services: { variant: "alternating" } } } }),
+    );
+    expect(result.layout.sections.services.variant).toBe("alternating");
+  });
 });
 
 describe("layout.sections variants", () => {

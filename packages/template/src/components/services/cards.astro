@@ -1,0 +1,49 @@
+---
+// Services variant "cards" — numbered, elevated cards on a muted section
+// surface; text-first with an optional supporting photo. A universal pattern
+// (re-implemented from scratch, layout idea only — no code copied; see
+// docs/harvesting.md / ATTRIBUTIONS.md). Degrades gracefully when
+// service.image is absent — the card just renders without a thumbnail.
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "../Section.astro";
+import ResponsiveImage from "../ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { services } = config;
+---
+
+<Section id="services" title="What We Do" subtitle="Professional service, done right the first time." muted>
+  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+    {
+      services.map((service, index) => (
+        <li class="reveal flex flex-col gap-4 rounded-theme border border-fg/10 bg-bg p-6 shadow-sm">
+          <div class="flex items-center gap-4">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary font-heading text-sm font-bold text-on-primary"
+              aria-hidden="true"
+            >
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <h3 class="font-heading text-xl font-semibold text-fg">{service.title}</h3>
+          </div>
+          {service.image && (
+            <ResponsiveImage
+              src={service.image}
+              alt=""
+              widths={[400, 800]}
+              sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+              width={800}
+              height={450}
+              class="aspect-[16/9] w-full rounded-theme object-cover"
+            />
+          )}
+          <p class="text-fg/75">{service.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

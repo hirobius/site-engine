@@ -5,6 +5,8 @@
 // without a component here fails `astro check`.
 import type { ClientConfig, SECTION_VARIANTS } from "@hirobius/schema";
 import Grid from "./services/grid.astro";
+import Cards from "./services/cards.astro";
+import Alternating from "./services/alternating.astro";
 
 interface Props {
   config: ClientConfig;
@@ -14,6 +16,8 @@ const { config } = Astro.props;
 
 const VARIANTS = {
   grid: Grid,
+  cards: Cards,
+  alternating: Alternating,
 } satisfies Record<(typeof SECTION_VARIANTS)["services"][number], unknown>;
 
 const Variant = VARIANTS[config.layout.sections.services.variant];

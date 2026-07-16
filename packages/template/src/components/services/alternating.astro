@@ -1,0 +1,51 @@
+---
+// Services variant "alternating" — zig-zag rows, photo alternating sides per
+// service. A universal pattern (re-implemented from scratch, layout idea
+// only — no code copied; see docs/harvesting.md / ATTRIBUTIONS.md). Degrades
+// to a centered text-only row when service.image is absent.
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "../Section.astro";
+import ResponsiveImage from "../ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { services } = config;
+---
+
+<Section id="services" title="What We Do" subtitle="Professional service, done right the first time.">
+  <div class="flex flex-col gap-12 sm:gap-16">
+    {
+      services.map((service, index) => (
+        <div
+          class:list={[
+            "reveal grid items-center gap-8",
+            service.image ? "sm:grid-cols-2" : "justify-items-center text-center",
+          ]}
+        >
+          {service.image && (
+            <div
+              class:list={["overflow-hidden rounded-theme shadow-sm", index % 2 === 1 && "sm:order-2"]}
+            >
+              <ResponsiveImage
+                src={service.image}
+                alt=""
+                widths={[400, 800]}
+                sizes="(min-width: 640px) 50vw, 100vw"
+                width={800}
+                height={600}
+                class="aspect-[4/3] w-full object-cover"
+              />
+            </div>
+          )}
+          <div class:list={["max-w-xl", !service.image && "text-center"]}>
+            <h3 class="font-heading text-2xl font-semibold text-fg">{service.title}</h3>
+            <p class="mt-3 text-fg/75">{service.description}</p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</Section>
