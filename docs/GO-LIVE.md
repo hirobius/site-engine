@@ -84,7 +84,9 @@ Two gates, both real code, both must pass:
    runs `checkClientAcceptance` with `realData: true` whenever
    `SITE_LIVE === "true"` **or** `VERCEL_ENV === "production"` — i.e. every
    real production build, automatically, with nothing to remember to flip.
-   With `realData: true` it rejects (among other things): a `.example`/
+   This is the "must pass with zero placeholders" gate this runbook ties to
+   the `docs/INTAKE.md` checklist and #149. With `realData: true` it rejects
+   (among other things): a `.example`/
    `example.com` email or `seo.siteUrl`, a `555`-area-code/`555-01xx` phone,
    a non-UUID or all-zeros `form.accessKey`, a missing `form.hcaptchaSiteKey`,
    a stub business name (`acme` / `new client` / `test business`), and a
@@ -133,7 +135,11 @@ domain at a site that will fail its own gate.
    ```
    (README already shows this pattern:
    `vercel domains add mikesjunk.com hirobius-mikes-junk`.) Or via the
-   dashboard: Vercel project → **Settings → Domains** → Add.
+   dashboard's Domains page for this project — for the Adrian Vercel account
+   used elsewhere in this fleet (see ops's `CLAUDE.md` Vercel links) that's
+   `https://vercel.com/adrian-6234s-projects/hirobius-<slug>/settings/domains`
+   (confirm the team slug matches once in the dashboard — client projects may
+   sit under a different team than `hirobius-ops`) → **Add**.
 3. **Get the exact DNS records Vercel wants** — don't hand-type remembered
    values, ask Vercel for this project's actual ones:
    ```bash
