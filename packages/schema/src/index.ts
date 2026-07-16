@@ -97,6 +97,15 @@ export const BrandSchema = z.object({
    */
   shadow: z.enum(["flat", "soft", "hard"]).default("soft"),
   /**
+   * Spacing-density dial (issue #86, spacing-density slice). `comfortable`
+   * (default) reproduces today's `Section.astro` vertical rhythm exactly —
+   * additive, does not change any existing client's output. `compact` tightens
+   * the rhythm, `airy` loosens it. Scoped to section vertical rhythm only
+   * (`--semantic-spacing-section-y*`); card padding/grid gaps are out of scope
+   * for this slice. Wired in `packages/template/src/lib/brand-overlay.ts`.
+   */
+  spacingDensity: z.enum(["compact", "comfortable", "airy"]).default("comfortable"),
+  /**
    * Scroll-motion intensity, applied dependency-free (CSS + one
    * IntersectionObserver island; no GSAP, no Lenis):
    * - `none`   — fully static; no reveal, rise, or pulse. Content renders as-is.

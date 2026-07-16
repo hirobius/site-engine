@@ -13,7 +13,7 @@ const { id, title, subtitle, muted = false, class: className } = Astro.props;
 
 <section
   id={id}
-  class:list={["scroll-mt-16 py-16 sm:py-20", muted && "bg-muted", className]}
+  class:list={["scroll-mt-16 py-section-y sm:py-section-y-lg", muted && "bg-muted", className]}
 >
   <div class="mx-auto max-w-6xl px-5">
     {

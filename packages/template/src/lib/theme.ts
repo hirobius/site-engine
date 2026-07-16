@@ -93,6 +93,7 @@ export function brandStyle(config: ClientConfig): string {
     fontHeading,
     fontBody,
     shadow: config.brand.shadow,
+    spacingDensity: config.brand.spacingDensity,
   });
 }
 

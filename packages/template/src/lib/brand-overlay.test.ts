@@ -45,3 +45,35 @@ describe("brandOverlayVars shadow dial (#157)", () => {
     expect(withShadow["--semantic-color-surface-page"]).toBe(without["--semantic-color-surface-page"]);
   });
 });
+
+describe("brandOverlayVars spacingDensity dial (#86)", () => {
+  it("omits spacing keys when spacingDensity is unset — default path unchanged", () => {
+    const vars = brandOverlayVars(BASE_PALETTE);
+    expect(vars).not.toHaveProperty("--semantic-spacing-section-y");
+    expect(vars).not.toHaveProperty("--semantic-spacing-section-y-lg");
+  });
+
+  it("omits spacing keys when spacingDensity is explicitly 'comfortable'", () => {
+    const vars = brandOverlayVars({ ...BASE_PALETTE, spacingDensity: "comfortable" });
+    expect(vars).not.toHaveProperty("--semantic-spacing-section-y");
+  });
+
+  it("'compact' tightens both tiers below the comfortable default", () => {
+    const vars = brandOverlayVars({ ...BASE_PALETTE, spacingDensity: "compact" });
+    expect(vars["--semantic-spacing-section-y"]).toBe("var(--primitive-space-12)");
+    expect(vars["--semantic-spacing-section-y-lg"]).toBe("var(--primitive-space-16)");
+  });
+
+  it("'airy' loosens both tiers above the comfortable default", () => {
+    const vars = brandOverlayVars({ ...BASE_PALETTE, spacingDensity: "airy" });
+    expect(vars["--semantic-spacing-section-y"]).toBe("var(--primitive-space-24)");
+    expect(vars["--semantic-spacing-section-y-lg"]).toBe("var(--primitive-space-32)");
+  });
+
+  it("spacingDensity dial doesn't disturb unrelated vars", () => {
+    const withDensity = brandOverlayVars({ ...BASE_PALETTE, spacingDensity: "airy" });
+    const without = brandOverlayVars(BASE_PALETTE);
+    expect(withDensity["--semantic-accent-rest"]).toBe(without["--semantic-accent-rest"]);
+    expect(withDensity["--semantic-shadow-subtle"]).toBe(without["--semantic-shadow-subtle"]);
+  });
+});
