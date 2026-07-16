@@ -17,6 +17,12 @@
  * `--expect-gated` expects the OPPOSITE — the closed-by-default preview gate:
  * 401 with `WWW-Authenticate` + `X-Robots-Tag: noindex`. Point it at any
  * preview deploy to get the behavioral proof issue #8 has been waiting on.
+ *
+ * `verifyLive` / `verifyGated` / `CheckResult` are also the reusable module
+ * for the fleet health monitor (issue #108): pure functions over an injected
+ * `fetch`, no Node-only APIs, importable as `@hirobius/scripts/verify-live`
+ * (see `exports` in `scripts/package.json`) for the scheduled cron (ops-side,
+ * per the #108 placement decision) to call per live site.
  */
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
