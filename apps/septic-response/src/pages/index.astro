@@ -1,0 +1,592 @@
+---
+/**
+ * BESPOKE editorial homepage for Septic Response (apps/septic-response only).
+ *
+ * This app intentionally does NOT use the shared @hirobius/template components —
+ * it's an authorized one-off "custom-component engagement" (see repo CLAUDE.md).
+ * Everything visual lives in this file; nothing here touches packages/*, so the
+ * fleet is unaffected. All *content* still comes from client.config.ts, so the
+ * business facts stay single-sourced and the build-time acceptance gate
+ * (astro.config.ts) still governs.
+ *
+ * Art direction: light editorial serif (Fraunces) on warm paper, deep forest-green
+ * accent, oversized display type, numbered index of services, one dark full-bleed
+ * statement. Motion is a dependency-free, reduced-motion-safe scroll reveal.
+ */
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { client } from "../../client.config";
+import PreviewControls from "../components/PreviewControls.astro";
+
+const b = client.business;
+const c = client.copy;
+const seo = client.seo;
+const tel = b.phone.replace(/[^\d+]/g, "");
+const thanksUrl = new URL("/thanks", seo.siteUrl).toString();
+// Real Google Business profile (from the lead row) — links the review proof to
+// the source, which keeps the rating/count claim honest and verifiable.
+const googleUrl =
+  "https://www.google.com/maps/place/Septic+Response/@47.6809747,-122.1940532,14z/data=!4m8!1m2!2m1!1sSeptic+Response!3m4!1s0x549013dbbc3d6a7b:0x1686c3c7092fbfa6!8m2!3d47.6809747!4d-122.1940532";
+
+// Art-directed image slots. A real photo dropped at these public paths (by the
+// Pexels fetch, or the client's own imagery) replaces the gradient placeholder;
+// missing files fall back gracefully so the build never ships a broken <img>.
+const imgAt = (p: string): string | null =>
+  existsSync(join(process.cwd(), "public", p)) ? `/${p}` : null;
+const heroImg = imgAt("photos/hero.jpg");
+const bandImg = imgAt("photos/canopy.jpg");
+
+// Split the hero headline so the last two words render in italic forest accent.
+const words = c.heroHeadline.trim().replace(/[.]$/, "").split(" ");
+const headLead = words.slice(0, -2).join(" ");
+const headAccent = words.slice(-2).join(" ");
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: b.name,
+  telephone: b.phone,
+  email: b.email,
+  url: seo.siteUrl,
+  areaServed: b.serviceAreas,
+  address: { "@type": "PostalAddress", addressLocality: seo.city, addressRegion: seo.region },
+  description: seo.description,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{seo.title}</title>
+    <meta name="description" content={seo.description} />
+    <link rel="canonical" href={seo.siteUrl} />
+    {/* Preview site — keep it out of the index until go-live. */}
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:url" content={seo.siteUrl} />
+    <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bilbo&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Dr+Sugiyama&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Elms+Sans:wght@400;500;600;700&family=Felipa&family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,540;1,9..144,440;1,9..144,540&family=Inter:wght@400;500;600;700&family=Kings&family=Molle:ital@1&family=Mr+Dafoe&family=Mrs+Sheppards&family=Niconne&family=Norican&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Quintessential&family=Smooch&display=swap"
+      rel="stylesheet"
+    />
+    {/* Satoshi is a Fontshare face (not on Google Fonts). */}
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <script is:inline>
+      // Apply saved display + body fonts before first paint (no flash).
+      try {
+        var d = localStorage.getItem("septic-response-display");
+        if (d) document.documentElement.dataset.display = d;
+        var bd = localStorage.getItem("septic-response-body");
+        if (bd) document.documentElement.dataset.body = bd;
+      } catch (e) {}
+
+      // Arm the scroll-reveal only when motion is welcome. No-JS / reduced-motion
+      // visitors keep everything visible (the .reveal base state is visible).
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+        document.documentElement.classList.add("io-ready");
+    </script>
+
+    <style is:global>
+      :root {
+        --paper: #f2eee3;
+        --paper-2: #ebe4d5;
+        --ink: #1b241d;
+        --muted: #5f665b;
+        --forest: #2c5637;
+        --forest-deep: #1d3b26;
+        --line: rgba(27, 36, 29, 0.16);
+        --dark: #141d17;
+        --dark-paper: #ece6d7;
+        --dark-muted: #9aa593;
+
+        /* Current default = Quintessential (display) + Elms Sans (body).
+           Swappable live via the preview font explorer. */
+        --display-font: "Quintessential", Georgia, "Times New Roman", serif;
+        --display-weight: 400;
+        --body-font: "Elms Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+        /* Type ramp — deliberately spaced steps (no two tiers within a hair of
+           each other). Body leans large; eyebrows + footer are the small end. */
+        --fs-eyebrow: 11px;                          /* uppercase micro-labels */
+        --fs-footer: 12px;
+        --fs-body: 1.125rem;                         /* 18px */
+        --fs-lede: clamp(1.2rem, 2.2vw, 1.4rem);     /* ~19–22px, hero sub + about */
+        --fs-h2: clamp(1.5rem, 3.2vw, 2rem);         /* 24–32px, section headings */
+        --fs-display: clamp(2.1rem, 5.6vw, 3.1rem);  /* ~34–50px, big display tier */
+        --fs-stat: clamp(2.6rem, 7vw, 3.8rem);
+      }
+      /* Font id → family rules live in PreviewControls.astro (shared). */
+
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--body-font);
+        font-size: var(--fs-body);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      .wrap { width: 100%; max-width: 1140px; margin-inline: auto; padding-inline: 26px; }
+
+      .serif {
+        font-family: var(--display-font);
+        font-weight: var(--display-weight);
+        letter-spacing: -0.015em;
+      }
+      .eyebrow {
+        font-size: var(--fs-eyebrow);
+        font-weight: 600;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--forest);
+      }
+      .eyebrow { font-weight: 700; }
+      em, .ital { font-style: italic; }
+
+      a { color: inherit; }
+      .skip {
+        position: absolute; left: -999px; top: 0;
+        background: var(--forest); color: var(--paper);
+        padding: 10px 16px; border-radius: 4px; z-index: 60;
+      }
+      .skip:focus { left: 16px; top: 16px; }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex; align-items: center; gap: 10px;
+        font-weight: 600; font-size: 15px; letter-spacing: 0.01em;
+        padding: 15px 26px; border-radius: 2px; text-decoration: none;
+        transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+      }
+      .btn-primary { background: var(--forest); color: var(--paper); }
+      .btn-primary:hover { background: var(--forest-deep); transform: translateY(-2px); }
+      .btn-ghost { color: var(--ink); border-bottom: 1px solid var(--line); border-radius: 0; padding: 6px 2px; }
+      .btn-ghost:hover { border-color: var(--forest); color: var(--forest); }
+
+      /* Header */
+      header.site {
+        position: sticky; top: 0; z-index: 40;
+        background: color-mix(in srgb, var(--paper) 86%, transparent);
+        backdrop-filter: saturate(1.1) blur(8px);
+        border-bottom: 1px solid var(--line);
+      }
+      header.site .row {
+        display: flex; align-items: center; justify-content: space-between;
+        height: 68px;
+      }
+      .wordmark { font-weight: 600; letter-spacing: 0.28em; font-size: 14px; text-transform: uppercase; text-decoration: none; }
+      .wordmark span { color: var(--forest); }
+      .header-cta { font-weight: 600; font-size: 14px; letter-spacing: 0.02em; text-decoration: none; }
+      .header-cta:hover { color: var(--forest); }
+      @media (max-width: 620px) { .header-cta { display: none; } }
+
+      /* Hero */
+      .hero { padding: clamp(56px, 12vw, 128px) 0 clamp(40px, 7vw, 76px); }
+      .hero h1 {
+        margin: 22px 0 0; line-height: 0.98;
+        font-size: clamp(3rem, 11vw, 6.8rem);
+        font-weight: var(--display-weight); letter-spacing: -0.025em; max-width: 15ch;
+      }
+      .hero h1 .accent { color: var(--forest); font-style: italic; }
+      .hero p.sub {
+        margin: 30px 0 0; max-width: 46ch; font-size: var(--fs-lede);
+        color: var(--muted); line-height: 1.55;
+      }
+      .hero .cta { margin-top: 40px; display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+
+      /* Hero media column */
+      .hero-grid { display: grid; grid-template-columns: 1.12fr 0.88fr; gap: 54px; align-items: center; }
+      .hero-copy { min-width: 0; }
+      .hero-media { min-width: 0; }
+      .hero-media img, .hero-media .ph {
+        width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; border-radius: 6px;
+      }
+      .hero-media .ph {
+        display: grid; place-items: center;
+        background:
+          radial-gradient(120% 90% at 72% 12%, rgba(143, 191, 156, 0.22), transparent 55%),
+          linear-gradient(150deg, #2c5637, #1d3b26 55%, #14201a);
+      }
+      @media (max-width: 820px) {
+        .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+        .hero-media img, .hero-media .ph { aspect-ratio: 16 / 10; }
+      }
+
+      /* Optional full-bleed photo behind the dark band */
+      .dark.has-img {
+        background-image: linear-gradient(rgba(20, 29, 23, 0.82), rgba(20, 29, 23, 0.9)), var(--band-img);
+        background-size: cover; background-position: center;
+      }
+
+      /* Section scaffolding */
+      section { padding: clamp(56px, 9vw, 104px) 0; border-top: 1px solid var(--line); }
+      /* One consistent section header everywhere: eyebrow stacked above a big
+         serif heading (Services · Service area · Get in touch all match). */
+      .sec-head { margin-bottom: 44px; }
+      .sec-head .eyebrow { display: block; margin-bottom: 16px; }
+      .sec-head h2 { margin: 0; font-size: var(--fs-display); font-weight: var(--display-weight); letter-spacing: -0.02em; line-height: 1.05; }
+
+      /* Statement / about */
+      .statement { font-size: var(--fs-display); line-height: 1.18; font-weight: 340; max-width: 24ch; letter-spacing: -0.02em; }
+      .statement .accent { color: var(--forest); font-style: italic; }
+      .lede { margin-top: 28px; max-width: 60ch; color: var(--muted); font-size: var(--fs-lede); line-height: 1.55; }
+
+      /* Services — numbered editorial index */
+      .index { border-top: 1px solid var(--line); }
+      .index .item {
+        display: grid; grid-template-columns: 64px 1fr; gap: 8px 26px;
+        padding: 30px 8px; border-bottom: 1px solid var(--line);
+        transition: background 0.3s ease, padding-left 0.3s ease;
+      }
+      .index .item:hover { background: var(--paper-2); padding-left: 18px; }
+      .index .num { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: var(--forest); padding-top: 10px; }
+      .index .item h3 { grid-column: 2; margin: 0; font-size: var(--fs-display); font-weight: var(--display-weight); letter-spacing: -0.02em; }
+      .index .item p { grid-column: 2; margin: 14px 0 0; color: var(--muted); max-width: 60ch; font-size: var(--fs-body); }
+      @media (max-width: 560px) {
+        .index .item { grid-template-columns: 1fr; gap: 6px; }
+        .index .num { padding-top: 0; }
+        .index .item h3, .index .item p { grid-column: 1; }
+      }
+
+      /* Dark full-bleed statement */
+      .dark { background: var(--dark); color: var(--dark-paper); border-top: none; }
+      .dark .kicker { color: var(--dark-muted); }
+      .dark .big { font-size: var(--fs-display); line-height: 1.18; font-weight: 340; max-width: 20ch; margin: 18px 0 0; letter-spacing: -0.02em; }
+      .dark .big .accent { color: #8fbf9c; font-style: italic; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 58px; border-top: 1px solid rgba(236, 230, 215, 0.16); padding-top: 40px; }
+      .stats .k { font-family: var(--display-font); font-size: var(--fs-stat); line-height: 1; color: var(--dark-paper); }
+      .stats .l { margin-top: 12px; font-size: var(--fs-eyebrow); letter-spacing: 0.1em; color: var(--dark-muted); text-transform: uppercase; }
+      @media (max-width: 560px) { .stats { grid-template-columns: 1fr; gap: 26px; text-align: left; } }
+      .dark-link { display: inline-block; margin-top: 36px; color: var(--dark-paper); text-decoration: none; font-size: var(--fs-body); border-bottom: 1px solid rgba(236, 230, 215, 0.32); padding-bottom: 3px; transition: color 0.25s ease, border-color 0.25s ease; }
+      .dark-link:hover { color: #8fbf9c; border-color: #8fbf9c; }
+
+      /* Service area */
+      .areas { display: grid; grid-template-columns: 1.1fr 1fr; gap: 44px; align-items: center; }
+      .areas .list { font-family: var(--display-font); font-size: var(--fs-display); line-height: 1.25; letter-spacing: -0.02em; }
+      .areas .list span { color: var(--muted); }
+      .map { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--paper-2); }
+      .map iframe { width: 100%; height: 100%; border: 0; display: block; filter: grayscale(0.35) contrast(1.02); }
+      @media (max-width: 760px) { .areas { grid-template-columns: 1fr; gap: 30px; } }
+
+      /* Contact */
+      .contact { display: grid; grid-template-columns: 1fr 1fr; gap: 54px; }
+      form.quote { display: grid; gap: 20px; }
+      .field label { display: block; font-size: var(--fs-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+      .field input, .field textarea {
+        width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--line);
+        padding: 10px 2px; font: inherit; color: var(--ink); border-radius: 0;
+      }
+      .field input:focus, .field textarea:focus { outline: none; border-color: var(--forest); }
+      .field textarea { resize: vertical; min-height: 96px; }
+      .field label { font-weight: 500; }
+      .req { color: var(--forest); }
+      .opt { color: var(--muted); opacity: 0.7; font-weight: 400; letter-spacing: 0.04em; }
+      .field .err { margin: 8px 0 0; color: #a8351d; font-size: var(--fs-eyebrow); letter-spacing: 0.03em; text-transform: none; }
+      .field.invalid input, .field.invalid textarea { border-color: #a8351d; }
+      .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+      .btn-primary:disabled:hover { background: var(--forest); transform: none; }
+      .form-note { margin: 16px 0 0; font-size: var(--fs-eyebrow); letter-spacing: 0.03em; color: var(--muted); text-transform: none; }
+      .hp { position: absolute; left: -9999px; opacity: 0; }
+      .contact aside dl { margin: 0; display: grid; gap: 20px; }
+      .contact aside dt { font-size: var(--fs-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+      .contact aside dd { margin: 0; font-size: var(--fs-body); }
+      .contact aside a { text-decoration: none; }
+      .contact aside a:hover { color: var(--forest); }
+      @media (max-width: 760px) { .contact { grid-template-columns: 1fr; gap: 34px; } }
+
+      /* Footer */
+      footer.site { border-top: 1px solid var(--line); }
+      footer.site .fm { font-weight: 600; letter-spacing: 0.28em; font-size: 14px; text-transform: uppercase; }
+      footer.site .fm span { color: var(--forest); }
+      .foot-top { display: flex; justify-content: space-between; gap: 36px 64px; flex-wrap: wrap; padding-block: 46px 30px; }
+      .foot-brand { max-width: 38ch; }
+      .foot-desc { margin: 16px 0 0; color: var(--muted); font-size: var(--fs-body); line-height: 1.55; }
+      .foot-links { display: flex; flex-direction: column; gap: 12px; }
+      .foot-links p { margin: 0 0 4px; font-size: var(--fs-eyebrow); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+      .foot-links a { text-decoration: none; color: var(--ink); font-size: var(--fs-body); }
+      .foot-links a:hover { color: var(--forest); }
+      .foot-bar { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 20px 40px; border-top: 1px solid var(--line); }
+      .foot-bar small { color: var(--muted); font-size: var(--fs-footer); }
+
+      /* Preview controls (toggle + font menu) live in PreviewControls.astro. */
+
+      /* Reveal-on-scroll (armed only when html.io-ready) */
+      .reveal { opacity: 1; transform: none; }
+      html.io-ready .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+      html.io-ready .reveal.in { opacity: 1; transform: none; }
+    </style>
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to main content</a>
+
+    <header class="site">
+      <div class="wrap row">
+        <a class="wordmark" href="#top">Septic <span>Response</span></a>
+        <a class="header-cta" href={`tel:${tel}`}>{b.phone}</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- HERO -->
+      <div id="top" class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow reveal">24/7 Septic Service · {seo.city}, {seo.region}</p>
+            <h1 class="serif reveal">
+              {headLead} <span class="accent">{headAccent}</span>
+            </h1>
+            <p class="sub reveal">{c.heroSub}</p>
+            <div class="cta reveal">
+              <a class="btn btn-primary" href="#contact">{c.ctaLabel}</a>
+              <a class="btn btn-ghost" href={`tel:${tel}`}>Call {b.phone}</a>
+            </div>
+          </div>
+          <div class="hero-media reveal">
+            {
+              heroImg ? (
+                <img src={heroImg} alt={`${b.name} septic service in ${seo.city}`} loading="eager" />
+              ) : (
+                <div class="ph"></div>
+              )
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT / STATEMENT -->
+      <section aria-label="About">
+        <div class="wrap">
+          <p class="statement serif reveal">
+            Fast, dependable septic care for <span class="accent">{seo.city} homeowners.</span>
+          </p>
+          <p class="lede reveal">{c.about}</p>
+        </div>
+      </section>
+
+      <!-- SERVICES — numbered index -->
+      <section id="services" aria-label="Services">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <p class="eyebrow">/ Services</p>
+            <h2 class="serif">What we do</h2>
+          </div>
+          <div class="index">
+            {
+              client.services.map((s, i) => (
+                <div class="item reveal">
+                  <div class="num">{String(i + 1).padStart(2, "0")}</div>
+                  <h3 class="serif">{s.title}</h3>
+                  <p>{s.description}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- DARK STATEMENT -->
+      <section
+        class:list={["dark", bandImg && "has-img"]}
+        style={bandImg ? `--band-img:url(${bandImg})` : undefined}
+        aria-label="Why us"
+      >
+        <div class="wrap">
+          <p class="eyebrow kicker reveal">Trusted locally</p>
+          <p class="big serif reveal">
+            When it can't wait, we're there — <span class="accent">day or night.</span>
+          </p>
+          <div class="stats">
+            <div class="reveal"><div class="k">4.9★</div><div class="l">Google rating</div></div>
+            <div class="reveal"><div class="k">200+</div><div class="l">Google reviews</div></div>
+            <div class="reveal"><div class="k">24/7</div><div class="l">Emergency service</div></div>
+          </div>
+          <a class="dark-link reveal" href={googleUrl} target="_blank" rel="noopener">
+            Read the reviews on Google →
+          </a>
+        </div>
+      </section>
+
+      <!-- SERVICE AREA -->
+      <section id="service-area" aria-label="Service area">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <p class="eyebrow">/ Service area</p>
+            <h2 class="serif">Where we work</h2>
+          </div>
+          <div class="areas">
+            <div class="list reveal">
+              {b.serviceAreas.map((a, i) => (
+                <>{i > 0 && <span> · </span>}{a}</>
+              ))}
+              <span> — and the surrounding Eastside.</span>
+            </div>
+            <div class="map reveal">
+              <iframe
+                title={`Map of ${client.map.embedQuery}`}
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(client.map.embedQuery ?? `${seo.city}, ${seo.region}`)}&output=embed`}
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" aria-label="Contact">
+        <div class="wrap">
+          <div class="contact">
+            <div>
+              <div class="sec-head reveal">
+                <p class="eyebrow">/ Get in touch</p>
+                <h2 class="serif">Get a Free Quote</h2>
+              </div>
+              <form class="quote reveal" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value={client.form.accessKey} />
+                <input type="hidden" name="subject" value={`New quote request — ${b.name}`} />
+                <input type="hidden" name="from_name" value={b.name} />
+                <input type="hidden" name="redirect" value={thanksUrl} />
+                <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+                <div class="field">
+                  <label for="name">Name <span class="req" aria-hidden="true">*</span></label>
+                  <input id="name" name="name" type="text" required autocomplete="name" aria-describedby="err-name" />
+                  <p class="err" id="err-name" hidden>Please enter your name.</p>
+                </div>
+                <div class="field">
+                  <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+                  <input id="email" name="email" type="email" required autocomplete="email" aria-describedby="err-email" />
+                  <p class="err" id="err-email" hidden>Please enter a valid email address.</p>
+                </div>
+                <div class="field">
+                  <label for="phone">Phone <span class="opt">(optional)</span></label>
+                  <input id="phone" name="phone" type="tel" autocomplete="tel" />
+                </div>
+                <div class="field">
+                  <label for="message">What do you need? <span class="opt">(optional)</span></label>
+                  <textarea id="message" name="message" placeholder="Backed up, a pump-out, an inspection…"></textarea>
+                </div>
+                <button class="btn btn-primary" type="submit" id="submitBtn">Submit</button>
+                <p class="form-note">* Required. We'll reply within one business day.</p>
+              </form>
+            </div>
+            <aside class="reveal">
+              <dl>
+                <div><dt>Call</dt><dd><a href={`tel:${tel}`}>{b.phone}</a></dd></div>
+                <div><dt>Email</dt><dd><a href={`mailto:${b.email}`}>{b.email}</a></dd></div>
+                <div><dt>Hours</dt><dd>{b.hours.map((h) => `${h.days}: ${h.hours}`).join(" · ")}</dd></div>
+                <div><dt>Serving</dt><dd>{b.serviceAreas.join(", ")}</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site">
+      <div class="wrap foot-top">
+        <div class="foot-brand">
+          <div class="fm">Septic <span>Response</span></div>
+          <p class="foot-desc">
+            Septic pros serving {seo.city} and the surrounding Eastside — 24/7 emergency service.
+          </p>
+        </div>
+        <nav class="foot-links" aria-label="Footer">
+          <p>Explore</p>
+          <a href="#services">Services</a>
+          <a href="#service-area">Service area</a>
+          <a href="#contact">Get a quote</a>
+        </nav>
+      </div>
+      <div class="wrap foot-bar">
+        <small>{b.name} · {seo.city}, {seo.region}</small>
+        <small>Free, no-obligation estimates</small>
+      </div>
+    </footer>
+
+    <PreviewControls variant="v1" defaultDisplay="quintessential" defaultBody="elms-sans" />
+
+    <script is:inline>
+      // Progressive form validation: required Name + Email, inline errors, and a
+      // Submit button that stays disabled until both are valid. No-JS visitors
+      // still get native `required` validation and an enabled button.
+      (function () {
+        var f = document.querySelector("form.quote");
+        if (!f) return;
+        var name = f.querySelector("#name");
+        var email = f.querySelector("#email");
+        var btn = f.querySelector("#submitBtn");
+        function emailOk(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+        function valid(input) {
+          if (input === name) return name.value.trim().length > 0;
+          if (input === email) return emailOk(email.value.trim());
+          return true;
+        }
+        function mark(input, showError) {
+          var field = input.closest(".field");
+          var err = field.querySelector(".err");
+          field.classList.toggle("invalid", showError);
+          if (err) err.hidden = !showError;
+        }
+        function refresh() { btn.disabled = !(valid(name) && valid(email)); }
+        [name, email].forEach(function (inp) {
+          inp.addEventListener("input", function () {
+            refresh();
+            if (inp.closest(".field").classList.contains("invalid")) mark(inp, !valid(inp));
+          });
+          inp.addEventListener("blur", function () { mark(inp, !valid(inp)); });
+        });
+        f.addEventListener("submit", function (e) {
+          var ok = true;
+          [name, email].forEach(function (inp) {
+            if (!valid(inp)) { mark(inp, true); ok = false; }
+          });
+          if (!ok) {
+            e.preventDefault();
+            var first = f.querySelector(".field.invalid input");
+            if (first) first.focus();
+          }
+        });
+        refresh();
+      })();
+    </script>
+
+    <script is:inline>
+      // Dependency-free scroll reveal. Only runs when armed (html.io-ready);
+      // otherwise every .reveal stays in its visible base state.
+      if (document.documentElement.classList.contains("io-ready")) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add("in");
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -8% 0px", threshold: 0.12 },
+        );
+        for (const el of document.querySelectorAll(".reveal")) io.observe(el);
+      }
+    </script>
+  </body>
+</html>
