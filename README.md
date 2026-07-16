@@ -191,7 +191,7 @@ pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod depl
   With `--yes` it runs them, then verifies the live result.
 - `pnpm verify-live <url>` asserts a live site works: 200, no
   `X-Robots-Tag: noindex`, a LocalBusiness JSON-LD block, `/sitemap-index.xml`
-  + `robots.txt` reachable, `/thanks` renders.
+  + `robots.txt` + `llms.txt` reachable, `/thanks` renders.
 - `pnpm verify-live <preview-url> --expect-gated` asserts the opposite — 401
   with `WWW-Authenticate` + noindex — the behavioral proof of the preview gate
   above, runnable against any real preview deploy.
