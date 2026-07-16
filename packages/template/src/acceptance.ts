@@ -84,6 +84,97 @@ function isPlaceholderFormKey(accessKey: string): boolean {
   return !WEB3FORMS_KEY_SHAPE.test(accessKey);
 }
 
+/**
+ * issue #149: risky, unverifiable marketing-claim tokens — real
+ * false-advertising / FTC exposure when asserted without a documented
+ * source (see docs/GO-LIVE-CHECKLIST.md's claims/compliance section).
+ * `isVerified` is keyed off the *actual* fields issue #87 landed in
+ * `BusinessSchema` (`licensed`/`insured`/`bonded`/`licenseNumber` — see
+ * `packages/schema/src/index.ts`). There is no schema field for a
+ * certification, a formal guarantee, or a ranking claim, so those tokens
+ * have no way to be verified today and always flag when present; the fix is
+ * softer copy, not a fabricated field.
+ */
+const CLAIM_TOKENS: Array<{
+  code: string;
+  pattern: RegExp;
+  claim: string;
+  isVerified: (config: ClientConfig) => boolean;
+  hint: string;
+}> = [
+  {
+    code: "unverified-claim-licensed",
+    pattern: /\blicensed\b/i,
+    claim: "licensed",
+    isVerified: (c) => c.business.licensed === true || Boolean(c.business.licenseNumber),
+    hint: "set business.licensed: true (and ideally business.licenseNumber) once verified at intake, or soften the copy",
+  },
+  {
+    code: "unverified-claim-insured",
+    pattern: /\binsured\b/i,
+    claim: "insured",
+    isVerified: (c) => c.business.insured === true,
+    hint: "set business.insured: true once verified at intake, or soften the copy",
+  },
+  {
+    code: "unverified-claim-bonded",
+    pattern: /\bbonded\b/i,
+    claim: "bonded",
+    isVerified: (c) => c.business.bonded === true,
+    hint: "set business.bonded: true once verified at intake, or soften the copy",
+  },
+  {
+    code: "unverified-claim-certified",
+    pattern: /\bcertified\b/i,
+    claim: "certified",
+    isVerified: () => false,
+    hint: "ClientConfigSchema has no certification field yet (see docs/GO-LIVE-CHECKLIST.md §4) — remove the claim or soften the copy",
+  },
+  {
+    code: "unverified-claim-guaranteed",
+    pattern: /\bguarantee[ds]?\b/i,
+    claim: "guarantee(d)",
+    isVerified: () => false,
+    hint: 'ClientConfigSchema has no way to verify a guarantee — remove the claim or soften to e.g. "free, no-obligation estimates"',
+  },
+  {
+    code: "unverified-claim-number-one",
+    pattern: /#\s?1\b/,
+    claim: "#1",
+    isVerified: () => false,
+    hint: "a ranking claim needs a citable source — remove it or cite the source directly in copy",
+  },
+  {
+    code: "unverified-claim-best",
+    pattern: /\bbest\b/i,
+    claim: "best",
+    isVerified: () => false,
+    hint: 'a superlative claim needs a citable source — remove it or soften to e.g. "highly rated"',
+  },
+];
+
+/**
+ * Copy fields the template actually renders as the business's own marketing
+ * prose. Deliberately excludes `reviews[].text` — a review is the
+ * *customer's* words, not a claim we're asserting, and carries its own rule
+ * (written permission to publish, docs/GO-LIVE-CHECKLIST.md §2), not this one.
+ */
+function claimSources(config: ClientConfig): Array<{ field: string; text: string }> {
+  const sources = [
+    { field: "copy.heroHeadline", text: config.copy.heroHeadline },
+    { field: "copy.heroSub", text: config.copy.heroSub },
+    { field: "copy.about", text: config.copy.about },
+    { field: "copy.ctaLabel", text: config.copy.ctaLabel },
+    { field: "seo.title", text: config.seo.title },
+    { field: "seo.description", text: config.seo.description },
+  ];
+  config.services.forEach((service, index) => {
+    sources.push({ field: `services[${index}].title`, text: service.title });
+    sources.push({ field: `services[${index}].description`, text: service.description });
+  });
+  return sources;
+}
+
 const SECTION_REQUIREMENTS: Record<SectionId, (config: ClientConfig) => boolean> = {
   services: (c) => c.services.length > 0,
   gallery: (c) => c.gallery.length > 0,
@@ -161,6 +252,25 @@ export function checkClientAcceptance(
         code: "insecure-site-url",
         message: `seo.siteUrl must be a real https URL: ${config.seo.siteUrl}`,
       });
+    }
+  }
+
+  // issue #149: claims/compliance guardrail. Detection always runs (a
+  // preview should never train an editor that these tokens are fine) —
+  // only the severity is gated on `realData`, same warn/fail split as
+  // `armAcceptanceGate`'s hero-image check in build-gate.ts.
+  for (const source of claimSources(config)) {
+    for (const token of CLAIM_TOKENS) {
+      if (!token.pattern.test(source.text)) continue;
+      if (token.isVerified(config)) continue;
+      const message =
+        `${source.field} asserts "${token.claim}" with no verified source — ${token.hint} ` +
+        `(${source.field}: "${source.text}")`;
+      if (options.realData) {
+        issues.push({ code: token.code, message });
+      } else {
+        console.warn(`[checkClientAcceptance] ${message}`);
+      }
     }
   }
 

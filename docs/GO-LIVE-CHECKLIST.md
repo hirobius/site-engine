@@ -24,13 +24,16 @@ or `VERCEL_ENV=production`, so a build with any item below still unresolved
 **fails at build time**, before it ever reaches Vercel. `pnpm go-live <slug>`
 runs that armed build locally first for exactly this reason. §1–§2 below are
 the intake-facts half of that gate — work through them *before* running
-`pnpm go-live`, not after it fails. (`checkClientAcceptance` also runs two
-checks that aren't intake facts and so aren't checklist items — an
+`pnpm go-live`, not after it fails. (`checkClientAcceptance` also runs checks
+that aren't intake facts and so aren't §1/§2 checklist items — an
 unconditional WCAG AA contrast check on the resolved palette, and a
 video-hero check that `hero.videoSrc` is set whenever
 `layout.sections.hero.variant` is `"video"`. Both run on every build,
 preview included; if either fails, the fix is a `brand`/`layout` config
-change, not a missing intake fact.)
+change, not a missing intake fact. The claims/compliance guardrail in §5 is
+a middle case: detection runs on every build too, but it only warns in
+preview and only fails once armed — same split as the placeholder checks in
+§1/§2, so it gets its own section there instead of being lumped in here.)
 
 ## 1. Required — the build will not go live without these
 
@@ -134,25 +137,71 @@ genuinely unknown at build time:
 
 ## 4. Not yet in scope (tracked separately, do not improvise)
 
-The original ask for this checklist also named license #, insurance carrier,
-certifications, and a Google Business Profile URL/rating (testimonial-publish
-permission is covered in §2 above — it doesn't need a new field, since
-`reviews` already exists). None of the items below have a `ClientConfigSchema`
-field today, so there is no config path for them yet — do not add ad hoc
-fields or free-text workarounds for them:
+Issue #87 (`feat(schema): trust/conversion fields`) landed in #171: license #
+(`business.licenseNumber`), the licensed/insured/bonded flags
+(`business.licensed`/`insured`/`bonded`), a Google Business Profile URL
+(`business.gbpUrl`), social links (`social`), and a logo (`brand.logo` /
+`logoAlt`) all now have a real `ClientConfigSchema` field — see §1/§2 above
+and `packages/schema/src/index.ts`. Two items from the original ask still
+have **no** schema field, so there is still no config path for them — do not
+add ad hoc fields or free-text workarounds:
 
-- **License #, insurance carrier, certifications, GBP/social links, logo** —
-  schema additions tracked in issue #87 (`feat(schema): trust/conversion
-  fields`). Until that lands, this information has nowhere to go in
-  `client.config.ts`.
-- **Unverifiable trust claims** ("fully insured," "licensed," "certified,"
-  "#1," cherry-picked reviews) — the claims/compliance guardrail is tracked in
-  issue #149. Until it lands, don't let generated copy assert any claim you
-  don't have a documented, verifiable source for, even informally — soften to
-  defensible language instead (e.g. "free, no-obligation estimates").
+- **Insurance carrier name and certification records** — no
+  `ClientConfigSchema` field exists yet. `business.insured` is a plain
+  boolean (verified-or-not), not a place to record *which* carrier; there is
+  similarly no certifications field. A future schema change, not this
+  checklist.
 - **Domain registration (Porkbun) / DNS** — covered by the separate go-live
   runbook referenced from issue #151, not by this checklist or by
   `ClientConfigSchema`.
+
+## 5. Claims & compliance — don't assert what you can't verify (issue #149)
+
+Golden rule #5 (§3 above) covers fabricated *facts* — a phone number, a
+review that was never given. This section covers the adjacent *claims*
+layer: assertions that carry real false-advertising / FTC exposure even when
+every other fact on the site is genuine. Building the arborist and septic
+previews (2026-07-16) shipped, then had to correct, exactly this — "fully
+insured," "certified," and loose review/stat framing with no data to back
+them.
+
+- [ ] **"Licensed," "insured," "bonded"** — only use these words in
+      `copy.*`, `seo.title`/`seo.description`, or a `services[]` entry once
+      the matching field is verified at intake: `business.licensed: true`
+      (or a real `business.licenseNumber`) for "licensed,"
+      `business.insured: true` for "insured"/"fully insured,"
+      `business.bonded: true` for "bonded." No verified flag → no claim.
+      Soften instead — e.g. "free, no-obligation estimates."
+- [ ] **"Certified," "guaranteed," "#1," "best"** — `ClientConfigSchema` has
+      no field that can verify any of these (see §4 above), so they should
+      not appear in generated copy at all today. If a client genuinely holds
+      a certification, name the *specific* credential from real intake
+      material and treat it as a factual claim to source, not marketing
+      shorthand — until then, leave it out.
+- [ ] **Reviews are the factual aggregate, not a cherry-picked slice** — show
+      the real rating and count, and link to the real Google profile
+      (`business.gbpUrl`). Don't display only 5-star reviews while hiding
+      lower ones (FTC's 2024 consumer-review rule). A hand-picked
+      `reviews[]` array of real, permission-cleared testimonials (§2 above)
+      is fine; a *curated-to-look-perfect* one is not.
+- [ ] **Stats are labeled to their source** — "233 Google reviews," not a
+      bare "233 reviews" with no source, and never a number that isn't the
+      real `rating`/review count from the lead row.
+
+**Enforcement:** `checkClientAcceptance` (`packages/template/src/acceptance.ts`)
+scans `copy.heroHeadline`, `copy.heroSub`, `copy.about`, `copy.ctaLabel`,
+`seo.title`, `seo.description`, and every `services[].title`/`description`
+for the tokens `insured`/`licensed`/`bonded`/`certified`/`guaranteed`/`#1`/`best`
+(case-insensitive; deliberately *not* `reviews[].text`, since a review is the
+customer's own words, not our claim). A match with no matching verified field
+only `console.warn`s in a preview build; once `armAcceptanceGate` arms
+`realData` (`SITE_LIVE=true` / `VERCEL_ENV=production`, same trigger as §1's
+placeholder gate), it's a build-blocking issue
+(`unverified-claim-licensed`/`-insured`/`-bonded`/`-certified`/`-guaranteed`/
+`-number-one`/`-best`). The reviews/stats bullets above are a human-review
+checklist item, not (yet) machine-checked — `checkClientAcceptance` can
+confirm a claim token is unverified, but it can't judge whether a reviews
+section is cherry-picked.
 
 ## Where this fits in the build
 
@@ -160,7 +209,8 @@ fields or free-text workarounds for them:
 2. Build the preview (`pnpm --filter @hirobius/<slug> build`) — the
    placeholder gate is unarmed here, so intentional stub data is fine.
 3. Work this checklist before `pnpm go-live <slug>` — every unchecked box in
-   §1 is something the armed build will reject.
+   §1 is something the armed build will reject, and any risky claim token
+   from §5 left unverified will reject it too.
 4. Run `pnpm go-live <slug>` — it re-runs the armed build
    (`SITE_LIVE=true`) locally first; a config still missing an item above
    fails here with the specific `checkClientAcceptance` code, not on Vercel.
