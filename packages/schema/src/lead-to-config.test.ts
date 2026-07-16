@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { leadToConfig, mapCategoryToTrade, type LeadRow } from "./lead-to-config.js";
 import { PALETTE_PRESET_IDS } from "./presets.js";
+import { SKINS, SKIN_IDS } from "./skins.js";
 
 const ROLLING_SUDS: LeadRow = {
   name: "Rolling Suds of Seattle",
@@ -77,6 +78,43 @@ describe("leadToConfig", () => {
     const { config, todos } = leadToConfig({ ...ROLLING_SUDS, category: "Widget assembly" });
     expect(config.brand.palettePreset).toBe("pressure-washing");
     expect(todos.some((t) => t.includes('category "Widget assembly" didn\'t match a known trade'))).toBe(true);
+  });
+
+  describe("artDirection", () => {
+    it("defaults to the classic skin when artDirection is absent", () => {
+      const omitted = leadToConfig(ROLLING_SUDS).config;
+      const explicit = leadToConfig({ ...ROLLING_SUDS, artDirection: "classic" }).config;
+      expect(omitted).toEqual(explicit);
+    });
+
+    it("produces a valid config matching the skin's pinned brand + section tokens, for every shipped artDirection", () => {
+      for (const artDirection of SKIN_IDS) {
+        const skin = SKINS[artDirection];
+        const { config } = leadToConfig({ ...ROLLING_SUDS, artDirection });
+
+        expect(config.brand.shadow).toBe(skin.brand.shadow);
+        expect(config.brand.motion).toBe(skin.brand.motion);
+        expect(config.brand.radius).toBe(skin.brand.radius);
+        expect(config.layout.sections.services.variant).toBe(skin.sections.services);
+        expect(config.layout.sections.contact.variant).toBe(skin.sections.contact);
+        expect(config.layout.sections.serviceAreaMap.variant).toBe(skin.sections.serviceAreaMap);
+      }
+    });
+
+    it("is style-only — never changes a business fact", () => {
+      const classic = leadToConfig({ ...ROLLING_SUDS, artDirection: "classic" }).config;
+      const unset = leadToConfig(ROLLING_SUDS).config;
+
+      expect(classic.business).toEqual(unset.business);
+      expect(classic.copy).toEqual(unset.copy);
+      expect(classic.seo).toEqual(unset.seo);
+    });
+
+    it("rejects an artDirection outside the closed enum at the type level", () => {
+      // @ts-expect-error — artDirection is a closed enum over SKIN_IDS, not a free string.
+      const lead: LeadRow = { ...ROLLING_SUDS, artDirection: "brutalist" };
+      expect(() => leadToConfig(lead)).toThrow(/Unknown design/);
+    });
   });
 });
 
