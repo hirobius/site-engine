@@ -77,22 +77,22 @@ describe("runImpeccableDetect", () => {
     expect(result).toEqual({ skipped: false, findings: [FINDING] });
   });
 
-  it("skips when npx can't even be launched", async () => {
+  it("skips when the binary can't even be launched", async () => {
     const result = await runImpeccableDetect(["src"], {
       cwd: ROOT,
-      spawn: fakeSpawn({ launchError: Object.assign(new Error("spawn npx ENOENT"), { code: "ENOENT" }) }),
+      spawn: fakeSpawn({ launchError: Object.assign(new Error("spawn impeccable ENOENT"), { code: "ENOENT" }) }),
     });
     expect(result.skipped).toBe(true);
-    if (result.skipped) expect(result.reason).toMatch(/npx failed to launch/);
+    if (result.skipped) expect(result.reason).toMatch(/impeccable failed to launch/);
   });
 
-  it("skips when the spawned process errors (npx missing from PATH)", async () => {
+  it("skips when the spawned process errors (binary missing / not installed)", async () => {
     const result = await runImpeccableDetect(["src"], {
       cwd: ROOT,
-      spawn: fakeSpawn({ spawnError: Object.assign(new Error("spawn npx ENOENT"), { code: "ENOENT" }) }),
+      spawn: fakeSpawn({ spawnError: Object.assign(new Error("spawn impeccable ENOENT"), { code: "ENOENT" }) }),
     });
     expect(result.skipped).toBe(true);
-    if (result.skipped) expect(result.reason).toMatch(/npx failed:/);
+    if (result.skipped) expect(result.reason).toMatch(/impeccable failed:/);
   });
 
   it("skips on an unexpected exit code (tool itself failed, not a clean/findings run)", async () => {
@@ -141,12 +141,11 @@ describe("runImpeccableDetect", () => {
 });
 
 /**
- * Real end-to-end sweep: runs the actual `npx impeccable@3 detect --json`
- * against the shared visual surface (see design-quality.ts's doc comment for
- * why `packages/template/src` covers every section variant + skin). Skips
- * gracefully — never fails the suite — when npx/network is unavailable, per
- * the offline-safe contract above. A long timeout covers the first-run npx
- * package fetch under load; `detect` itself is local and fast once fetched.
+ * Real end-to-end sweep: runs the actual pinned `impeccable detect --json`
+ * binary against the shared visual surface (see design-quality.ts's doc
+ * comment for why `packages/template/src` covers every section variant +
+ * skin). Skips gracefully — never fails the suite — when the binary isn't
+ * installed/available, per the offline-safe contract above.
  */
 describe("template design-quality sweep (real impeccable detect)", () => {
   it(
