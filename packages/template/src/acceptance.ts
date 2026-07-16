@@ -84,6 +84,133 @@ function isPlaceholderFormKey(accessKey: string): boolean {
   return !WEB3FORMS_KEY_SHAPE.test(accessKey);
 }
 
+/** Collapses the near-identical "set business.<field>: true" hints for the
+ *  three claim tokens that map onto a real boolean field. `licensed` gets an
+ *  extra nudge toward `licenseNumber` since that field alone also verifies it
+ *  (see `isVerified` below). */
+function verifiedFieldHint(field: "licensed" | "insured" | "bonded"): string {
+  const extra = field === "licensed" ? " (and ideally business.licenseNumber)" : "";
+  return `set business.${field}: true${extra} once verified at intake, or soften the copy`;
+}
+
+/**
+ * issue #149: risky, unverifiable marketing-claim tokens — real
+ * false-advertising / FTC exposure when asserted without a documented
+ * source (see docs/GO-LIVE-CHECKLIST.md's claims/compliance section).
+ * `isVerified` is keyed off the *actual* fields issue #87 landed in
+ * `BusinessSchema` (`licensed`/`insured`/`bonded`/`licenseNumber` — see
+ * `packages/schema/src/index.ts`). There is no schema field for a
+ * certification, a formal guarantee, or a ranking claim, so those tokens
+ * have no way to be verified today and always flag when present; the fix is
+ * softer copy, not a fabricated field.
+ */
+const CLAIM_TOKENS: Array<{
+  code: string;
+  pattern: RegExp;
+  claim: string;
+  isVerified: (config: ClientConfig) => boolean;
+  hint: string;
+}> = [
+  {
+    code: "unverified-claim-licensed",
+    pattern: /\blicensed\b/i,
+    claim: "licensed",
+    isVerified: (c) => c.business.licensed === true || Boolean(c.business.licenseNumber),
+    hint: verifiedFieldHint("licensed"),
+  },
+  {
+    code: "unverified-claim-insured",
+    pattern: /\binsured\b/i,
+    claim: "insured",
+    isVerified: (c) => c.business.insured === true,
+    hint: verifiedFieldHint("insured"),
+  },
+  {
+    code: "unverified-claim-bonded",
+    pattern: /\bbonded\b/i,
+    claim: "bonded",
+    isVerified: (c) => c.business.bonded === true,
+    hint: verifiedFieldHint("bonded"),
+  },
+  {
+    code: "unverified-claim-certified",
+    pattern: /\bcertified\b/i,
+    claim: "certified",
+    isVerified: () => false,
+    hint: "ClientConfigSchema has no certification field yet (see docs/GO-LIVE-CHECKLIST.md §4) — remove the claim or soften the copy",
+  },
+  {
+    code: "unverified-claim-guaranteed",
+    pattern: /\bguarantee[ds]?\b/i,
+    claim: "guarantee(d)",
+    isVerified: () => false,
+    hint: 'ClientConfigSchema has no way to verify a guarantee — remove the claim or soften to e.g. "free, no-obligation estimates"',
+  },
+  {
+    code: "unverified-claim-number-one",
+    pattern: /#\s?1\b/,
+    claim: "#1",
+    isVerified: () => false,
+    hint: "a ranking claim needs a citable source — remove it or cite the source directly in copy",
+  },
+  {
+    code: "unverified-claim-best",
+    pattern: /\bbest\b/i,
+    claim: "best",
+    isVerified: () => false,
+    hint: 'a superlative claim needs a citable source — remove it or soften to e.g. "highly rated"',
+  },
+];
+
+/**
+ * Copy fields the template actually renders as the business's own marketing
+ * prose. Deliberately excludes `reviews[].text` — a review is the
+ * *customer's* words, not a claim we're asserting, and carries its own rule
+ * (written permission to publish, docs/GO-LIVE-CHECKLIST.md §2), not this one.
+ */
+function claimSources(config: ClientConfig): Array<{ field: string; text: string }> {
+  const sources = [
+    { field: "copy.heroHeadline", text: config.copy.heroHeadline },
+    { field: "copy.heroSub", text: config.copy.heroSub },
+    { field: "copy.about", text: config.copy.about },
+    { field: "copy.ctaLabel", text: config.copy.ctaLabel },
+    { field: "seo.title", text: config.seo.title },
+    { field: "seo.description", text: config.seo.description },
+  ];
+  config.services.forEach((service, index) => {
+    sources.push({ field: `services[${index}].title`, text: service.title });
+    sources.push({ field: `services[${index}].description`, text: service.description });
+  });
+  return sources;
+}
+
+/**
+ * issue #149: pure detection pass over `CLAIM_TOKENS` — no I/O, always runs
+ * regardless of `realData` (a preview should never train an editor that
+ * these tokens are fine). Exported so `armAcceptanceGate` (`build-gate.ts`)
+ * can reuse the exact same detection to `console.warn` in an unarmed
+ * (preview) build, the same warn/fail split as its `hero.image` check —
+ * `checkClientAcceptance` itself stays a pure "detect, return an array"
+ * function; only that call site decides what an unarmed build does with the
+ * result.
+ */
+export function detectClaimIssues(config: ClientConfig): AcceptanceIssue[] {
+  const issues: AcceptanceIssue[] = [];
+  for (const source of claimSources(config)) {
+    for (const token of CLAIM_TOKENS) {
+      if (!token.pattern.test(source.text)) continue;
+      if (token.isVerified(config)) continue;
+      issues.push({
+        code: token.code,
+        message:
+          `${source.field} asserts "${token.claim}" with no verified source — ${token.hint} ` +
+          `(${source.field}: "${source.text}")`,
+      });
+    }
+  }
+  return issues;
+}
+
 const SECTION_REQUIREMENTS: Record<SectionId, (config: ClientConfig) => boolean> = {
   services: (c) => c.services.length > 0,
   gallery: (c) => c.gallery.length > 0,
@@ -162,6 +289,11 @@ export function checkClientAcceptance(
         message: `seo.siteUrl must be a real https URL: ${config.seo.siteUrl}`,
       });
     }
+    // issue #149: claims/compliance guardrail — same realData gate as every
+    // other check in this block. `detectClaimIssues` is exported so
+    // `armAcceptanceGate` can also run it, unconditionally, to warn in an
+    // unarmed (preview) build — see that function's doc comment.
+    issues.push(...detectClaimIssues(config));
   }
 
   if (config.layout.sections.hero.variant === "video" && !config.hero.videoSrc) {

@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { ClientConfig } from "@hirobius/schema";
-import { checkClientAcceptance } from "./acceptance.js";
+import { checkClientAcceptance, detectClaimIssues } from "./acceptance.js";
 
 /**
  * True when `imagePath`'s basename has a matching file under the app's
@@ -30,7 +30,11 @@ function hasOptimizedAsset(imagePath: string, appDir: string): boolean {
  * Also checks `hero.image` resolves to an optimized `src/assets/photos/` file
  * rather than an unoptimized `public/` one (issue #81) — a preview build only
  * warns (photos often land after intake), a real build fails it outright,
- * same armed/unarmed split as the placeholder checks above.
+ * same armed/unarmed split as the placeholder checks above. The claims/
+ * compliance guardrail (issue #149, `detectClaimIssues` in `acceptance.ts`)
+ * follows the identical split: `checkClientAcceptance` above already pushes
+ * its issues once `realData` is armed, so here we only need to cover the
+ * *unarmed* half — warn instead of silently doing nothing, same as hero.image.
  *
  * `appDir` defaults to `process.cwd()`, which is the app's own directory when
  * Astro loads `astro.config.ts` — override only in tests.
@@ -38,6 +42,12 @@ function hasOptimizedAsset(imagePath: string, appDir: string): boolean {
 export function armAcceptanceGate(client: ClientConfig, appDir: string = process.cwd()): void {
   const realData = process.env.SITE_LIVE === "true" || process.env.VERCEL_ENV === "production";
   const issues = checkClientAcceptance(client, { realData });
+
+  if (!realData) {
+    for (const claimIssue of detectClaimIssues(client)) {
+      console.warn(`[checkClientAcceptance] ${claimIssue.message}`);
+    }
+  }
 
   if (client.hero.image && !hasOptimizedAsset(client.hero.image, appDir)) {
     // "img element", not the literal tag — see the impeccable note on
