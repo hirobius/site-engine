@@ -1,6 +1,8 @@
 # ADR-0003 — Skins (design packs) are the unit of visual variety
 
-**Status:** Accepted (2026-07-12, Adrian) — strategy only; mechanism deliberately NOT built yet (ops feature freeze)
+**Status:** Accepted (2026-07-12, Adrian); parking lifted 2026-07-16 (Adrian: "build
+skins now" — the "more randomization of the design, automatically per site" ask is
+the signal §3/#5 was waiting for); mechanism built 2026-07-16 (#140)
 **Scope:** strategy for `packages/schema` / `packages/template` visual variety; supersedes the *goal* (not the rail) of ADR-0002
 **Related:** ADR-0002 (section variants — the delivery rail), #128 (epic), #23 (realtor preview kit), `docs/HARVESTING.md`
 
@@ -61,3 +63,42 @@ site.
   skin; two parked issues track the skin mechanism and the warm-editorial port.
 - ADR-0002's mechanism, gates, and playbook remain fully in force — this ADR
   changes what travels on the rail, not the rail.
+
+## Addendum — parking lifted, mechanism built (2026-07-16)
+
+Point 5's freeze exception fired: Adrian's "more randomization of the design,
+automatically per site" ask, plus an explicit freeze lift ("build skins now"),
+is the signal this ADR was parked for — now active groundwork under the
+site-factory initiative (#148; the seeded genome's curated skins land on this
+`design` key once harvested, per #148 EPIC C3).
+
+Issue #140 built the **mechanism only** (no skin content yet — the real skins,
+starting with warm-editorial, are #141 and follow-ups):
+
+- `packages/schema/src/skins.ts` — closed-enum `SKIN_IDS` / `SKINS` registry.
+  One placeholder skin, `classic`, that reproduces `packages/schema`'s
+  ordinary defaults verbatim (first `SECTION_VARIANTS` tuple values +
+  `BrandSchema`'s `.default()`s) — a working enum value + test, not real
+  design content.
+- `packages/schema/src/index.ts` — a top-level `design?: SkinId` field on
+  `ClientConfigDraft`, merged by `applyDesignSkin()` with the **exact**
+  override-only pattern of `applyContentPack()`: explicit config fields
+  (`layout.sections.<id>.variant`, `brand.*`) always win, the skin only fills
+  gaps, and `design` is stripped before Zod — it never reaches
+  `ClientConfigSchema`, so `ops-shape.snapshot.json` (the ops schema-drift
+  guard, #75) needed no changes; re-ran `pnpm schema:snapshot-ops` and
+  confirmed a byte-identical snapshot.
+- Additive and default-safe: omitting `design` — or setting
+  `design: "classic"` — renders byte-identical to today, proven both by unit
+  test and by a `dist/` diff on `apps/demo-pressure-pros` with and without the
+  field set.
+- Containment unchanged: closed enums, semantic tokens, the purity gate, and
+  visual baselines all apply exactly as ADR-0002 established — this addendum
+  changes nothing about the rail, only confirms the skin mechanism now rides
+  on it as designed in §3.
+- Follow-up flagged, not done here: `packages/agent` and `scripts/lead-gen`
+  are frozen in this repo (engine lives in hirobius/ops), and ops's vendored
+  `lib/schema/index.mjs` has never carried `applyContentPack`'s merge
+  behavior either — a pre-existing gap this PR does not close. Porting
+  `applyDesignSkin` (and `applyContentPack`) to ops's vendored copy is
+  tracked as a follow-up so the ops agent can eventually emit `design` too.
