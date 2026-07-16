@@ -69,6 +69,7 @@ apps/
 scripts/
   new-client.ts      scaffold a client + print Vercel CLI commands
   eject-client.ts    flatten one client into a standalone repo for handoff
+  deploy-preview.ts  one command: eject -> link -> gated Vercel preview link (#154)
   skin-critique.ts   deterministic half of the skin critic loop (impeccable detect over a rendered skin)
 docs/
   INTAKE.md            per-client intake worksheet (maps 1:1 to client.config.ts)
@@ -168,6 +169,22 @@ request regardless of framework, which is why it works on a static Astro site.
   the moment `SITE_LIVE=true`, since that flip bypasses the gate entirely.
 - Fails closed: if neither a valid token nor creds are presented, the site
   returns 503 (nothing configured) or 401 (wrong Basic auth).
+
+**One-command cold-outreach preview:** `pnpm deploy-preview <slug>` (issue #154)
+automates the whole gated-preview dance — eject to a standalone build, `vercel
+link`, generate + set `PREVIEW_TOKEN` (plus `PREVIEW_USER`/`PREVIEW_PASS`, so
+the no-key path actually 401s instead of falling back to a bare 503), disable
+Vercel's own Deployment Protection (Vercel Authentication) so the keyed link
+doesn't 401 before `middleware.ts` runs, `vercel deploy --target=preview`
+(never `--prod`), then fetches the deployed URL with and without the key to
+prove the gate really is 200/closed before printing the working
+`https://.../?key=` link. Idempotent — safe to re-run per client; the
+generated secrets (token + Basic auth creds) are persisted and reused across
+re-runs, but each `vercel deploy` mints a fresh, unaliased URL, so re-send the
+newly printed link after any re-run rather than expecting an old one to keep
+resolving. Needs `VERCEL_TOKEN` in the environment (fails loud with the fix if
+it's missing); if Deployment Protection can't be disabled via the API for your
+plan/scope, it prints the exact Project Settings deep link to flip by hand.
 
 **Verification:** the pattern is confirmed against Vercel's `routing-middleware`
 docs (a non-Next project exports a default `(request: Request) => Response` and
