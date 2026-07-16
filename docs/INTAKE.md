@@ -4,6 +4,12 @@ Fill this out per client. Every field maps 1:1 to `client.config.ts`, so a
 completed intake is a paint-by-numbers build. Leave a field blank only if it
 truly doesn't apply; mark anything you're waiting on as `TODO`.
 
+> Building the *preview*? This worksheet is enough — placeholder facts are
+> fine here. Before flipping the site live, work through
+> `docs/GO-LIVE-CHECKLIST.md` — it lists exactly which of these fields must
+> be real (not a stub) before `SITE_LIVE=true`, and why the armed build
+> rejects placeholders.
+
 > Builder note: copy answers straight into `apps/<slug>/client.config.ts`. Do not
 > invent values that aren't here. If the client asks for something with no field
 > below, it's a custom-component request — flag it, don't improvise.

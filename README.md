@@ -70,7 +70,9 @@ scripts/
   new-client.ts   scaffold a client + print Vercel CLI commands
   eject-client.ts flatten one client into a standalone repo for handoff
 docs/
-  HANDOFF.md      one-page client handoff (the 7-day window + change fee)
+  INTAKE.md            per-client intake worksheet (maps 1:1 to client.config.ts)
+  GO-LIVE-CHECKLIST.md the facts a site needs before SITE_LIVE=true (issue #151)
+  HANDOFF.md           one-page client handoff (the 7-day window + change fee)
 ```
 
 ### How a page is composed
@@ -185,7 +187,10 @@ pnpm go-live mikes-junk --yes      # armed build -> execute the flip + prod depl
 
 - `go-live` first runs `SITE_LIVE=true astro build` for the app locally — the
   same armed `checkClientAcceptance` gate described above — so placeholder
-  intake data fails **here**, before anything touches Vercel.
+  intake data fails **here**, before anything touches Vercel. Work through
+  `docs/GO-LIVE-CHECKLIST.md` before running it — it walks the intake facts
+  the armed gate checks (contrast/video-hero checks are separate and covered
+  there too, but aren't intake facts).
 - Without `--yes` it prints the exact `vercel env add SITE_LIVE production` +
   `vercel deploy --prod` commands (same print/execute pattern as `new-client`).
   With `--yes` it runs them, then verifies the live result.
