@@ -1,35 +1,22 @@
 ---
-import type { ClientConfig } from "@hirobius/schema";
-import Section from "./Section.astro";
-import ResponsiveImage from "./ResponsiveImage.astro";
+// Gallery dispatcher — renders the variant selected by
+// `config.layout.sections.gallery.variant`. The map is checked against the
+// schema's closed enum (`satisfies`), so adding a SECTION_VARIANTS value
+// without a component here fails `astro check`.
+import type { ClientConfig, SECTION_VARIANTS } from "@hirobius/schema";
+import Grid from "./gallery/grid.astro";
 
 interface Props {
   config: ClientConfig;
 }
 
 const { config } = Astro.props;
-const { gallery } = config;
+
+const VARIANTS = {
+  grid: Grid,
+} satisfies Record<(typeof SECTION_VARIANTS)["gallery"][number], unknown>;
+
+const Variant = VARIANTS[config.layout.sections.gallery.variant];
 ---
 
-{
-  gallery.length > 0 && (
-    <Section id="gallery" title="Recent Work" muted>
-      <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {gallery.map((photo) => (
-          <li class="overflow-hidden rounded-theme bg-bg">
-            <ResponsiveImage
-              src={photo.src}
-              alt={photo.alt}
-              widths={[300, 600, 900]}
-              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-              width={600}
-              height={600}
-              loading="lazy"
-              class="aspect-square w-full object-cover transition hover:scale-[1.02]"
-            />
-          </li>
-        ))}
-      </ul>
-    </Section>
-  )
-}
+<Variant config={config} />
