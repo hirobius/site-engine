@@ -1,0 +1,38 @@
+---
+// Reviews variant "cards" — the original rating + quote card grid, from
+// `config.reviews`.
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "../Section.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { reviews } = config;
+
+function stars(rating: number): string {
+  return "★".repeat(rating) + "☆".repeat(5 - rating);
+}
+---
+
+{
+  reviews.length > 0 && (
+    <Section id="reviews" title="What Customers Say">
+      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+        {reviews.map((review) => (
+          <li class="reveal flex flex-col rounded-theme border border-fg/10 bg-bg p-6 shadow-sm">
+            <div class="text-accent" role="img" aria-label={`${review.rating} out of 5 stars`}>
+              <span aria-hidden="true">{stars(review.rating)}</span>
+            </div>
+            <blockquote class="mt-3 flex-1 text-fg/80">“{review.text}”</blockquote>
+            <footer class="mt-4 text-sm font-semibold text-fg">
+              {review.author}
+              {review.source && <span class="font-normal text-fg/70"> · via {review.source}</span>}
+            </footer>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}

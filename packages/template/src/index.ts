@@ -29,10 +29,11 @@ export const SECTION_COMPONENTS = {
 
 /**
  * Component file for every (section, variant) pair in the schema's
- * SECTION_VARIANTS registry, relative to `src/components`. Sections with a
- * single variant keep their original flat file until their first harvest
- * lands; multi-variant sections use `<sectionId>/<variantId>.astro` behind a
- * flat dispatcher (e.g. `Hero.astro`). registry.test.ts asserts this map and
+ * SECTION_VARIANTS registry, relative to `src/components`. Sections that
+ * haven't had their first harvest yet keep their original flat file;
+ * harvested sections use `<sectionId>/<variantId>.astro` behind a flat
+ * dispatcher under the original filename (e.g. `Hero.astro`,
+ * `ServicesGrid.astro`). registry.test.ts asserts this map and
  * SECTION_VARIANTS never drift and that every file exists.
  */
 export const SECTION_VARIANT_COMPONENTS = {
@@ -42,9 +43,9 @@ export const SECTION_VARIANT_COMPONENTS = {
     "split-card": "hero/split-card.astro",
     banner: "hero/banner.astro",
   },
-  services: { grid: "ServicesGrid.astro" },
-  gallery: { grid: "Gallery.astro" },
-  reviews: { cards: "Reviews.astro" },
+  services: { grid: "services/grid.astro" },
+  gallery: { grid: "gallery/grid.astro" },
+  reviews: { cards: "reviews/cards.astro" },
   serviceAreaMap: { standard: "ServiceAreaMap.astro" },
   contact: { standard: "ContactForm.astro" },
 } as const satisfies {

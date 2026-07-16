@@ -1,38 +1,22 @@
 ---
-import type { ClientConfig } from "@hirobius/schema";
-import Section from "./Section.astro";
-import ResponsiveImage from "./ResponsiveImage.astro";
+// Services dispatcher — renders the variant selected by
+// `config.layout.sections.services.variant`. The map is checked against the
+// schema's closed enum (`satisfies`), so adding a SECTION_VARIANTS value
+// without a component here fails `astro check`.
+import type { ClientConfig, SECTION_VARIANTS } from "@hirobius/schema";
+import Grid from "./services/grid.astro";
 
 interface Props {
   config: ClientConfig;
 }
 
 const { config } = Astro.props;
-const { services } = config;
+
+const VARIANTS = {
+  grid: Grid,
+} satisfies Record<(typeof SECTION_VARIANTS)["services"][number], unknown>;
+
+const Variant = VARIANTS[config.layout.sections.services.variant];
 ---
 
-<Section id="services" title="What We Do" subtitle="Professional service, done right the first time.">
-  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-    {
-      services.map((service) => (
-        <li class="reveal flex flex-col overflow-hidden rounded-theme border border-fg/10 bg-bg shadow-sm">
-          {service.image && (
-            <ResponsiveImage
-              src={service.image}
-              alt=""
-              widths={[400, 800]}
-              sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
-              width={800}
-              height={500}
-              class="aspect-[8/5] w-full object-cover"
-            />
-          )}
-          <div class="flex flex-1 flex-col p-6">
-            <h3 class="font-heading text-xl font-semibold text-primary">{service.title}</h3>
-            <p class="mt-2 text-fg/75">{service.description}</p>
-          </div>
-        </li>
-      ))
-    }
-  </ul>
-</Section>
+<Variant config={config} />
