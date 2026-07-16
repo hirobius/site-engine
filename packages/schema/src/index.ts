@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PALETTE_PRESET_IDS, FONT_IDS, type PalettePresetId } from "./presets.js";
+import { PALETTE_PRESET_IDS, FONT_IDS, FONT_PAIRING_IDS, type PalettePresetId } from "./presets.js";
 import { CONTENT_PACKS } from "./content-packs.js";
 import { SECTION_VARIANTS } from "./section-variants.js";
 
@@ -76,8 +76,25 @@ export const BrandSchema = z.object({
     .record(z.string().regex(/^--brand-[a-z-]+$/), hexColor)
     .default({}),
   font: z.enum(FONT_IDS).default("system"),
+  /**
+   * Heading↔body font pairing (issue #155, `presets.ts` `FONT_PAIRINGS`).
+   * Optional and unset by default: when omitted, `lib/theme.ts` derives both
+   * stacks from `font` above (today's single-stack behavior), so every
+   * existing config renders byte-identical. Set it to free the heading stack
+   * from the body stack — `font` is then ignored for the pair (still used
+   * elsewhere as the site's nominal font id).
+   */
+  fontPairing: z.enum(FONT_PAIRING_IDS).optional(),
   /** Corner radius applied site-wide via `--brand-radius`. */
   radius: z.enum(["none", "sm", "md", "lg", "xl"]).default("md"),
+  /**
+   * Shadow-character dial (issue #157). `soft` (default) reproduces today's
+   * `--semantic-shadow-{subtle,floating,overlay}` values exactly — additive,
+   * does not change any existing client's output. `flat` removes shadows
+   * entirely (borders carry the depth cue); `hard` swaps in solid,
+   * no-blur drop shadows. Wired in `packages/template/src/lib/brand-overlay.ts`.
+   */
+  shadow: z.enum(["flat", "soft", "hard"]).default("soft"),
   /**
    * Scroll-motion intensity, applied dependency-free (CSS + one
    * IntersectionObserver island; no GSAP, no Lenis):

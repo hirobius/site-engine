@@ -86,3 +86,46 @@ export const FONT_STACKS = {
 
 export type FontId = keyof typeof FONT_STACKS;
 export const FONT_IDS = Object.keys(FONT_STACKS) as [FontId, ...FontId[]];
+
+/**
+ * Heading↔body font pairings for the optional `brand.fontPairing` dial
+ * (issue #155). `brand.font` alone applies one stack to both headings and
+ * body — no type contrast, one driver of the "every site looks the same"
+ * audit finding. Each pairing frees the two apart; all are self-hostable
+ * Google Fonts (see `FONT_PAIRING_HREFS` in `packages/template/src/lib/theme.ts`).
+ *
+ * `brand.fontPairing` is optional and consulted ONLY when set —
+ * `lib/theme.ts` derives both stacks from `brand.font` (today's behavior)
+ * when it's omitted, so this table never affects an existing config and
+ * every existing site renders byte-identical.
+ *
+ * `system` reproduces the plain `brand.font` "system" behavior verbatim
+ * (same stack both places, no web font) so it's available as an explicit
+ * choice, e.g. to opt back out of a pairing without unsetting the field.
+ */
+export const FONT_PAIRINGS = {
+  system: {
+    heading: FONT_STACKS.system,
+    body: FONT_STACKS.system,
+  },
+  editorial: {
+    heading: "'Fraunces', Georgia, Cambria, 'Times New Roman', serif",
+    body: FONT_STACKS.inter,
+  },
+  modern: {
+    heading:
+      "'Space Grotesk', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    body: FONT_STACKS.inter,
+  },
+  industrial: {
+    heading: "'Archivo', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    body: FONT_STACKS.inter,
+  },
+  slab: {
+    heading: FONT_STACKS.slab,
+    body: FONT_STACKS.inter,
+  },
+} as const;
+
+export type FontPairingId = keyof typeof FONT_PAIRINGS;
+export const FONT_PAIRING_IDS = Object.keys(FONT_PAIRINGS) as [FontPairingId, ...FontPairingId[]];
