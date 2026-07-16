@@ -102,3 +102,41 @@ starting with warm-editorial, are #141 and follow-ups):
   behavior either — a pre-existing gap this PR does not close. Porting
   `applyDesignSkin` (and `applyContentPack`) to ops's vendored copy is
   tracked as a follow-up so the ops agent can eventually emit `design` too.
+
+## Addendum — skin #1, warm-editorial (2026-07-16, #141)
+
+Issue #141 ported #23's validated warm-editorial art direction (Fraunces +
+Inter, cream + sage, editorial hero) into `packages/schema/src/skins.ts` as
+the first real skin, using ONLY the config surface #140 shipped:
+`brand.fontPairing: "editorial"` (already the Fraunces + Inter pairing added
+in #155 — no new font work needed), a bespoke cream + sage
+`brand.cssVarOverrides` palette (AA-verified: primary/on-primary 6.03:1,
+fg/bg 14.20:1, fg/muted 11.93:1; `--brand-accent` isn't one of
+`CONTRAST_TOKEN_PAIRS` today but was hand-verified too — accent/bg 5.52:1,
+accent/muted 4.64:1, both clearing AA with margin), `brand.radius: "lg"`,
+`brand.shadow: "flat"`, `brand.motion: "subtle"`, and
+`layout.sections.hero.variant: "split-card"` — the existing hero closest to
+#23's editorial asymmetric hero. No new section components: a truer
+magazine-style hero (pull-quote rail, masthead byline) isn't in
+`SECTION_VARIANTS` yet, so per `docs/HARVESTING.md` it stays a follow-up
+harvested only once a skin actually needs it, not invented speculatively
+here. Additive and default-safe, same proof pattern as #140: `design` unset
+or `"classic"` still renders byte-identical; `design: "warm-editorial"` is
+the first skin whose output actually differs, verified both by unit test
+(`skins.test.ts`) and the acceptance gate (`packages/template/src/
+acceptance.test.ts`'s "design: warm-editorial skin" suite, reusing the
+`checkClientAcceptance` contrast checks from issue #79/#145).
+
+**Correction (review pass):** an earlier draft of this skin's doc comment
+claimed `font`/`fontPairing` cover point 1's "type scale" axis. That's
+wrong — a type scale is font sizes/line-heights/a modular scale, and the
+schema has no mechanism for that (issue #86, deferred). `font`/`fontPairing`
+only pin typeface. Fixed in `skins.ts`'s doc comments (both the shared
+`SkinBrand` interface doc and warm-editorial's own); "type scale" stays an
+open follow-up, not something this skin (or the mechanism) delivers.
+
+**Follow-up (not done here):** `hirobius/ops`'s vendored `lib/schema/`
+carries `applyDesignSkin`/`SKINS` at all only once the #140 follow-up above
+re-syncs the mechanism — this PR's new `SKINS["warm-editorial"]` entry needs
+the same re-sync once that lands, so the ops agent can eventually emit
+`design: "warm-editorial"` too.
