@@ -213,5 +213,53 @@ describe("checkClientAcceptance", () => {
       );
       expect(issues.map((i) => i.code)).toContain("low-contrast-hero");
     });
+
+    describe("free palettes (full six-key cssVarOverrides, issue #145)", () => {
+      it("flags an illegible free palette even though the base preset is legible", () => {
+        // `palettePreset` must still be a stock id, but a full six-key
+        // cssVarOverrides completely replaces every preset token — so
+        // "landscaping" here is a red herring. If the gate were (wrongly)
+        // checking the *preset*'s own tokens instead of the *resolved*
+        // (override-merged) palette, this would pass clean; it must not.
+        const issues = checkClientAcceptance(
+          config({
+            brand: {
+              palettePreset: "landscaping",
+              cssVarOverrides: {
+                "--brand-primary": "#ffffff",
+                "--brand-on-primary": "#f5f5f5",
+                "--brand-bg": "#e5e5e5",
+                "--brand-fg": "#dddddd",
+                "--brand-muted": "#e0e0e0",
+                "--brand-accent": "#c9a227",
+              },
+            },
+          }),
+        );
+        const codes = issues.map((i) => i.code);
+        expect(codes).toContain("low-contrast-cta");
+        expect(codes).toContain("low-contrast-hero");
+        expect(codes).toContain("low-contrast-muted");
+      });
+
+      it("passes a legible free palette that matches no stock preset", () => {
+        const issues = checkClientAcceptance(
+          config({
+            brand: {
+              palettePreset: "landscaping",
+              cssVarOverrides: {
+                "--brand-primary": "#5b2a86",
+                "--brand-on-primary": "#ffffff",
+                "--brand-bg": "#faf7ff",
+                "--brand-fg": "#241934",
+                "--brand-muted": "#ece4f7",
+                "--brand-accent": "#e0b400",
+              },
+            },
+          }),
+        );
+        expect(issues).toEqual([]);
+      });
+    });
   });
 });
