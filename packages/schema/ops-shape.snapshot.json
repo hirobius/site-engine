@@ -1,5 +1,5 @@
 {
-  "note": "Baseline shape of packages/schema, captured at the last known ops/lib/schema re-sync. Regenerate with `pnpm schema:snapshot-ops` immediately after re-syncing ops — never to silence a real, un-synced drift.",
+  "note": "Baseline shape of packages/schema, captured at the last known ops/lib/schema re-sync. Regenerate with `pnpm schema:snapshot-ops` immediately after re-syncing ops — never to silence a real, un-synced drift. DRAFT (issue #87, PR pending Adrian's approval): this bump reflects the trust/conversion field PROPOSAL only — ops/lib/schema has NOT actually been re-synced yet. Real ops sync (index.mjs, presets.mjs) is a required follow-up before/at merge, not before this draft's tests can pass.",
   "clientConfig": {
     "shape": {
       "kind": "object",
@@ -47,6 +47,22 @@
                     "slab",
                     "system"
                   ]
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "logo": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "logoAlt": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
                 },
                 "optional": true,
                 "hasDefault": false
@@ -131,12 +147,28 @@
                 "optional": true,
                 "hasDefault": false
               },
+              "bonded": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "boolean"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
               "email": {
                 "shape": {
                   "kind": "primitive",
                   "type": "string"
                 },
                 "optional": false,
+                "hasDefault": false
+              },
+              "gbpUrl": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
                 "hasDefault": false
               },
               "hours": {
@@ -169,6 +201,30 @@
                   }
                 },
                 "optional": false,
+                "hasDefault": false
+              },
+              "insured": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "boolean"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "licenseNumber": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "licensed": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "boolean"
+                },
+                "optional": true,
                 "hasDefault": false
               },
               "name": {
@@ -326,6 +382,14 @@
             "kind": "object",
             "fields": {
               "image": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "imageAlt": {
                 "shape": {
                   "kind": "primitive",
                   "type": "string"
@@ -684,6 +748,22 @@
                     "optional": true,
                     "hasDefault": false
                   },
+                  "imageAlt": {
+                    "shape": {
+                      "kind": "primitive",
+                      "type": "string"
+                    },
+                    "optional": true,
+                    "hasDefault": false
+                  },
+                  "price": {
+                    "shape": {
+                      "kind": "primitive",
+                      "type": "string"
+                    },
+                    "optional": true,
+                    "hasDefault": false
+                  },
                   "title": {
                     "shape": {
                       "kind": "primitive",
@@ -707,6 +787,79 @@
             "type": "string"
           },
           "optional": false,
+          "hasDefault": false
+        },
+        "social": {
+          "shape": {
+            "kind": "object",
+            "fields": {
+              "facebook": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "instagram": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "linkedin": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "nextdoor": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "tiktok": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "x": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "yelp": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "youtube": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              }
+            }
+          },
+          "optional": true,
           "hasDefault": false
         }
       }

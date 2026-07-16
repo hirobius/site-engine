@@ -34,7 +34,7 @@ const client = defineClient(PLACEHOLDER_INPUT);
 
 const withHeroClient = defineClient({
   ...PLACEHOLDER_INPUT,
-  hero: { image: "/photos/hero.jpg" },
+  hero: { image: "/photos/hero.jpg", imageAlt: "Crew servicing a customer's property" },
 });
 
 const REAL_INPUT: ClientConfigInput = {
@@ -50,7 +50,7 @@ const REAL_INPUT: ClientConfigInput = {
   layout: { sectionOrder: ["services", "contact"] },
   services: [{ title: "Washing", description: "We wash things." }],
   copy: { heroHeadline: "Headline", heroSub: "Sub", about: "About us." },
-  hero: { image: "/photos/hero.jpg" },
+  hero: { image: "/photos/hero.jpg", imageAlt: "Real Business Co crew on site" },
   form: {
     provider: "web3forms",
     accessKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6",

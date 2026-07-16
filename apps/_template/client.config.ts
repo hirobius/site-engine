@@ -41,6 +41,7 @@ export const client = defineClient({
   },
   hero: {
     image: "/photos/hero.jpg",
+    imageAlt: "Crew servicing a customer's property",
   },
   services: [
     { title: "Service One", description: "Describe the first core service here." },
