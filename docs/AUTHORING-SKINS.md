@@ -7,7 +7,8 @@ completed `docs/inspiration/<name>/BRIEF.md` into **one** additive entry in
 — this doc is that ADR's mechanism made concrete, step by step. Read
 `docs/adr/0003-skins-design-packs.md` and `packages/schema/src/skins.ts`
 itself before starting; both explain *why* the target shape below is exactly
-what it is.
+what it is. Read `docs/SKIN-CRITIC.md` too — it's the rubric Step 7 (the
+critic loop) scores every proposed skin against.
 
 **The rule this playbook exists to enforce:** a skin is an override-only
 preset on the **existing** config surface. Nothing here ever adds a schema
@@ -159,7 +160,47 @@ pnpm --filter @hirobius/gallery build
 pnpm --filter @hirobius/gallery dev   # or preview the static build
 ```
 
-## Step 7 — Re-sync + verify, then open a gated PR
+## Step 7 — Critic loop (score + iterate against `docs/SKIN-CRITIC.md`)
+
+Issue #177 (epic #173, amplification move ②). Once the gallery preview (Step
+6) renders the proposed skin, **score it before opening a PR** — this is the
+"critique/QA pass" the tools that produce good-looking output run, applied to
+a skin instead of a one-off page. Two halves, both against the rendered
+gallery `skins.astro` page (or the specific skin's card on it):
+
+1. **Deterministic — `impeccable detect`.** Run `pnpm skin-critique` (wraps
+   `runImpeccableDetect()` from `packages/template/src/design-quality.ts`,
+   #176, over the built `apps/_gallery/dist/skins/index.html` — see
+   `scripts/skin-critique.ts`). Same offline-safe contract as the
+   `packages/template` gate: no network/npx available → skips with a reason,
+   never blocks the loop. **Note:** `impeccable`'s CLI has no `critique` or
+   `polish` subcommand (investigated for #177 — confirmed against the pinned
+   `impeccable@3` binary; see `docs/SKIN-CRITIC.md`'s "Deterministic half"
+   section for the full finding). `detect` — already wired by #176 — is the
+   whole deterministic half available today.
+2. **LLM critic — score against `docs/SKIN-CRITIC.md`.** Dispatch a critic
+   sub-agent (or run the rubric yourself) against the six dimensions:
+   hierarchy, contrast, whitespace/vertical rhythm, type-pairing coherence,
+   palette harmony, motion restraint. Each dimension has a concrete pass
+   criterion and a failure example in the rubric — score PASS/FAIL/UNKNOWN
+   per dimension, not a vibe-based verdict.
+
+**Apply fixes, then re-critique.** Every FAIL the rubric returns maps to a
+specific `SKINS["<id>"]` config value — `fontPairing`, a `cssVarOverrides`
+hex, `radius`, `shadow`, `motion`, or a section-variant pin. Change **only**
+that value (this is still Step 5's entry, being tuned — never a markup edit;
+same config-only boundary `CLAUDE.md`'s "one rule that matters" draws for
+client sites, one level up). Re-run the gallery build (Step 6), re-run both
+critic halves, repeat until every dimension is PASS and `impeccable detect`
+(when it ran) reports zero findings against the rendered page.
+
+**Pass = zero FAILs on both halves.** An UNKNOWN dimension (the rubric
+couldn't be evaluated — e.g. the brief never recorded a motion impression in
+Step 1) is not a pass by omission — resolve it (go back to the brief) or
+name it explicitly as an open question in the PR body, same as any other gap
+this playbook surfaces.
+
+## Step 8 — Re-sync + verify, then open a gated PR
 
 ```bash
 pnpm schema:snapshot-ops                 # re-snapshot the ops schema-drift guard
@@ -175,12 +216,16 @@ confirm it's a no-op, don't skip running it.
 Then:
 
 1. Run `/code-review` on the diff (mandatory before any PR touching
-   `packages/schema` — see `CLAUDE.md`'s skill protocol).
+   `packages/schema` — see `CLAUDE.md`'s skill protocol). The critic loop
+   (step 7) checks *taste*; `/code-review` checks *standards + spec* — both
+   are required, neither substitutes for the other.
 2. Open the PR referencing the source brief
    (`docs/inspiration/<name>/`) and the epic (#173). Note in the PR body:
    contrast ratios (step 3), any flagged follow-up from step 2 (missing
-   variant, `spacingDensity` gap), and confirmation the gallery preview
-   (step 6) was checked.
+   variant, `spacingDensity` gap), confirmation the gallery preview
+   (step 6) was checked, and the critic loop's (step 7) final scorecard —
+   six PASS dimensions + the deterministic sweep result, or the resolved/
+   named UNKNOWNs.
 3. Flag the same **ops re-sync follow-up** every prior skins-mechanism PR has
    flagged (#140, #141): `hirobius/ops`'s vendored `lib/schema/` doesn't
    carry `applyDesignSkin`/`SKINS` until that mechanism re-sync lands, so the
@@ -201,6 +246,14 @@ Then:
 - **Not per-client.** The output is always one `SKINS["<id>"]` entry every
   client can select — never a config field, override, or component scoped to
   one business.
-- **Not unattended.** Step 7 ends at "open a gated PR," not "merge." A human
+- **Not a markup tool.** The critic loop (step 7) only ever prescribes a
+  `SKINS["<id>"]` config value change. A rubric finding that can't be fixed by
+  changing `fontPairing`/`cssVarOverrides`/`radius`/`shadow`/`motion`/a
+  section-variant pin isn't this loop's to fix — flag it, same as step 2's
+  unmappable-request rule.
+- **Not a substitute for `/code-review`.** The critic loop scores taste
+  (hierarchy, contrast, palette, motion, …); `/code-review` (step 8) scores
+  standards + spec. A skin needs both before it opens a PR.
+- **Not unattended.** Step 8 ends at "open a gated PR," not "merge." A human
   (or a second agent acting as reviewer) reviews before `packages/schema`
   changes, same as any other schema PR.

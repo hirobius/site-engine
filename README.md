@@ -67,14 +67,16 @@ apps/
   preview-evergreen-lawn/      cold-outreach preview
   preview-solidline-concrete/  cold-outreach preview
 scripts/
-  new-client.ts   scaffold a client + print Vercel CLI commands
-  eject-client.ts flatten one client into a standalone repo for handoff
+  new-client.ts      scaffold a client + print Vercel CLI commands
+  eject-client.ts    flatten one client into a standalone repo for handoff
+  skin-critique.ts   deterministic half of the skin critic loop (impeccable detect over a rendered skin)
 docs/
   INTAKE.md            per-client intake worksheet (maps 1:1 to client.config.ts)
   GO-LIVE-CHECKLIST.md the facts a site needs before SITE_LIVE=true (issue #151)
   HANDOFF.md           one-page client handoff (the 7-day window + change fee)
   HARVESTING.md        how a section design becomes a config-selectable variant
   AUTHORING-SKINS.md   deterministic playbook: inspiration brief -> skin PR (epic #173)
+  SKIN-CRITIC.md       taste rubric the critic loop (AUTHORING-SKINS.md step 7) scores a skin against (issue #177)
   inspiration/         "the pot" — reference links/images/video -> a skin brief (epic #173)
   adr/0004-inspiration-intake.md  inspiration feeds skin authoring, never bespoke output
 ```
