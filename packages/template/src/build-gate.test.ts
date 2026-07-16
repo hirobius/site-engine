@@ -95,6 +95,46 @@ describe("armAcceptanceGate", () => {
   });
 });
 
+describe("armAcceptanceGate — claims/compliance guardrail (issue #149)", () => {
+  const claimsClient = defineClient({
+    ...PLACEHOLDER_INPUT,
+    copy: { ...PLACEHOLDER_INPUT.copy, about: "Fully insured crews on every job." },
+  });
+  const claimsRealClient = defineClient({
+    ...REAL_INPUT,
+    copy: { ...REAL_INPUT.copy, about: "Fully insured crews on every job." },
+  });
+
+  it("warns but does not throw in an unarmed (preview) build for an unverified claim", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(() => armAcceptanceGate(claimsClient)).not.toThrow();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('asserts "insured"'));
+    warn.mockRestore();
+  });
+
+  it("does not warn when copy has no risky claim tokens", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    armAcceptanceGate(client); // PLACEHOLDER_INPUT's stock copy has no claim tokens
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("throws once SITE_LIVE=true for an unverified claim", () => {
+    process.env.SITE_LIVE = "true";
+    expect(() => armAcceptanceGate(claimsRealClient)).toThrow(/unverified-claim-insured/);
+  });
+
+  it("does not throw once SITE_LIVE=true once the claim is verified (business.insured: true)", () => {
+    process.env.SITE_LIVE = "true";
+    const verifiedClient = defineClient({
+      ...REAL_INPUT,
+      business: { ...REAL_INPUT.business, insured: true },
+      copy: { ...REAL_INPUT.copy, about: "Fully insured crews on every job." },
+    });
+    expect(() => armAcceptanceGate(verifiedClient, OPTIMIZED_APP_DIR)).not.toThrow();
+  });
+});
+
 describe("armAcceptanceGate — hero.image optimization (issue #81)", () => {
   it("warns but does not throw in an unarmed (preview) build when hero.image has no src/assets/photos match", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});

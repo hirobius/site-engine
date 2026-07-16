@@ -84,6 +84,15 @@ function isPlaceholderFormKey(accessKey: string): boolean {
   return !WEB3FORMS_KEY_SHAPE.test(accessKey);
 }
 
+/** Collapses the near-identical "set business.<field>: true" hints for the
+ *  three claim tokens that map onto a real boolean field. `licensed` gets an
+ *  extra nudge toward `licenseNumber` since that field alone also verifies it
+ *  (see `isVerified` below). */
+function verifiedFieldHint(field: "licensed" | "insured" | "bonded"): string {
+  const extra = field === "licensed" ? " (and ideally business.licenseNumber)" : "";
+  return `set business.${field}: true${extra} once verified at intake, or soften the copy`;
+}
+
 /**
  * issue #149: risky, unverifiable marketing-claim tokens — real
  * false-advertising / FTC exposure when asserted without a documented
@@ -107,21 +116,21 @@ const CLAIM_TOKENS: Array<{
     pattern: /\blicensed\b/i,
     claim: "licensed",
     isVerified: (c) => c.business.licensed === true || Boolean(c.business.licenseNumber),
-    hint: "set business.licensed: true (and ideally business.licenseNumber) once verified at intake, or soften the copy",
+    hint: verifiedFieldHint("licensed"),
   },
   {
     code: "unverified-claim-insured",
     pattern: /\binsured\b/i,
     claim: "insured",
     isVerified: (c) => c.business.insured === true,
-    hint: "set business.insured: true once verified at intake, or soften the copy",
+    hint: verifiedFieldHint("insured"),
   },
   {
     code: "unverified-claim-bonded",
     pattern: /\bbonded\b/i,
     claim: "bonded",
     isVerified: (c) => c.business.bonded === true,
-    hint: "set business.bonded: true once verified at intake, or soften the copy",
+    hint: verifiedFieldHint("bonded"),
   },
   {
     code: "unverified-claim-certified",
@@ -173,6 +182,33 @@ function claimSources(config: ClientConfig): Array<{ field: string; text: string
     sources.push({ field: `services[${index}].description`, text: service.description });
   });
   return sources;
+}
+
+/**
+ * issue #149: pure detection pass over `CLAIM_TOKENS` — no I/O, always runs
+ * regardless of `realData` (a preview should never train an editor that
+ * these tokens are fine). Exported so `armAcceptanceGate` (`build-gate.ts`)
+ * can reuse the exact same detection to `console.warn` in an unarmed
+ * (preview) build, the same warn/fail split as its `hero.image` check —
+ * `checkClientAcceptance` itself stays a pure "detect, return an array"
+ * function; only that call site decides what an unarmed build does with the
+ * result.
+ */
+export function detectClaimIssues(config: ClientConfig): AcceptanceIssue[] {
+  const issues: AcceptanceIssue[] = [];
+  for (const source of claimSources(config)) {
+    for (const token of CLAIM_TOKENS) {
+      if (!token.pattern.test(source.text)) continue;
+      if (token.isVerified(config)) continue;
+      issues.push({
+        code: token.code,
+        message:
+          `${source.field} asserts "${token.claim}" with no verified source — ${token.hint} ` +
+          `(${source.field}: "${source.text}")`,
+      });
+    }
+  }
+  return issues;
 }
 
 const SECTION_REQUIREMENTS: Record<SectionId, (config: ClientConfig) => boolean> = {
@@ -253,25 +289,11 @@ export function checkClientAcceptance(
         message: `seo.siteUrl must be a real https URL: ${config.seo.siteUrl}`,
       });
     }
-  }
-
-  // issue #149: claims/compliance guardrail. Detection always runs (a
-  // preview should never train an editor that these tokens are fine) —
-  // only the severity is gated on `realData`, same warn/fail split as
-  // `armAcceptanceGate`'s hero-image check in build-gate.ts.
-  for (const source of claimSources(config)) {
-    for (const token of CLAIM_TOKENS) {
-      if (!token.pattern.test(source.text)) continue;
-      if (token.isVerified(config)) continue;
-      const message =
-        `${source.field} asserts "${token.claim}" with no verified source — ${token.hint} ` +
-        `(${source.field}: "${source.text}")`;
-      if (options.realData) {
-        issues.push({ code: token.code, message });
-      } else {
-        console.warn(`[checkClientAcceptance] ${message}`);
-      }
-    }
+    // issue #149: claims/compliance guardrail — same realData gate as every
+    // other check in this block. `detectClaimIssues` is exported so
+    // `armAcceptanceGate` can also run it, unconditionally, to warn in an
+    // unarmed (preview) build — see that function's doc comment.
+    issues.push(...detectClaimIssues(config));
   }
 
   if (config.layout.sections.hero.variant === "video" && !config.hero.videoSrc) {

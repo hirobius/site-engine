@@ -1,7 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { defineClient, PALETTE_PRESET_IDS } from "@hirobius/schema";
 import type { ClientConfigDraft, ClientConfigInput } from "@hirobius/schema";
-import { checkClientAcceptance } from "./acceptance.js";
+import { checkClientAcceptance, detectClaimIssues } from "./acceptance.js";
 import { contrastRatio, WCAG_AA_NORMAL_TEXT } from "./lib/contrast.js";
 import { resolvePalette } from "./lib/theme.js";
 
@@ -378,14 +378,17 @@ describe("claims/compliance guardrail (issue #149)", () => {
     expect(issues.map((i) => i.code)).not.toContain("unverified-claim-insured");
   });
 
-  it("does not add a claim issue in preview (realData not set) — it only warns", () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const issues = checkClientAcceptance(
-      config({ copy: { ...BASE_INPUT.copy, about: "We're licensed, insured, and the best in town." } }),
+  it("does not add a claim issue in preview (realData not set) — checkClientAcceptance is a pure detect+return, severity is the caller's call", () => {
+    const previewConfig = config({
+      copy: { ...BASE_INPUT.copy, about: "We're licensed, insured, and the best in town." },
+    });
+    expect(checkClientAcceptance(previewConfig)).toEqual([]);
+    // detectClaimIssues itself still finds them — armAcceptanceGate
+    // (build-gate.ts) is what decides an unarmed build should warn with
+    // these, same seam split as the hero.image check (see build-gate.test.ts).
+    expect(detectClaimIssues(previewConfig).map((i) => i.code)).toEqual(
+      expect.arrayContaining(["unverified-claim-licensed", "unverified-claim-insured", "unverified-claim-best"]),
     );
-    expect(issues).toEqual([]);
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("no verified source"));
-    warn.mockRestore();
   });
 
   it("passes clean copy with no risky tokens, regardless of realData", () => {
