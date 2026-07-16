@@ -2,6 +2,7 @@ import { z } from "zod";
 import { PALETTE_PRESET_IDS, FONT_IDS, FONT_PAIRING_IDS, type PalettePresetId } from "./presets.js";
 import { CONTENT_PACKS } from "./content-packs.js";
 import { SECTION_VARIANTS } from "./section-variants.js";
+import { SKINS, SKIN_IDS, type SkinId } from "./skins.js";
 
 /**
  * Client configuration schema.
@@ -282,12 +283,24 @@ export type SectionId = ClientConfig["layout"]["sectionOrder"][number];
  * (hours, phone, service areas, about copy) are never in a pack, so they stay
  * required here same as `ClientConfigInput`.
  */
-export type ClientConfigDraft =
+export type ClientConfigDraft = (
   | ClientConfigInput
   | (Omit<ClientConfigInput, "services"> & {
       contentPack: PalettePresetId;
       services?: ClientConfigInput["services"];
-    });
+    })
+) & {
+  /**
+   * Optional design skin (issue #140, ADR-0003 §3): a closed-enum preset
+   * (`skins.ts`) that pins `layout.sections.*.variant` choices + `brand`
+   * token defaults for one coherent art direction. Override-only, same
+   * contract as `contentPack` below — any field the draft sets explicitly
+   * wins, the skin only fills gaps — and stripped before Zod in
+   * `applyDesignSkin`, so it never reaches `ClientConfigSchema` and the ops
+   * schema-drift guard (#75) is unaffected by picking a skin.
+   */
+  design?: SkinId;
+};
 
 /**
  * Merge a content pack's defaults under a draft config. Override-only: any
@@ -310,6 +323,56 @@ function applyContentPack(config: ClientConfigDraft): ClientConfigInput {
     services: rest.services && rest.services.length > 0 ? rest.services : pack.services,
     copy: { ...rest.copy, ctaLabel: rest.copy.ctaLabel ?? pack.ctaLabel },
     layout: { ...rest.layout, sectionOrder: rest.layout.sectionOrder ?? pack.sectionOrder },
+  };
+}
+
+/**
+ * Pick an explicit section-variant override if the config set one, otherwise
+ * fall through to the skin's pin (if it has one for this section). Generic
+ * over the variant's own enum so each call site below still typechecks
+ * against that section's specific tuple.
+ */
+function pickSectionVariant<V extends string>(
+  explicit: { variant?: V } | undefined,
+  skinVariant: V | undefined,
+): { variant?: V } | undefined {
+  if (explicit?.variant !== undefined) return explicit;
+  if (skinVariant !== undefined) return { variant: skinVariant };
+  return explicit;
+}
+
+/**
+ * Merge a design skin's pins under a draft config. Override-only, the exact
+ * pattern of `applyContentPack` above: any `layout.sections.<id>.variant` or
+ * `brand.*` field the draft sets explicitly wins, the skin only fills gaps.
+ * Returns a plain `ClientConfigInput` (the `design` key never reaches Zod).
+ */
+function applyDesignSkin(config: ClientConfigInput): ClientConfigInput {
+  const draft = config as ClientConfigInput & { design?: SkinId };
+  if (draft.design === undefined) {
+    return config;
+  }
+  const { design, ...rest } = draft;
+  const skin = SKINS[design];
+  if (!skin) {
+    throw new Error(`Unknown design "${design}" — expected one of ${SKIN_IDS.join(", ")}`);
+  }
+  const sections = rest.layout?.sections ?? {};
+  return {
+    ...rest,
+    brand: { ...skin.brand, ...rest.brand },
+    layout: {
+      ...rest.layout,
+      sections: {
+        ...sections,
+        hero: pickSectionVariant(sections.hero, skin.sections.hero),
+        services: pickSectionVariant(sections.services, skin.sections.services),
+        gallery: pickSectionVariant(sections.gallery, skin.sections.gallery),
+        reviews: pickSectionVariant(sections.reviews, skin.sections.reviews),
+        serviceAreaMap: pickSectionVariant(sections.serviceAreaMap, skin.sections.serviceAreaMap),
+        contact: pickSectionVariant(sections.contact, skin.sections.contact),
+      },
+    },
   };
 }
 
@@ -342,7 +405,7 @@ function applyLegacyHeroVariant(config: ClientConfigInput): ClientConfigInput {
  * loudly rather than shipping a broken site.
  */
 export function defineClient(config: ClientConfigDraft): ClientConfig {
-  const draft = applyLegacyHeroVariant(applyContentPack(config));
+  const draft = applyDesignSkin(applyLegacyHeroVariant(applyContentPack(config)));
   const result = ClientConfigSchema.safeParse(draft);
   if (!result.success) {
     const issues = result.error.issues
@@ -359,3 +422,4 @@ export * from "./presets.js";
 export * from "./content-packs.js";
 export * from "./lead-to-config.js";
 export * from "./section-variants.js";
+export * from "./skins.js";
