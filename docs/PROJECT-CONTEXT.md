@@ -262,8 +262,9 @@ Output = a drop-in `client.config.ts` + loop trace + eval scorecard.
 - [ ] **HC-16** Decide photo object storage before ~client 20 (S3/R2/Vercel Blob)
 - [ ] **HC-17** Wire `new-client` to append launched clients to `apps/_gallery` fleet list; tag `@hirobius/template` v0.1.0
 
-> The live backlog now lives in **`docs/BACKEND-STATUS.md`** (status + critical path).
-> The `HC-` list above is legacy; treat BACKEND-STATUS as the source of truth.
+> The `HC-` list above was reconciled into **`docs/BACKEND-STATUS.md`**, which is
+> now a status/architecture narrative, not a backlog (see #20). Open work is
+> tracked as **GitHub Issues** in this repo (CLAUDE.md → Fleet hub).
 
 ---
 
