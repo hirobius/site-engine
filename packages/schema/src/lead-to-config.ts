@@ -1,5 +1,6 @@
 import { defineClient, type ClientConfig, type ClientConfigDraft, type SectionId } from "./index.js";
 import { PALETTE_PRESET_IDS, type PalettePresetId } from "./presets.js";
+import type { SkinId } from "./skins.js";
 
 /**
  * Deterministic, no-LLM lead → config mapper (issue #121).
@@ -31,6 +32,17 @@ export interface LeadRow {
   email?: string | null;
   hours?: Array<{ days: string; hours: string }> | null;
   serviceArea?: string[] | string | null;
+  /**
+   * Art direction for the site's `design` skin (issue #158, part of #128
+   * visual variety; decided per ADR-0003 §3 — a skin is a closed-enum
+   * selector, not a bag of raw knobs). Style only: never touches a business
+   * fact. Closed over the shipped `SkinId`s (`skins.ts`) so an unmapped value
+   * fails at the type level, not silently at runtime. Absent → `"classic"`,
+   * today's look. camelCase to match every other `LeadRow` field (e.g.
+   * `serviceArea`) — the ops-side reader maps the `art_direction` DB column
+   * onto this field, same as it already does for `service_area` → `serviceArea`.
+   */
+  artDirection?: SkinId;
 }
 
 export interface LeadToConfigResult {
@@ -132,8 +144,12 @@ export function leadToConfig(lead: LeadRow): LeadToConfigResult {
   const mapQuery = `${lead.city}, ${lead.region}`;
   const sectionOrder: SectionId[] = ["services", "serviceAreaMap", "contact"];
 
+  // Style only (golden rule #5) — never derived from or applied to a business fact.
+  const design: SkinId = lead.artDirection ?? "classic";
+
   const draft: ClientConfigDraft = {
     slug: lead.slug,
+    design,
     business: {
       name: lead.name,
       phone: phone || PLACEHOLDER_PHONE,
