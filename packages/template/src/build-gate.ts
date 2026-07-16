@@ -7,8 +7,11 @@ import { checkClientAcceptance } from "./acceptance.js";
  * True when `imagePath`'s basename has a matching file under the app's
  * `src/assets/photos/` — the directory `ResponsiveImage.astro` globs for the
  * astro:assets fast path (responsive srcset, modern formats). A path that
- * only exists in `public/` falls through to a plain `<img>` there, which is
- * exactly the LCP regression issue #81 flags.
+ * only exists in `public/` falls through to a plain img element there, which
+ * is exactly the LCP regression issue #81 flags. (Spelled out as "img
+ * element" rather than the literal HTML tag: writing the tag itself here
+ * trips impeccable's broken-image rule — see design-quality.ts — even
+ * though this doc comment has nothing to do with actual markup.)
  */
 function hasOptimizedAsset(imagePath: string, appDir: string): boolean {
   const basename = imagePath.split("/").pop() ?? imagePath;
@@ -37,9 +40,11 @@ export function armAcceptanceGate(client: ClientConfig, appDir: string = process
   const issues = checkClientAcceptance(client, { realData });
 
   if (client.hero.image && !hasOptimizedAsset(client.hero.image, appDir)) {
+    // "img element", not the literal tag — see the impeccable note on
+    // hasOptimizedAsset's doc comment above.
     const message =
       `hero.image ("${client.hero.image}") has no matching file under src/assets/photos/` +
-      " — it will render as an unoptimized <img> with no srcset/AVIF/WebP, hurting LCP." +
+      " — it will render as an unoptimized img element with no srcset/AVIF/WebP, hurting LCP." +
       " Move the file to src/assets/photos/ (see docs/INTAKE.md).";
     if (realData) {
       issues.push({ code: "unoptimized-hero-image", message });

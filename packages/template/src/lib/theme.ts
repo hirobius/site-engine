@@ -10,11 +10,18 @@ const RADIUS_PX: Record<ClientConfig["brand"]["radius"], string> = {
   xl: "22px",
 };
 
-/** Google Fonts hrefs for the non-system stacks. `null` => no web load needed. */
+/**
+ * Google Fonts hrefs for the non-system stacks. `null` => no web load needed.
+ * `inter`/`geist` trip impeccable's overused-font rule — deliberate: these
+ * are two of five selectable `brand.font` options a client site picks
+ * explicitly (not an engine-imposed default); `inter` is a live choice
+ * today (e.g. `apps/monroe-street-power-wash`). Disabled inline rather
+ * than dropped.
+ */
 const FONT_HREFS: Record<keyof typeof FONT_STACKS, string | null> = {
   system: null,
-  inter: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
-  geist: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap",
+  inter: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap", // impeccable-disable-line overused-font -- selectable brand.font option, not the engine default
+  geist: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap", // impeccable-disable-line overused-font -- selectable brand.font option, not the engine default
   "work-sans":
     "https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap",
   slab: "https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&display=swap",
@@ -31,12 +38,16 @@ const INTER_FAMILY_PARAM = "family=Inter:wght@400;500;600;700";
  * params) so a pairing still costs one `<link rel="stylesheet">` + the
  * shared preconnect pair in `BaseHead.astro`. `system` needs no web load —
  * it's the same system stack both places, matching the plain `brand.font`
- * "system" behavior.
+ * "system" behavior. `editorial`/`modern` trip impeccable's overused-font
+ * rule on Fraunces/Space Grotesk — deliberate: these are curated heading
+ * faces paired against Inter body text, two of five selectable
+ * `brand.fontPairing` art directions a client site opts into, not an
+ * engine-imposed default.
  */
 const FONT_PAIRING_HREFS: Record<keyof typeof FONT_PAIRINGS, string | null> = {
   system: null,
-  editorial: `https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&${INTER_FAMILY_PARAM}&display=swap`,
-  modern: `https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&${INTER_FAMILY_PARAM}&display=swap`,
+  editorial: `https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&${INTER_FAMILY_PARAM}&display=swap`, // impeccable-disable-line overused-font -- selectable brand.fontPairing option, not the engine default
+  modern: `https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&${INTER_FAMILY_PARAM}&display=swap`, // impeccable-disable-line overused-font -- selectable brand.fontPairing option, not the engine default
   industrial: `https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&${INTER_FAMILY_PARAM}&display=swap`,
   slab: `https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&${INTER_FAMILY_PARAM}&display=swap`,
 };
