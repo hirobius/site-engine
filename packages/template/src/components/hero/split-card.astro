@@ -5,7 +5,7 @@
 // ATTRIBUTIONS.md). Degrades to a single centered column when hero.image is
 // absent.
 import type { ClientConfig } from "@hirobius/schema";
-import { telHref } from "../../lib/theme.js";
+import HeroCta from "./_cta.astro";
 import ResponsiveImage from "../ResponsiveImage.astro";
 
 interface Props {
@@ -14,7 +14,6 @@ interface Props {
 
 const { config } = Astro.props;
 const { copy, business, hero } = config;
-const tel = telHref(business.phone);
 ---
 
 <section class="relative overflow-hidden bg-bg text-fg" aria-label="Intro">
@@ -34,18 +33,7 @@ const tel = telHref(business.phone);
       <p class="mt-4 text-lg text-fg/70">{copy.heroSub}</p>
 
       <div class:list={["mt-8 flex flex-wrap gap-3", !hero.image && "justify-center"]}>
-        <a
-          href="#contact"
-          class="inline-flex items-center rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
-        >
-          {copy.ctaLabel}
-        </a>
-        <a
-          href={tel}
-          class="inline-flex items-center rounded-theme border border-fg/20 px-6 py-3 font-semibold text-fg transition hover:bg-fg/5"
-        >
-          Call {business.phone}
-        </a>
+        <HeroCta config={config} tone="on-light" />
       </div>
 
       <p class="mt-6 text-sm text-fg/60">{business.name}</p>

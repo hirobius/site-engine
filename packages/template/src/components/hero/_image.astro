@@ -1,0 +1,39 @@
+---
+// Shared full-bleed hero background image — the absolute-positioned photo
+// behind the gradient overlay that "classic" always renders and "video"
+// renders as its no-video fallback (issue #133). Renders nothing when
+// `hero.image` is absent; callers don't need their own guard.
+import type { ClientConfig } from "@hirobius/schema";
+import ResponsiveImage from "../ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { hero } = config;
+---
+
+{
+  // The `{" "}` markers reproduce whitespace the pre-extraction inline
+  // markup got "for free": when this <div> lived directly inside
+  // classic.astro's <section> template, it had sibling nodes on either
+  // side, so Astro kept a single space around <ResponsiveImage>. Now that
+  // it is the only thing this file renders, Astro instead discards that
+  // same whitespace at the file's outer edge — dropping both spaces and
+  // de-syncing the rendered HTML from every hero variant that used to
+  // write this markup inline. Byte-for-byte output (see issue #133) needs
+  // them; deleting them quietly reopens that gap.
+  hero.image && (
+    <div class="absolute inset-0">{" "}<ResponsiveImage
+        src={hero.image}
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+        sizes="100vw"
+        width={1600}
+        height={900}
+        class="h-full w-full object-cover"
+      />{" "}</div>
+  )
+}

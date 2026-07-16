@@ -50,6 +50,21 @@ Most of #3–#8 is enforced deterministically by
 `pnpm test` on violations. Script/external-URL exceptions are the explicit
 allowlists in `purity.ts`; editing them is a reviewed diff.
 
+### Shared partials within a section
+
+When two or more variants of the same section repeat identical markup (e.g.
+a CTA block, a background-image treatment), extract it to
+`components/<section>/_<name>.astro` — the leading underscore marks it as an
+internal atom, never itself a `SECTION_VARIANTS` entry or dispatcher target.
+Rule #1's `{ config: ClientConfig }`-only prop shape applies to the
+harvestable **variant** files (what the dispatcher's closed enum can select);
+a shared partial may take a small additional prop when the variants it
+serves render on genuinely different surfaces (e.g. a `tone` toggle for
+dark-hero vs. light-hero CTA styling) — swept by the same purity gate either
+way. Extracting is still a refactor, not a harvest: it must reproduce the
+existing variants' rendered HTML byte-for-byte (see "prove the refactor
+invisible" below); it never restyles or changes behavior.
+
 ## Touch list per NEW VARIANT of an existing section
 
 1. `packages/schema/src/section-variants.ts` — add the enum value (+ a test row
