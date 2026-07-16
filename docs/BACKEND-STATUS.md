@@ -1,8 +1,11 @@
-# Hirobius — Backend Build Status & Roadmap
+# Hirobius — Backend Status & Architecture
 
-> Single source of truth for **what the backend is, what exists, and what's left
-> to build.** Strategy/why lives in `PROJECT-CONTEXT.md`; this is the build status.
-> Reconciles and supersedes the old `HC-` checklist in `PROJECT-CONTEXT.md §8`.
+> **Narrative-only.** This document describes the current state and shape of
+> the backend — what exists, what's a gap, how the pieces fit together — for
+> orientation. It is **not** a task tracker: open work is tracked as
+> **GitHub Issues** in this repo (see `CLAUDE.md` → Fleet hub). Strategy/why
+> lives in `PROJECT-CONTEXT.md`. It reconciled and superseded the old `HC-`
+> checklist that used to live in `PROJECT-CONTEXT.md §8` (retired; see #20).
 >
 > Last updated: 2026-07-02.
 >
@@ -58,6 +61,9 @@ Render = self-hosted **Astro** (the factory is built). Two of the six stages
 ---
 
 ## 2. Backend build-out by subsystem
+
+*A snapshot of what exists per subsystem, not a punch list — anything still
+open is tracked as a GitHub Issue, not implicitly slated here.*
 
 ### A. Data layer — Supabase (`ops`)
 | Piece | Status | Notes |
@@ -146,33 +152,34 @@ Render = self-hosted **Astro** (the factory is built). Two of the six stages
 
 ---
 
-## 3. HC tracker reconciliation
+## 3. HC tracker reconciliation (historical)
 
-- ✅ **Done:** HC-01 (agent pushed), HC-08 (lead puller merged).
-- 🗑️ **Obsolete:** HC-06 (lead sweep — scraper retired).
-- 🟡 **Active backend:** HC-02 (run agent live), **HC-09 (live Astro/Vercel deploy — now a critical-path production task, not polish)**, HC-16 (photo storage — back in play now that we self-host; needed before volume), + the engine move (Part A of `OPS-HANDOFF.md`).
-- 🔵 **Now tracked here (were missing):** outreach system (§G), billing (§H), client/subscription model (§A), image sourcing (§C), dashboard auth (§E).
-- 📦 **Portfolio (not backend):** HC-03/04/05 (agent Phases B–D), HC-07/11 (Astro polish/design system), HC-10/12 (case studies/site), HC-13/14 (optional), HC-15 (learning), HC-17 (housekeeping).
+The old `HC-` numbered checklist (formerly `PROJECT-CONTEXT.md §8`, now
+retired) was reconciled into this document on 2026-07-02: completed items
+(HC-01, HC-08) and the obsolete scraper sweep (HC-06) were closed out; the
+still-open backend items at the time (HC-02, HC-09, HC-16, the engine move)
+and the gaps that weren't captured anywhere before (outreach, billing, the
+client/subscription model, image sourcing, dashboard auth) became the
+subsystem breakdown in §2 above. Nothing from that tracker remains open
+outside of what §2 already reflects — current open work lives as GitHub
+Issues, not as a list here.
 
 ---
 
-## 4. Critical path to the first dollar (recommended order)
+## 4. The dependency chain to first revenue
 
-Everything else is noise until this chain works once:
-
-1. **Confirm `ops` stack** + create the `leads` table. (§A)
-2. **Move the agent + vendor schema; run it live on ONE real lead.** Prove the AI produces a good config. (§C)
-3. **Outscraper sourcing** — pull real leads with emails. (§B)
-4. **Astro render live** — take the agent's `client.config.ts` through `new-client`
-   → deploy to Vercel → verify it's live (the factory's built; this is wiring, not
-   a build). (§D)
-5. **Outreach MVP** — pick a tool, one warmed sending domain, send preview links (even semi-manually at first). (§G) ← *the make-or-break stage*
-6. **Billing MVP** — a Stripe payment link triggered on "yes." (§H)
-
-→ **first paying client.** Bulk automation, board polish, eval harness, and all
-portfolio work come *after* this chain closes. **Choosing Astro shortens this
-path** — step 4 is wiring an existing factory, not building a render integration
-from zero.
+The subsystems in §2 aren't independent — they chain: leads have to exist
+before the agent can generate a config, a config has to render before
+outreach has anything to send, and outreach has to land a reply before
+billing has anything to bill. In dependency order, that's the `ops` data
+layer (§A) → the agent running live on a real lead (§C) → Outscraper sourcing
+(§B) → the Astro render going live (§D) → an outreach MVP (§G — the
+highest-risk, least-specced link) → a billing MVP (§H) → first paying client.
+**Choosing Astro shortened the render link** — §D is wiring an existing,
+already-built factory rather than a render integration built from zero.
+Everything past that chain — bulk automation, board polish, the eval harness,
+portfolio work — is downstream of it. Current sequencing and priority for
+this chain live as GitHub Issues, not as a checklist here.
 
 ---
 

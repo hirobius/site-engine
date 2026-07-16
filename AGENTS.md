@@ -61,7 +61,7 @@ Funnel: **leads (CRM in `ops`) → become → clients (their Astro sites).**
 | `CLAUDE.md` | client-build rules (config-only is the gate) |
 | `docs/PROJECT-CONTEXT.md` | full session/handoff context |
 | `docs/AI-ENGINEERING.md` | the agent architecture + AI-eng glossary + interview map |
-| `docs/BACKEND-STATUS.md` | backend build status + roadmap + critical path |
+| `docs/BACKEND-STATUS.md` | backend status/architecture narrative (task lists are GitHub Issues, see #20) |
 | `docs/OPS-HANDOFF.md` | **the single brief to build the `ops` side** (move engine + Astro render + dashboard) |
 | `docs/OPS-INTEGRATION.md` | the generic wrap-a-tool-into-`ops` recipe |
 | `docs/HANDOFF.md`, `docs/INTAKE.md` | client handoff + intake |
