@@ -1,0 +1,30 @@
+---
+// Shared full-bleed hero background image — the absolute-positioned photo
+// behind the gradient overlay that "classic" always renders and "video"
+// renders as its no-video fallback (issue #133). Renders nothing when
+// `hero.image` is absent; callers don't need their own guard.
+import type { ClientConfig } from "@hirobius/schema";
+import ResponsiveImage from "../ResponsiveImage.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { hero } = config;
+---
+
+{
+  hero.image && (
+    <div class="absolute inset-0">{" "}<ResponsiveImage
+        src={hero.image}
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+        sizes="100vw"
+        width={1600}
+        height={900}
+        class="h-full w-full object-cover"
+      />{" "}</div>
+  )
+}

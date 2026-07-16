@@ -2,35 +2,19 @@
 // Hero variant "classic" — the original two-column hero: optional full-bleed
 // photo behind a gradient overlay, headline/CTAs in the left column.
 import type { ClientConfig } from "@hirobius/schema";
-import { telHref } from "../../lib/theme.js";
-import ResponsiveImage from "../ResponsiveImage.astro";
+import HeroImage from "./_image.astro";
+import HeroCta from "./_cta.astro";
 
 interface Props {
   config: ClientConfig;
 }
 
 const { config } = Astro.props;
-const { copy, business, hero } = config;
-const tel = telHref(business.phone);
+const { copy, business } = config;
 ---
 
 <section class="relative overflow-hidden bg-fg text-on-fg" aria-label="Intro">
-  {
-    hero.image && (
-      <div class="absolute inset-0">
-        <ResponsiveImage
-          src={hero.image}
-          alt=""
-          loading="eager"
-          fetchpriority="high"
-          sizes="100vw"
-          width={1600}
-          height={900}
-          class="h-full w-full object-cover"
-        />
-      </div>
-    )
-  }
+  <HeroImage config={config} />
 
   <div class="absolute inset-0 bg-gradient-to-r from-fg/85 to-fg/40"></div>
 
@@ -47,18 +31,7 @@ const tel = telHref(business.phone);
       <p class="mt-4 text-lg text-on-fg/90">{copy.heroSub}</p>
 
       <div class="mt-8 flex flex-wrap gap-3">
-        <a
-          href="#contact"
-          class="inline-flex items-center rounded-theme bg-primary px-6 py-3 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
-        >
-          {copy.ctaLabel}
-        </a>
-        <a
-          href={tel}
-          class="inline-flex items-center rounded-theme border border-on-fg/40 px-6 py-3 font-semibold text-on-fg transition hover:bg-on-fg/10"
-        >
-          Call {business.phone}
-        </a>
+        <HeroCta config={config} tone="on-dark" />
       </div>
 
       <p class="mt-6 text-sm text-on-fg/80">
