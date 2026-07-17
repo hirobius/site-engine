@@ -34,6 +34,14 @@ from that config. If a request can't be expressed in the config schema, that is 
 **custom-component engagement (different price tier), not a config edit** — STOP
 and flag it. Do not invent an escape hatch.
 
+## Running the full pipeline (lead → gated preview)
+
+The end-to-end path — pull/take a lead → scaffold → fill config → verify → gated
+preview — is documented in **`docs/PIPELINE-RUNBOOK.md`**: exact commands, which
+keys each step needs (and which are set), the golden-rule guardrails, and a
+paste-ready prompt. Read it before running a lead — it exists so this recurring
+process needs a one-line prompt, not an essay.
+
 ## Golden rules for building a client
 
 1. **Scaffold with the script**, never by hand-copying files:

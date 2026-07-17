@@ -6,6 +6,12 @@ import { defineClient } from "@hirobius/schema";
  * a cold-outreach preview, so contact details are clearly-fictional
  * placeholders (phone, email, form key) pending real intake. Photo-less by
  * design, like the other preview apps (see issue #14 for real imagery).
+ *
+ * Reviews are omitted (empty array, not in sectionOrder): we carry NO review
+ * text without a real source (golden rule #5 — never invent business facts).
+ * Unverifiable claims ("fully insured", "satisfaction guarantee") are softened
+ * out of the copy until backed by intake fields (#87/#149). Regenerate from the
+ * real lead row for the verified version (#146).
  */
 export const client = defineClient({
   slug: "monroe-street-power-wash",
@@ -27,9 +33,9 @@ export const client = defineClient({
   },
   layout: {
     variant: "A",
-    // No "gallery" — this preview is photo-less by design (see issue #14);
-    // an empty gallery section would render blank.
-    sectionOrder: ["services", "reviews", "serviceAreaMap", "contact"],
+    // No "gallery" (photo-less, #14) and no "reviews" (no real review source,
+    // #146) — an empty section would render blank.
+    sectionOrder: ["services", "serviceAreaMap", "contact"],
   },
   services: [
     {
@@ -61,32 +67,14 @@ export const client = defineClient({
   copy: {
     heroHeadline: "Spokane's Soft Wash & Pressure Washing Pros",
     heroSub:
-      "House washing, roofs, driveways, decks, and commercial exteriors — done right, fully insured, free estimates.",
+      "House washing, roofs, driveways, decks, and commercial exteriors — done right, with free estimates.",
     ctaLabel: "Get a Free Quote",
     about:
-      "Monroe Street Power Wash is a locally owned pressure washing company serving Spokane and the surrounding area. We specialize in gentle soft-washing for siding and roofs alongside driveway, deck, fence, and commercial cleaning — using techniques that lift years of grime without damaging your property. Fast scheduling, upfront pricing, and a satisfaction guarantee on every job.",
+      "Monroe Street Power Wash is a locally owned pressure washing company serving Spokane and the surrounding area. We specialize in gentle soft-washing for siding and roofs alongside driveway, deck, fence, and commercial cleaning — using techniques that lift years of grime without damaging your property. Fast scheduling and upfront pricing on every job.",
   },
   gallery: [],
-  reviews: [
-    {
-      author: "Denise H.",
-      rating: 5,
-      text: "Our siding looked brand new after they soft-washed the house. Careful around the flower beds too. Highly recommend.",
-      source: "Google",
-    },
-    {
-      author: "Marcus T.",
-      rating: 5,
-      text: "Driveway had years of oil stains from the previous owners — gone in an afternoon. Fair price, showed up right on time.",
-      source: "Google",
-    },
-    {
-      author: "Katie R.",
-      rating: 5,
-      text: "Roof moss was getting bad and they cleared it without any damage to the shingles. Would use again in a heartbeat.",
-      source: "Google",
-    },
-  ],
+  // Empty until a real review source exists — we never invent reviews (#146).
+  reviews: [],
   map: {
     embedQuery: "Spokane, WA",
   },
@@ -97,7 +85,7 @@ export const client = defineClient({
   seo: {
     title: "Monroe Street Power Wash | Spokane Pressure Washing",
     description:
-      "Spokane's soft wash and pressure washing experts. House, roof, driveway, deck, fence, and commercial cleaning. Free estimates, fully insured.",
+      "Spokane's soft wash and pressure washing experts. House, roof, driveway, deck, fence, and commercial cleaning. Free estimates.",
     city: "Spokane",
     region: "WA",
     siteUrl: "https://monroestreetpowerwash.example",
