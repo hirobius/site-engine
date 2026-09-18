@@ -57,7 +57,6 @@ export const client = defineClient({
     radius: "md",
   },
   layout: {
-    variant: "A",
     // No "gallery" (photo-less, no imagery source for this lead) and no
     // "reviews" (aggregate rating only, no individual review text/authors
     // sourced — golden rule #5) — an empty section would render blank.

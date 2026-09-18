@@ -32,7 +32,6 @@ export const client = defineClient({
     radius: "md",
   },
   layout: {
-    variant: "A",
     // No "gallery" (photo-less, #14) and no "reviews" (no real review source,
     // #146) — an empty section would render blank.
     sectionOrder: ["services", "serviceAreaMap", "contact"],

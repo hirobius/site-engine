@@ -33,7 +33,6 @@ export const client = defineClient({
     radius: "md",
   },
   layout: {
-    variant: "A",
     // No "gallery" — the stub ships no photos (see monroe-street-power-wash's
     // client.config.ts for the same precedent); an empty gallery section
     // renders blank.
