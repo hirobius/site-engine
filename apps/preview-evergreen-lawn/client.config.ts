@@ -24,7 +24,6 @@ export const client = defineClient({
     radius: "lg",
   },
   layout: {
-    variant: "A",
     sectionOrder: ["services", "reviews", "serviceAreaMap", "contact"],
   },
   services: [

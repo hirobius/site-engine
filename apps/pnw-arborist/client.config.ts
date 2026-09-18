@@ -43,7 +43,6 @@ export const client = defineClient({
     radius: "md",
   },
   layout: {
-    variant: "A",
     // No "gallery"/"reviews" — this preview ships no photos and carries no
     // review text (same precedent as monroe-street-power-wash); an empty
     // section would render blank and fail the acceptance section-completeness check.
