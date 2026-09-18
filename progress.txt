@@ -1404,3 +1404,30 @@ back on #112 flagging the discrepancy).
   triggered; visual check confirmed green before this note was written.
 - Branch: ralph/issue-131-astrowind-testimonials-reviews-masonry.
 - Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #132 — migrate layout.variant off configs (phase 1)
+- DoD scoped this issue to phase 1 only (per issue body's own "DoD — phase 1
+  only" section): migrate the 9 apps/*/client.config.ts off the deprecated
+  layout.variant, leave the applyLegacyHeroVariant bridge in
+  packages/schema/src/index.ts untouched. Phase 2 (removing layout.variant
+  from the schema — a breaking fleet event needing snapshot refresh + ops
+  re-sync + template major bump) is explicitly out of scope, its own issue.
+- Checked all 9 required configs (_template, demo-pressure-pros,
+  duran-tree-service, monroe-street-power-wash, pnw-arborist,
+  preview-clearout-junk, preview-evergreen-lawn, preview-solidline-concrete,
+  septic-response): every one set layout.variant: "A". Per the bridge's own
+  doc comment, "A" needs no mapping — it's already the hero "classic"
+  default (Zod .default("classic") on layout.sections.hero.variant when
+  unset). So the correct "same layout, non-deprecated mechanism" migration
+  for all 9 is simply deleting the `variant: "A",` line — no explicit
+  sections.hero.variant needed since the default already matches.
+- Change: 9 one-line deletions, no other diffs. gallery fixtures and
+  packages/agent/src/generate.ts also reference layout.variant but are NOT
+  in this issue's DoD checklist — left untouched, in scope for later work
+  if/when it's ticketed.
+- Verify: bash ralph/gate.sh green (build, check, full turbo test suite incl.
+  demo-pressure-pros Playwright smoke — all passing, no visual baseline
+  moved, matching the DoD's "pixel-identical" expectation).
+- Branch: ralph/issue-132-migrate-layout-variant-configs. PR #201, "Closes
+  #132" in body. 2-line summary comment posted on the issue.
+- Next iteration: none picked — Ralph selects the next issue.
