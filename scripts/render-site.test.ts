@@ -20,14 +20,17 @@ const TSX = resolve(ROOT, "node_modules/.bin/tsx");
 const NEW_CLIENT = resolve(ROOT, "scripts/new-client.ts");
 const RENDER_SITE = resolve(ROOT, "scripts/render-site.ts");
 
-const ROLLING_SUDS: LeadRow = {
-  name: "Rolling Suds of Seattle",
-  slug: "rolling-suds-of-seattle",
+/** Synthetic franchise-shaped lead row (see `lead-to-config.test.ts`) — every
+ *  identifying field is invented; a real lead's contact details never belong
+ *  in a fixture. */
+const FRANCHISE_SUDS: LeadRow = {
+  name: "Franchise Suds of Seattle",
+  slug: "franchise-suds-of-seattle",
   category: "Pressure washing service",
   city: "Seattle",
   region: "WA",
   phone: "(206) 555-0142",
-  email: "info@rollingsudsseattle.com",
+  email: "info@franchisesudsseattle.invalid",
   hours: [
     { days: "Mon–Fri", hours: "8:00 AM – 5:00 PM" },
     { days: "Sat", hours: "9:00 AM – 1:00 PM" },
@@ -48,18 +51,18 @@ afterAll(() => {
 
 describe("renderConfigFile / writeClientConfig", () => {
   it("wraps a validated config in a defineClient() module", () => {
-    const { config } = leadToConfig(ROLLING_SUDS);
+    const { config } = leadToConfig(FRANCHISE_SUDS);
     const src = renderConfigFile(config);
     expect(src).toContain(`import { defineClient } from "@hirobius/schema";`);
-    expect(src).toContain(`"slug": "rolling-suds-of-seattle"`);
+    expect(src).toContain(`"slug": "franchise-suds-of-seattle"`);
   });
 
   it("writes client.config.ts from a JSON config string", () => {
-    const { config } = leadToConfig(ROLLING_SUDS);
+    const { config } = leadToConfig(FRANCHISE_SUDS);
     const appDir = makeTmp("ralph-render-site-app-");
     writeClientConfig(appDir, JSON.stringify(config));
     const written = readFileSync(resolve(appDir, "client.config.ts"), "utf8");
-    expect(written).toContain(`"name": "Rolling Suds of Seattle"`);
+    expect(written).toContain(`"name": "Franchise Suds of Seattle"`);
   });
 
   it("throws on invalid JSON instead of writing a broken file", () => {
@@ -95,7 +98,7 @@ describe("render-site CLI", () => {
     });
     expect(scaffold.status, scaffold.stderr).toBe(0);
 
-    const { config } = leadToConfig(ROLLING_SUDS);
+    const { config } = leadToConfig(FRANCHISE_SUDS);
     const configPath = join(makeTmp("ralph-render-site-cfg-"), "config.json");
     writeFileSync(configPath, JSON.stringify(config));
 
@@ -118,8 +121,8 @@ describe("render-site CLI", () => {
     const probeRes = spawnSync(TSX, [probe], { cwd: ROOT, encoding: "utf8" });
     expect(probeRes.status, probeRes.stderr).toBe(0);
     expect(JSON.parse(probeRes.stdout.trim())).toEqual({
-      slug: "rolling-suds-of-seattle",
-      name: "Rolling Suds of Seattle",
+      slug: "franchise-suds-of-seattle",
+      name: "Franchise Suds of Seattle",
     });
   });
 
@@ -127,7 +130,7 @@ describe("render-site CLI", () => {
     const missingSlug = "zzz-ralph-rendersite-missing";
     rmSync(resolve(ROOT, "apps", missingSlug), { recursive: true, force: true });
     const configPath = join(makeTmp("ralph-render-site-cfg-"), "config.json");
-    writeFileSync(configPath, JSON.stringify(leadToConfig(ROLLING_SUDS).config));
+    writeFileSync(configPath, JSON.stringify(leadToConfig(FRANCHISE_SUDS).config));
 
     const res = spawnSync(TSX, [RENDER_SITE, missingSlug, "--config", configPath], {
       cwd: ROOT,
@@ -158,29 +161,31 @@ describe("writeClientConfig overwrite guard", () => {
     });
     expect(scaffold.status, scaffold.stderr).toBe(0);
 
-    // Seed a fully "live" config directly — real phone/email/domain, a
-    // UUID-shaped Web3Forms key, and no leftover intake placeholders. Mirrors
-    // a client that has already been taken live via `pnpm go-live`.
-    const { config: leadConfig } = leadToConfig(ROLLING_SUDS);
+    // Seed a fully "live" config directly — a phone/email/domain none of the
+    // placeholder detectors flag, a UUID-shaped Web3Forms key, and no leftover
+    // intake placeholders. Mirrors a client already taken live via
+    // `pnpm go-live`. The values are still synthetic: NANP test area code 958
+    // and the RFC 2606 `.invalid` TLD (see `isPlaceholderPhone`'s doc comment).
+    const { config: leadConfig } = leadToConfig(FRANCHISE_SUDS);
     const liveConfig = {
       ...leadConfig,
-      business: { ...leadConfig.business, phone: "(206) 442-9051", email: "info@rollingsudsseattle.com" },
+      business: { ...leadConfig.business, phone: "(958) 200-2000", email: "info@franchisesudsseattle.invalid" },
       form: {
         ...leadConfig.form,
         accessKey: "a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
         hcaptchaSiteKey: "10000000-ffff-ffff-ffff-000000000001",
       },
-      seo: { ...leadConfig.seo, siteUrl: "https://rollingsudsseattle.com", ogImage: "/og.jpg" },
+      seo: { ...leadConfig.seo, siteUrl: "https://franchisesudsseattle.invalid", ogImage: "/og.jpg" },
     };
     writeClientConfig(appDir(), JSON.stringify(liveConfig));
 
     // A re-dispatch mapping a *different* lead onto the same slug must not
     // clobber the live client's config.
-    const otherLead: LeadRow = { ...ROLLING_SUDS, name: "Different Business", slug: "different-business" };
+    const otherLead: LeadRow = { ...FRANCHISE_SUDS, name: "Different Business", slug: "different-business" };
     const { config: otherConfig } = leadToConfig(otherLead);
     expect(() => writeClientConfig(appDir(), JSON.stringify(otherConfig))).toThrow(/already has real business data/);
     const stillLive = readFileSync(resolve(appDir(), "client.config.ts"), "utf8");
-    expect(stillLive).toContain(`"name": "Rolling Suds of Seattle"`);
+    expect(stillLive).toContain(`"name": "Franchise Suds of Seattle"`);
 
     // --force is the explicit, intentional escape hatch.
     writeClientConfig(appDir(), JSON.stringify(otherConfig), { force: true });

@@ -7,7 +7,7 @@ const BASE_INPUT: ClientConfigInput = {
   slug: "acme-co",
   business: {
     name: "Real Business Co",
-    phone: "(509) 838-4200",
+    phone: "(958) 200-1000",
     email: "hello@realbusinessco.com",
     hours: [{ days: "Mon–Fri", hours: "8:00 AM – 6:00 PM" }],
     serviceAreas: ["Spokane"],
@@ -86,7 +86,7 @@ describe("defineClient", () => {
         "12345",
         "0123456789",
         "1123456789",
-        "509-838-42001",
+        "958-200-10001",
       ]) {
         expect(() =>
           defineClient(config({ business: { ...BASE_INPUT.business, phone: bad } })),
@@ -95,7 +95,7 @@ describe("defineClient", () => {
     });
 
     it("accepts common phone formats", () => {
-      for (const good of ["(509) 838-4200", "+1 509-838-4200", "5098384200"]) {
+      for (const good of ["(958) 200-1000", "+1 958-200-1000", "9582001000"]) {
         expect(() =>
           defineClient(config({ business: { ...BASE_INPUT.business, phone: good } })),
         ).not.toThrow();

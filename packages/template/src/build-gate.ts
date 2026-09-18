@@ -1,7 +1,23 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { ClientConfig } from "@hirobius/schema";
-import { checkClientAcceptance, detectClaimIssues } from "./acceptance.js";
+import {
+  checkClientAcceptance,
+  detectClaimIssues,
+  detectVisibleContactPlaceholders,
+} from "./acceptance.js";
+
+/**
+ * Where each placeholder contact value is actually rendered, so the preview
+ * warning tells the operator what the business owner would see rather than
+ * just naming a config key (ops#27). Keep in sync with the components that
+ * read `business.phone`/`business.email`.
+ */
+const CONTACT_SURFACES: Record<string, string> = {
+  "placeholder-phone":
+    "the hero CTA, the sticky CTA, the footer, the contact form, the thank-you page, llms.txt and the JSON-LD telephone",
+  "placeholder-email": "the footer, the contact form, llms.txt and the JSON-LD contact details",
+};
 
 /**
  * True when `imagePath`'s basename has a matching file under the app's
@@ -57,6 +73,22 @@ export function armAcceptanceGate(client: ClientConfig, appDir: string = process
   if (!realData) {
     for (const claimIssue of detectClaimIssues(client)) {
       console.warn(`[checkClientAcceptance] ${claimIssue.message}`);
+    }
+    // ops#27: an unarmed build is the cold-outreach build. `deploy-preview`
+    // sets PREVIEW_BUILD=true precisely so placeholder intake data does NOT
+    // block it — and the link it prints is then sent to the business owner the
+    // preview was generated for. A stub phone is correct in the repo (contact
+    // details live on the lead row, never in git) and wrong in that owner's
+    // browser, where every call-now button would show a number that is not
+    // theirs. The armed gate fails on these; the preview build says so out
+    // loud instead of shipping them silently.
+    for (const contactIssue of detectVisibleContactPlaceholders(client)) {
+      console.warn(
+        `[checkClientAcceptance] ${contactIssue.message} — the preview renders it in ${
+          CONTACT_SURFACES[contactIssue.code] ?? "the page the owner will open"
+        }. DO NOT SEND this preview to the business it was generated for until the value is set` +
+          " from the lead row (see docs/PIPELINE-RUNBOOK.md).",
+      );
     }
   }
 

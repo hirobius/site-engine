@@ -12,15 +12,20 @@ import { defineClient } from "@hirobius/schema";
  * fine for a water/utility service), but the positioning is Adrian's call —
  * septic may warrant a different template or a pass. Flagged, not blocked.
  *
- * Real lead facts used verbatim: business name, phone, city/region. The lead row
+ * Real lead facts used verbatim: business name, city/region. The lead row
  * has NO Google description, so the services below are STANDARD septic offerings
  * (pumping, inspection, repair) — not business-specific claims; confirm the actual
  * service menu at intake (see TODOs). Reviews/gallery omitted (no source data —
  * golden rule #5).
  *
+ * The lead's phone number is deliberately NOT stored here: contact details stay
+ * on the lead row, out of the repo and out of git history. The value below is
+ * the fleet's FCC-reserved 555-01XX stub, same as the other previews.
+ *
  * TODO before go-live (`pnpm go-live septic-response` arms the placeholder gate):
  *  - CONFIRM the service menu — services are trade-standard guesses (no lead description).
  *  - CONFIRM the palette/positioning — septic is outside the four core trades.
+ *  - business.phone is a 555-01XX placeholder — set it from the lead row at intake.
  *  - business.email is a placeholder (.example) — set the real intake email.
  *  - business.hours is a placeholder ("Call for hours") — confirm real hours (septic is often 24/7 emergency).
  *  - business.serviceAreas beyond Kirkland are metro-standard guesses — confirm at intake.
@@ -33,7 +38,7 @@ export const client = defineClient({
   slug: "septic-response",
   business: {
     name: "Septic Response",
-    phone: "(206) 962-2600",
+    phone: "(206) 555-0102",
     email: "hello@septic-response.example",
     hours: [{ days: "Every day", hours: "Open 24 hours" }],
     serviceAreas: ["Kirkland", "Redmond", "Bellevue", "Bothell", "Woodinville"],

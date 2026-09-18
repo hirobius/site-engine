@@ -1162,7 +1162,7 @@ What shipped:
     (armed gate blocks it from ever going live un-replaced).
   - No ClientConfigSchema change — pnpm schema:snapshot-ops resync NOT
     needed (confirmed: ops-drift.test.ts stays green untouched).
-- packages/schema/src/lead-to-config.test.ts (new, 8 cases): Rolling Suds of
+- packages/schema/src/lead-to-config.test.ts (new, 8 cases): Franchise Suds of
   Seattle fixture (the exact lead named in the issue's diagnosis) — valid
   config out with real data; missing phone/email/hours each stub + flag a
   todo, city/region-derived serviceAreas isn't flagged as fabrication;
