@@ -1,5 +1,5 @@
 {
-  "note": "Baseline shape of packages/schema, captured at the last known ops/lib/schema re-sync. Regenerate with `pnpm schema:snapshot-ops` immediately after re-syncing ops — never to silence a real, un-synced drift. DRAFT (issue #87, PR pending Adrian's approval): this bump reflects the trust/conversion field PROPOSAL only — ops/lib/schema has NOT actually been re-synced yet. Real ops sync (index.mjs, presets.mjs) is a required follow-up before/at merge, not before this draft's tests can pass.",
+  "note": "Baseline shape of packages/schema, captured at the last known ops/lib/schema re-sync. Regenerate with `pnpm schema:snapshot-ops` immediately after re-syncing ops — never to silence a real, un-synced drift.",
   "clientConfig": {
     "shape": {
       "kind": "object",
@@ -540,7 +540,8 @@
                             "shape": {
                               "kind": "enum",
                               "values": [
-                                "cards"
+                                "cards",
+                                "masonry"
                               ]
                             },
                             "optional": false,

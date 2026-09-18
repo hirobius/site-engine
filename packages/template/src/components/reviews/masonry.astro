@@ -1,0 +1,45 @@
+---
+// Reviews variant "masonry" — CSS-columns "wall of love" layout: cards of
+// different quote length pack together instead of sitting in a fixed-height
+// grid row, each with a divider between the rating/quote and the author.
+//
+// Source: AstroWind, Testimonials widget
+// Repo: https://github.com/onwidget/astrowind
+// Commit: 14e1a691f80548dcc36370847b1a02c0d0b12821
+// License: MIT — see packages/template/ATTRIBUTIONS.md
+import type { ClientConfig } from "@hirobius/schema";
+import Section from "../Section.astro";
+
+interface Props {
+  config: ClientConfig;
+}
+
+const { config } = Astro.props;
+const { reviews } = config;
+
+function stars(rating: number): string {
+  return "★".repeat(rating) + "☆".repeat(5 - rating);
+}
+---
+
+{
+  reviews.length > 0 && (
+    <Section id="reviews" title="What Customers Say">
+      <ul class="columns-1 gap-6 sm:columns-2 lg:columns-3" data-reveal-group>
+        {reviews.map((review) => (
+          <li class="reveal mb-6 break-inside-avoid rounded-theme border border-fg/10 bg-bg p-6 shadow-sm">
+            <div class="text-accent" role="img" aria-label={`${review.rating} out of 5 stars`}>
+              <span aria-hidden="true">{stars(review.rating)}</span>
+            </div>
+            <blockquote class="mt-4 text-fg/80">“{review.text}”</blockquote>
+            <hr class="my-4 border-fg/10" />
+            <footer class="text-sm font-semibold text-fg">
+              {review.author}
+              {review.source && <span class="font-normal text-fg/70"> · via {review.source}</span>}
+            </footer>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}

@@ -77,6 +77,17 @@ describe("SECTION_VARIANTS", () => {
     );
     expect(result.layout.sections.services.variant).toBe("alternating");
   });
+
+  it("offers the harvested reviews variant", () => {
+    expect(SECTION_VARIANTS.reviews).toContain("masonry");
+  });
+
+  it("accepts the harvested reviews variant via config", () => {
+    const result = defineClient(
+      config({ layout: { sections: { reviews: { variant: "masonry" } } } }),
+    );
+    expect(result.layout.sections.reviews.variant).toBe("masonry");
+  });
 });
 
 describe("layout.sections variants", () => {
