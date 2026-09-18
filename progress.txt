@@ -1354,3 +1354,53 @@ back on #112 flagging the discrepancy).
   wrong. Left a comment on #108 noting the site-engine-side scope is done.
 - Branch: ralph/issue-108-verify-live-module-export.
 - Next iteration: none picked — Ralph selects the next issue.
+
+## Issue #131 — first open-source-theme harvest — reviews variant "masonry" from AstroWind
+- Part of epic #128. Adrian's decision (2026-07-30, restated in the issue
+  body checklist): source theme = AstroWind (MIT). Ported its
+  Testimonials.astro widget structure as `reviews.masonry` — first exercise
+  of the `open-source-theme` source type end to end (prior harvests were
+  from-scratch re-implementations, no attribution obligation).
+- Design: CSS-columns "wall of love" packing (columns-1/2/3 + break-inside-
+  avoid) instead of the existing `cards` grid variant; rating icons above the
+  quote, an <hr> divider before the author line. AstroWind fields with no
+  schema equivalent (avatar image, job title, logo) were dropped rather than
+  extending ReviewSchema (HARVESTING.md rule: never extend schema inside a
+  harvest PR). Colors/radius/typography reused this factory's existing
+  semantic tokens (bg-bg, text-fg, text-accent, border-fg/10, rounded-theme)
+  — no new CONTRAST_TOKEN_PAIRS needed, purity.test.ts passes unchanged.
+- Provenance: recorded in packages/template/ATTRIBUTIONS.md with repo URL +
+  commit SHA (14e1a691f80548dcc36370847b1a02c0d0b12821) + the full MIT
+  license text verbatim (not just the word "MIT" — the issue DoD called this
+  out explicitly as a thing a prior/hypothetical port could skip).
+- Touch list per docs/HARVESTING.md "NEW VARIANT of an existing section":
+  SECTION_VARIANTS (schema) + section-variants.test.ts, Reviews.astro
+  dispatcher, SECTION_VARIANT_COMPONENTS (template index.ts), ATTRIBUTIONS.md,
+  packages/template package.json 0.6.0 → 0.7.0 (template-release convention,
+  matches prior harvest PR #167), ops-shape.snapshot.json refreshed via
+  `pnpm schema:snapshot-ops`.
+- ops/lib/schema's actual vendored copy is NOT re-synced — that's a separate
+  repo (hirobius/ops) this session has no access to. Matches the precedent in
+  #167/#171: the local snapshot moves, the cross-repo sync is a follow-up.
+  Flagged in the PR body.
+- Visual baseline: workflow_dispatch on visual.yml returned 403 (Resource not
+  accessible by integration — this token can't dispatch workflows). Worked
+  around it: opened the PR, let the `pull_request`-triggered visual job fail
+  naturally (only `variants — reviews` failed, as expected for a genuinely
+  new baseline), downloaded the run's `visual-report` artifact, matched the
+  "actual" PNG by hash (it was the one NOT matching the pre-existing
+  committed baseline), copied it in as the new
+  apps/_gallery/tests/visual.spec.ts-snapshots/variants-reviews-chromium-linux.png,
+  pushed a second commit. Re-ran: all 8 visual tests green. NOTE for future
+  iterations: this artifact-hash trick is a viable substitute whenever
+  workflow_dispatch is unavailable — no need to blocked-stop for that reason
+  alone.
+- Also cleaned up apps/zzz-ralph-{dup,newclient}-fixture/ and
+  scripts/ralph-probe-*/ — stray untracked dirs left behind by an earlier
+  `pnpm test` run in this same session that turbo aborted mid-suite
+  (schema#test failing elsewhere killed sibling tasks before their afterAll
+  cleanup ran), not prior WIP. Not part of the PR diff.
+- Verify: bash ralph/gate.sh green. PR #200 CI (Ralph Gate / CI / Lighthouse)
+  triggered; visual check confirmed green before this note was written.
+- Branch: ralph/issue-131-astrowind-testimonials-reviews-masonry.
+- Next iteration: none picked — Ralph selects the next issue.

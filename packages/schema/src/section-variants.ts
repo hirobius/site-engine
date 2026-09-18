@@ -20,7 +20,7 @@ export const SECTION_VARIANTS = {
   hero: ["classic", "video", "split-card", "banner"],
   services: ["grid", "cards", "alternating"],
   gallery: ["grid"],
-  reviews: ["cards"],
+  reviews: ["cards", "masonry"],
   serviceAreaMap: ["standard"],
   contact: ["standard"],
 } as const;

@@ -50,7 +50,7 @@ export const SECTION_VARIANT_COMPONENTS = {
     alternating: "services/alternating.astro",
   },
   gallery: { grid: "gallery/grid.astro" },
-  reviews: { cards: "reviews/cards.astro" },
+  reviews: { cards: "reviews/cards.astro", masonry: "reviews/masonry.astro" },
   serviceAreaMap: { standard: "ServiceAreaMap.astro" },
   contact: { standard: "ContactForm.astro" },
 } as const satisfies {
