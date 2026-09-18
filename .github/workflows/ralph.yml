@@ -7,7 +7,7 @@ name: Ralph
 # that steals any claim), `issues: labeled` (fires when something is tagged
 # ralph-ready; the guard filters every other label — load-bearing, see the
 # reusable), push-to-main (the chain: an approved+merged Ralph PR pushes
-# main, which grabs the next issue), and an hourly schedule (the idle
+# main, which grabs the next issue), and a 6-hourly schedule (the idle
 # watchdog: the event-driven chain halts silently after a failed iteration,
 # and label runs queued behind an in-flight run are cancelled by the
 # concurrency dedup — the tick re-enters the guard and restarts the queue;
@@ -30,11 +30,16 @@ on:
     types: [labeled]
   push:
     branches: [main] # chain: a merged Ralph PR grabs the next ralph-ready issue
-  # schedule: DISABLED 2026-07-16 — the hourly idle watchdog moved to the local
-  #   runner (ops#214) to stop spending GitHub Actions minutes. workflow_dispatch
-  #   stays as the manual escape hatch. Re-enable this block to revert to
-  #   CI-driven Ralph.
-  #   - cron: "23 * * * *" # idle watchdog (staggered minute; ops/hds use others)
+  schedule:
+    # Idle-watchdog BACKSTOP, every 6h (staggered minute 23). The hourly
+    # version was disabled 2026-07-16 in favour of a local runner (ops#214)
+    # that was deferred and never built, so this repo ran on `push`/`issues`
+    # events alone and a failed iteration halted the chain silently — the loop
+    # fired on 2026-07-31 and then not again until 2026-09-16 (#192).
+    # 6h rather than hourly keeps Actions minutes and Claude usage negligible:
+    # most ticks no-op via the single-flight guard. Mirrors the backstop ops
+    # adopted in ops#232 (minute 11) and hds in hds#201 (minute 41).
+    - cron: "23 */6 * * *"
 
 concurrency:
   group: ralph-${{ github.repository }}
