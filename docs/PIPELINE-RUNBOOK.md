@@ -21,7 +21,20 @@ the bottom — paste it into a fresh session and it does the rest.
 | 4 | **Fill the config** | `pnpm render-site <slug> --config <json>` (writes + re-validates), **or** edit `apps/<slug>/client.config.ts` directly. **Only** this file + photos. |
 | 5 | **Verify (ship gate)** | `pnpm --filter @hirobius/<slug> check && pnpm --filter @hirobius/<slug> build` — both **0 errors**. The build runs Zod via `defineClient()`; a bad config fails here, not in prod. |
 | 6 | **Imagery (optional)** | `PEXELS_API_KEY=<key> node apps/<slug>/scripts/fetch-photos.mjs` — run where the network can reach `api.pexels.com` (local machine or Vercel build; **blocked in the remote sandbox**). No key → ship photo-less, like the existing previews. |
-| 7 | **Deploy a gated preview** | `pnpm deploy-preview <slug>` → prints the `?key=` link. Stays gated (`SITE_LIVE` unset). Never `--prod`; the script enforces preview-only. |
+| 7 | **Deploy a gated preview** | `pnpm deploy-preview <slug>` → prints the `?key=` link. Stays gated (`SITE_LIVE` unset). Never `--prod`; the script enforces preview-only. **Before sending that link, do the pre-send step below.** |
+
+### Pre-send step — the phone the owner sees (ops#27)
+
+`business.phone` is a `555-01XX` stub in every cold-outreach app, because a
+lead's contact details belong on the lead row and never in git. The site renders
+that number in the hero CTA, the sticky CTA, the footer, the contact form,
+`llms.txt` and the JSON-LD `telephone` — so a preview sent as-is shows the
+business owner a call-now button that is not their own number.
+
+Set `business.phone` from the lead row for the deploy that produces the link you
+send, and keep the value out of the commit. The preview build now names the
+field when it is still a stub (`armAcceptanceGate` → `detectVisibleContactPlaceholders`
+in `packages/template`); the armed go-live build fails on it outright.
 
 ---
 

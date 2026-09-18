@@ -3,16 +3,36 @@ name: Visual Regression
 # Catches "fleet rebuild drift": a packages/* change that silently restyles the
 # rendered template. Runs in the pinned Playwright container so rendering matches
 # the committed baselines exactly.
+#
+# Runs on push to main as well as on PRs. Without the main trigger the job never
+# sees the commit that causes the drift, so the failure surfaces on the next
+# unrelated PR instead: the services baseline went stale on 2026-07-16 (#167
+# tripled the section height) and failed nine innocent branches over two months
+# before anyone traced it back.
+#
+# The two triggers are filtered differently ON PURPOSE:
+#   push  — filtered. It gates nothing, so skipping it on unrelated commits is
+#           free savings.
+#   pull_request — NOT filtered. `visual` is a required check on main, and a
+#           path-filtered workflow reports no status at all when the filter
+#           misses; GitHub then waits forever for a check that will never run,
+#           making every docs-only PR unmergeable. The job runs in parallel with
+#           build-and-test (~2m) and takes ~1m, so always running it costs no
+#           wall-clock. Do not add a paths filter here while it is required.
 on:
-  pull_request:
+  push:
+    branches: [main]
     paths:
       - "packages/**"
       - "apps/_gallery/**"
       - ".github/workflows/visual.yml"
+  pull_request:
   workflow_dispatch:
     inputs:
       update:
-        description: "Regenerate baselines and commit them back to the dispatched branch"
+        # Pushes to visual-baselines/<run-id>, NOT back to the dispatched
+        # branch — main only accepts PRs. See the commit step below.
+        description: "Regenerate baselines and push them to visual-baselines/<run-id>"
         type: boolean
         default: false
 
