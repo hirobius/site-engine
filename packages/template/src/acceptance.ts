@@ -42,7 +42,14 @@ const WEB3FORMS_KEY_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
  *  (with `isPlaceholderEmail`/`isPlaceholderSiteUrl` below) so this stays the
  *  one fleet-wide placeholder convention instead of being re-derived —
  *  currently reused by `lib/llms-txt.test.ts`, which runs these detectors
- *  against the text `llmsTxt()` actually emits, not just the input config. */
+ *  against the text `llmsTxt()` actually emits, not just the input config.
+ *
+ *  Counterpart convention, for test fixtures that must read as *real* data and
+ *  therefore can't use 555: area code **958**, which the NANP reserves for
+ *  network testing and never assigns to a subscriber, paired with the RFC 2606
+ *  `.invalid` TLD for domains. That keeps "this is real business data" fixtures
+ *  synthetic without weakening these detectors. Never paste an actual lead's
+ *  phone, email, or domain into a fixture. */
 export function isPlaceholderPhone(phone: string): boolean {
   const digits = phone.replace(/\D/g, "");
   const local = digits.slice(-10);

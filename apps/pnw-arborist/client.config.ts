@@ -7,13 +7,18 @@ import { defineClient } from "@hirobius/schema";
  * row) — with no existing web presence, which is exactly the outreach thesis:
  * strong reputation, invisible online. Landscaping palette (green) fits tree care.
  *
- * Real lead facts used verbatim: business name, phone, city/region, and the core
+ * Real lead facts used verbatim: business name, city/region, and the core
  * services named in the Google Business description ("tree removals and tree
  * pruning, as well as tree-health consultations"). Nothing beyond those facts is
  * asserted as true. Reviews/gallery omitted (no review text / no photos on the
  * lead row — golden rule #5, never fabricate).
  *
+ * The lead's phone number is deliberately NOT stored here: contact details stay
+ * on the lead row, out of the repo and out of git history. The value below is
+ * the fleet's FCC-reserved 555-01XX stub, same as the other previews.
+ *
  * TODO before go-live (`pnpm go-live pnw-arborist` arms the placeholder gate):
+ *  - business.phone is a 555-01XX placeholder — set it from the lead row at intake.
  *  - business.email is a placeholder (.example) — set the real intake email.
  *  - business.hours is a placeholder ("Call for hours") — confirm real hours.
  *  - business.serviceAreas beyond Olympia are metro-standard guesses — confirm at intake.
@@ -27,7 +32,7 @@ export const client = defineClient({
   slug: "pnw-arborist",
   business: {
     name: "PNW Arborist Consulting Inc",
-    phone: "(360) 545-5633",
+    phone: "(360) 555-0101",
     email: "hello@pnw-arborist.example",
     hours: [{ days: "Mon–Sun", hours: "Call for hours" }],
     serviceAreas: ["Olympia", "Lacey", "Tumwater", "Yelm"],

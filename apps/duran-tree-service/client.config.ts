@@ -7,7 +7,7 @@ import { defineClient } from "@hirobius/schema";
  * exactly the outreach thesis — strong reputation, invisible online.
  * Landscaping (green) palette is the closest natural-trade fit for tree care.
  *
- * Real lead facts used verbatim: business name, phone, hours, city/service
+ * Real lead facts used verbatim: business name, hours, city/service
  * area (Yakima + surrounding Yakima Valley, confirmed by coords — no street
  * address was returned, so none is set here), the 5.0★/132-review aggregate,
  * and "online estimates: true". No street address, no review text/authors
@@ -18,7 +18,12 @@ import { defineClient } from "@hirobius/schema";
  * storm/emergency work, land clearing), described generically — same pattern
  * as monroe-street-power-wash / pnw-arborist, not a fabricated specific fact.
  *
+ * The lead's phone number is deliberately NOT stored here: contact details stay
+ * on the lead row, out of the repo and out of git history. The value below is
+ * the fleet's FCC-reserved 555-01XX stub, same as the other previews.
+ *
  * TODO before go-live (`pnpm go-live duran-tree-service` arms the placeholder gate):
+ *  - business.phone is a 555-01XX placeholder — set it from the lead row at intake.
  *  - business.email is a placeholder (.example) — the lead has no email; set
  *    the real intake email once obtained.
  *  - business.serviceAreas beyond "Yakima" / "Yakima Valley" (specific nearby
@@ -38,7 +43,7 @@ export const client = defineClient({
   slug: "duran-tree-service",
   business: {
     name: "Duran's Tree Service LLC",
-    phone: "(509) 834-9339",
+    phone: "(509) 555-0103",
     email: "hello@duranstreeservice.example",
     hours: [
       { days: "Mon–Sat", hours: "6:30 AM – 7:00 PM" },

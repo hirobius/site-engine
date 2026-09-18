@@ -14,24 +14,24 @@ import { SKIN_IDS } from "./skins.js";
 import type { PaletteTokens } from "./presets.js";
 
 function lead(overrides: Partial<DesignSeedLead> = {}): DesignSeedLead {
-  return { name: "Rolling Suds", city: "Seattle", ...overrides };
+  return { name: "Franchise Suds", city: "Seattle", ...overrides };
 }
 
 describe("stableLeadId", () => {
   it("prefers placeId over slug and name-city", () => {
-    expect(stableLeadId({ placeId: "ChIJ123", slug: "rolling-suds", name: "Rolling Suds", city: "Seattle" })).toBe(
+    expect(stableLeadId({ placeId: "ChIJ123", slug: "franchise-suds", name: "Franchise Suds", city: "Seattle" })).toBe(
       "ChIJ123",
     );
   });
 
   it("falls back to slug when placeId is absent/null", () => {
-    expect(stableLeadId({ placeId: null, slug: "rolling-suds", name: "Rolling Suds", city: "Seattle" })).toBe(
-      "rolling-suds",
+    expect(stableLeadId({ placeId: null, slug: "franchise-suds", name: "Franchise Suds", city: "Seattle" })).toBe(
+      "franchise-suds",
     );
   });
 
   it("falls back to name-city when neither placeId nor slug is set", () => {
-    expect(stableLeadId({ name: "Rolling Suds", city: "Seattle" })).toBe("Rolling Suds-Seattle");
+    expect(stableLeadId({ name: "Franchise Suds", city: "Seattle" })).toBe("Franchise Suds-Seattle");
   });
 });
 
@@ -175,9 +175,9 @@ describe("contrast safety", () => {
 });
 
 describe("pickDesign output validates end to end", () => {
-  const ROLLING_SUDS: LeadRow = {
-    name: "Rolling Suds of Seattle",
-    slug: "rolling-suds-of-seattle",
+  const FRANCHISE_SUDS: LeadRow = {
+    name: "Franchise Suds of Seattle",
+    slug: "franchise-suds-of-seattle",
     category: "Pressure washing service",
     city: "Seattle",
     region: "WA",
@@ -185,7 +185,7 @@ describe("pickDesign output validates end to end", () => {
 
   it("every synthetic lead's leadToConfig output validates through defineClient()", () => {
     for (let i = 0; i < 20; i++) {
-      const row: LeadRow = { ...ROLLING_SUDS, placeId: `ChIJ_e2e_${i}`, slug: `lead-${i}` };
+      const row: LeadRow = { ...FRANCHISE_SUDS, placeId: `ChIJ_e2e_${i}`, slug: `lead-${i}` };
       const { config } = leadToConfig(row);
       expect(() => defineClient(config)).not.toThrow();
       expect(config.brand.palettePreset).toBe("pressure-washing");
@@ -193,7 +193,7 @@ describe("pickDesign output validates end to end", () => {
   });
 
   it("matches pickDesign(lead)'s pick exactly for a config with no explicit artDirection", () => {
-    const row: LeadRow = { ...ROLLING_SUDS, placeId: "ChIJ_match_check" };
+    const row: LeadRow = { ...FRANCHISE_SUDS, placeId: "ChIJ_match_check" };
     const picked = pickDesign(row);
     const { config } = leadToConfig(row);
     expect(config.layout.sections.hero.variant).toBe(picked.layout.sections.hero.variant);

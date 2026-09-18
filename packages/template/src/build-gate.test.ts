@@ -41,7 +41,7 @@ const REAL_INPUT: ClientConfigInput = {
   slug: "acme-co",
   business: {
     name: "Real Business Co",
-    phone: "(509) 838-4200",
+    phone: "(958) 200-1000",
     email: "hello@realbusinessco.com",
     hours: [{ days: "Mon–Fri", hours: "8:00 AM – 6:00 PM" }],
     serviceAreas: ["Spokane"],
