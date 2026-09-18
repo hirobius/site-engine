@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian — Modern Real Estate (concept)</title>
+<meta name="description" content="Meridian — a design-led modern real estate brokerage for architectural homes and new construction across Spokane and the Inland Northwest. Speculative brand concept.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F1EA; --surface:#FBFAF6; --ink:#141210; --muted:#6C665D;
+    --clay:#C6613F; --border:#E3DED2; --dark:#171612;
+    --grotesk:"Space Grotesk",system-ui,sans-serif;
+    --sans:"Inter",system-ui,sans-serif;
+    --mono:"Geist Mono",ui-monospace,monospace;
+    --pad:clamp(22px,5.5vw,88px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--clay)}
+  .eyebrow.n{color:var(--muted)}
+  .display{font-family:var(--grotesk);font-weight:700;line-height:1.0;letter-spacing:-.025em}
+  .display .clay{color:var(--clay)}
+  h1.display{font-size:clamp(46px,7.5vw,86px)}
+  h2.display{font-size:clamp(32px,4.6vw,54px)}
+  h3.display{font-size:clamp(22px,2.8vw,30px);letter-spacing:-.02em}
+  .lead{font-size:clamp(15.5px,1.4vw,18px);color:var(--muted);max-width:52ch;line-height:1.55}
+
+  section{padding:clamp(52px,7vw,96px) var(--pad)}
+  .wrap{max-width:1200px;margin:0 auto}
+
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px var(--pad)}
+  .brand{display:flex;flex-direction:column;line-height:1}
+  .brand .n{font-family:var(--grotesk);font-weight:700;font-size:20px;letter-spacing:.02em}
+  .brand .t{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  .nav-mid{display:flex;gap:26px;align-items:center}
+  .nav-mid a{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid transparent;transition:.2s}
+  .nav-mid a:hover,.nav-mid a.active{color:var(--ink);border-bottom-color:var(--clay)}
+  .nav-cta{background:var(--clay);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;border-radius:4px;transition:.2s}
+  .nav-cta:hover{background:#b0522f}
+  .menu-btn{display:none;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);border-radius:4px;padding:8px 13px}
+
+  .page{display:none;animation:fade .45s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .btn{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;padding:14px 24px;border-radius:5px;transition:.2s;display:inline-block}
+  .btn.solid{background:var(--clay);color:#fff}
+  .btn.solid:hover{background:#b0522f}
+  .btn.ghost{border:1px solid var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--paper)}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+
+  .hero{padding-top:clamp(40px,5vw,68px)}
+  .hero .eyebrow{display:inline-block;margin-bottom:22px}
+  .hero h1{margin-bottom:22px}
+  .hero-cats{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:30px}
+  .hero-img{margin-top:42px;position:relative;aspect-ratio:16/7.5;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+  .ph{position:relative;overflow:hidden}
+  .ph .lbl{position:absolute;left:18px;bottom:16px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+  .ph-livingdusk{background:linear-gradient(120deg,#cabfa9 0%,#9c9080 40%,#3a352c 100%)}
+  .ph-int-yellow{background:linear-gradient(160deg,#e7ddc7,#c3b48f 55%,#6f6247)}
+  .ph-int-wood{background:linear-gradient(160deg,#ddceb0,#b09769 60%,#5c4d33)}
+  .ph-forest{background:linear-gradient(150deg,#7f8a5e,#4f5a37 55%,#20261a)}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
+  .stats .c{padding:28px 24px;border-right:1px solid var(--border)}
+  .stats .c:last-child{border-right:0}
+  .stats .v{font-family:var(--grotesk);font-weight:700;font-size:clamp(28px,3.6vw,42px);letter-spacing:-.03em;line-height:1}
+  .stats .v .clay{color:var(--clay)}
+  .stats .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+
+  .sec-head{margin-bottom:44px}
+  .sec-head .sub{color:var(--muted);max-width:42ch;margin-top:10px}
+
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--border)}
+  .cards3 .card{padding:30px 28px 30px 0;border-right:1px solid var(--border)}
+  .cards3 .card:last-child{border-right:0;padding-right:0}
+  .cards3 .card .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--clay);text-transform:uppercase;margin-bottom:18px}
+  .cards3 .card h3{font-family:var(--grotesk);font-weight:700;font-size:22px;letter-spacing:-.02em;margin-bottom:10px}
+  .cards3 .card p{color:var(--muted);font-size:14.5px}
+
+  .steps{border-top:1px solid var(--border)}
+  .steps .step{display:grid;grid-template-columns:72px 220px 1fr;gap:24px;padding:26px 0;border-bottom:1px solid var(--border);align-items:baseline}
+  .steps .step .n{font-family:var(--grotesk);font-weight:700;font-size:26px;color:var(--clay);letter-spacing:-.02em}
+  .steps .step h3{font-family:var(--grotesk);font-weight:700;font-size:20px;letter-spacing:-.01em}
+  .steps .step p{color:var(--muted);font-size:14.5px;max-width:52ch}
+
+  .feat{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,56px);align-items:center}
+  .feat .img{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+  .feat .price{font-family:var(--grotesk);font-weight:700;font-size:34px;color:var(--clay);letter-spacing:-.02em;margin:2px 0 12px}
+  .feat .spec{display:flex;gap:26px;margin:20px 0}
+  .feat .spec .s{font-family:var(--grotesk);font-weight:700;font-size:22px}
+  .feat .spec .s small{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:5px;font-weight:400}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,56px);align-items:center}
+  .split .img{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+
+  .placed{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
+  .placed .row{display:grid;grid-template-columns:1fr 1fr}
+  .placed .cell{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 26px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .placed .cell:nth-child(2n){border-right:0}
+  .placed .cell .nm{font-family:var(--grotesk);font-weight:700;font-size:20px;letter-spacing:-.01em}
+  .placed .cell .loc{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+  .placed .cell .pr{font-family:var(--mono);font-size:12px;text-align:right}
+  .placed .cell .st{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--clay);text-align:right;margin-top:5px}
+
+  .dark{background:var(--dark);color:#EDEAE2}
+  .dark .eyebrow{color:#d98a6c}
+  .dark h2,.dark h1{color:#F5F2EA}
+  .dark .lead{color:#B3AEA3}
+  .dark .display .clay{color:var(--clay)}
+  .qband h2{font-family:var(--grotesk);font-weight:700;font-size:clamp(28px,4vw,50px);letter-spacing:-.025em;line-height:1.08;max-width:20ch}
+  .ctaform{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px}
+  .ctaform input{background:#221f1a;border:1px solid #37332c;border-radius:6px;padding:14px;color:#F5F2EA;font-family:var(--sans);font-size:14.5px}
+  .ctaform input::placeholder{color:#89847a}
+  .ctaform input:focus{outline:none;border-color:var(--clay)}
+  .ctaform .full,.ctaform button{grid-column:1/-1}
+  .ctaform label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#89847a;margin-bottom:-6px}
+  .ctaform button{justify-self:start;background:var(--paper);color:var(--ink);border:0;border-radius:5px;padding:14px 22px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.2s}
+  .ctaform button:hover{background:#fff}
+  .cta-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,64px);align-items:start}
+  .cinfo a{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:#B3AEA3;padding:3px 0}
+
+  footer.site{background:var(--dark);color:#8f8a7f;padding:clamp(44px,6vw,72px) var(--pad) 34px}
+  .foot-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1.2fr;gap:40px}
+  .foot-brand .n{font-family:var(--grotesk);font-weight:700;font-size:22px;color:#F5F2EA;letter-spacing:.02em}
+  .foot-brand .t{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:#6f6a60;margin-top:6px}
+  .foot-grid h4{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6f6a60;margin-bottom:14px}
+  .foot-grid a{display:block;color:#8f8a7f;font-size:13.5px;padding:5px 0;transition:.2s}
+  .foot-grid a:hover{color:#F5F2EA}
+  .foot-grid .plain{color:#8f8a7f;font-size:13.5px;padding:5px 0}
+  .fairhousing{max-width:1200px;margin:40px auto 0;padding-top:22px;border-top:1px solid #2c2924;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6f6a60}
+
+  .spec-tag{max-width:1200px;margin:0 auto;padding:20px var(--pad) 36px}
+  .spec-tag span{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--border);border-radius:9999px;padding:5px 12px;display:inline-block}
+
+  @media(max-width:900px){
+    .stats{grid-template-columns:1fr 1fr}.stats .c:nth-child(2){border-right:0}
+    .cards3{grid-template-columns:1fr}.cards3 .card{border-right:0;padding-right:0;border-bottom:1px solid var(--border)}
+    .steps .step{grid-template-columns:1fr;gap:6px}
+    .feat,.split,.cta-split,.placed .row{grid-template-columns:1fr}
+    .ctaform{grid-template-columns:1fr}
+    .placed .cell{border-right:0}
+    .nav-mid{display:none}.menu-btn{display:inline-block}
+    .nav-mid.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;background:var(--surface);border-bottom:1px solid var(--border);padding:14px var(--pad)}
+    .nav-mid.open a{padding:11px 0}
+    .foot-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a href="#home" class="brand" data-nav><span class="n">MERIDIAN</span><span class="t">Modern Real Estate</span></a>
+    <div class="nav-mid" id="navmid">
+      <a href="#buy" data-nav>Buy</a>
+      <a href="#sell" data-nav>Sell</a>
+      <a href="#build" data-nav>Build</a>
+      <a href="#contact" data-nav>Contact</a>
+      <a href="#contact" class="nav-cta" data-nav>Book a viewing</a>
+    </div>
+    <button class="menu-btn" id="menubtn">Menu</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ═══════ HOME ═══════ -->
+<div class="page active" id="home">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Spokane · Modern Real Estate</span>
+      <h1 class="display">Modern homes, sold<br>with <span class="clay">intent.</span></h1>
+      <p class="lead">A design-led brokerage for architectural homes and new construction across Spokane and the Inland Northwest.</p>
+      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>Book a viewing</a><a href="#buy" class="btn ghost" data-nav>See the work</a></div>
+      <div class="hero-cats">New construction&nbsp;&nbsp;/&nbsp;&nbsp;Architectural resale&nbsp;&nbsp;/&nbsp;&nbsp;Land</div>
+      <div class="hero-img ph ph-livingdusk"><span class="lbl">Sample photography</span></div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="stats">
+        <div class="c"><div class="v"><span class="clay">$</span>218M</div><div class="l">Sold since 2016</div></div>
+        <div class="c"><div class="v">14 <span class="clay">days</span></div><div class="l">Avg. days on market</div></div>
+        <div class="c"><div class="v">99.1<span class="clay">%</span></div><div class="l">List-to-sale price</div></div>
+        <div class="c"><div class="v">40+</div><div class="l">New-build placements</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">Built for how<br>people live now.</h2><p class="sub">Three ways we work — design-led, data-backed, low on fuss.</p></div>
+      <div class="cards3">
+        <div class="card"><div class="k">01 / Buy</div><h3>Buy</h3><p>Architectural resale and new builds, matched to how you actually want to live.</p></div>
+        <div class="card"><div class="k">02 / Sell</div><h3>Sell</h3><p>Design-forward marketing and photography that sells the feeling, not just the square footage.</p></div>
+        <div class="card"><div class="k">03 / Build</div><h3>Build</h3><p>Land, builders, and modern spec homes — the right lot with the right architect.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap feat">
+      <div class="img ph ph-int-yellow"><span class="lbl">Featured · Sample</span></div>
+      <div>
+        <span class="eyebrow n">Featured home</span>
+        <h3 class="display" style="margin-top:12px">The <span class="clay">Latah</span> Residence</h3>
+        <div class="price">$1,150,000</div>
+        <p class="lead">A 2024 modern build on the South Hill — steel, white oak, and a wall of west-facing glass over the valley. Sample listing.</p>
+        <div class="spec"><div class="s">4<small>Beds</small></div><div class="s">3.5<small>Baths</small></div><div class="s">3,420<small>Sq ft</small></div><div class="s">2024<small>Built</small></div></div>
+        <a href="#contact" class="btn solid" data-nav>Request the full spec</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="dark qband">
+    <div class="wrap">
+      <span class="eyebrow">The Meridian view</span>
+      <h2 class="display" style="margin-top:16px">A home isn't a transaction. It's the <span class="clay">frame</span> for the next ten years of your life.</h2>
+    </div>
+  </section>
+
+  <section class="dark" style="padding-top:clamp(52px,7vw,96px)">
+    <div class="wrap">
+      <h2 class="display" style="margin-bottom:14px">Let's find your <span class="clay">next place.</span></h2>
+      <p class="lead" style="margin-bottom:30px">Buying, selling, or building something modern in the Inland Northwest — tell us where you're headed.</p>
+      <form class="ctaform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
+        <input class="full" placeholder="What are you after?">
+        <button>Start the conversation →</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ BUY ═══════ -->
+<div class="page" id="buy">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Buy</span>
+      <h1 class="display" style="margin:18px 0 20px">Homes worth<br><span class="clay">living in.</span></h1>
+      <p class="lead">Architectural resale and modern new builds, matched to how you actually want to live — not just a price band.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">How buying<br>works with us.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Define the brief</h3><p>Light, layout, commute, and the ten-year plan — the things that actually drive value and joy.</p></div>
+        <div class="step"><div class="n">02</div><h3>Read the market</h3><p>Real comps, build quality, and where the neighborhood is heading, before emotion enters the room.</p></div>
+        <div class="step"><div class="n">03</div><h3>Tour with intent</h3><p>We show you fewer, better homes — and tell you the truth about each one's bones.</p></div>
+        <div class="step"><div class="n">04</div><h3>Win it cleanly</h3><p>A sharp offer, hard negotiation, and a paper trail that holds up through inspection and close.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap feat">
+      <div class="img ph ph-int-wood"><span class="lbl">Featured · Sample</span></div>
+      <div>
+        <span class="eyebrow n">Featured home</span>
+        <h3 class="display" style="margin-top:12px">The <span class="clay">Latah</span> Residence</h3>
+        <div class="price">$1,150,000</div>
+        <p class="lead">A 2024 modern build on the South Hill — steel, white oak, and a wall of west-facing glass over the valley. Sample listing.</p>
+        <div class="spec"><div class="s">4<small>Beds</small></div><div class="s">3.5<small>Baths</small></div><div class="s">3,420<small>Sq ft</small></div><div class="s">2024<small>Built</small></div></div>
+        <a href="#contact" class="btn solid" data-nav>Request the full spec</a>
+      </div>
+    </div>
+  </section>
+  <section class="dark">
+    <div class="wrap">
+      <h2 class="display" style="margin-bottom:14px">Ready to<br>see homes?</h2>
+      <p class="lead" style="margin-bottom:30px">Tell us what you're after and your timeline — we'll send a shortlist worth your Saturday.</p>
+      <form class="ctaform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
+        <input class="full" placeholder="What are you after?">
+        <button>Start the conversation →</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ SELL ═══════ -->
+<div class="page" id="sell">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Sell</span>
+      <h1 class="display" style="margin:18px 0 20px">Launched<br>like a <span class="clay">product.</span></h1>
+      <p class="lead">Design-forward marketing, real staging, and photography that sells the feeling — so your home moves at the right number.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">How we sell<br>your home.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Price on real data</h3><p>A true CMA on recent architectural comps — we list at a number that moves, not a wish.</p></div>
+        <div class="step"><div class="n">02</div><h3>Stage &amp; shoot</h3><p>Styling guidance and photography that makes buyers feel the space before they ever walk in.</p></div>
+        <div class="step"><div class="n">03</div><h3>Launch wide</h3><p>MLS, syndication, social, and our design-led audience. Your listing gets a launch, not a sign.</p></div>
+        <div class="step"><div class="n">04</div><h3>Close clean</h3><p>Offers, inspections, and paperwork managed — you keep more equity and your weekends.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap"><h2 class="display">Recently placed.</h2><p class="eyebrow n" style="max-width:24ch;line-height:1.7">A sample of the board.</p></div>
+      <div class="placed">
+        <div class="row">
+          <div class="cell"><div><div class="nm">Latah Modern</div><div class="loc">South Hill, Spokane</div></div><div><div class="pr">$1,150,000</div><div class="st">Sold · 9 days</div></div></div>
+          <div class="cell"><div><div class="nm">Kendall Loft</div><div class="loc">Kendall Yards</div></div><div><div class="pr">$720,000</div><div class="st">Sold · over ask</div></div></div>
+        </div>
+        <div class="row">
+          <div class="cell" style="border-bottom:0"><div><div class="nm">Ridge House</div><div class="loc">Liberty Lake</div></div><div><div class="pr">$1,480,000</div><div class="st">Sold · off-market</div></div></div>
+          <div class="cell" style="border-bottom:0"><div><div class="nm">Lake Cabin 04</div><div class="loc">Coeur d'Alene, ID</div></div><div><div class="pr">$965,000</div><div class="st">Sold · new build</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="dark">
+    <div class="wrap">
+      <h2 class="display" style="margin-bottom:14px">What's your<br>home <span class="clay">worth?</span></h2>
+      <p class="lead" style="margin-bottom:30px">Share the address and a few details — we'll send a considered estimate grounded in what's actually selling.</p>
+      <form class="ctaform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
+        <input class="full" placeholder="What are you after?">
+        <button>Start the conversation →</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ BUILD ═══════ -->
+<div class="page" id="build">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Build</span>
+      <h1 class="display" style="margin:18px 0 20px">From <span class="clay">lot</span> to keys.</h1>
+      <p class="lead">Land, builders, and modern spec homes. We connect the right lot with the right architect and price it to move.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap split">
+      <div class="img ph ph-forest"><span class="lbl">New construction · Sample</span></div>
+      <div>
+        <span class="eyebrow n">New construction</span>
+        <h3 class="display" style="margin:12px 0 14px">We speak builder <span class="clay">and</span> buyer.</h3>
+        <p class="lead" style="margin-bottom:24px">Whether you're a builder placing spec homes or a buyer commissioning your first modern build, we sit in the middle — underwriting the deal, managing the timeline, and marketing the result.</p>
+        <a href="#contact" class="btn solid" data-nav>Talk about a build</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">How a build<br>comes together.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Find the land</h3><p>Lots with light, slope, and resale on their side — on and off market.</p></div>
+        <div class="step"><div class="n">02</div><h3>Match the team</h3><p>The right architect and builder for the budget and the vision.</p></div>
+        <div class="step"><div class="n">03</div><h3>Price to move</h3><p>We underwrite the spec before the first shovel, so it sells when it's done.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="dark">
+    <div class="wrap">
+      <h2 class="display" style="margin-bottom:14px">Building<br>something<br>modern?</h2>
+      <p class="lead" style="margin-bottom:30px">Tell us about the lot or the vision — we'll tell you if the numbers work.</p>
+      <form class="ctaform" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
+        <input class="full" placeholder="What are you after?">
+        <button>Start the conversation →</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ CONTACT ═══════ -->
+<div class="page" id="contact">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Contact</span>
+      <h1 class="display" style="margin:18px 0 18px">Let's find your<br><span class="clay">next place.</span></h1>
+      <p class="lead">Reach out and we'll get back to you, usually within a day.</p>
+    </div>
+  </section>
+  <section class="dark">
+    <div class="wrap cta-split">
+      <div>
+        <h2 class="display" style="margin-bottom:16px">Start the<br>conversation.</h2>
+        <p class="lead" style="margin-bottom:26px">Buying, selling, or building something modern in the Inland Northwest — tell us where you're headed.</p>
+        <div class="cinfo">
+          <a href="tel:5090000000">509.000.0000</a>
+          <a href="mailto:studio@meridian.homes">studio@meridian.homes</a>
+          <a href="#contact">Kendall Yards, Spokane</a>
+        </div>
+      </div>
+      <form class="ctaform" style="max-width:none" onsubmit="return false">
+        <input placeholder="Your name"><input placeholder="(509) 000-0000">
+        <input class="full" placeholder="you@email.com" type="email">
+        <input class="full" placeholder="What are you after?">
+        <button>Start the conversation →</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div class="n">MERIDIAN</div><div class="t">Modern Real Estate · Spokane &amp; the Inland NW</div>
+    </div>
+    <div><h4>Studio</h4><a href="#buy" data-nav>Buy</a><a href="#sell" data-nav>Sell</a><a href="#build" data-nav>Build</a><a href="#contact" data-nav>Contact</a></div>
+    <div><h4>Contact</h4><a href="tel:5090000000">509.000.0000</a><a href="mailto:studio@meridian.homes">studio@meridian.homes</a><span class="plain">Kendall Yards, Spokane</span></div>
+  </div>
+  <div class="fairhousing">
+    <span>© 2026 Meridian · Speculative brand concept</span>
+    <span>Equal Housing Opportunity</span>
+  </div>
+</footer>
+
+<div class="spec-tag"><span>Hirobius spec preview · modern-grotesk skin · speculative concept · rebuilt to match the original</span></div>
+
+<script>
+  const pages=document.querySelectorAll('.page');
+  const links=document.querySelectorAll('.nav-mid a');
+  function show(id){
+    id=(id||'home').replace('#','');let found=false;
+    pages.forEach(p=>{const on=p.id===id;p.classList.toggle('active',on);if(on)found=true;});
+    if(!found){document.getElementById('home').classList.add('active');id='home';}
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id && !a.classList.contains('nav-cta')));
+    document.getElementById('navmid').classList.remove('open');
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('[data-nav]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();history.replaceState(null,'',h);show(h);}}));
+  document.getElementById('menubtn').addEventListener('click',()=>document.getElementById('navmid').classList.toggle('open'));
+  show(location.hash);window.addEventListener('hashchange',()=>show(location.hash));
+</script>
+</body>
+</html>

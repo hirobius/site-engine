@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRONRIDGE — Residential Real Estate (speculative concept)</title>
+<meta name="description" content="IRONRIDGE — straight-shooting residential real estate across Colorado's Front Range. Foothill cabins, modern builds, and everything with good bones. Speculative concept, not a real brokerage.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#100F0D; --panel:#17150F; --ink:#EDE7DA; --muted:#928B7C;
+    --line:#2A2720; --ember:#C7501E; --border:#2A2720;
+    --grotesk:"Archivo",system-ui,sans-serif;
+    --sans:"Inter",system-ui,sans-serif;
+    --mono:"Geist Mono",ui-monospace,monospace;
+    --pad:clamp(22px,5.5vw,88px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);display:inline-flex;align-items:center;gap:12px}
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--ember)}
+  .eyebrow.plain::before{display:none}
+  .display{font-family:var(--grotesk);font-weight:900;line-height:.92;letter-spacing:-.02em;text-transform:uppercase}
+  .display .ember{color:var(--ember)}
+  h1.display{font-size:clamp(48px,10vw,120px)}
+  h2.display{font-size:clamp(34px,6vw,68px)}
+  h3.display{font-size:clamp(20px,2.4vw,26px);letter-spacing:-.01em}
+  .lead{font-size:clamp(15px,1.4vw,17.5px);color:var(--muted);max-width:52ch;line-height:1.55}
+
+  section{padding:clamp(52px,7vw,96px) var(--pad)}
+  .wrap{max-width:1220px;margin:0 auto}
+
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav{max-width:1220px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px var(--pad)}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .n{font-family:var(--grotesk);font-weight:900;font-size:20px;letter-spacing:.01em}
+  .brand .t{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .nav-mid{display:flex;gap:26px;align-items:center}
+  .nav-mid a{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid transparent;transition:.2s}
+  .nav-mid a:hover,.nav-mid a.active{color:var(--ink);border-bottom-color:var(--ember)}
+  .nav-cta{background:var(--ember);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;transition:.2s}
+  .nav-cta:hover{background:#dd5f2c}
+  .menu-btn{display:none;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);padding:8px 13px}
+
+  .page{display:none;animation:fade .45s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .btn{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:15px 26px;transition:.2s;display:inline-block}
+  .btn.solid{background:var(--ember);color:#fff}
+  .btn.solid:hover{background:#dd5f2c}
+  .btn.ghost{border:1px solid var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--bg)}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+
+  /* photo treatments */
+  .ph{position:relative;overflow:hidden}
+  .ph .lbl{position:absolute;left:18px;bottom:16px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+  .ph .lbl.tr{left:auto;right:18px}
+  .ph-mtn{background:linear-gradient(180deg,#5c6b72 0%,#3f4a4e 40%,#181c1d 100%)}
+  .ph-cabin-aerial{background:linear-gradient(150deg,#4a5a3a,#2f3a26 55%,#141a10)}
+  .ph-cabin-fire{background:linear-gradient(120deg,#caa17a 0%,#8a6b4c 40%,#231a12 100%)}
+  .ph-stone{background:linear-gradient(160deg,#b9b1a0,#8a8272 55%,#3c382f)}
+
+  /* HERO full-bleed */
+  .hero-full{position:relative;min-height:clamp(560px,82vh,760px);display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(40px,6vw,72px) var(--pad) clamp(48px,7vw,80px);overflow:hidden}
+  .hero-full .bg{position:absolute;inset:0;background:linear-gradient(180deg,#4e5a60 0%,#39433f 35%,#14181a 100%)}
+  .hero-full .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,15,13,.35),rgba(16,15,13,.82))}
+  .hero-full .inner{position:relative;max-width:1220px;margin:0 auto;width:100%}
+  .hero-full .topline{position:absolute;top:0;right:0;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#b9b3a5;text-align:right;line-height:2}
+  .hero-full h1{margin:0 0 22px;color:#F3EEE2}
+  .hero-full .lead{color:#cbc5b8;max-width:56ch}
+
+  /* inner-page hero (dark, no photo) */
+  .hero{padding-top:clamp(44px,5.5vw,72px)}
+  .hero .eyebrow{margin-bottom:22px}
+  .hero h1{margin-bottom:20px}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stats .c{padding:30px 26px 30px 0;border-right:1px solid var(--line)}
+  .stats .c:last-child{border-right:0}
+  .stats .v{font-family:var(--grotesk);font-weight:900;font-size:clamp(30px,4vw,52px);letter-spacing:-.02em;line-height:.9}
+  .stats .v .ember{color:var(--ember)}
+  .stats .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+
+  .sec-head{margin-bottom:44px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .sec-head .sub{color:var(--muted);max-width:34ch}
+
+  /* three cards */
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
+  .cards3 .card{padding:30px 30px 30px 0;border-right:1px solid var(--line)}
+  .cards3 .card:last-child{border-right:0}
+  .cards3 .card .k{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ember);text-transform:uppercase;margin-bottom:18px}
+  .cards3 .card h3{font-family:var(--grotesk);font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:10px}
+  .cards3 .card p{color:var(--muted);font-size:14.5px}
+
+  /* numbered steps */
+  .steps{border-top:1px solid var(--line)}
+  .steps .step{display:grid;grid-template-columns:70px 240px 1fr;gap:24px;padding:28px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  .steps .step .n{font-family:var(--grotesk);font-weight:900;font-size:26px;color:var(--ember)}
+  .steps .step h3{font-family:var(--grotesk);font-weight:800;font-size:19px;text-transform:uppercase;letter-spacing:-.005em}
+  .steps .step p{color:var(--muted);font-size:14.5px;max-width:54ch}
+
+  /* split (buy/invest feature) */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,56px);align-items:center}
+  .split .img{aspect-ratio:4/3;overflow:hidden;border:1px solid var(--line)}
+  .split.rev .img{order:2}
+
+  /* featured file */
+  .file{border:1px solid var(--line);background:var(--panel)}
+  .file .img{position:relative;aspect-ratio:21/8}
+  .file .meta-top{display:flex;justify-content:space-between;padding:14px 22px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .file .body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .file .left{padding:34px}
+  .file .left .addr{font-family:var(--grotesk);font-weight:900;font-size:30px;text-transform:uppercase;letter-spacing:-.01em}
+  .file .left .pr{font-family:var(--grotesk);font-weight:900;font-size:30px;color:var(--ember);margin:6px 0 18px}
+  .file .left p{color:var(--muted);font-size:14.5px;margin-bottom:26px}
+  .file .grid{border-left:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr}
+  .file .grid .g{padding:24px 26px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+  .file .grid .g:nth-child(2n){border-right:0}
+  .file .grid .g b{font-family:var(--grotesk);font-weight:800;font-size:22px;display:block}
+  .file .grid .g small{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-top:6px}
+
+  /* closings */
+  .closed{border:1px solid var(--line)}
+  .closed .row{display:grid;grid-template-columns:1fr 1fr}
+  .closed .cell{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 26px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .closed .cell:nth-child(2n){border-right:0}
+  .closed .cell .nm{font-family:var(--grotesk);font-weight:800;font-size:20px;letter-spacing:-.005em}
+  .closed .cell .loc{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+  .closed .cell .pr{font-family:var(--mono);font-size:12px;text-align:right}
+  .closed .cell .st{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ember);text-align:right;margin-top:5px}
+
+  /* ember band */
+  .emberband{background:var(--ember);color:#1a0f08}
+  .emberband .eyebrow{color:#3a1a0c}
+  .emberband .eyebrow::before{background:#3a1a0c}
+  .emberband h2{color:#1a0f08;max-width:20ch}
+
+  /* dark CTA */
+  .cta-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,64px);align-items:start}
+  .status{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ember);display:inline-flex;align-items:center;gap:10px;margin-bottom:22px}
+  .status .sq{width:9px;height:9px;background:var(--ember)}
+  .ctaform{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .ctaform .field{display:flex;flex-direction:column;gap:7px}
+  .ctaform .field.full{grid-column:1/-1}
+  .ctaform label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .ctaform input{background:var(--panel);border:1px solid var(--line);padding:14px;color:var(--ink);font-family:var(--sans);font-size:14.5px}
+  .ctaform input::placeholder{color:#6f6a5d}
+  .ctaform input:focus{outline:none;border-color:var(--ember)}
+  .ctaform button{grid-column:1/-1;justify-self:start;background:var(--ember);color:#fff;border:0;padding:15px 26px;font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.2s}
+  .ctaform button:hover{background:#dd5f2c}
+  .cinfo a{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--muted);padding:3px 0}
+
+  footer.site{border-top:1px solid var(--line);padding:clamp(44px,6vw,72px) var(--pad) 34px}
+  .foot-grid{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1.2fr;gap:40px}
+  .foot-brand .n{font-family:var(--grotesk);font-weight:900;font-size:22px;letter-spacing:.01em}
+  .foot-brand .t{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:8px;line-height:1.7}
+  .foot-grid h4{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .foot-grid a{display:block;color:var(--muted);font-size:13.5px;padding:5px 0;transition:.2s}
+  .foot-grid a:hover{color:var(--ink)}
+  .fairhousing{max-width:1220px;margin:40px auto 0;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  .spec-tag{max-width:1220px;margin:0 auto;padding:20px var(--pad) 36px}
+  .spec-tag span{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:9999px;padding:5px 12px;display:inline-block}
+
+  @media(max-width:900px){
+    .stats{grid-template-columns:1fr 1fr}.stats .c:nth-child(2){border-right:0}
+    .cards3{grid-template-columns:1fr}.cards3 .card{border-right:0;padding-right:0;border-bottom:1px solid var(--line)}
+    .steps .step{grid-template-columns:1fr;gap:6px}
+    .split,.split.rev .img,.cta-split,.file .body,.file .grid,.closed .row,.ctaform{grid-template-columns:1fr}
+    .split.rev .img{order:0}
+    .file .grid{border-left:0;border-top:1px solid var(--line)}
+    .closed .cell{border-right:0}
+    .nav-mid{display:none}.menu-btn{display:inline-block}
+    .nav-mid.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;background:var(--panel);border-bottom:1px solid var(--line);padding:14px var(--pad)}
+    .nav-mid.open a{padding:11px 0}
+    .foot-grid{grid-template-columns:1fr}
+    .hero-full .topline{position:static;text-align:left;margin-bottom:20px}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a href="#home" class="brand" data-nav><span class="n">IRONRIDGE</span><span class="t">Residential</span></a>
+    <div class="nav-mid" id="navmid">
+      <a href="#buy" data-nav>Buy</a>
+      <a href="#sell" data-nav>Sell</a>
+      <a href="#invest" data-nav>Invest</a>
+      <a href="#contact" data-nav>Contact</a>
+      <a href="#contact" class="nav-cta" data-nav>Book a consult</a>
+    </div>
+    <button class="menu-btn" id="menubtn">Menu</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ═══════ HOME ═══════ -->
+<div class="page active" id="home">
+  <section class="hero-full">
+    <div class="bg"></div>
+    <div class="inner">
+      <div class="topline">Est. 2007<br>Front Range, CO<br>720.000.0000</div>
+      <span class="eyebrow" style="margin-bottom:22px">Residential · Colorado Front Range</span>
+      <h1 class="display">Homes built to<br>last. Deals built<br>to <span class="ember">close.</span></h1>
+      <p class="lead">Straight-shooting residential real estate across Colorado's Front Range — foothill cabins, modern builds, and everything with good bones.</p>
+      <div class="btn-row"><a href="#contact" class="btn solid" data-nav>Book a consult</a><a href="#buy" class="btn ghost" data-nav>View homes</a></div>
+    </div>
+  </section>
+
+  <section style="padding-top:clamp(40px,5vw,64px);padding-bottom:0">
+    <div class="wrap">
+      <div class="stats">
+        <div class="c"><div class="v"><span class="ember">$</span>412M</div><div class="l">Homes sold</div></div>
+        <div class="c"><div class="v">640+</div><div class="l">Homes closed</div></div>
+        <div class="c"><div class="v">18</div><div class="l">Years on the ridge</div></div>
+        <div class="c"><div class="v">27</div><div class="l">Avg days to close</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">Three ways we go<br>to work.</h2><p class="sub">No fluff, no wasted weekends. You get a straight road and a hard closer.</p></div>
+      <div class="cards3">
+        <div class="card"><div class="k">01 / Buy</div><h3>Buy</h3><p>Find a home that holds its value. We read the market cold and negotiate like it's our own money.</p></div>
+        <div class="card"><div class="k">02 / Sell</div><h3>Sell</h3><p>Price it right, stage it sharp, close it clean. Your listing gets a plan, not a prayer.</p></div>
+        <div class="card"><div class="k">03 / Invest</div><h3>Invest</h3><p>Rentals, flips, and land. We underwrite the deal before you fall in love with it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow" style="margin-bottom:24px">Featured home</span>
+      <div class="file" style="margin-top:20px">
+        <div class="img ph ph-cabin-fire"><span class="lbl">File · 1841-FRB</span><span class="lbl tr">Golden, CO · Active</span></div>
+        <div class="body">
+          <div class="left">
+            <div class="addr">1841 Ridgeline Rd</div>
+            <div class="pr">$1,240,000</div>
+            <p>West-facing on 1.2 acres. Structural report clean, mechanicals updated, and room to put up a shop. The kind of house that's still standing in fifty years.</p>
+            <a href="#contact" class="btn solid" data-nav>Request the file</a>
+          </div>
+          <div class="grid">
+            <div class="g"><b>4</b><small>Beds</small></div>
+            <div class="g"><b>3.5</b><small>Baths</small></div>
+            <div class="g"><b>3,880</b><small>Sq ft</small></div>
+            <div class="g"><b>1.2</b><small>Acres</small></div>
+            <div class="g" style="border-bottom:0"><b>2019</b><small>Built</small></div>
+            <div class="g" style="border-bottom:0"><b>2-shop</b><small>Garage</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">Recently closed.</h2><p class="sub">A sample of the board. Every one closed on terms.</p></div>
+      <div class="closed">
+        <div class="row">
+          <div class="cell"><div><div class="nm">412 Cascade Ave</div><div class="loc">Boulder, CO</div></div><div><div class="pr">$2,140,000</div><div class="st">Sold · 11 days</div></div></div>
+          <div class="cell"><div><div class="nm">77 Kettle Creek Rd</div><div class="loc">Lyons, CO</div></div><div><div class="pr">$845,000</div><div class="st">Sold · over ask</div></div></div>
+        </div>
+        <div class="row">
+          <div class="cell" style="border-bottom:0"><div><div class="nm">9 Sundance Ridge</div><div class="loc">Golden, CO</div></div><div><div class="pr">$1,610,000</div><div class="st">Sold · off-market</div></div></div>
+          <div class="cell" style="border-bottom:0"><div><div class="nm">2200 Timber Line</div><div class="loc">Nederland, CO</div></div><div><div class="pr">$690,000</div><div class="st">Sold · cash</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="emberband">
+    <div class="wrap">
+      <span class="eyebrow">The IRONRIDGE rule</span>
+      <h2 class="display" style="margin-top:18px">We don't sell dreams. We sell houses that hold up.</h2>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="status"><span class="sq"></span> Taking new clients · Front Range</div>
+      <div class="cta-split">
+        <div>
+          <h2 class="display">Start the<br>conversation.</h2>
+          <p class="lead" style="margin-top:16px">Buying, selling, or sizing up a deal — tell us the address and what you're after. We'll give you a straight answer.</p>
+          <div class="cinfo" style="margin-top:26px"><a href="tel:7200000000">720.000.0000</a><a href="mailto:hello@ironridge.co">hello@ironridge.co</a><a href="#contact">Golden, Colorado</a></div>
+        </div>
+        <form class="ctaform" onsubmit="return false">
+          <div class="field"><label>Name</label><input placeholder="Your name"></div>
+          <div class="field"><label>Phone</label><input placeholder="(720) 000-0000"></div>
+          <div class="field full"><label>Email</label><input placeholder="you@email.com" type="email"></div>
+          <div class="field full"><label>Property or goal</label><input placeholder="Address, or what you're after"></div>
+          <button>Send it →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ BUY ═══════ -->
+<div class="page" id="buy">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Buy</span>
+      <h1 class="display" style="margin:20px 0 20px">Buy a house with<br>good <span class="ember">bones.</span></h1>
+      <p class="lead">Foothill cabins, modern builds, and resale worth holding — matched to how you actually want to live, not just a price band.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap split">
+      <div class="img ph ph-cabin-aerial"><span class="lbl">Foothill cabin · Sample</span></div>
+      <div>
+        <span class="eyebrow">The read</span>
+        <h3 class="display" style="margin:14px 0 14px;font-size:clamp(24px,3.4vw,36px)">We walk the ground, <span class="ember">then</span> the spreadsheet.</h3>
+        <p class="lead" style="margin-bottom:24px">Every home gets a straight read — the structure, the block, and what it'll cost you to hold for ten years. You hear the truth about the bones before emotion enters the room.</p>
+        <a href="#contact" class="btn solid" data-nav>See homes</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">How buying works<br>with us.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Define the brief</h3><p>Light, layout, commute, and the ten-year plan — the things that actually drive value and hold it.</p></div>
+        <div class="step"><div class="n">02</div><h3>Read the market</h3><p>Real comps, build quality, and where the block is heading, before you commit a dollar.</p></div>
+        <div class="step"><div class="n">03</div><h3>Tour with intent</h3><p>We show you fewer, better homes — and tell you the truth about each one's bones.</p></div>
+        <div class="step"><div class="n">04</div><h3>Win it cleanly</h3><p>A sharp offer, hard negotiation, and a paper trail that holds up through inspection and close.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow" style="margin-bottom:24px">Featured home</span>
+      <div class="file" style="margin-top:20px">
+        <div class="img ph ph-cabin-fire"><span class="lbl">File · 1841-FRB</span><span class="lbl tr">Golden, CO · Active</span></div>
+        <div class="body">
+          <div class="left">
+            <div class="addr">1841 Ridgeline Rd</div>
+            <div class="pr">$1,240,000</div>
+            <p>West-facing on 1.2 acres. Structural report clean, mechanicals updated, and room to put up a shop. The kind of house that's still standing in fifty years.</p>
+            <a href="#contact" class="btn solid" data-nav>Request the file</a>
+          </div>
+          <div class="grid">
+            <div class="g"><b>4</b><small>Beds</small></div><div class="g"><b>3.5</b><small>Baths</small></div>
+            <div class="g"><b>3,880</b><small>Sq ft</small></div><div class="g"><b>1.2</b><small>Acres</small></div>
+            <div class="g" style="border-bottom:0"><b>2019</b><small>Built</small></div><div class="g" style="border-bottom:0"><b>2-shop</b><small>Garage</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="status"><span class="sq"></span> Taking new clients · Front Range</div>
+      <div class="cta-split">
+        <div><h2 class="display">Ready to see<br>homes?</h2><p class="lead" style="margin-top:16px">Tell us what you're after and your timeline — we'll send a shortlist worth your Saturday.</p></div>
+        <form class="ctaform" onsubmit="return false">
+          <div class="field"><label>Name</label><input placeholder="Your name"></div>
+          <div class="field"><label>Phone</label><input placeholder="(720) 000-0000"></div>
+          <div class="field full"><label>Email</label><input placeholder="you@email.com" type="email"></div>
+          <div class="field full"><label>Property or goal</label><input placeholder="Address, or what you're after"></div>
+          <button>Send it →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ SELL ═══════ -->
+<div class="page" id="sell">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Sell</span>
+      <h1 class="display" style="margin:20px 0 20px">Price it right.<br>Close it <span class="ember">clean.</span></h1>
+      <p class="lead">Real staging, sharp marketing, and a listing plan that moves your home at the right number — not a sign in the yard and a prayer.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">How we sell your<br>home.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Price on real data</h3><p>A true CMA on recent comps — we list at a number that moves, not a wish.</p></div>
+        <div class="step"><div class="n">02</div><h3>Stage &amp; shoot</h3><p>Styling guidance and photography that makes buyers feel the space before they walk in.</p></div>
+        <div class="step"><div class="n">03</div><h3>Launch wide</h3><p>MLS, syndication, social, and our buyer list. Your listing gets a launch, not a sign.</p></div>
+        <div class="step"><div class="n">04</div><h3>Close clean</h3><p>Offers, inspections, and paperwork managed — you keep more equity and your weekends.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">Recently closed.</h2><p class="sub">A sample of the board. Every one closed on terms.</p></div>
+      <div class="closed">
+        <div class="row">
+          <div class="cell"><div><div class="nm">412 Cascade Ave</div><div class="loc">Boulder, CO</div></div><div><div class="pr">$2,140,000</div><div class="st">Sold · 11 days</div></div></div>
+          <div class="cell"><div><div class="nm">77 Kettle Creek Rd</div><div class="loc">Lyons, CO</div></div><div><div class="pr">$845,000</div><div class="st">Sold · over ask</div></div></div>
+        </div>
+        <div class="row">
+          <div class="cell" style="border-bottom:0"><div><div class="nm">9 Sundance Ridge</div><div class="loc">Golden, CO</div></div><div><div class="pr">$1,610,000</div><div class="st">Sold · off-market</div></div></div>
+          <div class="cell" style="border-bottom:0"><div><div class="nm">2200 Timber Line</div><div class="loc">Nederland, CO</div></div><div><div class="pr">$690,000</div><div class="st">Sold · cash</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="status"><span class="sq"></span> Taking new clients · Front Range</div>
+      <div class="cta-split">
+        <div><h2 class="display">What's your<br>home worth?</h2><p class="lead" style="margin-top:16px">Share the address and a few details — we'll send a straight estimate grounded in what's actually selling.</p></div>
+        <form class="ctaform" onsubmit="return false">
+          <div class="field"><label>Name</label><input placeholder="Your name"></div>
+          <div class="field"><label>Phone</label><input placeholder="(720) 000-0000"></div>
+          <div class="field full"><label>Email</label><input placeholder="you@email.com" type="email"></div>
+          <div class="field full"><label>Property or goal</label><input placeholder="Address, or what you're after"></div>
+          <button>Send it →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ INVEST ═══════ -->
+<div class="page" id="invest">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Invest</span>
+      <h1 class="display" style="margin:20px 0 20px">Underwrite it<br><span class="ember">first.</span></h1>
+      <p class="lead">Rentals, flips, and land across the Front Range. We run the worst-case math before you fall in love with the deal.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap split rev">
+      <div class="img ph ph-stone"><span class="lbl">Built to hold · Sample</span></div>
+      <div>
+        <span class="eyebrow">The numbers</span>
+        <h3 class="display" style="margin:14px 0 14px;font-size:clamp(24px,3.4vw,36px)">We underwrite the deal <span class="ember">before</span> you commit.</h3>
+        <p class="lead" style="margin-bottom:24px">Comps, carrying costs, rehab budget, and exit — on paper before the earnest money. If the numbers don't work, we tell you. If they do, we move fast.</p>
+        <a href="#contact" class="btn solid" data-nav>Talk deals</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2 class="display">How we work a<br>deal.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Source the deal</h3><p>On and off market — rentals, flips, and raw land with resale on their side.</p></div>
+        <div class="step"><div class="n">02</div><h3>Run the worst case</h3><p>Carrying costs, rehab, and the downside math before a single dollar goes in.</p></div>
+        <div class="step"><div class="n">03</div><h3>Move fast, hold smart</h3><p>A clean close, the right contractor or tenant, and a plan to hold or flip.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0;padding-bottom:0">
+    <div class="wrap">
+      <div class="stats">
+        <div class="c"><div class="v"><span class="ember">$</span>412M</div><div class="l">Closed volume</div></div>
+        <div class="c"><div class="v">640+</div><div class="l">Homes sold</div></div>
+        <div class="c"><div class="v">18</div><div class="l">Years on the ground</div></div>
+        <div class="c"><div class="v">27</div><div class="l">Avg days to close</div></div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="status"><span class="sq"></span> Taking new clients · Front Range</div>
+      <div class="cta-split">
+        <div><h2 class="display">Got a deal to<br>run?</h2><p class="lead" style="margin-top:16px">Send the address or the pro forma — we'll tell you if the numbers hold up.</p></div>
+        <form class="ctaform" onsubmit="return false">
+          <div class="field"><label>Name</label><input placeholder="Your name"></div>
+          <div class="field"><label>Phone</label><input placeholder="(720) 000-0000"></div>
+          <div class="field full"><label>Email</label><input placeholder="you@email.com" type="email"></div>
+          <div class="field full"><label>Property or goal</label><input placeholder="Address, or what you're after"></div>
+          <button>Send it →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ CONTACT ═══════ -->
+<div class="page" id="contact">
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Contact</span>
+      <h1 class="display" style="margin:20px 0 20px">Tell us the<br><span class="ember">address.</span></h1>
+      <p class="lead">Buying, selling, or sizing up a deal — reach out and we'll give you a straight answer, usually within a day.</p>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="status"><span class="sq"></span> Taking new clients · Front Range</div>
+      <div class="cta-split">
+        <div>
+          <h2 class="display">Start the<br>conversation.</h2>
+          <p class="lead" style="margin-top:16px">Tell us the address and what you're after. We'll give you a straight answer — no pressure, no fluff.</p>
+          <div class="cinfo" style="margin-top:26px"><a href="tel:7200000000">720.000.0000</a><a href="mailto:hello@ironridge.co">hello@ironridge.co</a><a href="#contact">Golden, Colorado</a></div>
+        </div>
+        <form class="ctaform" onsubmit="return false">
+          <div class="field"><label>Name</label><input placeholder="Your name"></div>
+          <div class="field"><label>Phone</label><input placeholder="(720) 000-0000"></div>
+          <div class="field full"><label>Email</label><input placeholder="you@email.com" type="email"></div>
+          <div class="field full"><label>Property or goal</label><input placeholder="Address, or what you're after"></div>
+          <button>Send it →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div class="n">IRONRIDGE</div>
+      <div class="t">Residential Real Estate · Front Range, CO</div>
+    </div>
+    <div><h4>Company</h4><a href="#buy" data-nav>Buy</a><a href="#sell" data-nav>Sell</a><a href="#invest" data-nav>Invest</a><a href="#contact" data-nav>Contact</a></div>
+    <div><h4>Office</h4><a href="tel:7200000000">720.000.0000</a><a href="mailto:hello@ironridge.co">hello@ironridge.co</a><a href="#contact" data-nav>Golden, Colorado</a></div>
+  </div>
+  <div class="fairhousing">
+    <span>© 2026 IRONRIDGE Residential · Speculative concept, not a real brokerage</span>
+    <span>Equal Housing Opportunity</span>
+  </div>
+</footer>
+
+<div class="spec-tag"><span>Hirobius spec preview · rugged skin · speculative concept · rebuilt to match the original</span></div>
+
+<script>
+  const pages=document.querySelectorAll('.page');
+  const links=document.querySelectorAll('.nav-mid a');
+  function show(id){
+    id=(id||'home').replace('#','');let found=false;
+    pages.forEach(p=>{const on=p.id===id;p.classList.toggle('active',on);if(on)found=true;});
+    if(!found){document.getElementById('home').classList.add('active');id='home';}
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id && !a.classList.contains('nav-cta')));
+    document.getElementById('navmid').classList.remove('open');
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('[data-nav]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();history.replaceState(null,'',h);show(h);}}));
+  document.getElementById('menubtn').addEventListener('click',()=>document.getElementById('navmid').classList.toggle('open'));
+  show(location.hash);window.addEventListener('hashchange',()=>show(location.hash));
+</script>
+</body>
+</html>
