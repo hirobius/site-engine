@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { defineClient, PALETTE_PRESET_IDS } from "@hirobius/schema";
 import type { ClientConfigDraft, ClientConfigInput } from "@hirobius/schema";
-import { checkClientAcceptance, detectClaimIssues } from "./acceptance.js";
+import {
+  checkClientAcceptance,
+  detectClaimIssues,
+  detectVisibleContactPlaceholders,
+} from "./acceptance.js";
 import { contrastRatio, WCAG_AA_NORMAL_TEXT } from "./lib/contrast.js";
 import { resolvePalette } from "./lib/theme.js";
 
@@ -453,5 +457,46 @@ describe("design: warm-editorial skin (issue #141)", () => {
       const stockConfig = config({ brand: { palettePreset } });
       expect(warmConfig.brand.cssVarOverrides).not.toEqual(stockConfig.brand.cssVarOverrides);
     }
+  });
+});
+
+describe("detectVisibleContactPlaceholders (ops#27 — the cold-outreach preview path)", () => {
+  it("returns nothing when the rendered contact details are real", () => {
+    expect(detectVisibleContactPlaceholders(config())).toEqual([]);
+  });
+
+  it("flags the stub phone a preview would show the business owner", () => {
+    const issues = detectVisibleContactPlaceholders(
+      config({ business: { ...BASE_INPUT.business, phone: "(555) 010-0000" } }),
+    );
+    expect(issues.map((i) => i.code)).toEqual(["placeholder-phone"]);
+    expect(issues[0]?.message).toContain("business.phone");
+  });
+
+  it("flags a placeholder contact email the same way", () => {
+    const issues = detectVisibleContactPlaceholders(
+      config({ business: { ...BASE_INPUT.business, email: "hello@biz.example" } }),
+    );
+    expect(issues.map((i) => i.code)).toEqual(["placeholder-email"]);
+  });
+
+  it("reuses the armed gate's detection rather than a second convention", () => {
+    const previewConfig = config({
+      business: { ...BASE_INPUT.business, phone: "(555) 010-0000", email: "hello@biz.example" },
+    });
+    const armedCodes = checkClientAcceptance(previewConfig, { realData: true }).map((i) => i.code);
+    const previewIssues = detectVisibleContactPlaceholders(previewConfig);
+    expect(previewIssues.length).toBe(2);
+    for (const issue of previewIssues) {
+      expect(armedCodes).toContain(issue.code);
+      expect(checkClientAcceptance(previewConfig, { realData: true })).toContainEqual(issue);
+    }
+  });
+
+  it("ignores fields an owner never reads as a phone number (siteUrl stays the armed gate's job)", () => {
+    const issues = detectVisibleContactPlaceholders(
+      config({ seo: { ...BASE_INPUT.seo, siteUrl: "https://biz.example" } }),
+    );
+    expect(issues).toEqual([]);
   });
 });

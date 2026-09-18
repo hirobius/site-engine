@@ -81,6 +81,41 @@ export function isPlaceholderSiteUrl(siteUrl: string): boolean {
   return hasPlaceholderDomain(hostname);
 }
 
+/**
+ * The contact fields a visitor *acts on* — `business.phone` renders in the
+ * hero CTA, `StickyCTA`, `Footer`, `ContactForm`, `Thanks`, `llms.txt` and the
+ * JSON-LD `telephone`; `business.email` renders alongside it. A placeholder in
+ * either one is harmless on a gallery build and actively bad the moment the
+ * gated `?key=` link is sent to the business owner it was generated for: every
+ * call-now button then shows a number that is not theirs (ops#27).
+ *
+ * Deliberately narrower than `checkClientAcceptance`'s armed block — `siteUrl`,
+ * the form key and the hcaptcha key are go-live requirements no owner reads as
+ * their own contact details, so they stay the armed gate's job.
+ *
+ * Detection is the same `isPlaceholderPhone`/`isPlaceholderEmail` pair the
+ * armed gate uses, and the issues returned here are byte-identical to the ones
+ * it raises — one convention, one message, two call sites deciding what to do
+ * with it (`armAcceptanceGate` warns on an unarmed build; `checkClientAcceptance`
+ * fails an armed one).
+ */
+export function detectVisibleContactPlaceholders(config: ClientConfig): AcceptanceIssue[] {
+  const issues: AcceptanceIssue[] = [];
+  if (isPlaceholderPhone(config.business.phone)) {
+    issues.push({
+      code: "placeholder-phone",
+      message: `business.phone looks like a placeholder number: ${config.business.phone}`,
+    });
+  }
+  if (isPlaceholderEmail(config.business.email)) {
+    issues.push({
+      code: "placeholder-email",
+      message: `business.email is a placeholder .example/example.com address: ${config.business.email}`,
+    });
+  }
+  return issues;
+}
+
 /** All-zeros Web3Forms key (with or without UUID dashes), or anything that
  *  isn't UUID-shaped at all — real Web3Forms keys are UUIDs, so a scaffold
  *  string like `REPLACE_WITH_WEB3FORMS_ACCESS_KEY` (see `apps/_template`)
@@ -254,22 +289,13 @@ export function checkClientAcceptance(
   const issues: AcceptanceIssue[] = [];
 
   if (options.realData) {
-    if (isPlaceholderEmail(config.business.email)) {
-      issues.push({
-        code: "placeholder-email",
-        message: `business.email is a placeholder .example/example.com address: ${config.business.email}`,
-      });
-    }
+    // phone + email — see `detectVisibleContactPlaceholders`, which
+    // `armAcceptanceGate` also warns from on an unarmed (preview) build.
+    issues.push(...detectVisibleContactPlaceholders(config));
     if (isPlaceholderSiteUrl(config.seo.siteUrl)) {
       issues.push({
         code: "placeholder-site-url",
         message: `seo.siteUrl is a placeholder .example/example.com domain: ${config.seo.siteUrl}`,
-      });
-    }
-    if (isPlaceholderPhone(config.business.phone)) {
-      issues.push({
-        code: "placeholder-phone",
-        message: `business.phone looks like a placeholder number: ${config.business.phone}`,
       });
     }
     if (isPlaceholderFormKey(config.form.accessKey)) {

@@ -127,7 +127,11 @@ describe("armAcceptanceGate — claims/compliance guardrail (issue #149)", () =>
   it("does not warn when copy has no risky claim tokens", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     armAcceptanceGate(client); // PLACEHOLDER_INPUT's stock copy has no claim tokens
-    expect(warn).not.toHaveBeenCalled();
+    // Scoped to claim warnings: this same unarmed build legitimately warns
+    // about PLACEHOLDER_INPUT's stub contact details (ops#27), so a blanket
+    // "never warned" assertion would stop testing claims and start testing
+    // the absence of every other unarmed-build warning.
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('asserts "'));
     warn.mockRestore();
   });
 
@@ -158,7 +162,9 @@ describe("armAcceptanceGate — hero.image optimization (issue #81)", () => {
   it("does not warn when hero.image resolves under src/assets/photos", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     armAcceptanceGate(withHeroClient, OPTIMIZED_APP_DIR);
-    expect(warn).not.toHaveBeenCalled();
+    // Scoped to the hero.image warning for the same reason as the claims test
+    // above — this fixture's contact details are stubs, which now warn (ops#27).
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("hero.image"));
     warn.mockRestore();
   });
 
@@ -170,5 +176,37 @@ describe("armAcceptanceGate — hero.image optimization (issue #81)", () => {
   it("does not throw once SITE_LIVE=true when hero.image resolves under src/assets/photos", () => {
     process.env.SITE_LIVE = "true";
     expect(() => armAcceptanceGate(realClient, OPTIMIZED_APP_DIR)).not.toThrow();
+  });
+});
+
+describe("armAcceptanceGate — placeholder contact details in a preview build (ops#27)", () => {
+  it("warns that an unarmed build renders a placeholder phone, and says not to send it", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(() => armAcceptanceGate(client)).not.toThrow();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("business.phone"));
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/do not send this preview/i));
+    warn.mockRestore();
+  });
+
+  it("warns on the gated deploy-preview build too — that is the cold-outreach path", () => {
+    process.env.VERCEL_ENV = "production";
+    process.env.PREVIEW_BUILD = "true";
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(() => armAcceptanceGate(client)).not.toThrow();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("business.phone"));
+    warn.mockRestore();
+  });
+
+  it("stays quiet once the contact details are real", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    armAcceptanceGate(realClient, OPTIMIZED_APP_DIR);
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("business.phone"));
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("business.email"));
+    warn.mockRestore();
+  });
+
+  it("still fails the armed build rather than only warning", () => {
+    process.env.SITE_LIVE = "true";
+    expect(() => armAcceptanceGate(client)).toThrow(/placeholder-phone/);
   });
 });
