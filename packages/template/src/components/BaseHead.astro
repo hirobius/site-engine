@@ -52,3 +52,13 @@ const webFont = fontHref(config);
 
 {/* LocalBusiness structured data — generated from config. */}
 <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+{/* Plausible analytics — emitted only when config.analytics is set (se#84).
+    Safe to include on preview deploys too: preview traffic arrives on
+    *.vercel.app hosts, which don't match data-domain, so gated previews never
+    pollute the client's stats. Cookieless — no consent banner needed. */}
+{
+  config.analytics?.provider === "plausible" && (
+    <script defer data-domain={config.analytics.domain} src="https://plausible.io/js/script.js" is:inline />
+  )
+}
