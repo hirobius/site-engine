@@ -91,7 +91,11 @@ describe("bespoke go-live safety", () => {
       // The live branch of the isPreview ternary must itself load a font link,
       // or a signed client renders in fallback system faces.
       const liveBranch = src.split(") : (")[1];
-      expect(liveBranch, `${page} has no live branch`).toBeDefined();
+      // A plain throw, not expect().toBeDefined(): tsc does not narrow from a
+      // matcher, and `pnpm build` runs `tsc --noEmit` over the test files.
+      if (liveBranch === undefined) {
+        throw new Error(`${page} has no live branch — the isPreview ternary is missing`);
+      }
       expect(liveBranch.slice(0, 900)).toMatch(
         /fonts\.googleapis\.com|api\.fontshare\.com/,
       );
