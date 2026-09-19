@@ -122,10 +122,10 @@ const jsonLd = {
         --ink: #0b2230;
         --muted: #4d6b7a;
         --line: #dbe9f2;
-        --blue: #0a6cb5;
-        --blue-d: #084f87;
+        --accent: #0a6cb5;
+        --accent-deep: #084f87;
         --tint: #dceef6;
-        --teal: #0e9e90;
+        --highlight: #0e9e90;
         --dark: #071b28;
         --dark-fg: #e4f1f6;
         --dark-muted: #86a3b3;
@@ -147,32 +147,32 @@ const jsonLd = {
       body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body-font); font-size: var(--fs-body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
       .wrap { width: 100%; max-width: 1160px; margin-inline: auto; padding-inline: 24px; }
       .display { font-family: var(--display-font); font-weight: var(--display-weight); letter-spacing: -0.02em; }
-      .eyebrow { font-size: var(--fs-eyebrow); font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blue); }
+      .eyebrow { font-size: var(--fs-eyebrow); font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
       a { color: inherit; }
       .skip { position: absolute; left: -999px; }
-      .skip:focus { left: 16px; top: 16px; background: var(--blue); color: #fff; padding: 10px 16px; border-radius: 6px; z-index: 90; }
+      .skip:focus { left: 16px; top: 16px; background: var(--accent); color: #fff; padding: 10px 16px; border-radius: 6px; z-index: 90; }
 
       .btn { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; padding: 15px 26px; border-radius: 10px; text-decoration: none; cursor: pointer; border: 0; transition: transform 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s; }
       .btn svg { width: 18px; height: 18px; }
-      .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 6px 18px rgba(10, 108, 181, 0.28); }
-      .btn-primary:hover { background: var(--blue-d); transform: translateY(-2px); }
-      .btn-accent { background: var(--teal); color: #1c1406; box-shadow: 0 6px 18px rgba(14, 158, 144, 0.3); }
-      .btn-accent:hover { transform: translateY(-2px); }
+      .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 6px 18px rgba(10, 108, 181, 0.28); }
+      .btn-primary:hover { background: var(--accent-deep); transform: translateY(-2px); }
+      .btn-highlight { background: var(--highlight); color: #1c1406; box-shadow: 0 6px 18px rgba(14, 158, 144, 0.3); }
+      .btn-highlight:hover { transform: translateY(-2px); }
       .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.5); }
       .btn-ghost:hover { background: rgba(255, 255, 255, 0.12); }
       .btn-outline { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
-      .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+      .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 
       /* Header */
       header.site { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
       header.site .row { display: flex; align-items: center; justify-content: space-between; height: 70px; }
       .wordmark { font-family: var(--display-font); font-weight: 700; letter-spacing: 0.02em; font-size: 20px; text-decoration: none; }
-      .wordmark span { color: var(--blue); }
+      .wordmark span { color: var(--accent); }
       .head-cta { padding: 11px 20px; font-size: 14px; }
       @media (max-width: 560px) { .head-cta { display: none; } }
 
       /* Hero — full-bleed parallax, centered */
-      .hero { position: relative; overflow: hidden; background: linear-gradient(160deg, var(--blue-d), var(--dark)); color: #fff; text-align: center; }
+      .hero { position: relative; overflow: hidden; background: linear-gradient(160deg, var(--accent-deep), var(--dark)); color: #fff; text-align: center; }
       .hero .px-layer { position: absolute; inset: -12% 0; background-size: cover; background-position: center; will-change: transform; }
       .hero .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,27,40,0.62), rgba(7,27,40,0.82)); }
       .hero .inner { position: relative; max-width: 900px; margin-inline: auto; padding: clamp(90px, 16vw, 170px) 24px clamp(70px, 12vw, 130px); }
@@ -183,7 +183,7 @@ const jsonLd = {
       .hero .trust { margin-top: 40px; display: flex; gap: 22px 30px; justify-content: center; flex-wrap: wrap; color: rgba(255,255,255,0.9); font-size: 14px; }
       .hero .trust b { color: #fff; }
       .hero .trust span { display: inline-flex; align-items: center; gap: 8px; }
-      .hero .trust svg { width: 17px; height: 17px; color: var(--teal); }
+      .hero .trust svg { width: 17px; height: 17px; color: var(--highlight); }
 
       section { padding: clamp(64px, 9vw, 110px) 0; }
       .head-center { text-align: center; max-width: 60ch; margin: 0 auto clamp(40px, 6vw, 64px); }
@@ -196,7 +196,7 @@ const jsonLd = {
       @media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
       .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 30px; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
       .card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(11, 34, 48, 0.1); border-color: #c3ddec; }
-      .card .ic { width: 54px; height: 54px; border-radius: 14px; background: var(--tint); color: var(--blue); display: grid; place-items: center; margin-bottom: 20px; }
+      .card .ic { width: 54px; height: 54px; border-radius: 14px; background: var(--tint); color: var(--accent); display: grid; place-items: center; margin-bottom: 20px; }
       .card .ic svg { width: 26px; height: 26px; }
       .card h3 { margin: 0 0 10px; font-family: var(--display-font); font-weight: 700; font-size: 1.32rem; letter-spacing: -0.01em; }
       .card p { margin: 0; color: var(--muted); }
@@ -207,7 +207,7 @@ const jsonLd = {
       @media (max-width: 860px) { .feat-grid { grid-template-columns: 1fr 1fr; } }
       @media (max-width: 480px) { .feat-grid { grid-template-columns: 1fr; } }
       .feat { text-align: center; }
-      .feat .ic { width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 50%; background: #fff; color: var(--blue); display: grid; place-items: center; box-shadow: 0 4px 14px rgba(11,34,48,0.08); }
+      .feat .ic { width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 50%; background: #fff; color: var(--accent); display: grid; place-items: center; box-shadow: 0 4px 14px rgba(11,34,48,0.08); }
       .feat h3 { margin: 0 0 8px; font-family: var(--display-font); font-weight: 600; font-size: 1.08rem; }
       .feat p { margin: 0; color: var(--muted); font-size: 0.98rem; }
 
@@ -215,14 +215,14 @@ const jsonLd = {
       .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
       @media (max-width: 720px) { .steps { grid-template-columns: 1fr; gap: 20px; } }
       .step { position: relative; text-align: center; padding: 0 12px; }
-      .step .n { display: inline-grid; place-items: center; width: 66px; height: 66px; border-radius: 50%; border: 1.5px solid var(--blue); color: var(--blue); margin-bottom: 18px; position: relative; }
+      .step .n { display: inline-grid; place-items: center; width: 66px; height: 66px; border-radius: 50%; border: 1.5px solid var(--accent); color: var(--accent); margin-bottom: 18px; position: relative; }
       .step .n svg { width: 26px; height: 26px; }
-      .step .n b { position: absolute; top: -8px; right: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--teal); color: #1c1406; font-size: 12px; display: grid; place-items: center; font-weight: 700; }
+      .step .n b { position: absolute; top: -8px; right: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--highlight); color: #1c1406; font-size: 12px; display: grid; place-items: center; font-weight: 700; }
       .step h3 { margin: 0 0 8px; font-family: var(--display-font); font-weight: 600; font-size: 1.16rem; }
       .step p { margin: 0; color: var(--muted); }
 
       /* Parallax stat band */
-      .band { position: relative; overflow: hidden; color: #fff; text-align: center; background: var(--blue-d); }
+      .band { position: relative; overflow: hidden; color: #fff; text-align: center; background: var(--accent-deep); }
       .band .px-layer { position: absolute; inset: -12% 0; background-size: cover; background-position: center; will-change: transform; }
       .band .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,27,40,0.72), rgba(7,27,40,0.82)); }
       .band .inner { position: relative; padding: clamp(70px, 11vw, 120px) 24px; }
@@ -235,7 +235,7 @@ const jsonLd = {
       @media (max-width: 760px) { .area-wrap { grid-template-columns: 1fr; } }
       .pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
       .pill { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
-      .pill svg { width: 15px; height: 15px; color: var(--blue); }
+      .pill svg { width: 15px; height: 15px; color: var(--accent); }
       .map { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--tint); }
       .map iframe { width: 100%; height: 100%; border: 0; display: block; }
 
@@ -246,18 +246,18 @@ const jsonLd = {
       .contact-card .cc-copy p { color: var(--muted); margin: 16px 0 0; }
       .cc-info { margin-top: 26px; display: grid; gap: 14px; }
       .cc-info a { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; }
-      .cc-info a svg { width: 18px; height: 18px; color: var(--blue); }
+      .cc-info a svg { width: 18px; height: 18px; color: var(--accent); }
       form.quote { display: grid; gap: 16px; }
       .field label { display: block; font-size: var(--fs-eyebrow); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
       .field input, .field textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 13px 14px; font: inherit; color: var(--ink); }
-      .field input:focus, .field textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(10,108,181,0.12); }
+      .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(10,108,181,0.12); }
       .field textarea { resize: vertical; min-height: 96px; }
-      .req { color: var(--teal); }
+      .req { color: var(--highlight); }
       .opt { color: var(--muted); font-weight: 400; }
       .field .err { margin: 7px 0 0; color: #b23a20; font-size: var(--fs-eyebrow); }
       .field.invalid input, .field.invalid textarea { border-color: #b23a20; }
       .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-      .btn-primary:disabled:hover { background: var(--blue); transform: none; }
+      .btn-primary:disabled:hover { background: var(--accent); transform: none; }
       .form-note { margin: 4px 0 0; font-size: var(--fs-eyebrow); color: var(--muted); }
       .hp { position: absolute; left: -9999px; }
 
@@ -300,7 +300,7 @@ const jsonLd = {
           <h1 class="display reveal">{c.heroHeadline}</h1>
           <p class="sub reveal">{c.heroSub}</p>
           <div class="cta reveal">
-            <a class="btn btn-accent" href="#contact">Get a Free Quote <Icon name="arrow-right" /></a>
+            <a class="btn btn-highlight" href="#contact">Get a Free Quote <Icon name="arrow-right" /></a>
             <a class="btn btn-ghost" href={`tel:${tel}`}>Call {b.phone}</a>
           </div>
           <div class="trust reveal">
@@ -385,7 +385,7 @@ const jsonLd = {
             <div class="reveal"><div class="k">200+</div><div class="l">Google reviews</div></div>
             <div class="reveal"><div class="k">24/7</div><div class="l">Emergency service</div></div>
           </div>
-          <a class="btn btn-accent reveal" href={googleUrl} target="_blank" rel="noopener">Read the reviews on Google <Icon name="arrow-right" /></a>
+          <a class="btn btn-highlight reveal" href={googleUrl} target="_blank" rel="noopener">Read the reviews on Google <Icon name="arrow-right" /></a>
         </div>
       </div>
 
