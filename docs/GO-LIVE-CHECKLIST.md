@@ -135,6 +135,30 @@ genuinely unknown at build time:
   number, an invented review). The gate is a backstop, not a substitute for
   sourcing every fact from the client.
 
+## 3b. Bespoke-tier pages — the parts `checkClientAcceptance` cannot see
+
+Everything above reasons about `ClientConfig`. Bespoke apps (those owning
+`src/components/PreviewControls.astro`) hand-author their pages and opt out of
+the shared template components, so the acceptance gate sees none of their
+markup. Two go-live facts therefore live in the page source instead:
+
+- **No page-level `<meta name="robots">`.** Preview de-indexing is
+  `middleware.ts`'s `X-Robots-Tag: noindex`, which stops at `SITE_LIVE=true`. A
+  page-level robots meta does not — it survives go-live and keeps a signed
+  client invisible to search. This was live on all four bespoke pages until
+  se#204.
+- **Preview-only chrome sits behind the predicate**
+  `process.env.SITE_LIVE !== "true" && process.env.VERCEL_ENV !== "production"`
+  — the same one `PreviewControls.astro` uses, so the two cannot disagree about
+  what "live" means. That covers the multi-family font-explorer `<link>`s and
+  the `localStorage` font-restore script. A live page loads only the faces its
+  own `:root` names.
+
+Enforced by `packages/template/src/bespoke-golive.test.ts`, which asserts on
+**source** rather than a build — deliberately. `checkClientAcceptance` blocks any
+live-mode build until every item in §1 is satisfied, so a live render is
+unobtainable until the exact moment these bugs would otherwise fire.
+
 ## 4. Not yet in scope (tracked separately, do not improvise)
 
 Issue #87 (`feat(schema): trust/conversion fields`) landed in #171: license #

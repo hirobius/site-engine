@@ -18,6 +18,11 @@ import { join } from "node:path";
 import { client } from "../../client.config";
 import PreviewControls from "../components/PreviewControls.astro";
 
+// Preview-only chrome (the font explorer) uses the SAME predicate as
+// PreviewControls.astro, so the two can never disagree about what "live" means.
+const isPreview =
+  process.env.SITE_LIVE !== "true" && process.env.VERCEL_ENV !== "production";
+
 const b = client.business;
 const c = client.copy;
 const seo = client.seo;
@@ -62,8 +67,6 @@ const jsonLd = {
     <title>{seo.title}</title>
     <meta name="description" content={seo.description} />
     <link rel="canonical" href={seo.siteUrl} />
-    {/* Preview site — keep it out of the index until go-live. */}
-    <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
     <meta property="og:type" content="website" />
@@ -75,24 +78,41 @@ const jsonLd = {
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bilbo&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Dr+Sugiyama&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Elms+Sans:wght@400;500;600;700&family=Felipa&family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,540;1,9..144,440;1,9..144,540&family=Inter:wght@400;500;600;700&family=Kings&family=Molle:ital@1&family=Mr+Dafoe&family=Mrs+Sheppards&family=Niconne&family=Norican&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Quintessential&family=Smooch&display=swap"
-      rel="stylesheet"
-    />
-    {/* Satoshi is a Fontshare face (not on Google Fonts). */}
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+    {/* The explorer's families are preview-only chrome. A live client site
+        loads only the two faces its own :root names. */}
+    {isPreview ? (
+      <Fragment>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Bilbo&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Dr+Sugiyama&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Elms+Sans:wght@400;500;600;700&family=Felipa&family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,540;1,9..144,440;1,9..144,540&family=Inter:wght@400;500;600;700&family=Kings&family=Molle:ital@1&family=Mr+Dafoe&family=Mrs+Sheppards&family=Niconne&family=Norican&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Quintessential&family=Smooch&display=swap"
+          rel="stylesheet"
+        />
+        {/* Satoshi is a Fontshare face (not on Google Fonts). */}
+        <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+      </Fragment>
+    ) : (
+      <Fragment>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Elms+Sans:wght@400;500;600;700&family=Quintessential&display=swap"
+          rel="stylesheet"
+        />
+      </Fragment>
+    )}
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <script is:inline>
-      // Apply saved display + body fonts before first paint (no flash).
-      try {
-        var d = localStorage.getItem("septic-response-display");
-        if (d) document.documentElement.dataset.display = d;
-        var bd = localStorage.getItem("septic-response-body");
-        if (bd) document.documentElement.dataset.body = bd;
-      } catch (e) {}
+    {isPreview && (
+      <script is:inline>
+        // Explorer-only: restore the fonts chosen in preview, before paint.
+        try {
+          var d = localStorage.getItem("septic-response-display");
+          if (d) document.documentElement.dataset.display = d;
+          var bd = localStorage.getItem("septic-response-body");
+          if (bd) document.documentElement.dataset.body = bd;
+        } catch (e) {}
+      </script>
+    )}
 
+    <script is:inline>
       // Arm the scroll-reveal only when motion is welcome. No-JS / reduced-motion
       // visitors keep everything visible (the .reveal base state is visible).
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
