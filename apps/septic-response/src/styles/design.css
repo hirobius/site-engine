@@ -1,0 +1,20 @@
+/* GENERATED from site-spec.ts `design`. Edit the spec, not this file.
+ * Kept as a static stylesheet so the page that imports it can be identical
+ * across every bespoke app (se#207). */
+:root {
+  --paper: #f4fafd;
+  --paper-2: #dceef6;
+  --ink: #0b2230;
+  --muted: #4d6b7a;
+  --accent: #0a6cb5;
+  --accent-deep: #084f87;
+  --line: rgba(11, 34, 48, 0.16);
+  --dark: #071b28;
+  --dark-paper: #e4f1f6;
+  --dark-muted: #86a3b3;
+  --accent-light: #0e9e90;
+  --accent-shade: #071b28;
+  --accent-wash: rgba(14, 158, 144, 0.22);
+  --scrim: rgba(7, 27, 40, 0.82);
+  --scrim-strong: rgba(7, 27, 40, 0.9);
+}

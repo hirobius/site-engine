@@ -1,6 +1,11 @@
 ---
 /**
- * BESPOKE editorial homepage for PNW Arborist Consulting (apps/pnw-arborist only).
+ * BESPOKE editorial homepage — the V1 editorial variant.
+ *
+ * This file is IDENTICAL across every bespoke app (se#207). Everything that
+ * differs per client lives in `site.spec.ts` (copy, art direction) and
+ * `src/styles/design.css` (the `:root` values, generated from that spec).
+ * Business facts still come from `client.config.ts`.
  *
  * This app intentionally does NOT use the shared @hirobius/template components —
  * it's an authorized one-off "custom-component engagement" (see repo CLAUDE.md).
@@ -9,14 +14,18 @@
  * business facts stay single-sourced and the build-time acceptance gate
  * (astro.config.ts) still governs.
  *
- * Art direction: light editorial serif (Fraunces) on warm paper, deep forest-green
- * accent, oversized display type, numbered index of services, one dark full-bleed
+ * Art direction: light editorial serif on paper, oversized display type, numbered index of services, one dark full-bleed
  * statement. Motion is a dependency-free, reduced-motion-safe scroll reveal.
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { client } from "../../client.config";
 import PreviewControls from "../components/PreviewControls.astro";
+import { renderSpecTemplate } from "@hirobius/schema/site-spec";
+import { spec } from "../../site-spec";
+// The `:root` block, projected from `spec.design`. Imported rather than
+// inlined so this file can stay identical across apps.
+import "../styles/design.css";
 
 // Preview-only chrome (the font explorer) uses the SAME predicate as
 // PreviewControls.astro, so the two can never disagree about what "live" means.
@@ -28,18 +37,22 @@ const c = client.copy;
 const seo = client.seo;
 const tel = b.phone.replace(/[^\d+]/g, "");
 const thanksUrl = new URL("/thanks", seo.siteUrl).toString();
-// Real Google Business profile (from the lead row) — links the review proof to
-// the source, which keeps the rating/count claim honest and verifiable.
-const googleUrl =
-  "https://www.google.com/maps/place/PNW+Arborist+Consulting+Inc/@47.039404499999996,-122.962087,14z/data=!4m8!1m2!2m1!1sPNW+Arborist+Consulting+Inc!3m4!1s0x5491753684d57163:0x9f678c481890c294!8m2!3d47.039404499999996!4d-122.962087";
+// Real Google Business profile (from the lead row) — links the review proof
+// to its source, which keeps the rating/count claim honest and verifiable.
+const googleUrl = spec.googleUrl;
 
 // Art-directed image slots. A real photo dropped at these public paths (by the
 // Pexels fetch, or the client's own imagery) replaces the gradient placeholder;
 // missing files fall back gracefully so the build never ships a broken <img>.
+// Fill {name}/{city} in the spec's copy templates from the ClientConfig, so
+// the spec never restates a business fact.
+const t = (template: string) =>
+  renderSpecTemplate(template, { name: b.name, city: seo.city });
+
 const imgAt = (p: string): string | null =>
   existsSync(join(process.cwd(), "public", p)) ? `/${p}` : null;
-const heroImg = imgAt("photos/hero.jpg");
-const bandImg = imgAt("photos/canopy.jpg");
+const heroImg = imgAt(spec.images.hero);
+const bandImg = imgAt(spec.images.band);
 
 // Split the hero headline so the last two words render in italic forest accent.
 const words = c.heroHeadline.trim().replace(/[.]$/, "").split(" ");
@@ -101,12 +114,12 @@ const jsonLd = {
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
     {isPreview && (
-      <script is:inline>
+      <script is:inline define:vars={{ slug: spec.slug }}>
         // Explorer-only: restore the fonts chosen in preview, before paint.
         try {
-          var d = localStorage.getItem("pnw-arborist-display");
+          var d = localStorage.getItem(slug + "-display");
           if (d) document.documentElement.dataset.display = d;
-          var bd = localStorage.getItem("pnw-arborist-body");
+          var bd = localStorage.getItem(slug + "-body");
           if (bd) document.documentElement.dataset.body = bd;
         } catch (e) {}
       </script>
@@ -121,16 +134,8 @@ const jsonLd = {
 
     <style is:global>
       :root {
-        --paper: #f2eee3;
-        --paper-2: #ebe4d5;
-        --ink: #1b241d;
-        --muted: #5f665b;
-        --accent: #2c5637;
-        --accent-deep: #1d3b26;
-        --line: rgba(27, 36, 29, 0.16);
-        --dark: #141d17;
-        --dark-paper: #ece6d7;
-        --dark-muted: #9aa593;
+        /* Colours live in src/styles/design.css, generated from site.spec.ts —
+           they are the only part of this block that varies per client. */
 
         /* Current default = Quintessential (display) + Elms Sans (body).
            Swappable live via the preview font explorer. */
@@ -243,8 +248,8 @@ const jsonLd = {
       .hero-media .ph {
         display: grid; place-items: center;
         background:
-          radial-gradient(120% 90% at 72% 12%, rgba(143, 191, 156, 0.22), transparent 55%),
-          linear-gradient(150deg, #2c5637, #1d3b26 55%, #14201a);
+          radial-gradient(120% 90% at 72% 12%, var(--accent-wash), transparent 55%),
+          linear-gradient(150deg, var(--accent), var(--accent-deep) 55%, var(--accent-shade));
       }
       @media (max-width: 820px) {
         .hero-grid { grid-template-columns: 1fr; gap: 32px; }
@@ -253,7 +258,7 @@ const jsonLd = {
 
       /* Optional full-bleed photo behind the dark band */
       .dark.has-img {
-        background-image: linear-gradient(rgba(20, 29, 23, 0.82), rgba(20, 29, 23, 0.9)), var(--band-img);
+        background-image: linear-gradient(var(--scrim), var(--scrim-strong)), var(--band-img);
         background-size: cover; background-position: center;
       }
 
@@ -291,13 +296,13 @@ const jsonLd = {
       .dark { background: var(--dark); color: var(--dark-paper); border-top: none; }
       .dark .kicker { color: var(--dark-muted); }
       .dark .big { font-size: var(--fs-display); line-height: 1.18; font-weight: 340; max-width: 20ch; margin: 18px 0 0; letter-spacing: -0.02em; }
-      .dark .big .accent { color: #8fbf9c; font-style: italic; }
+      .dark .big .accent { color: var(--accent-light); font-style: italic; }
       .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 58px; border-top: 1px solid rgba(236, 230, 215, 0.16); padding-top: 40px; }
       .stats .k { font-family: var(--display-font); font-size: var(--fs-stat); line-height: 1; color: var(--dark-paper); }
       .stats .l { margin-top: 12px; font-size: var(--fs-eyebrow); letter-spacing: 0.1em; color: var(--dark-muted); text-transform: uppercase; }
       @media (max-width: 560px) { .stats { grid-template-columns: 1fr; gap: 26px; text-align: left; } }
       .dark-link { display: inline-block; margin-top: 36px; color: var(--dark-paper); text-decoration: none; font-size: var(--fs-body); border-bottom: 1px solid rgba(236, 230, 215, 0.32); padding-bottom: 3px; transition: color 0.25s ease, border-color 0.25s ease; }
-      .dark-link:hover { color: #8fbf9c; border-color: #8fbf9c; }
+      .dark-link:hover { color: var(--accent-light); border-color: var(--accent-light); }
 
       /* Service area */
       .areas { display: grid; grid-template-columns: 1.1fr 1fr; gap: 44px; align-items: center; }
@@ -361,7 +366,7 @@ const jsonLd = {
 
     <header class="site">
       <div class="wrap row">
-        <a class="wordmark" href="#top">PNW <span>Arborist</span></a>
+        <a class="wordmark" href="#top">{spec.wordmark.lead} <span>{spec.wordmark.accent}</span></a>
         <a class="header-cta" href={`tel:${tel}`}>{b.phone}</a>
       </div>
     </header>
@@ -371,7 +376,7 @@ const jsonLd = {
       <div id="top" class="hero">
         <div class="wrap hero-grid">
           <div class="hero-copy">
-            <p class="eyebrow reveal">Certified Arborists · {seo.city}, {seo.region}</p>
+            <p class="eyebrow reveal">{spec.tradeEyebrow} · {seo.city}, {seo.region}</p>
             <h1 class="serif reveal">
               {headLead} <span class="accent">{headAccent}</span>
             </h1>
@@ -384,7 +389,7 @@ const jsonLd = {
           <div class="hero-media reveal">
             {
               heroImg ? (
-                <img src={heroImg} alt={`Tree care by ${b.name} in ${seo.city}`} loading="eager" />
+                <img src={heroImg} alt={t(spec.heroAlt)} loading="eager" />
               ) : (
                 <div class="ph"></div>
               )
@@ -397,7 +402,7 @@ const jsonLd = {
       <section aria-label="About">
         <div class="wrap">
           <p class="statement serif reveal">
-            Careful, certified tree care for <span class="accent">{seo.city} homeowners.</span>
+            {t(spec.headline.lead)} <span class="accent">{t(spec.headline.accent)}</span>
           </p>
           <p class="lede reveal">{c.about}</p>
         </div>
@@ -433,12 +438,12 @@ const jsonLd = {
         <div class="wrap">
           <p class="eyebrow kicker reveal">Trusted locally</p>
           <p class="big serif reveal">
-            A reputation built one careful job at a time — <span class="accent">and it shows.</span>
+            {t(spec.bandHeadline.lead)} <span class="accent">{t(spec.bandHeadline.accent)}</span>
           </p>
           <div class="stats">
-            <div class="reveal"><div class="k">4.9★</div><div class="l">Google rating</div></div>
-            <div class="reveal"><div class="k">200+</div><div class="l">Google reviews</div></div>
-            <div class="reveal"><div class="k">Free</div><div class="l">On-site estimates</div></div>
+            <div class="reveal"><div class="k">{spec.stats[0].k}</div><div class="l">{spec.stats[0].l}</div></div>
+            <div class="reveal"><div class="k">{spec.stats[1].k}</div><div class="l">{spec.stats[1].l}</div></div>
+            <div class="reveal"><div class="k">{spec.stats[2].k}</div><div class="l">{spec.stats[2].l}</div></div>
           </div>
           <a class="dark-link reveal" href={googleUrl} target="_blank" rel="noopener">
             Read the reviews on Google →
@@ -458,7 +463,7 @@ const jsonLd = {
               {b.serviceAreas.map((a, i) => (
                 <>{i > 0 && <span> · </span>}{a}</>
               ))}
-              <span> — and the surrounding Thurston County area.</span>
+              <span>{spec.regionPhrase}</span>
             </div>
             <div class="map reveal">
               <iframe
@@ -503,7 +508,7 @@ const jsonLd = {
                 </div>
                 <div class="field">
                   <label for="message">What do you need? <span class="opt">(optional)</span></label>
-                  <textarea id="message" name="message" placeholder="Tree removal, pruning, a health assessment…"></textarea>
+                  <textarea id="message" name="message" placeholder={spec.formPlaceholder}></textarea>
                 </div>
                 <button class="btn btn-primary" type="submit" id="submitBtn">Submit</button>
                 <p class="form-note">* Required. We'll reply within one business day.</p>
@@ -525,9 +530,9 @@ const jsonLd = {
     <footer class="site">
       <div class="wrap foot-top">
         <div class="foot-brand">
-          <div class="fm">PNW <span>Arborist</span></div>
+          <div class="fm">{spec.wordmark.lead} <span>{spec.wordmark.accent}</span></div>
           <p class="foot-desc">
-            Certified arborists serving {seo.city} and the surrounding Thurston County area.
+            {t(spec.footerDescription)}
           </p>
         </div>
         <nav class="foot-links" aria-label="Footer">
