@@ -266,7 +266,7 @@ export const ServicePageSchema = z.object({
   copy: z.object({
     intro: z.string().min(1),
     body: z.string().min(1), // min-length doorway guard lives in acceptance.ts, not here
-    faq: z.array(FaqEntrySchema).optional(), // shape TBD by #33
+    faq: z.array(FaqEntrySchema).optional(), // #33 closed not_planned — shape designed fresh when this is scoped (§6)
   }),
 });
 
@@ -348,8 +348,14 @@ What's still open for Adrian to set: the number.
    pattern reused from (2), but gated on the doorway-page acceptance check
    (§5) landing first. Do not ship area pages without that guard.
 5. **Per-page OG images** — explicitly deferred (§4), pick up opportunistically.
-6. **Keystatic integration for `pages.*.copy`** — deferred to #41's own
-   timeline (§6), not part of this rollout.
+6. **Keystatic integration for `pages.*.copy`** — #41 is closed `not_planned`
+   (§6), so there is no integration to defer to; `pages.*.copy` ships and stays
+   as plain config fields, with Keystatic only a future possibility if #41 is
+   ever reopened, not a scheduled step of this rollout.
 
-Follow-up build issues are filed only after this doc is signed off, per the
-DoD — step 1 (schema extension) is the natural first issue once approved.
+**File on park trigger, not on sign-off.** Per Adrian's 2026-09-26 decision,
+follow-up build issues for steps 1–6 above are NOT filed now that this doc is
+signed off — the build stays parked (see the note at the top of this doc and
+ops `docs/ai/PARKED.md`). File the ranked-rollout issues from this section
+against this doc when the park's trigger fires (a client buys the multi-page
+SEO upsell), not before.
