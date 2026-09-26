@@ -45,6 +45,8 @@ const FIXTURE = "zzz-ralph-newclient-fixture";
 const BAD_SLUG = "Zzz_Ralph_Bad";
 const DUP_SLUG = "zzz-ralph-dup-fixture";
 const PRESET_SLUG = "zzz-ralph-preset-fixture";
+const BESPOKE_FIXTURE = "zzz-ralph-bespoke-fixture";
+const BESPOKE_CONFLICT_SLUG = "zzz-ralph-bespoke-conflict-fixture";
 
 const appDir = (slug: string) => resolve(ROOT, "apps", slug);
 
@@ -76,7 +78,14 @@ const FLEET_PATH = resolve(ROOT, "apps/_gallery/src/data/fleet.ts");
 const originalFleetSource = readFileSync(FLEET_PATH, "utf8");
 
 afterAll(() => {
-  for (const slug of [FIXTURE, BAD_SLUG.toLowerCase(), DUP_SLUG, PRESET_SLUG]) {
+  for (const slug of [
+    FIXTURE,
+    BAD_SLUG.toLowerCase(),
+    DUP_SLUG,
+    PRESET_SLUG,
+    BESPOKE_FIXTURE,
+    BESPOKE_CONFLICT_SLUG,
+  ]) {
     rmSync(appDir(slug), { recursive: true, force: true });
   }
   for (const d of tmpDirs) rmSync(d, { recursive: true, force: true });
@@ -165,6 +174,81 @@ describe("new-client", () => {
     const second = run(NEW_CLIENT, [DUP_SLUG]);
     expect(second.status).not.toBe(0);
     expect(second.stderr).toMatch(/already exists/);
+  });
+});
+
+describe("new-client --bespoke (se#210)", () => {
+  beforeAll(() => {
+    rmSync(appDir(BESPOKE_FIXTURE), { recursive: true, force: true });
+    const res = run(NEW_CLIENT, [BESPOKE_FIXTURE, "--bespoke", "--name", "Demo Bespoke Co"]);
+    expect(res.status, res.stderr).toBe(0);
+  });
+
+  it("copies from apps/_bespoke-template and writes site-spec.ts alongside client.config.ts", () => {
+    expect(existsSync(appDir(BESPOKE_FIXTURE))).toBe(true);
+    expect(existsSync(resolve(appDir(BESPOKE_FIXTURE), "site-spec.ts"))).toBe(true);
+    expect(existsSync(resolve(appDir(BESPOKE_FIXTURE), "client.config.ts"))).toBe(true);
+  });
+
+  it("stubs slug, client name, and a wordmark split from --name into site-spec.ts", () => {
+    const spec = readFileSync(resolve(appDir(BESPOKE_FIXTURE), "site-spec.ts"), "utf8");
+    expect(spec).toContain(`slug: "${BESPOKE_FIXTURE}"`);
+    expect(spec).toContain(`client: "Demo Bespoke Co"`);
+    expect(spec).toContain(`wordmark: { lead: "Demo", accent: "Bespoke Co" }`);
+  });
+
+  it("stubs the business name into client.config.ts (business.name, not the _bespoke-template stub)", () => {
+    const cfg = readFileSync(resolve(appDir(BESPOKE_FIXTURE), "client.config.ts"), "utf8");
+    expect(cfg).toContain(`slug: "${BESPOKE_FIXTURE}"`);
+    expect(cfg).toContain(`name: "Demo Bespoke Co"`);
+    expect(cfg).not.toContain("Bespoke Template Co");
+  });
+
+  it("produces a client.config.ts that PASSES defineClient()", () => {
+    const probeDir = mkdtempSync(join(ROOT, "scripts", "ralph-probe-"));
+    tmpDirs.push(probeDir);
+    cpSync(resolve(appDir(BESPOKE_FIXTURE), "client.config.ts"), resolve(probeDir, "gen.config.ts"));
+    const probe = resolve(probeDir, "validate.ts");
+    writeFileSync(
+      probe,
+      `import { client } from "./gen.config.ts";\n` +
+        `console.log(JSON.stringify({ slug: client.slug }));\n`,
+    );
+    const res = spawnSync(TSX, [probe], { cwd: ROOT, encoding: "utf8" });
+    expect(res.status, res.stderr).toBe(0);
+    expect(JSON.parse(res.stdout.trim())).toEqual({ slug: BESPOKE_FIXTURE });
+  });
+
+  it("its pages reference site-spec (not client.config alone)", () => {
+    const indexPage = readFileSync(resolve(appDir(BESPOKE_FIXTURE), "src/pages/index.astro"), "utf8");
+    expect(indexPage).toContain(`from "../../site-spec"`);
+  });
+
+  it("satisfies bespoke-template-gate.test.ts's byte-identity check against _bespoke-template", () => {
+    const TEMPLATE_APP = resolve(ROOT, "apps/_bespoke-template");
+    for (const file of [
+      "src/pages/index.astro",
+      "src/pages/v2.astro",
+      "src/components/PreviewControls.astro",
+      "scripts/fetch-photos.mjs",
+    ]) {
+      const canonical = readFileSync(resolve(TEMPLATE_APP, file), "utf8");
+      const actual = readFileSync(resolve(appDir(BESPOKE_FIXTURE), file), "utf8");
+      expect(actual, file).toBe(canonical);
+    }
+  });
+
+  it("rejects --bespoke combined with --preset, naming the bespoke tier and the config-only path", () => {
+    const res = run(NEW_CLIENT, [
+      BESPOKE_CONFLICT_SLUG,
+      "--bespoke",
+      "--preset",
+      "landscaping",
+    ]);
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toMatch(/mutually exclusive/);
+    expect(res.stderr).toMatch(/bespoke/i);
+    expect(existsSync(appDir(BESPOKE_CONFLICT_SLUG))).toBe(false);
   });
 });
 

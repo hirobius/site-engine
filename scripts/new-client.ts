@@ -1,13 +1,22 @@
 #!/usr/bin/env tsx
 /**
- * new-client — spin up a new client app from apps/_template.
+ * new-client — spin up a new client app from apps/_template (or, with
+ * --bespoke, from apps/_bespoke-template — se#210).
  *
  *   pnpm new-client <slug> [--name "Business Name"] [--preset <preset>]
+ *   pnpm new-client <slug> --bespoke [--name "Business Name"]
  *
- * Copies apps/_template -> apps/<slug>, stubs the config, and prints the exact
- * Vercel CLI commands to create the project, set env vars, and wire the domain.
- * Per-client Vercel setup is the #1 source of dashboard toil at scale, so it is
- * scripted, not clicked.
+ * Copies the template app -> apps/<slug>, stubs the config, and prints the
+ * exact Vercel CLI commands to create the project, set env vars, and wire the
+ * domain. Per-client Vercel setup is the #1 source of dashboard toil at scale,
+ * so it is scripted, not clicked.
+ *
+ * `--bespoke` scaffolds the BESPOKE tier (a different price tier — CLAUDE.md
+ * "the one rule that matters"): copy source is `apps/_bespoke-template`, and
+ * on top of `client.config.ts` the scaffold also stubs `site-spec.ts` (slug +
+ * a wordmark split from --name). It is mutually exclusive with --preset — the
+ * bespoke tier has no ClientConfig-driven palette; see docs/PIPELINE-RUNBOOK.md
+ * step 3 for the config-only path this replaces.
  */
 import { cpSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -24,12 +33,32 @@ function parseArgs(argv: string[]) {
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]!;
     if (arg.startsWith("--")) {
-      flags[arg.slice(2)] = argv[++i] ?? "";
+      const key = arg.slice(2);
+      const next = argv[i + 1];
+      // Boolean flags (e.g. --bespoke) take no value: don't swallow the next
+      // `--flag` (or run off the end of argv) as this flag's value.
+      if (next === undefined || next.startsWith("--")) {
+        flags[key] = "true";
+      } else {
+        flags[key] = next;
+        i++;
+      }
     } else {
       positionals.push(arg);
     }
   }
   return { positionals, flags };
+}
+
+/** Split a business name into a wordmark { lead, accent } pair for the
+ * bespoke tier's site-spec.ts (se#210). "PNW Arborist" -> lead "PNW", accent
+ * "Arborist". A single-word name has nothing to accent, so both halves fall
+ * back to the whole name (the schema requires both non-empty). */
+function splitWordmark(name: string): { lead: string; accent: string } {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  const lead = words[0] ?? name;
+  const accent = words.slice(1).join(" ") || lead;
+  return { lead, accent };
 }
 
 function die(msg: string): never {
@@ -43,11 +72,21 @@ const slug = positionals[0];
 if (!slug) {
   die(
     "Usage: pnpm new-client <slug> [--name \"Business Name\"] [--preset <preset>]\n" +
+      "   or: pnpm new-client <slug> --bespoke [--name \"Business Name\"]\n" +
       `  presets: ${PALETTE_PRESET_IDS.join(", ")}`,
   );
 }
 if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
   die(`Slug "${slug}" must be kebab-case (e.g. pressure-pros).`);
+}
+
+const bespoke = flags.bespoke !== undefined;
+if (bespoke && flags.preset !== undefined) {
+  die(
+    "--bespoke and --preset are mutually exclusive: the bespoke tier is a " +
+      "different price tier with no ClientConfig-driven palette (CLAUDE.md " +
+      '"the one rule that matters"). Drop --bespoke for the config-only path.',
+  );
 }
 
 const preset = flags.preset ?? "pressure-washing";
@@ -56,7 +95,7 @@ if (!PALETTE_PRESET_IDS.includes(preset as (typeof PALETTE_PRESET_IDS)[number]))
 }
 const name = flags.name ?? "New Client";
 
-const src = resolve(ROOT, "apps/_template");
+const src = resolve(ROOT, bespoke ? "apps/_bespoke-template" : "apps/_template");
 const dest = resolve(ROOT, "apps", slug);
 
 if (existsSync(dest)) die(`apps/${slug} already exists.`);
@@ -79,10 +118,28 @@ const cfgPath = resolve(dest, "client.config.ts");
 let cfg = readFileSync(cfgPath, "utf8");
 cfg = cfg
   .replace(/slug:\s*"[^"]*"/, `slug: "${slug}"`)
-  .replace(/name:\s*"Acme Service Co\."/, `name: ${JSON.stringify(name)}`)
+  .replace(/name:\s*"(?:Acme Service Co\.|Bespoke Template Co)"/, `name: ${JSON.stringify(name)}`)
   .replace(/palettePreset:\s*"[^"]*"/, `palettePreset: "${preset}"`)
-  .replace(/siteUrl:\s*"https:\/\/example\.com"/, `siteUrl: "https://${slug}.example"`);
+  .replace(/siteUrl:\s*"https:\/\/(?:example\.com|bespoke-template\.example)"/, `siteUrl: "https://${slug}.example"`);
 writeFileSync(cfgPath, cfg);
+
+// 2b) Bespoke tier only: stub site-spec.ts (slug + a wordmark split from
+// --name). The `<slug>-display`/`<slug>-body` preview-font localStorage keys
+// (src/pages/{index,v2}.astro) derive from `spec.slug` at runtime — no
+// separate write needed once slug is set here.
+if (bespoke) {
+  const specPath = resolve(dest, "site-spec.ts");
+  const { lead, accent } = splitWordmark(name);
+  let spec = readFileSync(specPath, "utf8");
+  spec = spec
+    .replace(/slug:\s*"[^"]*"/, `slug: "${slug}"`)
+    .replace(/client:\s*"[^"]*"/, `client: ${JSON.stringify(name)}`)
+    .replace(
+      /wordmark:\s*\{\s*lead:\s*"[^"]*",\s*accent:\s*"[^"]*",?\s*\}/,
+      `wordmark: { lead: ${JSON.stringify(lead)}, accent: ${JSON.stringify(accent)} }`,
+    );
+  writeFileSync(specPath, spec);
+}
 
 // 3) Brand-colored monogram favicon (business initial on the preset primary),
 // overwriting _template's generic stub. A real logo overwrites this later.
