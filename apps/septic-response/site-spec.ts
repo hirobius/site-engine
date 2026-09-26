@@ -98,6 +98,7 @@ export const spec = defineSiteSpec({
     featuresHeading: "Dependable, upfront, and always available",
     areaHeading: "Serving Kirkland & the Eastside",
     footerNote: "septic pros serving {city} and the surrounding Eastside.",
+    mapEmbedBase: "https://www.google.com/maps",
   },
 
   sectionHeadings: {
@@ -110,6 +111,12 @@ export const spec = defineSiteSpec({
     contactHeading: "Get a Free Quote",
     footerExplore: "Explore",
     footerTagline: "Free, no-obligation estimates",
+    v1ServicesKicker: "/ Services",
+    v1ServicesLabel: "What we do",
+    v1AreaKicker: "/ Service area",
+    v1AreaLabel: "Where we work",
+    v1ContactKicker: "/ Get in touch",
+    v1TrustedKicker: "Trusted locally",
   },
 
   photoQueries,

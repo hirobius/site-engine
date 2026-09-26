@@ -45,6 +45,7 @@ const BASE: SiteSpec = {
     featuresHeading: "Reliable and local",
     areaHeading: "Serving the area",
     footerNote: "widgeteers serving {city}.",
+    mapEmbedBase: "https://www.google.com/maps",
   },
   sectionHeadings: {
     servicesEyebrow: "What we do",
@@ -56,6 +57,12 @@ const BASE: SiteSpec = {
     contactHeading: "Get a Free Quote",
     footerExplore: "Explore",
     footerTagline: "Free, no-obligation estimates",
+    v1ServicesKicker: "/ Services",
+    v1ServicesLabel: "What we do",
+    v1AreaKicker: "/ Service area",
+    v1AreaLabel: "Where we work",
+    v1ContactKicker: "/ Get in touch",
+    v1TrustedKicker: "Trusted locally",
   },
   photoQueries: {
     hero: { query: "widget on a table", orientation: "portrait" },

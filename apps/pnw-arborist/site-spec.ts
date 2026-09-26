@@ -97,6 +97,7 @@ export const spec = defineSiteSpec({
     featuresHeading: "Reliable, tidy, and genuinely local",
     areaHeading: "Serving Olympia & Thurston County",
     footerNote: "certified arborists serving {city} and the surrounding Thurston County area.",
+    mapEmbedBase: "https://www.google.com/maps",
   },
 
   sectionHeadings: {
@@ -109,6 +110,12 @@ export const spec = defineSiteSpec({
     contactHeading: "Get a Free Quote",
     footerExplore: "Explore",
     footerTagline: "Free, no-obligation estimates",
+    v1ServicesKicker: "/ Services",
+    v1ServicesLabel: "What we do",
+    v1AreaKicker: "/ Service area",
+    v1AreaLabel: "Where we work",
+    v1ContactKicker: "/ Get in touch",
+    v1TrustedKicker: "Trusted locally",
   },
 
   photoQueries,

@@ -399,7 +399,7 @@ const jsonLd = {
               title={`Map of ${client.map.embedQuery}`}
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(client.map.embedQuery ?? `${seo.city}, ${seo.region}`)}&output=embed`}
+              src={`${spec.content.mapEmbedBase}?q=${encodeURIComponent(client.map.embedQuery ?? `${seo.city}, ${seo.region}`)}&output=embed`}
             ></iframe>
           </div>
         </div>

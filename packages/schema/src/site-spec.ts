@@ -151,6 +151,14 @@ export const SiteSpecSchema = z.object({
      * same string as `footerDescription` — the two variants word it slightly
      * differently, so they stay separate rather than force a false merge. */
     footerNote: templateString,
+    /**
+     * Base URL for the embedded service-area map iframe, e.g.
+     * "https://www.google.com/maps". Generic across both bespoke apps today
+     * (se#208 review) — kept as spec data so `google.com/maps` is not a
+     * literal in `v2.astro`, and so a future map provider is a config change,
+     * not a mechanism edit.
+     */
+    mapEmbedBase: z.string().url(),
   }),
 
   /**
@@ -168,6 +176,19 @@ export const SiteSpecSchema = z.object({
     contactHeading: z.string().min(1),
     footerExplore: z.string().min(1),
     footerTagline: z.string().min(1),
+    /**
+     * V1 ("editorial", `index.astro`) micro-copy — a parallel set to the V2
+     * fields above because the two pages word their kickers differently
+     * ("/ Services" vs "Services"). Same se#208 rationale: generic across
+     * both bespoke apps today, kept as data so a future app can override it
+     * without touching `index.astro`.
+     */
+    v1ServicesKicker: z.string().min(1),
+    v1ServicesLabel: z.string().min(1),
+    v1AreaKicker: z.string().min(1),
+    v1AreaLabel: z.string().min(1),
+    v1ContactKicker: z.string().min(1),
+    v1TrustedKicker: z.string().min(1),
   }),
 
   /** Pexels queries for the three photo slots. Each app's `site.spec.ts`

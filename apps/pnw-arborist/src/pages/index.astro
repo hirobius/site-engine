@@ -412,8 +412,8 @@ const jsonLd = {
       <section id="services" aria-label="Services">
         <div class="wrap">
           <div class="sec-head reveal">
-            <p class="eyebrow">/ Services</p>
-            <h2 class="serif">What we do</h2>
+            <p class="eyebrow">{spec.sectionHeadings.v1ServicesKicker}</p>
+            <h2 class="serif">{spec.sectionHeadings.v1ServicesLabel}</h2>
           </div>
           <div class="index">
             {
@@ -436,7 +436,7 @@ const jsonLd = {
         aria-label="Why us"
       >
         <div class="wrap">
-          <p class="eyebrow kicker reveal">Trusted locally</p>
+          <p class="eyebrow kicker reveal">{spec.sectionHeadings.v1TrustedKicker}</p>
           <p class="big serif reveal">
             {t(spec.bandHeadline.lead)} <span class="accent">{t(spec.bandHeadline.accent)}</span>
           </p>
@@ -455,8 +455,8 @@ const jsonLd = {
       <section id="service-area" aria-label="Service area">
         <div class="wrap">
           <div class="sec-head reveal">
-            <p class="eyebrow">/ Service area</p>
-            <h2 class="serif">Where we work</h2>
+            <p class="eyebrow">{spec.sectionHeadings.v1AreaKicker}</p>
+            <h2 class="serif">{spec.sectionHeadings.v1AreaLabel}</h2>
           </div>
           <div class="areas">
             <div class="list reveal">
@@ -470,7 +470,7 @@ const jsonLd = {
                 title={`Map of ${client.map.embedQuery}`}
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(client.map.embedQuery ?? `${seo.city}, ${seo.region}`)}&output=embed`}
+                src={`${spec.content.mapEmbedBase}?q=${encodeURIComponent(client.map.embedQuery ?? `${seo.city}, ${seo.region}`)}&output=embed`}
               ></iframe>
             </div>
           </div>
@@ -483,7 +483,7 @@ const jsonLd = {
           <div class="contact">
             <div>
               <div class="sec-head reveal">
-                <p class="eyebrow">/ Get in touch</p>
+                <p class="eyebrow">{spec.sectionHeadings.v1ContactKicker}</p>
                 <h2 class="serif">Get a Free Quote</h2>
               </div>
               <form class="quote reveal" action="https://api.web3forms.com/submit" method="POST">
