@@ -262,6 +262,38 @@ drops anything that fills it) **and an hCaptcha slot**. Set
 only render when a key is present. Skipping this fills the client's inbox and
 they call you.
 
+## Analytics (Plausible, se#84)
+
+Optional per client — omit `analytics` and the build emits **zero** analytics
+JS (asserted in `packages/template/src/lib/analytics.test.ts`). Set it and
+`BaseHead.astro` gates in two things together: the Plausible script tag and a
+tiny event-delegated `tel:`-click tracker (`packages/template/src/lib/analytics.ts`).
+
+```ts
+// apps/<slug>/client.config.ts
+analytics: { provider: "plausible", domain: "realbusinessco.com" }, // bare hostname, no https://
+```
+
+Provider decision + rationale: issue #84 (cookieless, ~1KB, no consent banner,
+one $9/mo account covers the whole fleet). `domain` must be a bare hostname —
+a pasted URL is rejected by the schema with a fix-it message.
+
+**Two conversion events, dashboard-side setup (once per client site):**
+
+1. **`Call Click`** (custom event) — fires automatically for any `tel:` link on
+   the page (Hero, StickyCTA, ContactForm, Footer), no per-component wiring.
+   In Plausible: **Site Settings → Goals → Add goal → Custom event** →
+   name it exactly `Call Click`.
+2. **Form submit** — no custom JS. The existing `/thanks` redirect (se#95)
+   already produces a pageview once the Plausible script is present (it's on
+   every page via `BaseHead.astro`), so the conversion signal is that
+   pageview. In Plausible: **Site Settings → Goals → Add goal → Pageview** →
+   path `/thanks`.
+
+Preview deploys are safe by default: preview traffic lands on `*.vercel.app`
+hosts, which never match a client's configured `data-domain`, so gated
+previews never pollute a client's real stats.
+
 ---
 
 ## Ops & fleet management

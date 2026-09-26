@@ -1,5 +1,6 @@
 ---
 import type { ClientConfig } from "@hirobius/schema";
+import { isPlausibleConfigured, telClickTrackingScript } from "../lib/analytics.js";
 import { localBusinessJsonLd, metaTags } from "../lib/seo.js";
 import { fontHref } from "../lib/theme.js";
 
@@ -58,7 +59,13 @@ const webFont = fontHref(config);
     *.vercel.app hosts, which don't match data-domain, so gated previews never
     pollute the client's stats. Cookieless — no consent banner needed. */}
 {
-  config.analytics?.provider === "plausible" && (
-    <script defer data-domain={config.analytics.domain} src="https://plausible.io/js/script.js" is:inline />
+  isPlausibleConfigured(config) && (
+    <>
+      <script defer data-domain={config.analytics!.domain} src="https://plausible.io/js/script.js" is:inline />
+      {/* se#84: tel-click conversion — see packages/template/src/lib/analytics.ts.
+          Form-submit conversion is the /thanks pageview (se#95); no script needed
+          for it, so nothing else is emitted here. */}
+      <script set:html={telClickTrackingScript()} is:inline />
+    </>
   )
 }
