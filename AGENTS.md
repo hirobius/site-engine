@@ -6,22 +6,21 @@
 
 ## Role
 `hirobius/clients` is the **production site factory + the `ClientConfig` contract**.
-The runtime engine (lead-gen + AI agent) **moves to `ops`** — see below.
+The runtime engine (lead-gen + AI agent) **has moved to `ops`** — see below.
 
 - **Contract (stays here, the seam):** `packages/schema` (`ClientConfig` +
-  `defineClient`). Canonical source of truth; the Astro factory and the agent both
+  `defineClient`). Canonical source of truth; the Astro factory and ops's agent both
   consume it. `ops` vendors a copy and re-syncs on the rare contract change.
 - **Astro production factory (stays here):** `packages/template` (components,
   theming, SEO/JSON-LD), `apps/*` (`_template`, `_gallery`, demo),
   `scripts/new-client` + `eject-client`. **This is the production render target**
   (one Vercel project per client).
-- **Runtime engine (MOVES to `ops`):** `packages/agent` (enrich→generate→judge +
-  the `refineLoop` loop primitive) moves to `ops/lib/agent`. **Lead sourcing is
-  being replaced** by a managed scraper (Outscraper) — the self-built
-  `scripts/lead-gen` puller is **retired**; only its query definitions (METROS +
-  KEYWORDS) get ported. Their only runtime home is the `ops` dashboard.
-  Migration brief: `docs/OPS-HANDOFF.md`. Until that lands they remain here as the
-  source — do not delete before `ops` is building.
+- **Runtime engine (MOVED to `ops`, issue #10):** `packages/agent`
+  (enrich→generate→judge + the `refineLoop` loop primitive) is now
+  `ops/lib/agent` and the self-built lead puller is `ops/lib/lead-gen`
+  (Outscraper-based, replacing the retired Places scraper). Both were deleted
+  from this repo once ops's engine went live with a real generate.
+  Migration brief: `docs/OPS-HANDOFF.md`.
 
 **Delivery:** production sites ship on **self-hosted Astro** (this repo, one Vercel
 project per client). The engine emits a `ClientConfig`; the Astro factory renders
@@ -44,10 +43,10 @@ Funnel: **leads (CRM in `ops`) → become → clients (their Astro sites).**
   `ops` first, don't just regenerate the snapshot to silence it.
 
 ## Boundaries (do-not-cross)
-- **Move, don't duplicate:** the runtime engine (`packages/agent`,
-  `scripts/lead-gen`) is framework-agnostic TS (deps: `@anthropic-ai/sdk`, `zod`,
-  native `fetch`) → it **moves to `ops/lib/<tool>/`** (single home), with `ops` API
-  routes as thin wrappers. No long-lived copy in both repos. The `ClientConfig`
+- **Move, don't duplicate:** the runtime engine lives at `ops/lib/<tool>/`
+  (single home), with `ops` API routes as thin wrappers. No long-lived copy in
+  both repos — the former `packages/agent` / `scripts/lead-gen` here were
+  deleted once ops's copy went live (issue #10). The `ClientConfig`
   contract (`packages/schema`) is the exception: it stays here and `ops` vendors it.
 - **Secrets are server-only:** `ANTHROPIC_API_KEY`, `OUTSCRAPER_API_KEY`,
   `SUPABASE_*` live in API routes/workers, never the client.

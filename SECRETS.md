@@ -24,12 +24,10 @@ Per-client app (`apps/<slug>`), set on each app's own Vercel project:
 | `VERCEL_ENV` | Internal (platform) | injected by Vercel; not a secret |
 | _(future, per real client)_ | that client | their Web3Forms access key + hCaptcha site key — as env vars, **not** `client.config.ts` literals |
 
-Root tooling (developer machine / the `hirobius/ops` dashboard — **not** client-app runtime) — all **Hirobius-Internal**:
-
-| Name | Where | Purpose |
-|------|-------|---------|
-| `ANTHROPIC_API_KEY` | `packages/agent` | site-gen agent |
-| `GOOGLE_PLACES_API_KEY` | `scripts/lead-gen` | lead sourcing |
+Root tooling: the engine (`ANTHROPIC_API_KEY`, lead-sourcing keys) moved to
+`hirobius/ops` with `packages/agent` / `scripts/lead-gen` (removed here per
+issue #10); see `ops/SECRETS.md` (or equivalent) for current ownership. No
+root-tooling secrets remain in this repo.
 
 ## Before onboarding the first real client
 

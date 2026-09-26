@@ -16,14 +16,14 @@ target turns it into a site. Keeping the contract render-agnostic means we're ne
 locked to one delivery platform if that ever changes. The config-only rules below
 apply **whenever you build a client site** — they keep that path clean.
 
-## Engine freeze (2026-07-02 — do not touch)
+## Engine removed (2026-09-26 — issue #10)
 
-`packages/agent` and `scripts/lead-gen` are **FROZEN**: the engine now lives in
-hirobius/ops (`lib/agent` vendored verbatim, `lib/schema` vendored, `lib/lead-gen`
-= new Outscraper wrapper), verified offline; first live generate awaits
-`ANTHROPIC_API_KEY` there. Do **not** edit the engine here — it is deleted via
-issue #10 the moment ops's first live generate passes. Exception:
-`packages/schema` remains **canonical here** — any schema change must be
+`packages/agent` and `scripts/lead-gen` are **deleted**. The engine now lives
+solely in hirobius/ops (`lib/agent`, `lib/schema` vendored, `lib/lead-gen` =
+Outscraper wrapper) — ops's first live generate passed (3 real-lead configs
+generated, confirmed via `/ops/standing`), so the sequencing in
+`docs/OPS-HANDOFF.md` Part A completed and this repo's copy was removed.
+`packages/schema` remains **canonical here** — any schema change must still be
 re-synced to ops's vendored copy.
 
 ## The one rule that matters

@@ -12,9 +12,9 @@ The 15-second map so you don't have to hold it all in your head:
 - **This repo = the render layer + the contract:** Astro website templates
   (`packages/template`, `apps/*`) and the `ClientConfig` data shape
   (`packages/schema`).
-- **The AI engine lives here for now** (`packages/agent` = lead → site config;
-  `scripts/lead-gen` = find businesses). It runs from the `hirobius/ops`
-  dashboard and is slated to **move to `ops`** so each repo has one job.
+- **The AI engine has moved to `hirobius/ops`** (`lib/agent` = lead → site
+  config, `lib/lead-gen` = find businesses). It ran here as `packages/agent` /
+  `scripts/lead-gen` until issue #10 removed them once ops's engine went live.
 - **Building a client site?** Edit one file — `apps/<slug>/client.config.ts` —
   and drop in photos. That's the whole job (see `CLAUDE.md`).
 - **Production sites ship on self-hosted Astro** (this repo), one Vercel project
@@ -23,14 +23,16 @@ The 15-second map so you don't have to hold it all in your head:
 
 > **Delivery architecture:** production sites ship on **self-hosted Astro** (this
 > repo) — already built, free, and the most direct path from a generated
-> `ClientConfig` to a live site. The moat is the platform-agnostic **engine**:
-> `packages/schema` (contract) + lead sourcing + `packages/agent` (AI pipeline).
+> `ClientConfig` to a live site. The moat is the platform-agnostic **engine**,
+> which now lives in `hirobius/ops`: `packages/schema` (contract, still
+> canonical here) + lead sourcing + the AI generation pipeline.
 > The `ClientConfig` contract is render-agnostic, so the delivery platform is a
 > swappable detail if we ever outgrow self-hosting.
 
 **Stack (production = Astro):** Astro 5 (static output) · Tailwind v4 ·
 TypeScript · pnpm workspaces · Turborepo · Zod · astro:assets · Web3Forms +
-hCaptcha · Vercel. **Engine:** `@anthropic-ai/sdk` · Zod · Places API.
+hCaptcha · Vercel. **Engine (in `hirobius/ops`):** `@anthropic-ai/sdk` · Zod ·
+Outscraper.
 
 ---
 
