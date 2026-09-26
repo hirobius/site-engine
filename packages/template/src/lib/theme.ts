@@ -15,7 +15,7 @@ const RADIUS_PX: Record<ClientConfig["brand"]["radius"], string> = {
  * `inter`/`geist` trip impeccable's overused-font rule — deliberate: these
  * are two of five selectable `brand.font` options a client site picks
  * explicitly (not an engine-imposed default); `inter` is a live choice
- * today (e.g. `apps/monroe-street-power-wash`). Disabled inline rather
+ * today (e.g. `apps/duran-tree-service`). Disabled inline rather
  * than dropped.
  */
 const FONT_HREFS: Record<keyof typeof FONT_STACKS, string | null> = {

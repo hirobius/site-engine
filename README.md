@@ -64,7 +64,6 @@ apps/
   _template/                   canonical client app (copied by new-client)
   _gallery/                    internal component/preset preview (design-system head start)
   demo-pressure-pros/          working demo proving the system (Playwright smoke test)
-  monroe-street-power-wash/    cold-outreach preview (has an acceptance test suite)
   preview-clearout-junk/       cold-outreach preview
   preview-evergreen-lawn/      cold-outreach preview
   preview-solidline-concrete/  cold-outreach preview

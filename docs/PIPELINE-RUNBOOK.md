@@ -60,7 +60,7 @@ Keys are set by the human in the environment/CLI — **never** written to a
    never fabricated. `reviews: []` when there is no real review source. No
    "insured / licensed / bonded / certified / guaranteed / #1 / best" in copy
    unless a backing `business.*` field verifies it (the #149 acceptance gate
-   enforces this at go-live). See `apps/monroe-street-power-wash` for the
+   enforces this at go-live). See `apps/duran-tree-service` for the
    correct stubbed-preview shape.
 2. **Previews stay gated.** A preview is *not* go-live. Go-live requires
    `SITE_LIVE=true` **and** a real `form.accessKey`, real `seo.siteUrl`, and no
