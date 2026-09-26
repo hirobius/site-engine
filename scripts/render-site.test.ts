@@ -45,8 +45,15 @@ function makeTmp(prefix: string) {
   return d;
 }
 
+// This file invokes the real `new-client` script against the real repo
+// (below), which now registers a fleet entry (issue #12). Snapshot + restore
+// apps/_gallery/src/data/fleet.ts so these fixture slugs never leak into it.
+const FLEET_PATH = resolve(ROOT, "apps/_gallery/src/data/fleet.ts");
+const originalFleetSource = readFileSync(FLEET_PATH, "utf8");
+
 afterAll(() => {
   for (const d of tmpDirs) rmSync(d, { recursive: true, force: true });
+  writeFileSync(FLEET_PATH, originalFleetSource);
 });
 
 describe("renderConfigFile / writeClientConfig", () => {

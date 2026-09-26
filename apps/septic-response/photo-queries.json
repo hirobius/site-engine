@@ -1,0 +1,5 @@
+{
+  "hero": { "query": "clean suburban home green lawn", "orientation": "portrait" },
+  "band": { "query": "green grass lawn sunlight", "orientation": "landscape" },
+  "v2Hero": { "query": "modern suburban house exterior yard", "orientation": "landscape" }
+}

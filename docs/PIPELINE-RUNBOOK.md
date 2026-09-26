@@ -15,9 +15,9 @@ the bottom — paste it into a fresh session and it does the rest.
 
 | # | Step | Command / action |
 |---|---|---|
-| 1 | **Get a lead** | `pnpm pull-leads` (Outscraper), **or** supply one real lead by hand: business name, city/region, trade, Google Business Profile URL, public phone. |
+| 1 | **Get a lead** | Lead sourcing now runs in `hirobius/ops` (`lib/lead-gen`, Outscraper) — pull one there, **or** supply one real lead by hand here: business name, city/region, trade, Google Business Profile URL, public phone. |
 | 2 | **Map to a config** | Deterministic: `leadToConfig(lead)` (`packages/schema/src/lead-to-config.ts`) → a `ClientConfig` JSON. Or the session writes the config directly from the lead's real facts. |
-| 3 | **Scaffold** | `pnpm new-client <slug> --name "Business Name" --preset <preset>` — presets: `landscaping`, `junk-removal`, `pressure-washing`, `concrete-fencing`. Copies `apps/_template`. |
+| 3 | **Scaffold** | `pnpm new-client <slug> --name "Business Name" --preset <preset>` — presets: `landscaping`, `junk-removal`, `pressure-washing`, `concrete-fencing`. Copies `apps/_template`. **Bespoke tier** (a client whose ask doesn't fit the config-only path — different price tier, see CLAUDE.md): `pnpm new-client <slug> --bespoke --name "Business Name"` (mutually exclusive with `--preset`) copies `apps/_bespoke-template/` instead and stubs both `client.config.ts` and `site-spec.ts` (slug + a wordmark split from `--name`) — then replace those two files and `src/components/Icon.astro` with real intake facts. `v2.astro`, `PreviewControls.astro`, `fetch-photos.mjs`, and `index.astro` stay byte-identical to the copy source (`bespoke-template-gate.test.ts` fails the build otherwise). |
 | 4 | **Fill the config** | `pnpm render-site <slug> --config <json>` (writes + re-validates), **or** edit `apps/<slug>/client.config.ts` directly. **Only** this file + photos. |
 | 5 | **Verify (ship gate)** | `pnpm --filter @hirobius/<slug> check && pnpm --filter @hirobius/<slug> build` — both **0 errors**. The build runs Zod via `defineClient()`; a bad config fails here, not in prod. |
 | 6 | **Imagery (optional)** | `PEXELS_API_KEY=<key> node apps/<slug>/scripts/fetch-photos.mjs` — run where the network can reach `api.pexels.com` (local machine or Vercel build; **blocked in the remote sandbox**). No key → ship photo-less, like the existing previews. |
@@ -60,7 +60,7 @@ Keys are set by the human in the environment/CLI — **never** written to a
    never fabricated. `reviews: []` when there is no real review source. No
    "insured / licensed / bonded / certified / guaranteed / #1 / best" in copy
    unless a backing `business.*` field verifies it (the #149 acceptance gate
-   enforces this at go-live). See `apps/monroe-street-power-wash` for the
+   enforces this at go-live). See `apps/duran-tree-service` for the
    correct stubbed-preview shape.
 2. **Previews stay gated.** A preview is *not* go-live. Go-live requires
    `SITE_LIVE=true` **and** a real `form.accessKey`, real `seo.siteUrl`, and no
@@ -77,7 +77,7 @@ Keys are set by the human in the environment/CLI — **never** written to a
 ## Canonical prompt (paste this into a fresh session)
 
 > Run the next lead through the pipeline per `docs/PIPELINE-RUNBOOK.md`: get one
-> real no-website lead (pull via `pnpm pull-leads`, or I'll give you one),
+> real no-website lead (pull via `hirobius/ops`'s `lib/lead-gen`, or I'll give you one),
 > scaffold it with `new-client`, and fill its `client.config.ts` from the
 > lead's **real** public facts — never invent, stub every unknown. Verify
 > `check` + `build` are green, then produce a **gated** preview link with

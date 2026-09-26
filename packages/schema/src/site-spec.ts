@@ -47,6 +47,39 @@ const statSchema = z.object({
   l: z.string().min(1),
 });
 
+/** A Lucide icon id, as vendored per-app in that app's `Icon.astro`. */
+const iconIdSchema = z
+  .string()
+  .min(1)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "icon id must be kebab-case");
+
+const featureSchema = z.object({
+  icon: iconIdSchema,
+  title: z.string().min(1),
+  text: z.string().min(1),
+});
+
+const stepSchema = z.object({
+  icon: iconIdSchema,
+  title: z.string().min(1),
+  text: z.string().min(1),
+});
+
+/** One of the V2 hero's three trust badges. `k` is the bold lead value —
+ * empty string for a badge with no number (e.g. "Free estimates"). */
+const heroTrustItemSchema = z.object({
+  icon: iconIdSchema,
+  k: z.string(),
+  l: z.string().min(1),
+});
+
+/** A Pexels search for one photo slot: `scripts/fetch-photos.mjs` reads the
+ * same shape from `photo-queries.json` at runtime (se#208). */
+const photoQuerySchema = z.object({
+  query: z.string().min(1),
+  orientation: z.enum(["portrait", "landscape", "square"]),
+});
+
 /**
  * The V1 `:root` block, as the CSS custom properties themselves.
  *
@@ -89,6 +122,84 @@ export const SiteSpecSchema = z.object({
     /** Public-relative, without the leading slash, e.g. "photos/hero.jpg". */
     hero: z.string().min(1),
     band: z.string().min(1),
+    /** V2's own hero slot — a different crop/scene from the V1 hero (se#208). */
+    v2Hero: z.string().min(1),
+  }),
+
+  /**
+   * The non-flat content the V2 "Modern" page (`src/pages/v2.astro`) needs
+   * beyond `client.config.ts` — cards, features and steps as arrays, plus the
+   * few V2-only copy strings. `serviceIcons` cycles by index across
+   * `client.services`, same as V1's numbered index needs no icon.
+   */
+  content: z.object({
+    serviceIcons: z.array(iconIdSchema).min(1),
+    /** Exactly four — the "why us" grid is a 4-column layout. */
+    features: z.tuple([featureSchema, featureSchema, featureSchema, featureSchema]),
+    /** Exactly three — the "how it works" row is a 3-column layout. */
+    steps: z.tuple([stepSchema, stepSchema, stepSchema]),
+    /** V2 hero eyebrow, before " · {city}, {region}" (not templated — city is
+     * appended separately, unlike `tradeEyebrow`'s V1 usage). */
+    heroEyebrow: z.string().min(1),
+    /** Exactly three — the hero's trust-badge row. */
+    heroTrust: z.tuple([heroTrustItemSchema, heroTrustItemSchema, heroTrustItemSchema]),
+    servicesHeading: z.string().min(1),
+    servicesIntro: z.string().min(1),
+    featuresHeading: z.string().min(1),
+    areaHeading: z.string().min(1),
+    /** V2's own footer line, after "{b.name} — ". Template: `{city}`. Not the
+     * same string as `footerDescription` — the two variants word it slightly
+     * differently, so they stay separate rather than force a false merge. */
+    footerNote: templateString,
+    /**
+     * Base URL for the embedded service-area map iframe, e.g.
+     * "https://www.google.com/maps". Generic across both bespoke apps today
+     * (se#208 review) — kept as spec data so `google.com/maps` is not a
+     * literal in `v2.astro`, and so a future map provider is a config change,
+     * not a mechanism edit.
+     */
+    mapEmbedBase: z.string().url(),
+  }),
+
+  /**
+   * Section-level micro-copy that reads the same on every bespoke app today
+   * (se#208) — kept as spec data rather than literals so a future app can
+   * still override it without touching `v2.astro`.
+   */
+  sectionHeadings: z.object({
+    servicesEyebrow: z.string().min(1),
+    featuresEyebrow: z.string().min(1),
+    stepsEyebrow: z.string().min(1),
+    stepsHeading: z.string().min(1),
+    serviceAreaEyebrow: z.string().min(1),
+    contactEyebrow: z.string().min(1),
+    contactHeading: z.string().min(1),
+    footerExplore: z.string().min(1),
+    footerTagline: z.string().min(1),
+    /**
+     * V1 ("editorial", `index.astro`) micro-copy — a parallel set to the V2
+     * fields above because the two pages word their kickers differently
+     * ("/ Services" vs "Services"). Same se#208 rationale: generic across
+     * both bespoke apps today, kept as data so a future app can override it
+     * without touching `index.astro`.
+     */
+    v1ServicesKicker: z.string().min(1),
+    v1ServicesLabel: z.string().min(1),
+    v1AreaKicker: z.string().min(1),
+    v1AreaLabel: z.string().min(1),
+    v1ContactKicker: z.string().min(1),
+    v1TrustedKicker: z.string().min(1),
+  }),
+
+  /** Pexels queries for the three photo slots. Each app's `site.spec.ts`
+   * imports the SAME `photo-queries.json` that `scripts/fetch-photos.mjs`
+   * reads at runtime (via `resolveJsonModule`, no duplication) — that script
+   * must stay a plain, standalone `.mjs` with no TypeScript toolchain, so the
+   * data lives in JSON rather than a `.ts` export. */
+  photoQueries: z.object({
+    hero: photoQuerySchema,
+    band: photoQuerySchema,
+    v2Hero: photoQuerySchema,
   }),
 
   design: designSchema,

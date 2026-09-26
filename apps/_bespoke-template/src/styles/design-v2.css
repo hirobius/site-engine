@@ -1,0 +1,39 @@
+/* GENERATED from site-spec.ts `design` (the --v2-* keys). Edit the spec, not
+ * this file. Kept as a static stylesheet so src/pages/v2.astro can stay
+ * identical across every bespoke app (se#208). Property names here are the
+ * ones v2.astro's own CSS actually uses — they never share a document with
+ * V1's design.css, so reusing V1's role names (--accent, --ink, …) is safe. */
+:root {
+  --bg: #f5f7f3;
+  --surface: #ffffff;
+  --ink: #15241b;
+  --muted: #5a6960;
+  --line: #e2e8df;
+  --accent: #1f5236;
+  --accent-deep: #163a27;
+  --tint: #e9f1e9;
+  --highlight: #bf8730;
+  --dark: #12251a;
+  --dark-fg: #e9f0e7;
+  --dark-muted: #9db0a2;
+  --highlight-ink: #1c1406;
+  --btn-primary-shadow: rgba(31, 82, 54, 0.28);
+  --btn-highlight-shadow: rgba(191, 135, 48, 0.3);
+  --btn-ghost-border: rgba(255, 255, 255, 0.5);
+  --btn-ghost-hover-bg: rgba(255, 255, 255, 0.12);
+  --hero-veil-1: rgba(18, 37, 26, 0.62);
+  --hero-veil-2: rgba(18, 37, 26, 0.82);
+  --hero-eyebrow-color: #b9d4bf;
+  --hero-sub-color: rgba(255, 255, 255, 0.86);
+  --hero-trust-color: rgba(255, 255, 255, 0.9);
+  --card-hover-shadow: rgba(21, 36, 27, 0.1);
+  --card-hover-border: #cfe0cf;
+  --feat-icon-shadow: rgba(21, 36, 27, 0.08);
+  --band-veil-1: rgba(18, 37, 26, 0.72);
+  --band-veil-2: rgba(18, 37, 26, 0.82);
+  --band-label-color: rgba(255, 255, 255, 0.72);
+  --contact-card-shadow: rgba(21, 36, 27, 0.08);
+  --field-focus-ring: rgba(31, 82, 54, 0.12);
+  --error: #b23a20;
+  --foot-bar-border: rgba(255, 255, 255, 0.12);
+}

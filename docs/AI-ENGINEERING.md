@@ -7,6 +7,13 @@
 > you can say out loud in an interview.
 >
 > Last updated: 2026-06-16.
+>
+> **2026-09-26 — engine relocated (issue #10):** `packages/agent` and
+> `scripts/lead-gen`, described throughout this doc, have been deleted from
+> this repo now that ops's engine (`ops/lib/agent`, `ops/lib/lead-gen`) is
+> live and has generated real-lead configs. This document remains as the
+> architecture narrative/interview map; the code paths it references now live
+> in `hirobius/ops`.
 
 ---
 

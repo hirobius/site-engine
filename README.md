@@ -12,9 +12,9 @@ The 15-second map so you don't have to hold it all in your head:
 - **This repo = the render layer + the contract:** Astro website templates
   (`packages/template`, `apps/*`) and the `ClientConfig` data shape
   (`packages/schema`).
-- **The AI engine lives here for now** (`packages/agent` = lead → site config;
-  `scripts/lead-gen` = find businesses). It runs from the `hirobius/ops`
-  dashboard and is slated to **move to `ops`** so each repo has one job.
+- **The AI engine has moved to `hirobius/ops`** (`lib/agent` = lead → site
+  config, `lib/lead-gen` = find businesses). It ran here as `packages/agent` /
+  `scripts/lead-gen` until issue #10 removed them once ops's engine went live.
 - **Building a client site?** Edit one file — `apps/<slug>/client.config.ts` —
   and drop in photos. That's the whole job (see `CLAUDE.md`).
 - **Production sites ship on self-hosted Astro** (this repo), one Vercel project
@@ -23,14 +23,16 @@ The 15-second map so you don't have to hold it all in your head:
 
 > **Delivery architecture:** production sites ship on **self-hosted Astro** (this
 > repo) — already built, free, and the most direct path from a generated
-> `ClientConfig` to a live site. The moat is the platform-agnostic **engine**:
-> `packages/schema` (contract) + lead sourcing + `packages/agent` (AI pipeline).
+> `ClientConfig` to a live site. The moat is the platform-agnostic **engine**,
+> which now lives in `hirobius/ops`: `packages/schema` (contract, still
+> canonical here) + lead sourcing + the AI generation pipeline.
 > The `ClientConfig` contract is render-agnostic, so the delivery platform is a
 > swappable detail if we ever outgrow self-hosting.
 
 **Stack (production = Astro):** Astro 5 (static output) · Tailwind v4 ·
 TypeScript · pnpm workspaces · Turborepo · Zod · astro:assets · Web3Forms +
-hCaptcha · Vercel. **Engine:** `@anthropic-ai/sdk` · Zod · Places API.
+hCaptcha · Vercel. **Engine (in `hirobius/ops`):** `@anthropic-ai/sdk` · Zod ·
+Outscraper.
 
 ---
 
@@ -62,7 +64,6 @@ apps/
   _template/                   canonical client app (copied by new-client)
   _gallery/                    internal component/preset preview (design-system head start)
   demo-pressure-pros/          working demo proving the system (Playwright smoke test)
-  monroe-street-power-wash/    cold-outreach preview (has an acceptance test suite)
   preview-clearout-junk/       cold-outreach preview
   preview-evergreen-lawn/      cold-outreach preview
   preview-solidline-concrete/  cold-outreach preview
@@ -259,6 +260,38 @@ drops anything that fills it) **and an hCaptcha slot**. Set
 `form.hcaptchaSiteKey` in each production client's config — the widget and script
 only render when a key is present. Skipping this fills the client's inbox and
 they call you.
+
+## Analytics (Plausible, se#84)
+
+Optional per client — omit `analytics` and the build emits **zero** analytics
+JS (asserted in `packages/template/src/lib/analytics.test.ts`). Set it and
+`BaseHead.astro` gates in two things together: the Plausible script tag and a
+tiny event-delegated `tel:`-click tracker (`packages/template/src/lib/analytics.ts`).
+
+```ts
+// apps/<slug>/client.config.ts
+analytics: { provider: "plausible", domain: "realbusinessco.com" }, // bare hostname, no https://
+```
+
+Provider decision + rationale: issue #84 (cookieless, ~1KB, no consent banner,
+one $9/mo account covers the whole fleet). `domain` must be a bare hostname —
+a pasted URL is rejected by the schema with a fix-it message.
+
+**Two conversion events, dashboard-side setup (once per client site):**
+
+1. **`Call Click`** (custom event) — fires automatically for any `tel:` link on
+   the page (Hero, StickyCTA, ContactForm, Footer), no per-component wiring.
+   In Plausible: **Site Settings → Goals → Add goal → Custom event** →
+   name it exactly `Call Click`.
+2. **Form submit** — no custom JS. The existing `/thanks` redirect (se#95)
+   already produces a pageview once the Plausible script is present (it's on
+   every page via `BaseHead.astro`), so the conversion signal is that
+   pageview. In Plausible: **Site Settings → Goals → Add goal → Pageview** →
+   path `/thanks`.
+
+Preview deploys are safe by default: preview traffic lands on `*.vercel.app`
+hosts, which never match a client's configured `data-domain`, so gated
+previews never pollute a client's real stats.
 
 ---
 

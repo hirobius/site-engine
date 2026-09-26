@@ -20,9 +20,7 @@
     "go-live": "tsx scripts/go-live.ts",
     "verify-live": "tsx scripts/verify-live.ts",
     "skin-critique": "tsx scripts/skin-critique.ts",
-    "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts",
-    "pull-leads": "tsx scripts/lead-gen/pull-leads.ts",
-    "agent": "tsx packages/agent/src/cli.ts"
+    "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

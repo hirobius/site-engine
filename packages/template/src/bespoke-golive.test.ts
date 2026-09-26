@@ -24,6 +24,9 @@ import { describe, expect, it } from "vitest";
  */
 
 const APPS_DIR = fileURLToPath(new URL("../../../apps", import.meta.url));
+// zzz-* dirs are transient fixtures that scripts/*.test.ts create in apps/ while
+// turbo runs this package's tests in parallel; listing them races their cleanup.
+const FIXTURE_PREFIX = "zzz-";
 const EXEMPT = new Set(["_template", "_gallery"]);
 
 /** The single predicate that defines "preview" — PreviewControls.astro's own. */
@@ -32,7 +35,7 @@ const PREVIEW_PREDICATE =
 
 function bespokeApps(): string[] {
   return readdirSync(APPS_DIR, { withFileTypes: true })
-    .filter((e) => e.isDirectory() && !EXEMPT.has(e.name))
+    .filter((e) => e.isDirectory() && !EXEMPT.has(e.name) && !e.name.startsWith(FIXTURE_PREFIX))
     .map((e) => e.name)
     .filter((app) =>
       existsSync(join(APPS_DIR, app, "src", "components", "PreviewControls.astro")),

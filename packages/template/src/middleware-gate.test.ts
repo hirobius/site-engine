@@ -12,12 +12,15 @@ import { describe, expect, it } from "vitest";
  * so a future fix to _template that isn't backported fails the build.
  */
 const APPS_DIR = fileURLToPath(new URL("../../../apps", import.meta.url));
+// zzz-* dirs are transient fixtures that scripts/*.test.ts create in apps/ while
+// turbo runs this package's tests in parallel; listing them races their cleanup.
+const FIXTURE_PREFIX = "zzz-";
 const EXEMPT = new Set(["_template", "_gallery"]);
 
 const canonical = readFileSync(join(APPS_DIR, "_template", "middleware.ts"), "utf8");
 
 const apps = readdirSync(APPS_DIR, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && !EXEMPT.has(entry.name))
+  .filter((entry) => entry.isDirectory() && !EXEMPT.has(entry.name) && !entry.name.startsWith(FIXTURE_PREFIX))
   .map((entry) => entry.name)
   .sort();
 
