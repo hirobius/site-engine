@@ -548,7 +548,19 @@ const jsonLd = {
       </div>
     </footer>
 
-    <PreviewControls variant="v1" defaultDisplay="quintessential" defaultBody="elms-sans" />
+    <PreviewControls
+      variant="v1"
+      slug={spec.slug}
+      colors={{
+        bg: spec.design["--pv-bg"],
+        fg: spec.design["--pv-fg"],
+        shadow: spec.design["--pv-shadow"],
+        segOff: spec.design["--pv-seg-off"],
+        menuLabel: spec.design["--pv-menu-label"],
+      }}
+      defaultDisplay="quintessential"
+      defaultBody="elms-sans"
+    />
 
     <script is:inline>
       // Progressive form validation: required Name + Email, inline errors, and a

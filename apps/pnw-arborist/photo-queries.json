@@ -1,0 +1,5 @@
+{
+  "hero": { "query": "large lush green oak tree", "orientation": "portrait" },
+  "band": { "query": "sunlight through green forest canopy", "orientation": "landscape" },
+  "v2Hero": { "query": "misty evergreen forest pacific northwest", "orientation": "landscape" }
+}

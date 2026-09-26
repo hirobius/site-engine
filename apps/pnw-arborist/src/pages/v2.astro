@@ -1,19 +1,29 @@
 ---
 /**
- * V2 — the "Modern" design variant for PNW Arborist (route: /v2).
+ * V2 — the "Modern" design variant for the bespoke tier (route: /v2).
  *
  * A deliberately DIFFERENT design from V1 (index.astro): card-based services with
  * Lucide icons, centered section headers, a full-bleed parallax hero + stat band,
- * a "how it works" step row, a dark-green footer, and a cooler white + pine +
- * gold palette with a modern sans (Satoshi/Inter) type system. Same content
+ * a "how it works" step row, a dark footer, and a cooler white + accent + highlight
+ * palette with a modern sans (Satoshi/Inter) type system. Same content
  * (client.config.ts), same preview gate + font explorer, toggled from V1 via the
  * shared PreviewControls. V1 is untouched.
+ *
+ * This file is IDENTICAL across every bespoke app (se#208, mirroring index.astro's
+ * se#207). Everything that differs per client lives in `site-spec.ts` (copy, icons,
+ * art direction) and `src/styles/design-v2.css` (the `:root` values, generated
+ * from that spec). Business facts still come from `client.config.ts`.
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { client } from "../../client.config";
 import Icon from "../components/Icon.astro";
 import PreviewControls from "../components/PreviewControls.astro";
+import { renderSpecTemplate } from "@hirobius/schema/site-spec";
+import { spec } from "../../site-spec";
+// The `:root` block, projected from `spec.design`'s `--v2-*` keys. Imported
+// rather than inlined so this file can stay identical across apps.
+import "../styles/design-v2.css";
 
 // Preview-only chrome (the font explorer) uses the SAME predicate as
 // PreviewControls.astro, so the two can never disagree about what "live" means.
@@ -25,26 +35,17 @@ const c = client.copy;
 const seo = client.seo;
 const tel = b.phone.replace(/[^\d+]/g, "");
 const thanksUrl = new URL("/thanks", seo.siteUrl).toString();
-const googleUrl =
-  "https://www.google.com/maps/place/PNW+Arborist+Consulting+Inc/@47.039404499999996,-122.962087,14z/data=!4m8!1m2!2m1!1sPNW+Arborist+Consulting+Inc!3m4!1s0x5491753684d57163:0x9f678c481890c294!8m2!3d47.039404499999996!4d-122.962087";
+// Real Google Business profile (from the lead row) — links the rating/count
+// claim to its source, which keeps it verifiable rather than asserted.
+const googleUrl = spec.googleUrl;
 
 const imgAt = (p: string): string | null =>
   existsSync(join(process.cwd(), "public", p)) ? `/${p}` : null;
-const heroImg = imgAt("photos/v2-hero.jpg");
-const bandImg = imgAt("photos/canopy.jpg");
+const heroImg = imgAt(spec.images.v2Hero);
+const bandImg = imgAt(spec.images.band);
 
-const SERVICE_ICONS = ["axe", "scissors", "stethoscope"] as const;
-const FEATURES = [
-  { icon: "badge-check", title: "Local & experienced", text: "Olympia-based arborists who know Thurston County trees and soils." },
-  { icon: "clock", title: "Fast scheduling", text: "Quick, honest quotes and prompt, reliable appointments." },
-  { icon: "leaf", title: "Careful & clean", text: "We protect your property and leave the site tidy — every visit." },
-  { icon: "star", title: "4.9-star rated", text: "Trusted across 200+ Google reviews from local homeowners." },
-] as const;
-const STEPS = [
-  { icon: "phone-call", title: "Request a quote", text: "Call or send the form — tell us what your trees need." },
-  { icon: "calendar-check", title: "We assess & schedule", text: "A certified arborist evaluates the work and sets a time." },
-  { icon: "tree-pine", title: "Careful work, clean site", text: "We do the job safely and leave your yard spotless." },
-] as const;
+const t = (template: string) =>
+  renderSpecTemplate(template, { name: b.name, city: seo.city });
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -98,12 +99,12 @@ const jsonLd = {
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     {isPreview && (
-      <script is:inline>
+      <script is:inline define:vars={{ slug: spec.slug }}>
         // Explorer-only: restore the fonts chosen in preview, before paint.
         try {
-          var d = localStorage.getItem("pnw-arborist-display");
+          var d = localStorage.getItem(slug + "-display");
           if (d) document.documentElement.dataset.display = d;
-          var bd = localStorage.getItem("pnw-arborist-body");
+          var bd = localStorage.getItem(slug + "-body");
           if (bd) document.documentElement.dataset.body = bd;
         } catch (e) {}
       </script>
@@ -116,18 +117,9 @@ const jsonLd = {
 
     <style is:global>
       :root {
-        --bg: #f5f7f3;
-        --surface: #ffffff;
-        --ink: #15241b;
-        --muted: #5a6960;
-        --line: #e2e8df;
-        --accent: #1f5236;
-        --accent-deep: #163a27;
-        --tint: #e9f1e9;
-        --highlight: #bf8730;
-        --dark: #12251a;
-        --dark-fg: #e9f0e7;
-        --dark-muted: #9db0a2;
+        /* Colours live in src/styles/design-v2.css, generated from
+           site-spec.ts's `--v2-*` keys — the only part of this block that
+           varies per client. */
 
         --display-font: "Satoshi", ui-sans-serif, system-ui, sans-serif;
         --display-weight: 700;
@@ -153,12 +145,12 @@ const jsonLd = {
 
       .btn { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; padding: 15px 26px; border-radius: 10px; text-decoration: none; cursor: pointer; border: 0; transition: transform 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s; }
       .btn svg { width: 18px; height: 18px; }
-      .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 6px 18px rgba(31, 82, 54, 0.28); }
+      .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 6px 18px var(--btn-primary-shadow); }
       .btn-primary:hover { background: var(--accent-deep); transform: translateY(-2px); }
-      .btn-highlight { background: var(--highlight); color: #1c1406; box-shadow: 0 6px 18px rgba(191, 135, 48, 0.3); }
+      .btn-highlight { background: var(--highlight); color: var(--highlight-ink); box-shadow: 0 6px 18px var(--btn-highlight-shadow); }
       .btn-highlight:hover { transform: translateY(-2px); }
-      .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.5); }
-      .btn-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+      .btn-ghost { background: transparent; color: #fff; border: 1px solid var(--btn-ghost-border); }
+      .btn-ghost:hover { background: var(--btn-ghost-hover-bg); }
       .btn-outline { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
       .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -173,13 +165,13 @@ const jsonLd = {
       /* Hero — full-bleed parallax, centered */
       .hero { position: relative; overflow: hidden; background: linear-gradient(160deg, var(--accent-deep), var(--dark)); color: #fff; text-align: center; }
       .hero .px-layer { position: absolute; inset: -12% 0; background-size: cover; background-position: center; will-change: transform; }
-      .hero .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(18,37,26,0.62), rgba(18,37,26,0.82)); }
+      .hero .veil { position: absolute; inset: 0; background: linear-gradient(180deg, var(--hero-veil-1), var(--hero-veil-2)); }
       .hero .inner { position: relative; max-width: 900px; margin-inline: auto; padding: clamp(90px, 16vw, 170px) 24px clamp(70px, 12vw, 130px); }
-      .hero .eyebrow { color: #b9d4bf; }
+      .hero .eyebrow { color: var(--hero-eyebrow-color); }
       .hero h1 { margin: 20px 0 0; font-size: var(--fs-hero); line-height: 1.04; }
-      .hero p.sub { margin: 22px auto 0; max-width: 42ch; font-size: var(--fs-lede); color: rgba(255, 255, 255, 0.86); }
+      .hero p.sub { margin: 22px auto 0; max-width: 42ch; font-size: var(--fs-lede); color: var(--hero-sub-color); }
       .hero .cta { margin-top: 34px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-      .hero .trust { margin-top: 40px; display: flex; gap: 22px 30px; justify-content: center; flex-wrap: wrap; color: rgba(255,255,255,0.9); font-size: 14px; }
+      .hero .trust { margin-top: 40px; display: flex; gap: 22px 30px; justify-content: center; flex-wrap: wrap; color: var(--hero-trust-color); font-size: 14px; }
       .hero .trust b { color: #fff; }
       .hero .trust span { display: inline-flex; align-items: center; gap: 8px; }
       .hero .trust svg { width: 17px; height: 17px; color: var(--highlight); }
@@ -194,7 +186,7 @@ const jsonLd = {
       @media (max-width: 860px) { .cards { grid-template-columns: 1fr 1fr; } }
       @media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
       .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 30px; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
-      .card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(21, 36, 27, 0.1); border-color: #cfe0cf; }
+      .card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px var(--card-hover-shadow); border-color: var(--card-hover-border); }
       .card .ic { width: 54px; height: 54px; border-radius: 14px; background: var(--tint); color: var(--accent); display: grid; place-items: center; margin-bottom: 20px; }
       .card .ic svg { width: 26px; height: 26px; }
       .card h3 { margin: 0 0 10px; font-family: var(--display-font); font-weight: 700; font-size: 1.32rem; letter-spacing: -0.01em; }
@@ -206,7 +198,7 @@ const jsonLd = {
       @media (max-width: 860px) { .feat-grid { grid-template-columns: 1fr 1fr; } }
       @media (max-width: 480px) { .feat-grid { grid-template-columns: 1fr; } }
       .feat { text-align: center; }
-      .feat .ic { width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 50%; background: #fff; color: var(--accent); display: grid; place-items: center; box-shadow: 0 4px 14px rgba(21,36,27,0.08); }
+      .feat .ic { width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 50%; background: #fff; color: var(--accent); display: grid; place-items: center; box-shadow: 0 4px 14px var(--feat-icon-shadow); }
       .feat h3 { margin: 0 0 8px; font-family: var(--display-font); font-weight: 600; font-size: 1.08rem; }
       .feat p { margin: 0; color: var(--muted); font-size: 0.98rem; }
 
@@ -216,18 +208,18 @@ const jsonLd = {
       .step { position: relative; text-align: center; padding: 0 12px; }
       .step .n { display: inline-grid; place-items: center; width: 66px; height: 66px; border-radius: 50%; border: 1.5px solid var(--accent); color: var(--accent); margin-bottom: 18px; position: relative; }
       .step .n svg { width: 26px; height: 26px; }
-      .step .n b { position: absolute; top: -8px; right: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--highlight); color: #1c1406; font-size: 12px; display: grid; place-items: center; font-weight: 700; }
+      .step .n b { position: absolute; top: -8px; right: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--highlight); color: var(--highlight-ink); font-size: 12px; display: grid; place-items: center; font-weight: 700; }
       .step h3 { margin: 0 0 8px; font-family: var(--display-font); font-weight: 600; font-size: 1.16rem; }
       .step p { margin: 0; color: var(--muted); }
 
       /* Parallax stat band */
       .band { position: relative; overflow: hidden; color: #fff; text-align: center; background: var(--accent-deep); }
       .band .px-layer { position: absolute; inset: -12% 0; background-size: cover; background-position: center; will-change: transform; }
-      .band .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(18,37,26,0.72), rgba(18,37,26,0.82)); }
+      .band .veil { position: absolute; inset: 0; background: linear-gradient(180deg, var(--band-veil-1), var(--band-veil-2)); }
       .band .inner { position: relative; padding: clamp(70px, 11vw, 120px) 24px; }
       .band .stats { display: flex; justify-content: center; gap: 30px 64px; flex-wrap: wrap; margin-bottom: 34px; }
       .band .k { font-family: "Fraunces", Georgia, serif; font-size: var(--fs-stat); line-height: 1; }
-      .band .l { margin-top: 10px; font-size: var(--fs-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.72); }
+      .band .l { margin-top: 10px; font-size: var(--fs-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--band-label-color); }
 
       /* Service area */
       .area-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
@@ -239,7 +231,7 @@ const jsonLd = {
       .map iframe { width: 100%; height: 100%; border: 0; display: block; }
 
       /* Contact / CTA */
-      .contact-card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: clamp(30px, 5vw, 54px); display: grid; grid-template-columns: 1fr 1fr; gap: 44px; box-shadow: 0 24px 60px rgba(21, 36, 27, 0.08); }
+      .contact-card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: clamp(30px, 5vw, 54px); display: grid; grid-template-columns: 1fr 1fr; gap: 44px; box-shadow: 0 24px 60px var(--contact-card-shadow); }
       @media (max-width: 760px) { .contact-card { grid-template-columns: 1fr; gap: 30px; } }
       .contact-card h2 { margin: 12px 0 0; font-size: var(--fs-h2); }
       .contact-card .cc-copy p { color: var(--muted); margin: 16px 0 0; }
@@ -249,12 +241,12 @@ const jsonLd = {
       form.quote { display: grid; gap: 16px; }
       .field label { display: block; font-size: var(--fs-eyebrow); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
       .field input, .field textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 13px 14px; font: inherit; color: var(--ink); }
-      .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(31,82,54,0.12); }
+      .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--field-focus-ring); }
       .field textarea { resize: vertical; min-height: 96px; }
       .req { color: var(--highlight); }
       .opt { color: var(--muted); font-weight: 400; }
-      .field .err { margin: 7px 0 0; color: #b23a20; font-size: var(--fs-eyebrow); }
-      .field.invalid input, .field.invalid textarea { border-color: #b23a20; }
+      .field .err { margin: 7px 0 0; color: var(--error); font-size: var(--fs-eyebrow); }
+      .field.invalid input, .field.invalid textarea { border-color: var(--error); }
       .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
       .btn-primary:disabled:hover { background: var(--accent); transform: none; }
       .form-note { margin: 4px 0 0; font-size: var(--fs-eyebrow); color: var(--muted); }
@@ -269,7 +261,7 @@ const jsonLd = {
       .foot-col p.h { margin: 0 0 14px; font-size: var(--fs-eyebrow); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dark-muted); font-weight: 700; }
       .foot-col a, .foot-col span { display: block; text-decoration: none; color: var(--dark-fg); margin-bottom: 10px; }
       .foot-col a:hover { color: #fff; }
-      .foot-bar { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding-block: 20px 40px; border-top: 1px solid rgba(255,255,255,0.12); }
+      .foot-bar { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding-block: 20px 40px; border-top: 1px solid var(--foot-bar-border); }
       .foot-bar small { color: var(--dark-muted); font-size: 13px; }
 
       /* Reveal */
@@ -284,8 +276,8 @@ const jsonLd = {
 
     <header class="site">
       <div class="wrap row">
-        <a class="wordmark" href="#top">PNW <span>Arborist</span></a>
-        <a class="btn btn-primary head-cta" href="#contact">Get a Free Quote</a>
+        <a class="wordmark" href="#top">{spec.wordmark.lead} <span>{spec.wordmark.accent}</span></a>
+        <a class="btn btn-primary head-cta" href="#contact">{spec.sectionHeadings.contactHeading}</a>
       </div>
     </header>
 
@@ -295,17 +287,19 @@ const jsonLd = {
         {heroImg && <div class="px-layer" style={`background-image:url(${heroImg})`}></div>}
         <div class="veil"></div>
         <div class="inner">
-          <p class="eyebrow reveal">Certified arborists · {seo.city}, {seo.region}</p>
+          <p class="eyebrow reveal">{spec.content.heroEyebrow} · {seo.city}, {seo.region}</p>
           <h1 class="display reveal">{c.heroHeadline}</h1>
           <p class="sub reveal">{c.heroSub}</p>
           <div class="cta reveal">
-            <a class="btn btn-highlight" href="#contact">Get a Free Quote <Icon name="arrow-right" /></a>
+            <a class="btn btn-highlight" href="#contact">{spec.sectionHeadings.contactHeading} <Icon name="arrow-right" /></a>
             <a class="btn btn-ghost" href={`tel:${tel}`}>Call {b.phone}</a>
           </div>
           <div class="trust reveal">
-            <span><Icon name="star" /> <b>4.9</b> Google rating</span>
-            <span><Icon name="badge-check" /> <b>200+</b> reviews</span>
-            <span><Icon name="leaf" /> Free estimates</span>
+            {
+              spec.content.heroTrust.map((t) => (
+                <span><Icon name={t.icon} /> {t.k && <b>{t.k}</b>} {t.l}</span>
+              ))
+            }
           </div>
         </div>
       </div>
@@ -314,15 +308,15 @@ const jsonLd = {
       <section id="services">
         <div class="wrap">
           <div class="head-center reveal">
-            <p class="eyebrow">What we do</p>
-            <h2 class="display">Expert care for every tree on your property</h2>
-            <p>From removals to fine pruning and honest health assessments — one careful, local team.</p>
+            <p class="eyebrow">{spec.sectionHeadings.servicesEyebrow}</p>
+            <h2 class="display">{spec.content.servicesHeading}</h2>
+            <p>{spec.content.servicesIntro}</p>
           </div>
           <div class="cards">
             {
               client.services.map((s, i) => (
                 <div class="card reveal">
-                  <div class="ic"><Icon name={SERVICE_ICONS[i % SERVICE_ICONS.length]} /></div>
+                  <div class="ic"><Icon name={spec.content.serviceIcons[i % spec.content.serviceIcons.length]} /></div>
                   <h3>{s.title}</h3>
                   <p>{s.description}</p>
                 </div>
@@ -336,12 +330,12 @@ const jsonLd = {
       <section class="features">
         <div class="wrap">
           <div class="head-center reveal">
-            <p class="eyebrow">Why homeowners choose us</p>
-            <h2 class="display">Reliable, tidy, and genuinely local</h2>
+            <p class="eyebrow">{spec.sectionHeadings.featuresEyebrow}</p>
+            <h2 class="display">{spec.content.featuresHeading}</h2>
           </div>
           <div class="feat-grid">
             {
-              FEATURES.map((f) => (
+              spec.content.features.map((f) => (
                 <div class="feat reveal">
                   <div class="ic"><Icon name={f.icon} /></div>
                   <h3>{f.title}</h3>
@@ -357,12 +351,12 @@ const jsonLd = {
       <section>
         <div class="wrap">
           <div class="head-center reveal">
-            <p class="eyebrow">How it works</p>
-            <h2 class="display">Three simple steps</h2>
+            <p class="eyebrow">{spec.sectionHeadings.stepsEyebrow}</p>
+            <h2 class="display">{spec.sectionHeadings.stepsHeading}</h2>
           </div>
           <div class="steps">
             {
-              STEPS.map((s, i) => (
+              spec.content.steps.map((s, i) => (
                 <div class="step reveal">
                   <span class="n"><Icon name={s.icon} /><b>{i + 1}</b></span>
                   <h3>{s.title}</h3>
@@ -380,9 +374,9 @@ const jsonLd = {
         <div class="veil"></div>
         <div class="inner">
           <div class="stats">
-            <div class="reveal"><div class="k">4.9★</div><div class="l">Google rating</div></div>
-            <div class="reveal"><div class="k">200+</div><div class="l">Google reviews</div></div>
-            <div class="reveal"><div class="k">Free</div><div class="l">On-site estimates</div></div>
+            <div class="reveal"><div class="k">{spec.stats[0].k}</div><div class="l">{spec.stats[0].l}</div></div>
+            <div class="reveal"><div class="k">{spec.stats[1].k}</div><div class="l">{spec.stats[1].l}</div></div>
+            <div class="reveal"><div class="k">{spec.stats[2].k}</div><div class="l">{spec.stats[2].l}</div></div>
           </div>
           <a class="btn btn-highlight reveal" href={googleUrl} target="_blank" rel="noopener">Read the reviews on Google <Icon name="arrow-right" /></a>
         </div>
@@ -392,8 +386,8 @@ const jsonLd = {
       <section id="service-area">
         <div class="wrap area-wrap">
           <div class="reveal">
-            <p class="eyebrow">Service area</p>
-            <h2 class="display" style="font-size:var(--fs-h2); margin:14px 0 18px;">Serving Olympia & Thurston County</h2>
+            <p class="eyebrow">{spec.sectionHeadings.serviceAreaEyebrow}</p>
+            <h2 class="display" style="font-size:var(--fs-h2); margin:14px 0 18px;">{spec.content.areaHeading}</h2>
             <div class="pills">
               {b.serviceAreas.map((a) => (
                 <span class="pill"><Icon name="map-pin" /> {a}</span>
@@ -416,8 +410,8 @@ const jsonLd = {
         <div class="wrap">
           <div class="contact-card reveal">
             <div class="cc-copy">
-              <p class="eyebrow">Get in touch</p>
-              <h2 class="display">Get a Free Quote</h2>
+              <p class="eyebrow">{spec.sectionHeadings.contactEyebrow}</p>
+              <h2 class="display">{spec.sectionHeadings.contactHeading}</h2>
               <p>{c.about}</p>
               <div class="cc-info">
                 <a href={`tel:${tel}`}><Icon name="phone-call" /> {b.phone}</a>
@@ -446,7 +440,7 @@ const jsonLd = {
               </div>
               <div class="field">
                 <label for="message">What do you need? <span class="opt">(optional)</span></label>
-                <textarea id="message" name="message" placeholder="Tree removal, pruning, a health assessment…"></textarea>
+                <textarea id="message" name="message" placeholder={spec.formPlaceholder}></textarea>
               </div>
               <button class="btn btn-primary" type="submit" id="submitBtn">Submit</button>
               <p class="form-note">* Required. We'll reply within one business day.</p>
@@ -459,11 +453,11 @@ const jsonLd = {
     <footer class="site">
       <div class="wrap foot-grid">
         <div class="foot-brand">
-          <a class="wordmark" href="#top">PNW <span>Arborist</span></a>
-          <p>{b.name} — certified arborists serving {seo.city} and the surrounding Thurston County area.</p>
+          <a class="wordmark" href="#top">{spec.wordmark.lead} <span>{spec.wordmark.accent}</span></a>
+          <p>{b.name} — {t(spec.content.footerNote)}</p>
         </div>
         <div class="foot-col">
-          <p class="h">Explore</p>
+          <p class="h">{spec.sectionHeadings.footerExplore}</p>
           <a href="#services">Services</a>
           <a href="#service-area">Service area</a>
           <a href="#contact">Get a quote</a>
@@ -477,11 +471,23 @@ const jsonLd = {
       </div>
       <div class="wrap foot-bar">
         <small>© {b.name} · {seo.city}, {seo.region}</small>
-        <small>Free, no-obligation estimates</small>
+        <small>{spec.sectionHeadings.footerTagline}</small>
       </div>
     </footer>
 
-    <PreviewControls variant="v2" defaultDisplay="satoshi" defaultBody="inter" />
+    <PreviewControls
+      variant="v2"
+      slug={spec.slug}
+      colors={{
+        bg: spec.design["--pv-bg"],
+        fg: spec.design["--pv-fg"],
+        shadow: spec.design["--pv-shadow"],
+        segOff: spec.design["--pv-seg-off"],
+        menuLabel: spec.design["--pv-menu-label"],
+      }}
+      defaultDisplay="satoshi"
+      defaultBody="inter"
+    />
 
     <script is:inline>
       // Lightweight parallax (reduced-motion safe).

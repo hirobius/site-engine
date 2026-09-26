@@ -12,23 +12,30 @@
  * bespoke homepage picks up automatically (present → real photo, missing →
  * gradient placeholder).
  *
+ * Per-client queries live in `photo-queries.json` (plain JSON, not this file —
+ * se#208), so this script stays byte-identical across every bespoke app.
+ * `packages/schema/src/site-spec.ts`'s `photoQueries` field is the SAME data,
+ * imported by this app's `site.spec.ts` — keep the two in sync.
+ *
  * NON-FATAL BY DESIGN: no key, or any network/API error, logs a warning and
  * returns without throwing, so the build still succeeds (with placeholders).
  * Free key: https://www.pexels.com/api/new/. Pexels photos are stock — swap for
  * the client's OWN photos before go-live.
  */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "photos");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const OUT = join(ROOT, "public", "photos");
 
-/** slot filename → { query, orientation } */
-const SLOTS = {
-  "hero.jpg": { query: "large lush green oak tree", orientation: "portrait" },
-  "canopy.jpg": { query: "sunlight through green forest canopy", orientation: "landscape" },
-  "v2-hero.jpg": { query: "misty evergreen forest pacific northwest", orientation: "landscape" },
-};
+/** photoQueries key → output filename. Fixed across every bespoke app. */
+const FILENAMES = { hero: "hero.jpg", band: "canopy.jpg", v2Hero: "v2-hero.jpg" };
+
+async function loadQueries() {
+  const raw = await readFile(join(ROOT, "photo-queries.json"), "utf8");
+  return JSON.parse(raw);
+}
 
 async function pick(key, { query, orientation }) {
   const url =
@@ -55,14 +62,17 @@ export async function fetchPhotos() {
     return;
   }
   try {
+    const queries = await loadQueries();
     await mkdir(OUT, { recursive: true });
-    for (const [name, spec] of Object.entries(SLOTS)) {
+    for (const [slot, filename] of Object.entries(FILENAMES)) {
+      const spec = queries[slot];
+      if (!spec) continue;
       const src = await pick(key, spec);
       const img = await fetch(src);
-      if (!img.ok) throw new Error(`download failed (${img.status}) for ${name}`);
+      if (!img.ok) throw new Error(`download failed (${img.status}) for ${filename}`);
       const buf = Buffer.from(await img.arrayBuffer());
-      await writeFile(join(OUT, name), buf);
-      console.log(`✓ fetch-photos: ${name} ← "${spec.query}" (${Math.round(buf.length / 1024)} KB)`);
+      await writeFile(join(OUT, filename), buf);
+      console.log(`✓ fetch-photos: ${filename} ← "${spec.query}" (${Math.round(buf.length / 1024)} KB)`);
     }
   } catch (err) {
     console.warn(`• fetch-photos: skipped (${err.message}) — placeholders stay.`);
