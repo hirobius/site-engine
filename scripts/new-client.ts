@@ -14,6 +14,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PALETTE_PRESET_IDS, type PalettePresetId } from "../packages/schema/src/presets.js";
 import { generateFaviconSvg } from "./favicon.js";
+import { insertFleetEntry, readTemplateVersion } from "./fleet-register.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -92,8 +93,27 @@ writeFileSync(
 
 const projectName = `hirobius-${slug}`;
 
+// 4) Register the new site in the _gallery fleet list (issue #12) — a
+// template-change is a fleet event, so every scaffolded app records the
+// @hirobius/template version it started on. Idempotent: skipped if the slug
+// is already there (e.g. a re-run after a partial scaffold).
+const fleetPath = resolve(ROOT, "apps/_gallery/src/data/fleet.ts");
+const templateVersion = readTemplateVersion();
+const { source: nextFleetSource, inserted } = insertFleetEntry(readFileSync(fleetPath, "utf8"), {
+  slug,
+  name,
+  trade: preset,
+  url: `https://${slug}.example`,
+  status: "preview",
+  templateVersion,
+});
+if (inserted) {
+  writeFileSync(fleetPath, nextFleetSource);
+}
+
 console.log(`
 ✓ Created apps/${slug}
+${inserted ? `✓ Registered in apps/_gallery fleet list (template v${templateVersion})` : `• apps/_gallery fleet list already has "${slug}" — left untouched`}
 
 Next:
   1. Edit apps/${slug}/client.config.ts (business details, copy, services, SEO).

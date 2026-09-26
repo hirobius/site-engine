@@ -95,7 +95,7 @@ open is tracked as a GitHub Issue, not implicitly slated here.*
 | Astro factory + demo (`new-client`, `eject`, components) | ✅ | **Production render target.** Built. |
 | Live Vercel deploy + preview-gate verified (one project per client) | ⬜ | Documented + CLI commands printed; never actually deployed live (was HC-09). |
 | Auto-render flow (agent `ClientConfig` → scaffold app → commit → deploy) | 🟡 | Agent already emits `client.config.ts`; the scaffold+commit+deploy orchestration is semi-manual today (fine at low volume). |
-| Template versioning + freeze ejected sites (fleet-drift guard) | 🟡 | Matters now that we self-host; see README policy. |
+| Template versioning + freeze ejected sites (fleet-drift guard) | 🟡 | `new-client` now records each site's `@hirobius/template` version into `apps/_gallery` fleet list (site-engine#12); tagging `@hirobius/template` releases per the README policy is still manual, not done. |
 
 ### E. API routes (Next.js App Router, `ops`)
 | Piece | Status | Notes |

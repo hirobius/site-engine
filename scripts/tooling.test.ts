@@ -69,11 +69,18 @@ function makeTmp(prefix: string) {
   return d;
 }
 
+// new-client now registers a fleet entry per scaffold (issue #12). Snapshot +
+// restore apps/_gallery/src/data/fleet.ts so these fixture slugs never leak
+// into it — this suite drives the real script against the real repo.
+const FLEET_PATH = resolve(ROOT, "apps/_gallery/src/data/fleet.ts");
+const originalFleetSource = readFileSync(FLEET_PATH, "utf8");
+
 afterAll(() => {
   for (const slug of [FIXTURE, BAD_SLUG.toLowerCase(), DUP_SLUG, PRESET_SLUG]) {
     rmSync(appDir(slug), { recursive: true, force: true });
   }
   for (const d of tmpDirs) rmSync(d, { recursive: true, force: true });
+  writeFileSync(FLEET_PATH, originalFleetSource);
 });
 
 describe("new-client", () => {
@@ -95,6 +102,16 @@ describe("new-client", () => {
     expect(cfg).toContain(`name: "Ralph Fixture Co"`);
     expect(cfg).toContain(`palettePreset: "landscaping"`);
     expect(cfg).toContain(`siteUrl: "https://${FIXTURE}.example"`);
+  });
+
+  it("registers the new site in the _gallery fleet list (issue #12)", () => {
+    const fleetSrc = readFileSync(FLEET_PATH, "utf8");
+    const templateVersion = JSON.parse(
+      readFileSync(resolve(ROOT, "packages/template/package.json"), "utf8"),
+    ).version;
+    expect(fleetSrc).toMatch(new RegExp(`slug: "${FIXTURE}"[\\s\\S]*?templateVersion: "${templateVersion}"`));
+    expect(fleetSrc).toContain(`trade: "landscaping"`);
+    expect(fleetSrc).toContain(`status: "preview"`);
   });
 
   it("copies a clean scaffold (no node_modules/dist/.astro/.turbo)", () => {
