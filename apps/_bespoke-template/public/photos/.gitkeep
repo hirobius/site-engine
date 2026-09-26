@@ -1,0 +1,2 @@
+# Drop verbatim public assets here (og image, hero video poster, static map).
+# Optimizable photos go in src/assets/photos/ so astro:assets can process them.

@@ -68,11 +68,18 @@ packages/
   agent/       @hirobius/agent    — AI pipeline (lead → validated config → eval)  ★flagship
 apps/
   _template/                   canonical client app (copied by new-client)
+  _bespoke-template/           canonical BESPOKE-tier copy source (se#209) — never deployed;
+                                v2.astro/PreviewControls.astro/fetch-photos.mjs/index.astro are
+                                copied verbatim into a bespoke app; a drift gate
+                                (bespoke-template-gate.test.ts) fails the build if a bespoke
+                                app's copy of those files diverges
   _gallery/                    internal preset/section preview (head start on design-system piece)
   demo-pressure-pros/          working demo (sharp-generated placeholder photos; Playwright smoke)
   preview-clearout-junk/       cold-outreach preview
   preview-evergreen-lawn/      cold-outreach preview
   preview-solidline-concrete/  cold-outreach preview
+  pnw-arborist/, septic-response/  BESPOKE-tier apps (own site-spec.ts + Icon.astro; shared
+                                files above are byte-identical to _bespoke-template's)
 scripts/
   new-client.ts         scaffold a client + print Vercel CLI commands
   eject-client.ts       flatten a client into a standalone handoff repo

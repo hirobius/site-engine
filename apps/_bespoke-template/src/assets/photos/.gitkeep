@@ -1,0 +1,2 @@
+# Optimizable photos live here. astro:assets generates responsive srcset +
+# modern formats at build time. Intake convention: 1600px max edge, ~200KB.
