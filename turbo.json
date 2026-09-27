@@ -5,7 +5,9 @@
     "VERCEL_ENV",
     "SITE_LIVE",
     "PREVIEW_USER",
-    "PREVIEW_PASS"
+    "PREVIEW_PASS",
+    "PREVIEW_TOKEN",
+    "PREVIEW_BUILD"
   ],
   "tasks": {
     "build": {
