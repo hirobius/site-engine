@@ -114,10 +114,11 @@ gated PR: /code-review, purity.test.ts, acceptance.test.ts, skins.test.ts,
 apps/_gallery skins.astro preview, pnpm schema:snapshot-ops (ops re-sync)
 ```
 
-S3 (a later slice, not built here) adds extraction *helpers* — scripts that
-capture a reference-link screenshot or video frames straight into a brief's
-`assets/` — but the manual path (drop a screenshot yourself, paste a link)
-already works end-to-end without them. S4 is the first real skin authored
+S3 adds the extraction *helper* `pnpm inspiration:capture <brief> --url <u>`
+/ `--video <clip> [--fps n]` (`scripts/inspiration-capture.ts`), which captures
+a reference-link screenshot (desktop + mobile) or sampled video frames straight
+into a brief's `assets/`; the manual path (drop a screenshot yourself, paste a
+link) still works end-to-end without it. S4 is the first real skin authored
 from a real dropped brief (proof of the loop). S5 (ops) replaces the folder
 with a drop-zone UI + Supabase storage; the *contract* (brief in, one skin PR
 out) does not change when that lands — only where the folder lives.
@@ -151,7 +152,8 @@ out) does not change when that lands — only where the folder lives.
 - Reproducing referenced images or code into client sites — derive palette/
   layout *ideas* only; harvested code still needs `docs/HARVESTING.md`'s
   license gate.
-- Building the extraction helpers (S3), authoring a real skin from a real
+- Building the extraction helpers (S3, since shipped separately as
+  `pnpm inspiration:capture`), authoring a real skin from a real
   brief (S4), or the ops drop-zone UI (S5) — this ADR and its two docs cover
   MVP-1/MVP-2 (the intake convention + the playbook) only. The epic (#173)
   stays open for those slices.

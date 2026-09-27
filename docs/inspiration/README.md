@@ -48,10 +48,22 @@ cp docs/inspiration/_template/BRIEF.md docs/inspiration/<name>/BRIEF.md
 # drop reference links into BRIEF.md, images/video into assets/, fill in the vibe section
 ```
 
-No script or UI yet — S3 (epic #173) adds extraction helpers (a Playwright
-screenshot capture + ffmpeg frame grab feeding a brief automatically); S5
-(later, ops) replaces the folder with a drop-zone UI + Supabase storage. The
-manual path above already works end-to-end without either.
+To pull a reference straight into `assets/`, use the S3 (epic #173) capture
+helper:
+
+```bash
+# desktop 1440x900 + mobile 390x844 screenshot per link -> assets/link-<host>-<n>[-mobile].png
+pnpm inspiration:capture <name> --url https://example.com [--url …] [--full-page]
+# sample frames from a dropped clip -> assets/<clip>-frame-001.png, …
+pnpm inspiration:capture <name> --video docs/inspiration/<name>/assets/clip.mp4 [--fps 1]
+```
+
+It needs Chromium (`pnpm --filter @hirobius/gallery exec playwright install chromium`)
+for links and `ffmpeg` for video (or run inside
+`mcr.microsoft.com/playwright:v1.60.0-noble`), and fails with that fix named
+when either is missing. S5 (later, ops) replaces the folder with a drop-zone
+UI + Supabase storage. The manual path above still works end-to-end without
+either.
 
 ## What happens to a brief
 

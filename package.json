@@ -20,6 +20,7 @@
     "go-live": "tsx scripts/go-live.ts",
     "verify-live": "tsx scripts/verify-live.ts",
     "skin-critique": "tsx scripts/skin-critique.ts",
+    "inspiration:capture": "tsx scripts/inspiration-capture.ts",
     "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts"
   },
   "devDependencies": {
