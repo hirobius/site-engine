@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import middleware from "../../../apps/_template/middleware";
+import middleware from "../middleware";
 
 /**
- * Behavior of the canonical preview gate (apps/_template/middleware.ts; every
- * app carries a byte-identical copy — see middleware-gate.test.ts). Browsers
+ * Behavior of the canonical preview gate (this app's middleware.ts; every app
+ * carries a byte-identical copy — see packages/template/src/middleware-gate.test.ts). Browsers
  * get an autofillable sign-in form instead of the native Basic-auth popup, so
  * password managers work; scripts still get the Basic challenge.
  */
@@ -26,7 +26,7 @@ const BASE = "https://preview.example.test";
 const browser = (path = "/", headers: Record<string, string> = {}) =>
   new Request(BASE + path, { headers: { accept: "text/html,application/xhtml+xml", ...headers } });
 const passedThrough = (res: Response) => res.headers.get("x-middleware-next") === "1";
-const cookieFrom = (res: Response) => (res.headers.get("set-cookie") ?? "").split(";")[0];
+const cookieFrom = (res: Response) => (res.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
 
 function signIn(username: string, password: string, nextPath = "/") {
   const body = new URLSearchParams({ username, password, next: nextPath });
