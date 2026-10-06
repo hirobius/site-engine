@@ -1,0 +1,11 @@
+/* Tailwind v4 entry for this app. The app owns the framework import; the
+   template package ships only the tokens + base layer. */
+@import "tailwindcss";
+@import "@hirobius/template/styles/theme.css";
+
+/* Tailwind v4 ignores node_modules when scanning for class names, and the
+   template is a symlinked workspace dependency — so opt its source in
+   explicitly. `../` covers this app's own pages/components.
+   NOTE: eject-client.ts rewrites the template @source to the inlined path. */
+@source "../";
+@source "../../../../packages/template/src";

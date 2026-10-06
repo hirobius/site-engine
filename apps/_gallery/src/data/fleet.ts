@@ -29,6 +29,14 @@ export const FLEET: FleetSite[] = [
   // Add launched clients here, e.g.:
   // { slug: "mikes-junk", name: "Mike's Junk Removal", url: "https://mikesjunk.com",
   //   trade: "junk-removal", templateVersion: "0.1.0", status: "live" },
+  {
+    slug: "tevah-lash",
+    name: "Tevah Lash",
+    url: "https://tevah-lash.example",
+    trade: "pressure-washing",
+    templateVersion: "0.7.0",
+    status: "preview",
+  },
 ];
 
 /**
