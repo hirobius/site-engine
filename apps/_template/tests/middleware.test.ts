@@ -27,20 +27,20 @@ function request(url: string, headers: Record<string, string> = {}) {
 }
 
 describe("timingSafeEqual", () => {
-  it("returns true only for exact matches", () => {
+  it("returns true only for exact matches", async () => {
     expect(timingSafeEqual("abc123", "abc123")).toBe(true);
     expect(timingSafeEqual("abc123", "abc124")).toBe(false);
   });
 
-  it("returns false for mismatched lengths without throwing", () => {
+  it("returns false for mismatched lengths without throwing", async () => {
     expect(timingSafeEqual("short", "much-longer-value")).toBe(false);
   });
 });
 
 describe("middleware — tokenized preview link", () => {
-  it("valid ?key= matches PREVIEW_TOKEN: passes through, sets cookie, keeps noindex", () => {
+  it("valid ?key= matches PREVIEW_TOKEN: passes through, sets cookie, keeps noindex", async () => {
     process.env.PREVIEW_TOKEN = "s3cr3t-token";
-    const res = middleware(request("https://preview.example/?key=s3cr3t-token"));
+    const res = await middleware(request("https://preview.example/?key=s3cr3t-token"));
 
     expect(res.headers.get("x-middleware-next")).toBe("1");
     expect(res.headers.get("x-robots-tag")).toBe("noindex");
@@ -50,9 +50,9 @@ describe("middleware — tokenized preview link", () => {
     expect(cookie).toContain("Secure");
   });
 
-  it("a valid cookie (no query param) passes through without re-setting the cookie", () => {
+  it("a valid cookie (no query param) passes through without re-setting the cookie", async () => {
     process.env.PREVIEW_TOKEN = "s3cr3t-token";
-    const res = middleware(
+    const res = await middleware(
       request("https://preview.example/about", { cookie: "preview_token=s3cr3t-token" }),
     );
 
@@ -61,48 +61,48 @@ describe("middleware — tokenized preview link", () => {
     expect(res.headers.get("set-cookie")).toBeNull();
   });
 
-  it("an invalid token falls through to Basic auth (401 when creds are configured)", () => {
+  it("an invalid token falls through to Basic auth (401 when creds are configured)", async () => {
     process.env.PREVIEW_TOKEN = "s3cr3t-token";
     process.env.PREVIEW_USER = "user";
     process.env.PREVIEW_PASS = "pass";
 
-    const res = middleware(request("https://preview.example/?key=wrong-token"));
+    const res = await middleware(request("https://preview.example/?key=wrong-token"));
 
     expect(res.status).toBe(401);
     expect(res.headers.get("x-robots-tag")).toBe("noindex");
   });
 
-  it("an invalid token falls through to the fail-closed 503 when no Basic auth creds are set", () => {
+  it("an invalid token falls through to the fail-closed 503 when no Basic auth creds are set", async () => {
     process.env.PREVIEW_TOKEN = "s3cr3t-token";
 
-    const res = middleware(request("https://preview.example/?key=wrong-token"));
+    const res = await middleware(request("https://preview.example/?key=wrong-token"));
 
     expect(res.status).toBe(503);
     expect(res.headers.get("x-robots-tag")).toBe("noindex");
   });
 
-  it("no PREVIEW_TOKEN configured leaves Basic-auth-only behavior unchanged", () => {
+  it("no PREVIEW_TOKEN configured leaves Basic-auth-only behavior unchanged", async () => {
     process.env.PREVIEW_USER = "user";
     process.env.PREVIEW_PASS = "pass";
 
-    const res = middleware(request("https://preview.example/?key=anything"));
+    const res = await middleware(request("https://preview.example/?key=anything"));
 
     expect(res.status).toBe(401);
     expect(res.headers.get("x-robots-tag")).toBe("noindex");
   });
 
-  it("no PREVIEW_TOKEN and no Basic auth creds still fails closed with 503", () => {
-    const res = middleware(request("https://preview.example/"));
+  it("no PREVIEW_TOKEN and no Basic auth creds still fails closed with 503", async () => {
+    const res = await middleware(request("https://preview.example/"));
 
     expect(res.status).toBe(503);
     expect(res.headers.get("x-robots-tag")).toBe("noindex");
   });
 
-  it("SITE_LIVE=true passes straight through regardless of a token", () => {
+  it("SITE_LIVE=true passes straight through regardless of a token", async () => {
     process.env.SITE_LIVE = "true";
     process.env.PREVIEW_TOKEN = "s3cr3t-token";
 
-    const res = middleware(request("https://preview.example/?key=wrong-token"));
+    const res = await middleware(request("https://preview.example/?key=wrong-token"));
 
     expect(res.headers.get("x-middleware-next")).toBe("1");
     expect(res.headers.get("x-robots-tag")).toBeNull();
