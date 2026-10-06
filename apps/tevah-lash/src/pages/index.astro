@@ -1,0 +1,37 @@
+---
+import "../styles/global.css";
+import Document from "@hirobius/template/components/Document.astro";
+import Hero from "@hirobius/template/components/Hero.astro";
+import ServicesGrid from "@hirobius/template/components/ServicesGrid.astro";
+import Gallery from "@hirobius/template/components/Gallery.astro";
+import Reviews from "@hirobius/template/components/Reviews.astro";
+import ServiceAreaMap from "@hirobius/template/components/ServiceAreaMap.astro";
+import ContactForm from "@hirobius/template/components/ContactForm.astro";
+import Footer from "@hirobius/template/components/Footer.astro";
+import StickyCTA from "@hirobius/template/components/StickyCTA.astro";
+import type { SectionId } from "@hirobius/schema";
+import { client } from "../../client.config";
+
+// Sections render in config order. Hero is always first, Footer/StickyCTA last.
+const SECTIONS: Record<SectionId, typeof ServicesGrid> = {
+  services: ServicesGrid,
+  gallery: Gallery,
+  reviews: Reviews,
+  serviceAreaMap: ServiceAreaMap,
+  contact: ContactForm,
+};
+---
+
+<Document config={client}>
+  <main id="main-content">
+    <Hero config={client} />
+    {
+      client.layout.sectionOrder.map((id) => {
+        const Section = SECTIONS[id];
+        return <Section config={client} />;
+      })
+    }
+  </main>
+  <Footer config={client} />
+  <StickyCTA config={client} />
+</Document>
