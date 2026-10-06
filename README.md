@@ -160,16 +160,24 @@ request regardless of framework, which is why it works on a static Astro site.
   with `vercel env add PREVIEW_TOKEN preview --cwd apps/<slug>` (`new-client`
   prints this). If `PREVIEW_TOKEN` isn't set, this path is inert and behavior is
   Basic-auth-only, unchanged.
-- HTTP Basic auth via `PREVIEW_USER` / `PREVIEW_PASS` stays the operator path —
-  always available, only when `VERCEL_ENV !== "production"`. Production passes
-  straight through.
+- **Operator sign-in** via `PREVIEW_USER` / `PREVIEW_PASS`, on every environment
+  (production included) until `SITE_LIVE=true`. A browser page load gets a real
+  sign-in form (`autocomplete="username"` / `"current-password"`) instead of the
+  native Basic-auth popup, so password managers like Bitwarden can autofill it.
+  A correct sign-in posts to `/__preview-login` and sets an httpOnly cookie
+  holding a SHA-256 of the credentials (changing `PREVIEW_PASS` signs everyone
+  out). Non-browser requests (curl, `scripts/verify-live.ts`) still get the
+  Basic challenge, and a Basic `Authorization` header still works.
+- **Vercel Root Directory must be `apps/<slug>`.** Without it the build runs
+  from the repo root, builds every app, and fails with "No Output Directory
+  named dist" (hit on duran-tree-service and septic-response, 2026-10-06).
 - Previews (both paths) also get `X-Robots-Tag: noindex`. This lives in the
   middleware, **not `vercel.json`**, because `vercel.json` headers can't be
   scoped to an environment (they'd noindex production too). A token grants
   *viewing*, never indexing — and the token (like Basic auth) stops mattering
   the moment `SITE_LIVE=true`, since that flip bypasses the gate entirely.
 - Fails closed: if neither a valid token nor creds are presented, the site
-  returns 503 (nothing configured) or 401 (wrong Basic auth).
+  returns 503 (nothing configured) or 401 (sign-in form / Basic challenge).
 
 **One-command cold-outreach preview:** `pnpm deploy-preview <slug>` (issue #154)
 automates the whole gated-preview dance — eject to a standalone build, `vercel
