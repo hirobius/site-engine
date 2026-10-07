@@ -276,15 +276,8 @@ export const DESIGN_PROFILES: readonly DesignProfile[] = [
   },
   {
     id: "crisp-modern",
-    skin: "classic",
-    deltas: {
-      font: "geist",
-      fontPairing: "modern",
-      radius: "sm",
-      shadow: "hard",
-      motion: "subtle",
-      spacingDensity: "compact",
-    },
+    skin: "crisp-modern",
+    deltas: {},
     heroVariants: ["banner", "classic"],
   },
   {

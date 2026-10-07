@@ -18,7 +18,7 @@ import type { SectionVariantId } from "./section-variants.js";
  * fills gaps" contract as `content-packs.ts`.
  */
 
-export const SKIN_IDS = ["classic", "warm-editorial", "bold-industrial"] as const;
+export const SKIN_IDS = ["classic", "warm-editorial", "bold-industrial", "crisp-modern"] as const;
 export type SkinId = (typeof SKIN_IDS)[number];
 
 /** Section variant pins a skin can make. Keys mirror `SECTION_VARIANTS`. */
@@ -201,6 +201,52 @@ export const SKINS: Record<SkinId, Skin> = {
       motion: "subtle",
       spacingDensity: "compact",
       typeScale: "display",
+    },
+  },
+
+  /**
+   * Skin #3 (skins batch PR 4): crisp-modern — calm, precise, near-white with
+   * ink type and one confident blue. For trades that sell reliability and
+   * tidiness (cleaning, HVAC, pool, lawn care). `classic` hero (photo under
+   * an ink overlay) and `cards` services; Space Grotesk `modern` pairing
+   * (`geist` as the sans og-image fallback). Restraint does the work:
+   * `shadow: "flat"` (borders, no glow), `radius: "sm"`, `motion: "subtle"`,
+   * `typeScale: "compact"` (smaller, calmer headings) and
+   * `spacingDensity: "airy"` (generous section rhythm).
+   *
+   * Contrast (all six keys pinned): primary/on-primary 6.18:1, fg/bg 18.64:1,
+   * fg/muted 17.03:1, primary-as-text/bg 6.02:1, primary-as-text/muted
+   * 5.50:1, accent/bg 8.49:1, accent/muted 7.76:1, and primary vs the ink fg
+   * 3.10:1 so the CTA still reads on the classic hero's ink overlay. That
+   * last pair is why fg is near-black ink (#0b0f19) rather than slate: the
+   * blue can't be both dark enough for a 6:1 CTA and light enough to stand
+   * off a slate surface.
+   */
+  "crisp-modern": {
+    sections: {
+      hero: "classic",
+      services: "cards",
+      gallery: "grid",
+      reviews: "cards",
+      serviceAreaMap: "standard",
+      contact: "standard",
+    },
+    brand: {
+      font: "geist",
+      fontPairing: "modern",
+      cssVarOverrides: {
+        "--brand-primary": "#1a56db",
+        "--brand-accent": "#1e40af",
+        "--brand-bg": "#fbfcfd",
+        "--brand-fg": "#0b0f19",
+        "--brand-muted": "#eef2f7",
+        "--brand-on-primary": "#ffffff",
+      },
+      radius: "sm",
+      shadow: "flat",
+      motion: "subtle",
+      spacingDensity: "airy",
+      typeScale: "compact",
     },
   },
 };

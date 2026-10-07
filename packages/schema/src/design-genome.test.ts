@@ -277,7 +277,8 @@ describe("pickDesign — persisted designProfileId survives pool growth", () => 
 describe("DESIGN_PROFILES resolve to the same brand bundles as before unification", () => {
   const expected: Record<string, Record<string, string>> = {
     "classic-clean": { font: "system", fontPairing: "system", radius: "md", shadow: "soft", motion: "rich", spacingDensity: "comfortable" },
-    "crisp-modern": { font: "geist", fontPairing: "modern", radius: "sm", shadow: "hard", motion: "subtle", spacingDensity: "compact" },
+    // Re-pointed to the crisp-modern skin in PR 4: flat shadows + airy density now.
+    "crisp-modern": { font: "geist", fontPairing: "modern", radius: "sm", shadow: "flat", motion: "subtle", spacingDensity: "airy" },
     "industrial-bold": { font: "work-sans", fontPairing: "industrial", radius: "none", shadow: "hard", motion: "subtle", spacingDensity: "compact" },
     "warm-editorial-classic": { font: "slab", fontPairing: "editorial", radius: "lg", shadow: "flat", motion: "subtle", spacingDensity: "comfortable" },
     "warm-editorial-airy": { font: "slab", fontPairing: "editorial", radius: "xl", shadow: "flat", motion: "none", spacingDensity: "airy" },
@@ -303,5 +304,14 @@ describe("genome wiring — bold-industrial (skins batch PR 3)", () => {
     expect(profile?.skin).toBe("bold-industrial");
     expect(profile?.heroVariants).toEqual(["banner"]);
     expect(resolveProfileBrand(profile!).typeScale).toBe("display");
+  });
+});
+
+describe("genome wiring — crisp-modern (skins batch PR 4)", () => {
+  it("the crisp-modern profile draws the crisp-modern skin with its original hero list", () => {
+    const profile = DESIGN_PROFILES.find((p) => p.id === "crisp-modern");
+    expect(profile?.skin).toBe("crisp-modern");
+    expect(profile?.heroVariants).toEqual(["banner", "classic"]);
+    expect(resolveProfileBrand(profile!).typeScale).toBe("compact");
   });
 });
