@@ -201,3 +201,78 @@ describe("pickDesign output validates end to end", () => {
     expect(config.brand.radius).toBe(picked.brand.radius);
   });
 });
+
+// Re-roll guard (skins batch, prerequisite for appending a 6th profile).
+// `pickFrom` indexes by `floor(rng() * pool.length)`, so growing the pool
+// changes the pick for most leads even when existing entries keep their
+// order. Persisting the picked profile id on the lead (and passing it back
+// as `designProfileId`) must make the pick immune to pool growth.
+describe("pickDesign — persisted designProfileId survives pool growth", () => {
+  const extra = {
+    id: "test-appended-sixth",
+    skin: "classic",
+    brand: {
+      font: "system",
+      fontPairing: "system",
+      radius: "md",
+      shadow: "soft",
+      motion: "rich",
+      spacingDensity: "comfortable",
+    },
+    heroVariants: ["classic"],
+  } as const;
+  const grownPool = [...DESIGN_PROFILES, extra];
+  const ids = Array.from({ length: 200 }, (_, i) => `ChIJ_reroll_${i}`);
+
+  it("reports the picked profile id so the caller can persist it", () => {
+    const pick = pickDesign(lead({ placeId: "ChIJ_report" }));
+    expect(DESIGN_PROFILES.map((p) => p.id)).toContain(pick.profileId);
+  });
+
+  it("documents the hazard: without a persisted id, growing the pool re-rolls some leads", () => {
+    const rerolled = ids.filter(
+      (placeId) => pickDesign(lead({ placeId })).profileId !== pickDesign(lead({ placeId }), grownPool).profileId,
+    );
+    expect(rerolled.length).toBeGreaterThan(0);
+  });
+
+  it("with the persisted id, every lead keeps its exact pick after the pool grows", () => {
+    for (const placeId of ids) {
+      const original = pickDesign(lead({ placeId }));
+      const rebuilt = pickDesign(lead({ placeId, designProfileId: original.profileId }), grownPool);
+      expect(rebuilt).toEqual(original);
+    }
+  });
+
+  it("an unknown persisted id (profile retired) falls back to the seeded draw", () => {
+    const seeded = pickDesign(lead({ placeId: "ChIJ_retired" }));
+    expect(pickDesign(lead({ placeId: "ChIJ_retired", designProfileId: "no-such-profile" }))).toEqual(seeded);
+  });
+
+  it("leadToConfig returns designProfileId and honors it on re-generate", () => {
+    const row: LeadRow = {
+      name: "Pinned Wash",
+      slug: "pinned-wash",
+      category: "Pressure washing service",
+      city: "Spokane",
+      region: "WA",
+      placeId: "ChIJ_pinned",
+    };
+    const first = leadToConfig(row);
+    expect(first.designProfileId).toBe(pickDesign(row).profileId);
+    const again = leadToConfig({ ...row, designProfileId: first.designProfileId });
+    expect(again.config).toEqual(first.config);
+  });
+
+  it("an explicit artDirection reports no designProfileId (nothing seeded to persist)", () => {
+    const result = leadToConfig({
+      name: "Art Directed",
+      slug: "art-directed",
+      category: "Landscaping",
+      city: "Boise",
+      region: "ID",
+      artDirection: "warm-editorial",
+    });
+    expect(result.designProfileId).toBeUndefined();
+  });
+});

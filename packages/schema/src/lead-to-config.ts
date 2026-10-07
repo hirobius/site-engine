@@ -55,10 +55,23 @@ export interface LeadRow {
    * `artDirection`/`serviceArea` above).
    */
   placeId?: string | null;
+  /**
+   * The design profile id this lead was first assigned (`designProfileId` on
+   * a previous `LeadToConfigResult`). Persist it on the lead row and pass it
+   * back so rebuilds keep the same look even after `DESIGN_PROFILES` grows —
+   * see `pickDesign`. Absent → seeded draw, as before.
+   */
+  designProfileId?: string | null;
 }
 
 export interface LeadToConfigResult {
   config: ClientConfig;
+  /**
+   * The seeded design profile picked for this lead — persist it on the lead
+   * row (and pass it back as `LeadRow.designProfileId`) so later pool growth
+   * can't re-roll the site. Undefined when `artDirection` chose the skin.
+   */
+  designProfileId?: string;
   /** Fields that were stubbed or defaulted — surface these to the human before go-live. */
   todos: string[];
 }
@@ -168,6 +181,7 @@ export function leadToConfig(lead: LeadRow): LeadToConfigResult {
   let design: SkinId;
   let pickedBrand: ReturnType<typeof pickDesign>["brand"] | undefined;
   let pickedSections: ReturnType<typeof pickDesign>["layout"]["sections"] | undefined;
+  let designProfileId: string | undefined;
   if (lead.artDirection !== undefined) {
     design = lead.artDirection;
   } else {
@@ -175,6 +189,7 @@ export function leadToConfig(lead: LeadRow): LeadToConfigResult {
     design = picked.design;
     pickedBrand = picked.brand;
     pickedSections = picked.layout.sections;
+    designProfileId = picked.profileId;
   }
 
   const draft: ClientConfigDraft = {
@@ -209,5 +224,7 @@ export function leadToConfig(lead: LeadRow): LeadToConfigResult {
     },
   };
 
-  return { config: defineClient(draft), todos };
+  return designProfileId === undefined
+    ? { config: defineClient(draft), todos }
+    : { config: defineClient(draft), todos, designProfileId };
 }
