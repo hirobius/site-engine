@@ -245,3 +245,23 @@ describe("crisp-modern skin (skins batch PR 4)", () => {
     expect(result.brand.spacingDensity).toBe("airy");
   });
 });
+
+describe("luxe-dark skin (skins batch PR 5)", () => {
+  it("pins the split-card hero, masonry reviews, and the luxe dials", () => {
+    const result = defineClient(config({ design: "luxe-dark" }));
+    expect(result.layout.sections.hero.variant).toBe("split-card");
+    expect(result.layout.sections.reviews.variant).toBe("masonry");
+    expect(result.brand.fontPairing).toBe("luxe");
+    expect(result.brand.font).toBe("slab");
+    expect(result.brand.radius).toBe("sm");
+    expect(result.brand.shadow).toBe("soft");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("display");
+    expect(result.brand.spacingDensity).toBe("airy");
+  });
+
+  it("is a dark skin: the page background is darker than the text", () => {
+    const palette = SKINS["luxe-dark"].brand.cssVarOverrides!;
+    expect(parseInt(palette["--brand-bg"]!.slice(1), 16)).toBeLessThan(parseInt(palette["--brand-fg"]!.slice(1), 16));
+  });
+});

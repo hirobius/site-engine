@@ -315,3 +315,17 @@ describe("genome wiring — crisp-modern (skins batch PR 4)", () => {
     expect(resolveProfileBrand(profile!).typeScale).toBe("compact");
   });
 });
+
+describe("genome wiring — luxe-dark (skins batch PR 5)", () => {
+  it("appends luxe-dark as the sixth profile, after the original five", () => {
+    expect(DESIGN_PROFILES.map((p) => p.id)).toEqual([
+      "classic-clean",
+      "crisp-modern",
+      "industrial-bold",
+      "warm-editorial-classic",
+      "warm-editorial-airy",
+      "luxe-dark",
+    ]);
+    expect(DESIGN_PROFILES[5]?.skin).toBe("luxe-dark");
+  });
+});

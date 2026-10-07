@@ -143,3 +143,18 @@ describe("brand.typeScale (#86)", () => {
     expect(brandStyle(withBrand({ typeScale: "compact" }))).toContain("--semantic-text-heading:");
   });
 });
+
+describe("luxe font pairing (skins batch PR 5)", () => {
+  it("pairs a Playfair Display heading with an Inter body", () => {
+    const style = brandStyle(withBrand({ fontPairing: "luxe" }));
+    expect(style).toContain("--primitive-typography-family-display:'Playfair Display'");
+    expect(style).toContain("--primitive-typography-family-primary:'Inter'");
+  });
+
+  it("loads both families in one Google Fonts stylesheet, including the 800 weight the display scale uses", () => {
+    const href = fontHref(withBrand({ fontPairing: "luxe" }));
+    expect(href).toContain("family=Playfair+Display:wght@");
+    expect(href).toContain("800");
+    expect(href).toContain("family=Inter");
+  });
+});

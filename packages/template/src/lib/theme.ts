@@ -50,6 +50,7 @@ const FONT_PAIRING_HREFS: Record<keyof typeof FONT_PAIRINGS, string | null> = {
   modern: `https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&${INTER_FAMILY_PARAM}&display=swap`, // impeccable-disable-line overused-font -- selectable brand.fontPairing option, not the engine default
   industrial: `https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&${INTER_FAMILY_PARAM}&display=swap`,
   slab: `https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&${INTER_FAMILY_PARAM}&display=swap`,
+  luxe: `https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&${INTER_FAMILY_PARAM}&display=swap`,
 };
 
 /**
