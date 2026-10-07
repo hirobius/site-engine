@@ -258,3 +258,17 @@ describe("bold-industrial skin (polish batch 2026-10-07)", () => {
     expect(result.layout.sections.services.variant).toBe("alternating");
   });
 });
+
+describe("crisp-modern skin (skins batch PR 4)", () => {
+  it("pins the classic hero, card services, and the light, airy modern dials", () => {
+    const result = defineClient(config({ design: "crisp-modern" }));
+    expect(result.layout.sections.hero.variant).toBe("classic");
+    expect(result.layout.sections.services.variant).toBe("cards");
+    expect(result.brand.fontPairing).toBe("modern");
+    expect(result.brand.radius).toBe("sm");
+    expect(result.brand.shadow).toBe("flat");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("compact");
+    expect(result.brand.spacingDensity).toBe("airy");
+  });
+});
