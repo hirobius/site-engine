@@ -141,4 +141,23 @@
      `--semantic-shadow-*` shadow dial above. */
   --semantic-spacing-section-y: var(--primitive-space-16);
   --semantic-spacing-section-y-lg: var(--primitive-space-20);
+  /* Type-scale dial (issue #86). The "standard" tier restates today's rendered
+     headings exactly — hero h1 `text-4xl leading-tight sm:text-5xl` (banner:
+     `sm:text-6xl`) at bold, section h2 `text-3xl sm:text-4xl` at bold with
+     Tailwind's own line-heights — so the default path is byte-identical.
+     `compact`/`display` overrides land only via `brand-overlay.ts`. */
+  --semantic-text-display: 2.25rem;
+  --semantic-text-display-leading: 1.25;
+  --semantic-text-display-lg: 3rem;
+  --semantic-text-display-lg-leading: 1.25;
+  --semantic-text-display-xl: 3.75rem;
+  --semantic-text-display-xl-leading: 1.25;
+  --semantic-text-display-weight: 700;
+  --semantic-text-display-tracking: normal;
+  --semantic-text-heading: 1.875rem;
+  --semantic-text-heading-leading: calc(2.25 / 1.875);
+  --semantic-text-heading-lg: 2.25rem;
+  --semantic-text-heading-lg-leading: calc(2.5 / 2.25);
+  --semantic-text-heading-weight: 700;
+  --semantic-text-heading-tracking: normal;
 }

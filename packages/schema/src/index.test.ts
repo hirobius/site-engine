@@ -281,6 +281,29 @@ describe("defineClient", () => {
     });
   });
 
+  describe("brand.typeScale (#86)", () => {
+    it("defaults to standard", () => {
+      const result = defineClient(config({ brand: { palettePreset: "pressure-washing" } }));
+      expect(result.brand.typeScale).toBe("standard");
+    });
+
+    it("resolves standard, compact, and display", () => {
+      for (const typeScale of ["standard", "compact", "display"] as const) {
+        expect(
+          defineClient(config({ brand: { palettePreset: "pressure-washing", typeScale } })).brand.typeScale,
+        ).toBe(typeScale);
+      }
+    });
+
+    it("rejects an unknown typeScale value", () => {
+      expect(() =>
+        defineClient(
+          config({ brand: { palettePreset: "pressure-washing", typeScale: "huge" as never } }),
+        ),
+      ).toThrow();
+    });
+  });
+
   describe("brand.cssVarOverrides", () => {
     it("accepts valid --brand-* keys with hex color values", () => {
       const result = defineClient(
