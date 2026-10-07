@@ -1,6 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolveChromiumExecutable } from "../../scripts/resolve-playwright-browser.js";
 
 const PORT = 4321;
+
+// Use the sandbox's pre-installed Chromium when present; undefined elsewhere so
+// CI/local Playwright-managed browsers are left untouched (see the resolver).
+const chromiumExecutable = resolveChromiumExecutable();
 
 /**
  * Smoke tests run against the built static output via `astro preview`, so they
@@ -17,7 +22,15 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${PORT}`,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        ...(chromiumExecutable ? { launchOptions: { executablePath: chromiumExecutable } } : {}),
+      },
+    },
+  ],
   webServer: {
     command: `pnpm preview --host 127.0.0.1 --port ${PORT}`,
     url: `http://127.0.0.1:${PORT}`,

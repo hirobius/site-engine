@@ -1,6 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolveChromiumExecutable } from "../../scripts/resolve-playwright-browser.js";
 
 const PORT = 4322;
+
+// Use the sandbox's pre-installed Chromium when present; undefined elsewhere so
+// CI/local Playwright-managed browsers are left untouched (see the resolver).
+const chromiumExecutable = resolveChromiumExecutable();
 
 /**
  * Visual regression for the template fleet.
@@ -37,7 +42,15 @@ export default defineConfig({
     // reveal timing left to flake on (clients#22, clients#74).
     contextOptions: { reducedMotion: "reduce" },
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        ...(chromiumExecutable ? { launchOptions: { executablePath: chromiumExecutable } } : {}),
+      },
+    },
+  ],
   webServer: {
     command: `pnpm preview --host 127.0.0.1 --port ${PORT}`,
     url: `http://127.0.0.1:${PORT}`,
