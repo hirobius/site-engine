@@ -36,15 +36,12 @@ export interface SkinSections {
  * ordinary Zod default (i.e. every field a config can omit). `palettePreset`
  * is deliberately excluded: it's `BrandSchema`'s one required field (the
  * trade palette is picked per client, not per skin) and stays a config-only
- * choice, same axis as `contentPack`. `cssVarOverrides` lets a future skin
- * pin the "palette family" ADR-0003 point 1 calls for beyond the four
- * trade presets; `font`/`fontPairing` pin a heading↔body font pairing
- * (typeface only). Correction (#141 review): that is NOT the "type scale"
- * axis ADR-0003 point 1 also names — a type scale is font sizes /
- * line-heights / a modular scale, and the schema has no mechanism for that
- * yet (issue #86, deferred). Until #86 lands, a skin can only pin typeface;
- * "type scale" stays an open follow-up, not something `font`/`fontPairing`
- * should be read as covering.
+ * choice, same axis as `contentPack`. `cssVarOverrides` pins a palette family
+ * beyond the four trade presets (ADR-0003 point 1); a config that sets its own
+ * `cssVarOverrides` is merged over the skin's one var at a time, so tweaking
+ * one var never discards the skin's AA-vetted palette. `font`/`fontPairing`
+ * pin the typeface; `typeScale` (issue #86) pins the heading sizes, weight and
+ * tracking; `spacingDensity` pins section vertical rhythm.
  */
 export interface SkinBrand {
   font?: FontId;
@@ -53,6 +50,8 @@ export interface SkinBrand {
   radius?: "none" | "sm" | "md" | "lg" | "xl";
   shadow?: "flat" | "soft" | "hard";
   motion?: "none" | "subtle" | "rich";
+  spacingDensity?: "compact" | "comfortable" | "airy";
+  typeScale?: "standard" | "compact" | "display";
 }
 
 export interface Skin {
@@ -80,6 +79,8 @@ export const SKINS: Record<SkinId, Skin> = {
       radius: "md",
       shadow: "soft",
       motion: "rich",
+      spacingDensity: "comfortable",
+      typeScale: "standard",
     },
   },
 
@@ -149,6 +150,7 @@ export const SKINS: Record<SkinId, Skin> = {
       radius: "lg",
       shadow: "flat",
       motion: "subtle",
+      spacingDensity: "comfortable",
     },
   },
 };

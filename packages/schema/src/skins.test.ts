@@ -167,14 +167,19 @@ describe("warm-editorial skin (issue #141)", () => {
     expect(warmResult.brand.motion).not.toBe(classicResult.brand.motion);
   });
 
-  it("lets an explicit brand.cssVarOverrides override the skin's palette", () => {
+  it("merges an explicit brand.cssVarOverrides over the skin's palette one var at a time", () => {
+    // Palette trap fix (skins batch PR 2): tweaking one var used to discard the
+    // skin's whole AA-vetted palette. The config's var wins; the rest stay.
     const result = defineClient(
       config({
         design: "warm-editorial",
-        brand: { palettePreset: "pressure-washing", cssVarOverrides: { "--brand-bg": "#ffffff" } },
+        brand: { palettePreset: "pressure-washing", cssVarOverrides: { "--brand-accent": "#7a3d22" } },
       }),
     );
-    expect(result.brand.cssVarOverrides).toEqual({ "--brand-bg": "#ffffff" });
+    expect(result.brand.cssVarOverrides).toEqual({
+      ...SKINS["warm-editorial"].brand.cssVarOverrides,
+      "--brand-accent": "#7a3d22",
+    });
   });
 
   it("renders byte-identical to today when design is omitted (additive)", () => {
@@ -185,5 +190,24 @@ describe("warm-editorial skin (issue #141)", () => {
     // changes output rather than being a no-op.
     const withWarm = defineClient(config({ design: "warm-editorial" }));
     expect(withoutDesign).not.toEqual(withWarm);
+  });
+});
+
+describe("skin surface — spacingDensity + typeScale pins (skins batch PR 2)", () => {
+  it("classic pins the default density + type scale, so it still reproduces the schema defaults", () => {
+    expect(SKINS.classic.brand.spacingDensity).toBe("comfortable");
+    expect(SKINS.classic.brand.typeScale).toBe("standard");
+    expect(defineClient(config({ design: "classic" }))).toEqual(defineClient(config()));
+  });
+
+  it("an explicit spacingDensity/typeScale beats the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "classic",
+        brand: { palettePreset: "pressure-washing", spacingDensity: "airy", typeScale: "display" },
+      }),
+    );
+    expect(result.brand.spacingDensity).toBe("airy");
+    expect(result.brand.typeScale).toBe("display");
   });
 });

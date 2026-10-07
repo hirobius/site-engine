@@ -507,9 +507,16 @@ function applyDesignSkin(config: ClientConfigInput & { design?: SkinId }): Clien
     throw new Error(`Unknown design "${design}" — expected one of ${SKIN_IDS.join(", ")}`);
   }
   const sections = rest.layout?.sections ?? {};
+  // One level deeper than the other brand fields: a config's cssVarOverrides
+  // is merged over the skin's var by var, so tweaking one var keeps the rest
+  // of the skin's AA-vetted palette instead of replacing it wholesale.
+  const cssVarOverrides =
+    skin.brand.cssVarOverrides || rest.brand?.cssVarOverrides
+      ? { ...skin.brand.cssVarOverrides, ...rest.brand?.cssVarOverrides }
+      : undefined;
   return {
     ...rest,
-    brand: { ...skin.brand, ...rest.brand },
+    brand: { ...skin.brand, ...rest.brand, ...(cssVarOverrides ? { cssVarOverrides } : {}) },
     layout: {
       ...rest.layout,
       sections: {
