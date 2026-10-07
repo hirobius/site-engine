@@ -4,6 +4,7 @@ import {
   paletteOverrideIsContrastSafe,
   pickContrastSafeProfile,
   pickDesign,
+  resolveProfileBrand,
   seededRng,
   stableLeadId,
   type DesignSeedLead,
@@ -100,7 +101,7 @@ describe("pickDesign — spread", () => {
 describe("contrast safety", () => {
   it("meets AA on every shipped DESIGN_PROFILES override (none set one today, so vacuously true)", () => {
     for (const profile of DESIGN_PROFILES) {
-      expect(paletteOverrideIsContrastSafe(profile.brand.cssVarOverrides)).toBe(true);
+      expect(paletteOverrideIsContrastSafe(profile.deltas.cssVarOverrides)).toBe(true);
     }
   });
 
@@ -140,13 +141,13 @@ describe("contrast safety", () => {
   it("pickContrastSafeProfile never returns a profile whose override fails AA, across many seeds", () => {
     const goodProfile = {
       id: "good",
-      brand: {
+      deltas: {
         cssVarOverrides: { "--brand-primary": "#4f6350", "--brand-on-primary": "#faf6ee" } as Partial<PaletteTokens>,
       },
     };
     const badProfile = {
       id: "bad",
-      brand: {
+      deltas: {
         cssVarOverrides: { "--brand-primary": "#161616", "--brand-on-primary": "#0d0d0d" } as Partial<PaletteTokens>,
       },
     };
@@ -163,7 +164,7 @@ describe("contrast safety", () => {
     const onlyBad = [
       {
         id: "bad",
-        brand: {
+        deltas: {
           cssVarOverrides: { "--brand-primary": "#161616", "--brand-on-primary": "#0d0d0d" } as Partial<PaletteTokens>,
         },
       },
@@ -211,14 +212,7 @@ describe("pickDesign — persisted designProfileId survives pool growth", () => 
   const extra = {
     id: "test-appended-sixth",
     skin: "classic",
-    brand: {
-      font: "system",
-      fontPairing: "system",
-      radius: "md",
-      shadow: "soft",
-      motion: "rich",
-      spacingDensity: "comfortable",
-    },
+    deltas: { font: "system", fontPairing: "system" },
     heroVariants: ["classic"],
   } as const;
   const grownPool = [...DESIGN_PROFILES, extra];
@@ -275,4 +269,30 @@ describe("pickDesign — persisted designProfileId survives pool growth", () => 
     });
     expect(result.designProfileId).toBeUndefined();
   });
+});
+
+// Genome unification (skins batch PR 2): profiles are thin {id, skin, deltas}
+// wrappers over SKINS. This pins the resolved brand of every pre-existing
+// profile so the refactor (and later skin edits) can't silently change a pick.
+describe("DESIGN_PROFILES resolve to the same brand bundles as before unification", () => {
+  const expected: Record<string, Record<string, string>> = {
+    "classic-clean": { font: "system", fontPairing: "system", radius: "md", shadow: "soft", motion: "rich", spacingDensity: "comfortable" },
+    "crisp-modern": { font: "geist", fontPairing: "modern", radius: "sm", shadow: "hard", motion: "subtle", spacingDensity: "compact" },
+    "industrial-bold": { font: "work-sans", fontPairing: "industrial", radius: "none", shadow: "hard", motion: "subtle", spacingDensity: "compact" },
+    "warm-editorial-classic": { font: "slab", fontPairing: "editorial", radius: "lg", shadow: "flat", motion: "subtle", spacingDensity: "comfortable" },
+    "warm-editorial-airy": { font: "slab", fontPairing: "editorial", radius: "xl", shadow: "flat", motion: "none", spacingDensity: "airy" },
+  };
+
+  it("keeps the first five profiles in their original order", () => {
+    expect(DESIGN_PROFILES.slice(0, 5).map((p) => p.id)).toEqual(Object.keys(expected));
+  });
+
+  for (const [id, brand] of Object.entries(expected)) {
+    it(`${id} resolves to its original dials`, () => {
+      const profile = DESIGN_PROFILES.find((p) => p.id === id);
+      expect(profile).toBeDefined();
+      const resolved = resolveProfileBrand(profile!);
+      for (const [k, v] of Object.entries(brand)) expect(resolved[k as keyof typeof resolved]).toBe(v);
+    });
+  }
 });

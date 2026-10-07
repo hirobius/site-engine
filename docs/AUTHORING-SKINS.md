@@ -24,8 +24,9 @@ client sites, one level up the stack.
   extracts from a brief, it doesn't write one.
 - Read `packages/schema/src/skins.ts` end to end, including the doc comments
   on `SkinBrand` and both existing entries (`classic`, `warm-editorial`).
-  They record real prior decisions (e.g. why `font`/`fontPairing` are NOT a
-  "type scale" — issue #86, deferred) that this playbook assumes.
+  They record real prior decisions (e.g. why `font`/`fontPairing` pin the
+  typeface only, while `typeScale` — issue #86 — pins heading sizes) that
+  this playbook assumes.
 - Confirm the brief doesn't already overlap an existing skin. If `classic` or
   `warm-editorial` already covers the vibe, stop — a duplicate skin is not
   "more variety," it's maintenance for nothing (ADR-0003 §1: "2–4 skins, each
@@ -58,11 +59,12 @@ Translate the extracted values into `SkinBrand` / `SkinSections` fields —
 | Skin axis | Field | Source of truth |
 | --- | --- | --- |
 | Typeface pairing | `brand.fontPairing` | `packages/schema/src/presets.ts` → `FONT_PAIRINGS` (`system` / `editorial` / `modern` / `industrial` / `slab`). Pick the closest existing pairing. **Do not invent a new pairing here** — that's a separate, deliberate font-work issue, flagged not built. `brand.font` only matters as the nominal single-stack fallback (e.g. `og-image.ts`) when `fontPairing` is set — pick the built-in font id closest to the pairing's heading stack (see `warm-editorial`'s `font: "slab"` alongside `fontPairing: "editorial"`). |
-| Palette | `brand.cssVarOverrides` | Six `--brand-*` keys: `primary`, `accent`, `bg`, `fg`, `muted`, `on-primary` (see `PaletteTokens` in `presets.ts`). Only set the keys the brief's palette actually diverges on — omitted keys fall through to the client's own `palettePreset`. This is the "palette family beyond the four trade presets" ADR-0003 §3 calls out. |
+| Palette | `brand.cssVarOverrides` | Six `--brand-*` keys: `primary`, `accent`, `bg`, `fg`, `muted`, `on-primary` (see `PaletteTokens` in `presets.ts`). Only set the keys the brief's palette actually diverges on — omitted keys fall through to the client's own `palettePreset`. This is the "palette family beyond the four trade presets" ADR-0003 §3 calls out. A client config that sets its own `cssVarOverrides` is merged over the skin's var by var, so it can tweak one var without losing the rest of the skin's vetted palette. |
+| Type scale | `brand.typeScale` | `"standard" \| "compact" \| "display"` (issue #86) — one dial for hero + section heading size, line-height, weight and tracking. `display` = bigger/tighter/800, `compact` = smaller/calmer/600. |
 | Corner shape | `brand.radius` | `"none" \| "sm" \| "md" \| "lg" \| "xl"` |
 | Shadow character | `brand.shadow` | `"flat" \| "soft" \| "hard"` |
 | Motion feel | `brand.motion` | `"none" \| "subtle" \| "rich"` — see `docs/adr/0001-motion-foundation.md` for what each tier actually does before picking one. |
-| Spacing density | `brand.spacingDensity` | **Not yet exposed on `SkinBrand`** (see caveat below) — `BrandSchema` has `"compact" \| "comfortable" \| "airy"`, but `skins.ts`'s `SkinBrand` interface doesn't include it yet. If the brief's spacing impression is strongly "tight" or "airy," note it in the skin's doc comment as a known gap and flag the `SkinBrand` extension as a follow-up (don't extend the schema inline inside a skin-authoring PR — that's a deliberate schema change, reviewed on its own). |
+| Spacing density | `brand.spacingDensity` | `"compact" \| "comfortable" \| "airy"` — section vertical rhythm. |
 | Section identity | `layout.sections.<id>.variant` | One pin per section in `SkinSections` (`hero`, `services`, `gallery`, `reviews`, `serviceAreaMap`, `contact`). Pick the closest **existing** variant from `packages/schema/src/section-variants.ts` for each section the brief's §8 calls out — pin every section anyway (even ones with only one variant today), same self-documenting reasoning `warm-editorial`'s doc comment gives, so the skin stays forward-safe if a second variant lands later. |
 
 **If the brief's §8 flags a genuinely missing section variant** (a hero
