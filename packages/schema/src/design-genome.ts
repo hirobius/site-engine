@@ -300,6 +300,14 @@ export const DESIGN_PROFILES: readonly DesignProfile[] = [
     deltas: { radius: "xl", motion: "none", spacingDensity: "airy" },
     heroVariants: ["split-card"],
   },
+  // Appended sixth (skins batch PR 5). Leads drawn before this landed keep
+  // their look only through a persisted designProfileId — see pickDesign.
+  {
+    id: "luxe-dark",
+    skin: "luxe-dark",
+    deltas: {},
+    heroVariants: ["split-card"],
+  },
 ] as const;
 
 /**

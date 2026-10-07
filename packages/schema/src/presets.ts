@@ -125,6 +125,13 @@ export const FONT_PAIRINGS = {
     heading: FONT_STACKS.slab,
     body: FONT_STACKS.inter,
   },
+  // High-contrast didone display serif for the luxe-dark skin (skins batch
+  // PR 5). Playfair over Cormorant: Cormorant tops out at 700, and the
+  // `display` type scale sets headings at 800.
+  luxe: {
+    heading: "'Playfair Display', Georgia, Cambria, 'Times New Roman', serif",
+    body: FONT_STACKS.inter,
+  },
 } as const;
 
 export type FontPairingId = keyof typeof FONT_PAIRINGS;
