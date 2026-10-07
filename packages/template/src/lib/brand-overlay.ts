@@ -64,6 +64,14 @@ export interface BrandPalette {
    * {@link SPACING_DENSITY_SETS}. Scoped to section vertical rhythm only.
    */
   spacingDensity?: 'compact' | 'comfortable' | 'airy';
+  /**
+   * Type-scale dial (issue #86). `'standard'` (or omitted) leaves the
+   * `--semantic-text-*` vars untouched — `tokens.css`'s own values ARE the
+   * "standard" set (today's rendered headings), so this is what keeps the
+   * default path byte-identical. `'compact'`/`'display'` swap in
+   * {@link TYPE_SCALE_SETS}.
+   */
+  typeScale?: 'standard' | 'compact' | 'display';
 }
 
 /**
@@ -110,6 +118,50 @@ const SPACING_DENSITY_SETS: Record<'compact' | 'airy', { sectionY: string; secti
   },
 };
 
+/**
+ * The `compact` and `display` tiers for the `brand.typeScale` dial (issue #86).
+ * `standard` is deliberately absent — it's `tokens.css`'s existing default
+ * (Tailwind's `text-4xl`/`5xl`/`6xl` + `leading-tight` hero, `text-3xl`/`4xl`
+ * section heading), so leaving it out (no override emitted) keeps the default
+ * path byte-identical. Each tier moves size, line-height, weight and tracking
+ * together: `display` = bigger/tighter/800, `compact` = smaller/calmer/600.
+ * Sizes in rem; standard reference: display 2.25/3/3.75, heading 1.875/2.25.
+ */
+const TYPE_SCALE_SETS: Record<'compact' | 'display', Record<string, string>> = {
+  compact: {
+    '--semantic-text-display': '2rem',
+    '--semantic-text-display-leading': '1.2',
+    '--semantic-text-display-lg': '2.5rem',
+    '--semantic-text-display-lg-leading': '1.15',
+    '--semantic-text-display-xl': '3rem',
+    '--semantic-text-display-xl-leading': '1.12',
+    '--semantic-text-display-weight': '600',
+    '--semantic-text-display-tracking': '-0.01em',
+    '--semantic-text-heading': '1.625rem',
+    '--semantic-text-heading-leading': '1.25',
+    '--semantic-text-heading-lg': '1.875rem',
+    '--semantic-text-heading-lg-leading': '1.2',
+    '--semantic-text-heading-weight': '600',
+    '--semantic-text-heading-tracking': '-0.005em',
+  },
+  display: {
+    '--semantic-text-display': '2.75rem',
+    '--semantic-text-display-leading': '1.05',
+    '--semantic-text-display-lg': '4rem',
+    '--semantic-text-display-lg-leading': '1.02',
+    '--semantic-text-display-xl': '4.75rem',
+    '--semantic-text-display-xl-leading': '1',
+    '--semantic-text-display-weight': '800',
+    '--semantic-text-display-tracking': '-0.025em',
+    '--semantic-text-heading': '2.25rem',
+    '--semantic-text-heading-leading': '1.1',
+    '--semantic-text-heading-lg': '2.75rem',
+    '--semantic-text-heading-lg-leading': '1.05',
+    '--semantic-text-heading-weight': '800',
+    '--semantic-text-heading-tracking': '-0.02em',
+  },
+};
+
 /** How dark/light a derived accent state sits relative to the primary. */
 const ACCENT_HOVER_MIX = 88; // % primary, remainder black
 const ACCENT_PRESSED_MIX = 76; // % primary, remainder black
@@ -131,7 +183,7 @@ const blend = (a: string, b: string, pct: number) => `color-mix(in srgb, ${a} ${
  * unchanged, so a partial palette still yields a coherent theme.
  */
 export function brandOverlayVars(palette: BrandPalette): Record<string, string> {
-  const { primary, onPrimary, bg, fg, muted, accent, radius, fontHeading, fontBody, shadow, spacingDensity } =
+  const { primary, onPrimary, bg, fg, muted, accent, radius, fontHeading, fontBody, shadow, spacingDensity, typeScale } =
     palette;
 
   const vars: Record<string, string> = {
@@ -181,6 +233,10 @@ export function brandOverlayVars(palette: BrandPalette): Record<string, string> 
     const set = SPACING_DENSITY_SETS[spacingDensity];
     vars['--semantic-spacing-section-y'] = set.sectionY;
     vars['--semantic-spacing-section-y-lg'] = set.sectionYLg;
+  }
+
+  if (typeScale && typeScale !== 'standard') {
+    Object.assign(vars, TYPE_SCALE_SETS[typeScale]);
   }
 
   return vars;

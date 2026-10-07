@@ -145,6 +145,16 @@ export const BrandSchema = z.object({
    */
   spacingDensity: z.enum(["compact", "comfortable", "airy"]).default("comfortable"),
   /**
+   * Type-scale dial (issue #86). Sets the display (hero h1) and heading
+   * (section h2) tiers together — size, line-height, tracking and weight move
+   * as one, so there is no separate heading-style dial. `standard` (default)
+   * reproduces today's rendered headings exactly — additive, does not change
+   * any existing client's output. `display` is bigger, tighter and heavier
+   * (bold art directions); `compact` is smaller and calmer. Wired in
+   * `packages/template/src/lib/brand-overlay.ts`.
+   */
+  typeScale: z.enum(["standard", "compact", "display"]).default("standard"),
+  /**
    * Scroll-motion intensity, applied dependency-free (CSS + one
    * IntersectionObserver island; no GSAP, no Lenis):
    * - `none`   — fully static; no reveal, rise, or pulse. Content renders as-is.

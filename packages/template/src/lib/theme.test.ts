@@ -132,3 +132,14 @@ describe("brand.spacingDensity (#86, spacing-density slice)", () => {
     expect(style).toContain("--semantic-spacing-section-y-lg:var(--primitive-space-32)");
   });
 });
+
+describe("brand.typeScale (#86)", () => {
+  it("defaults to standard — emits no --semantic-text-* override", () => {
+    expect(brandStyle(withBrand({}))).not.toContain("--semantic-text-");
+  });
+
+  it("'display' and 'compact' reach the inline style", () => {
+    expect(brandStyle(withBrand({ typeScale: "display" }))).toContain("--semantic-text-display:");
+    expect(brandStyle(withBrand({ typeScale: "compact" }))).toContain("--semantic-text-heading:");
+  });
+});
