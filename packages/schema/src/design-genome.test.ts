@@ -296,3 +296,12 @@ describe("DESIGN_PROFILES resolve to the same brand bundles as before unificatio
     });
   }
 });
+
+describe("genome wiring — bold-industrial (skins batch PR 3)", () => {
+  it("the industrial-bold profile now draws the bold-industrial skin, banner hero only", () => {
+    const profile = DESIGN_PROFILES.find((p) => p.id === "industrial-bold");
+    expect(profile?.skin).toBe("bold-industrial");
+    expect(profile?.heroVariants).toEqual(["banner"]);
+    expect(resolveProfileBrand(profile!).typeScale).toBe("display");
+  });
+});

@@ -18,7 +18,7 @@ import type { SectionVariantId } from "./section-variants.js";
  * fills gaps" contract as `content-packs.ts`.
  */
 
-export const SKIN_IDS = ["classic", "warm-editorial"] as const;
+export const SKIN_IDS = ["classic", "warm-editorial", "bold-industrial"] as const;
 export type SkinId = (typeof SKIN_IDS)[number];
 
 /** Section variant pins a skin can make. Keys mirror `SECTION_VARIANTS`. */
@@ -151,6 +151,56 @@ export const SKINS: Record<SkinId, Skin> = {
       shadow: "flat",
       motion: "subtle",
       spacingDensity: "comfortable",
+    },
+  },
+
+  /**
+   * Skin #2 (skins batch PR 3): bold-industrial — loud, utilitarian, built for
+   * trades that sell toughness (concrete, demolition, junk removal, fencing).
+   * Charcoal + safety-amber: the CTA is a charcoal block with amber type,
+   * like site signage, and amber stars/accents; page surfaces are a warm
+   * concrete-grey. `banner` hero (big centered headline on the muted
+   * surface — the `display` type scale's natural stage) and `alternating`
+   * services (wide image/text rows read as a portfolio of jobs, not a menu).
+   *
+   * Dials: Archivo `industrial` pairing (`work-sans` as the sans og-image
+   * fallback), `radius: "none"` and `shadow: "hard"` for hard edges and
+   * solid offset shadows, `typeScale: "display"` (bigger/tighter/800),
+   * `spacingDensity: "compact"`, `motion: "subtle"` (reveal, no stagger —
+   * the type does the shouting).
+   *
+   * Contrast (all six keys pinned so no trade preset mixes in), every pair
+   * the template renders text on: primary/on-primary 8.96:1, fg/bg 15.42:1,
+   * fg/muted 13.20:1, primary-as-text/bg 14.60:1, primary-as-text/muted
+   * 12.51:1, accent/bg 4.63:1, accent/muted 3.96:1. Primary is charcoal, so
+   * a CTA on the inverted classic hero (fg surface) would vanish — the skin
+   * pins `banner` and its genome profile draws `banner` only.
+   */
+  "bold-industrial": {
+    sections: {
+      hero: "banner",
+      services: "alternating",
+      gallery: "grid",
+      reviews: "cards",
+      serviceAreaMap: "standard",
+      contact: "standard",
+    },
+    brand: {
+      font: "work-sans",
+      fontPairing: "industrial",
+      cssVarOverrides: {
+        "--brand-primary": "#1f1f1f",
+        "--brand-accent": "#a35a00",
+        "--brand-bg": "#f3f1ec",
+        "--brand-fg": "#1a1a1a",
+        "--brand-muted": "#e4e0d6",
+        "--brand-on-primary": "#f5b400",
+      },
+      radius: "none",
+      shadow: "hard",
+      motion: "subtle",
+      spacingDensity: "compact",
+      typeScale: "display",
     },
   },
 };

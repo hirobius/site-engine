@@ -211,3 +211,23 @@ describe("skin surface — spacingDensity + typeScale pins (skins batch PR 2)", 
     expect(result.brand.typeScale).toBe("display");
   });
 });
+
+describe("bold-industrial skin (skins batch PR 3)", () => {
+  it("pins the banner hero, alternating services, and the heavy industrial dials", () => {
+    const result = defineClient(config({ design: "bold-industrial" }));
+    expect(result.layout.sections.hero.variant).toBe("banner");
+    expect(result.layout.sections.services.variant).toBe("alternating");
+    expect(result.brand.fontPairing).toBe("industrial");
+    expect(result.brand.radius).toBe("none");
+    expect(result.brand.shadow).toBe("hard");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("display");
+    expect(result.brand.spacingDensity).toBe("compact");
+  });
+
+  it("carries its own charcoal + safety-amber palette, independent of the trade preset", () => {
+    const result = defineClient(config({ design: "bold-industrial" }));
+    expect(result.brand.cssVarOverrides).toEqual(SKINS["bold-industrial"].brand.cssVarOverrides);
+    expect(result.brand.cssVarOverrides?.["--brand-on-primary"]).toBe("#f5b400");
+  });
+});
