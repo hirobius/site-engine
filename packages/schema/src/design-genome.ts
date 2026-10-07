@@ -198,6 +198,13 @@ export interface DesignSeedLead {
   slug?: string | null;
   name: string;
   city: string;
+  /**
+   * The `DesignProfile.id` this lead was first assigned, persisted on the lead
+   * row and passed back on every rebuild. When it names a profile still in the
+   * pool, it wins over the seeded draw — so growing `DESIGN_PROFILES` never
+   * re-rolls a lead that already has a design. Absent/unknown → seeded draw.
+   */
+  designProfileId?: string | null;
 }
 
 /**
@@ -340,6 +347,8 @@ export function pickContrastSafeProfile<T extends { brand: { cssVarOverrides?: P
 // ---------------------------------------------------------------------------
 
 export interface DesignPick {
+  /** The picked `DesignProfile.id` — persist it on the lead as `designProfileId`. */
+  profileId: string;
   design: SkinId;
   brand: Omit<DesignProfileBrand, "cssVarOverrides"> & { cssVarOverrides?: Partial<PaletteTokens> };
   layout: {
@@ -355,12 +364,21 @@ export interface DesignPick {
  * `DESIGN_PROFILES` (contrast-guarded) then an on-brand hero variant from
  * that profile's own short list — two draws off one seeded generator, so the
  * result is fully determined by `stableLeadId(lead)`.
+ *
+ * Pool growth: the profile draw indexes by `floor(rng() * pool.length)`, so
+ * appending a profile re-rolls most leads even with existing entries kept in
+ * order. A persisted `lead.designProfileId` pins the profile instead. The
+ * profile draw is still consumed, so the hero draw sees the same second
+ * value and lands on the same variant. `pool` is injectable for tests.
  */
-export function pickDesign(lead: DesignSeedLead): DesignPick {
+export function pickDesign(lead: DesignSeedLead, pool: readonly DesignProfile[] = DESIGN_PROFILES): DesignPick {
   const rng = seededRng(stableLeadId(lead));
-  const profile = pickContrastSafeProfile(rng, DESIGN_PROFILES);
+  const drawn = pickContrastSafeProfile(rng, pool);
+  const pinned = lead.designProfileId ? pool.find((p) => p.id === lead.designProfileId) : undefined;
+  const profile = pinned ?? drawn;
   const heroVariant = pickFrom(rng, profile.heroVariants);
   return {
+    profileId: profile.id,
     design: profile.skin,
     brand: { ...profile.brand },
     layout: { sections: { hero: { variant: heroVariant } } },
