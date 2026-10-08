@@ -20,7 +20,13 @@
         ".claude/skills/impeccable/reference/product.md",
         ".claude/skills/impeccable/reference/init.md",
         ".claude/skills/impeccable/scripts/context.mjs",
-        ".claude/skills/impeccable/scripts/palette.mjs"
+        ".claude/skills/impeccable/scripts/palette.mjs",
+        ".claude/skills/impeccable/scripts/lib/target-args.mjs",
+        ".claude/skills/impeccable/scripts/lib/provider.mjs",
+        ".claude/skills/impeccable/scripts/lib/impeccable-paths.mjs",
+        ".claude/skills/impeccable/scripts/context-signals.mjs",
+        ".claude/skills/impeccable/scripts/critique-storage.mjs",
+        ".claude/skills/impeccable/scripts/pin.mjs"
       ]
     }
   }
