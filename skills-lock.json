@@ -28,6 +28,279 @@
         ".claude/skills/impeccable/scripts/critique-storage.mjs",
         ".claude/skills/impeccable/scripts/pin.mjs"
       ]
+    },
+    "api-and-interface-design": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-and-interface-design/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "e83d34f52ff12dd8a7c5134cd7e8140ea4541ec65e204f8a1e4cd366e30c4192",
+      "license": "MIT"
+    },
+    "browser-testing-with-devtools": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/browser-testing-with-devtools/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "4e3aacd6a380cd25bc6c2d67fdd1c926a9b22535b8a62109ecd33cefd909e3d9",
+      "license": "MIT"
+    },
+    "ci-cd-and-automation": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ci-cd-and-automation/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "a6ed8ed56456b01ff8314c44eefc69897d9905ae4e06bb2b7036286efb79b5f0",
+      "license": "MIT"
+    },
+    "code-review-and-quality": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-review-and-quality/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "edbc8056420def9790cec1d17b9ec0a70bcd240219ddf35918bcfad4bddbca40",
+      "paths": [
+        "../../references/performance-checklist.md",
+        "../../references/security-checklist.md"
+      ],
+      "license": "MIT"
+    },
+    "code-simplification": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-simplification/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "f0c5ed754057eb0c1e027e2587f59de816651feb5e837242296c43ea21cf621d",
+      "license": "MIT"
+    },
+    "constraint-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/constraint-driven-development/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "e2e72d16b76990498b6f4af798bb4477e41236c70a60202cc58651b20b1bedf0",
+      "paths": [
+        "references/floor-guard.md"
+      ],
+      "license": "MIT"
+    },
+    "context-engineering": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/context-engineering/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "8b736cb9e55b82b265ab6ff78349c0e826e8a6df550deddf665b7fb3ff858b63",
+      "license": "MIT"
+    },
+    "debugging-and-error-recovery": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/debugging-and-error-recovery/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "21f3960f5d7ae2cc95c40896545004dbbcbbd752ea65fc2d53962554d4174220",
+      "license": "MIT"
+    },
+    "deprecation-and-migration": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/deprecation-and-migration/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "6a624f942e09c69863a4219b9bd5d56975026b67b0c70bc83385ffd2120b6142",
+      "license": "MIT"
+    },
+    "documentation-and-adrs": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/documentation-and-adrs/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "359b22460045583b0233ec3f80223459c4096b0fa513f5c29ade9c3985207d65",
+      "license": "MIT"
+    },
+    "doubt-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/doubt-driven-development/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "e5be6797dcbed94d70abea6410eb88da331f09b7ee74d74b0ff5cf17a0095136",
+      "paths": [
+        "../../references/orchestration-patterns.md"
+      ],
+      "license": "MIT"
+    },
+    "frontend-ui-engineering": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-ui-engineering/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "3b50a3c9d913752bfb5a7da0f2dcca42f577f467d5b44a034de2a4171e4ffbf8",
+      "paths": [
+        "../../references/accessibility-checklist.md"
+      ],
+      "license": "MIT"
+    },
+    "git-workflow-and-versioning": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/git-workflow-and-versioning/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "b7465d187935c52546d39fdc7bd6ac36d94eda25a9500ef8c18b767d2eb116ea",
+      "license": "MIT"
+    },
+    "idea-refine": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/idea-refine/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "632c5de8693ccb6ea96bea94fd1dc7a3363a569a87f550b9d6c890eef637a4a2",
+      "paths": [
+        "examples.md",
+        "frameworks.md",
+        "refinement-criteria.md",
+        "scripts/idea-refine.sh"
+      ],
+      "license": "MIT"
+    },
+    "incremental-implementation": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/incremental-implementation/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "692531e5e3f38e2d5f1467455844b353dde5fedd47206427dd8d37242aa75479",
+      "paths": [
+        "../../references/definition-of-done.md"
+      ],
+      "license": "MIT"
+    },
+    "interview-me": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/interview-me/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "ace4b675999bb504593d572e0f73f3d7e803ad6fddf318445598c82c11939db2",
+      "license": "MIT"
+    },
+    "observability-and-instrumentation": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/observability-and-instrumentation/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "1c57d52f7fa808fd5c4f5082d2335066ecb353ca761f6f2540de64992fde6353",
+      "paths": [
+        "../../references/observability-checklist.md"
+      ],
+      "license": "MIT"
+    },
+    "performance-optimization": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/performance-optimization/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "bbc07eab4e005bf29da8b9acc88cb335c6ab42e27ed976d00cf29661435ce6d6",
+      "paths": [
+        "../../references/performance-checklist.md",
+        "references/optimization-patterns.md"
+      ],
+      "license": "MIT"
+    },
+    "planning-and-task-breakdown": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/planning-and-task-breakdown/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "3679d45131cce4aab871502708eab8cd7f85653e3ca3bc9a4d09c2d2efe29ed5",
+      "paths": [
+        "../../references/definition-of-done.md"
+      ],
+      "license": "MIT"
+    },
+    "security-and-hardening": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/security-and-hardening/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "9a8294aef2e7e1be1fa44b9517bc34539912a83977cccac930e682991815d9ef",
+      "paths": [
+        "../../references/security-checklist.md",
+        "references/hardening-patterns.md"
+      ],
+      "license": "MIT"
+    },
+    "shipping-and-launch": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/shipping-and-launch/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "4d8b480fee9fae6fe4d7487c656859c47ccbd9422e7f4f5773e4f7f1ae45a369",
+      "paths": [
+        "../../references/accessibility-checklist.md",
+        "../../references/definition-of-done.md",
+        "../../references/performance-checklist.md",
+        "../../references/security-checklist.md"
+      ],
+      "license": "MIT"
+    },
+    "source-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/source-driven-development/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "c59faf851377f0eeda45306398d16eb96d77ab1c2fd3e1a7fb58e9a0af33c1e9",
+      "license": "MIT"
+    },
+    "spec-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/spec-driven-development/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "c4b97ce3d7f24be0e67fd612c7595f65504872e3a9f8d338d098b2363fdb66ef",
+      "license": "MIT"
+    },
+    "test-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "049a2771112ebff3e5750bf0ef3a6469ebe037a5a18f04d204b1480f33d532f8",
+      "paths": [
+        "../../references/testing-patterns.md"
+      ],
+      "license": "MIT"
+    },
+    "using-agent-skills": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/using-agent-skills/SKILL.md",
+      "pinnedCommit": "1401c8b8030e023baeebb31781a6653fe8e93026",
+      "hashAlgorithm": "sha256",
+      "computedHash": "456537d294667cf312033670d9bf8fb1e25312a08d128fecaaac7b5713b7b1a4",
+      "paths": [
+        "../../references/definition-of-done.md"
+      ],
+      "license": "MIT"
     }
   }
 }
