@@ -121,6 +121,21 @@ Ignored Build Step `npx turbo-ignore`. Preview deploys are basic-auth gated by
 
 Tracker config for `/to-tickets` + `/triage`: our tracker is **GitHub Issues in this repo**; label vocabulary `backlog` · `bug` · `blocked` · `needs-adrian`; dependencies via **sub-issues** / **"Depends on #N"**.
 
+### Addy Osmani's agent-skills (2026-10-09)
+
+`.claude/skills/` also vendors 25 skills from
+[addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT, pin
+`1401c8b`, hirobius/ops#552), locked in `skills-lock.json`. **Pocock's skills above
+stay the mandatory routing**; where an Osmani skill overlaps one
+(`test-driven-development`, `code-review-and-quality`, `debugging-and-error-recovery`,
+`planning-and-task-breakdown`, ...), run the Pocock one. No Osmani name clashed with
+an existing skill, so **nothing was renamed**. Reach for Osmani where Pocock has
+nothing: `security-and-hardening`, `performance-optimization`,
+`api-and-interface-design`, `shipping-and-launch`, `ci-cd-and-automation`,
+`deprecation-and-migration`. Upstream's slash commands and reviewer personas are not
+vendored (no `.claude/commands` or `.claude/agents` here). Detail:
+`.claude/skills/_vendor/osmani-agent-skills/ROUTING.md`.
+
 ### Design-quality skill (2026-07-12)
 
 `.claude/skills/impeccable/` vendors a curated subset of
