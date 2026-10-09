@@ -11,7 +11,7 @@
  * HERE, never touching Vercel, then drives the flip and checks the result
  * with verify-live.
  */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -47,6 +47,27 @@ export function runArmedBuild(slug: string, spawnImpl: SpawnFn = defaultSpawn): 
   return res.status === 0;
 }
 
+/**
+ * The shipping-and-launch gate: before any site is set live, the
+ * `shipping-and-launch` skill (.claude/skills/shipping-and-launch/SKILL.md) must
+ * have been run and its result recorded in docs/launches/<slug>.md as a line
+ * `Shipping-Checklist: PASS - <one line: what was reviewed>`.
+ */
+export function checkLaunchRecord(slug: string, root: string = ROOT): { ok: boolean; message: string } {
+  const rel = `docs/launches/${slug}.md`;
+  const file = resolve(root, rel);
+  const text = existsSync(file) ? readFileSync(file, "utf8") : "";
+  const m = text.match(/^\s*Shipping-Checklist:\s*PASS\b[\s:—–-]*(\S.*)$/im);
+  if (m) return { ok: true, message: `Shipping-Checklist: PASS - ${m[1].trim()}` };
+  return {
+    ok: false,
+    message:
+      `No passing launch record for ${slug}. Run the \`shipping-and-launch\` skill ` +
+      `(.claude/skills/shipping-and-launch/SKILL.md) and record the result in ${rel} as a line: ` +
+      "`Shipping-Checklist: PASS - <one line: what was reviewed>` (see docs/PIPELINE-RUNBOOK.md, step 8).",
+  };
+}
+
 /** Reads `seo.siteUrl` out of apps/<slug>/client.config.ts — the real production URL. */
 export async function readSiteUrl(slug: string): Promise<string> {
   const cfgPath = resolve(ROOT, "apps", slug, "client.config.ts");
@@ -68,6 +89,10 @@ if (isMain()) {
   if (!existsSync(resolve(ROOT, "apps", slug))) die(`apps/${slug} does not exist.`);
 
   const appRel = `apps/${slug}`;
+
+  const launch = checkLaunchRecord(slug);
+  if (!launch.ok) die(launch.message);
+  console.log(`✓ ${launch.message}\n`);
 
   console.log(`→ Running the armed acceptance build (SITE_LIVE=true) for ${appRel}...`);
   if (!runArmedBuild(slug)) {

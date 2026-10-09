@@ -24,6 +24,8 @@ out — nothing below is invented.
 
 ## 0. Prerequisites
 
+- [ ] The `shipping-and-launch` skill has been run and `docs/launches/<slug>.md` carries a
+      `Shipping-Checklist: PASS - <summary>` line (`pnpm go-live` refuses without it).
 - [ ] Intake is complete (`docs/INTAKE.md` filled in) and the preview deploy
       has been reviewed/approved.
 - [ ] The client's Vercel project already exists and is linked (`new-client`
