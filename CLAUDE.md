@@ -117,6 +117,7 @@ Ignored Build Step `npx turbo-ignore`. Preview deploys are basic-auth gated by
 - **A bug → `/diagnosing-bugs`** (reproduce → minimize → fix), then `/tdd`.
 - **An epic / multi-part / fuzzy task → `/to-tickets`** (dependency-ordered sub-issues); `/grill-me` first if the plan itself is unclear.
 - **Issue-lifecycle / board work → `/triage`.**
+- **Before any site is set live (`SITE_LIVE=true` / production domain) → `shipping-and-launch`** (Osmani; Pocock still owns build/test/review). Record `Shipping-Checklist: PASS - <summary>` in `docs/launches/<slug>.md`; `pnpm go-live` refuses without it (`docs/PIPELINE-RUNBOOK.md`, step 8).
 - **Config-only client builds** (the common case): no red-green *unit* TDD — a config is data, already validated by the Zod schema at build. But keep the test-first instinct at the **acceptance layer**: the generated site must leak no placeholders (`.example` URL, `555-01xx` phone, all-zeros form key, stub names), stay within SEO limits, be gated until `SITE_LIVE=true`, and render every configured section (shared acceptance test tracked in #37 — it would have caught the Monroe `.example`/ungated-prod bugs). Still `/grill-me` anything ambiguous and `/code-review` before opening the PR.
 
 Tracker config for `/to-tickets` + `/triage`: our tracker is **GitHub Issues in this repo**; label vocabulary `backlog` · `bug` · `blocked` · `needs-adrian`; dependencies via **sub-issues** / **"Depends on #N"**.

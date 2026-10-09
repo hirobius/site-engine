@@ -11,7 +11,7 @@ the bottom — paste it into a fresh session and it does the rest.
 
 ---
 
-## The path (7 steps)
+## The path (8 steps)
 
 | # | Step | Command / action |
 |---|---|---|
@@ -22,6 +22,7 @@ the bottom — paste it into a fresh session and it does the rest.
 | 5 | **Verify (ship gate)** | `pnpm --filter @hirobius/<slug> check && pnpm --filter @hirobius/<slug> build` — both **0 errors**. The build runs Zod via `defineClient()`; a bad config fails here, not in prod. |
 | 6 | **Imagery (optional)** | `PEXELS_API_KEY=<key> node apps/<slug>/scripts/fetch-photos.mjs` — run where the network can reach `api.pexels.com` (local machine or Vercel build; **blocked in the remote sandbox**). No key → ship photo-less, like the existing previews. |
 | 7 | **Deploy a gated preview** | `pnpm deploy-preview <slug>` → prints the `?key=` link. Stays gated (`SITE_LIVE` unset). Never `--prod`; the script enforces preview-only. **Before sending that link, do the pre-send step below.** |
+| 8 | **Go live (REQUIRED pre-live step)** | Before any site is set live (`SITE_LIVE=true` or a production domain): run the **`shipping-and-launch`** skill (`.claude/skills/shipping-and-launch/SKILL.md`) and record the checklist result in `docs/launches/<slug>.md` — see the go-live step below. Then `pnpm go-live <slug>`. |
 
 ### Pre-send step — the phone the owner sees (ops#27)
 
@@ -35,6 +36,24 @@ Set `business.phone` from the lead row for the deploy that produces the link you
 send, and keep the value out of the commit. The preview build now names the
 field when it is still a stub (`armAcceptanceGate` → `detectVisibleContactPlaceholders`
 in `packages/template`); the armed go-live build fails on it outright.
+
+### Go-live step — the launch checklist (required, enforced by `go-live`)
+
+Setting a site live is the one irreversible-ish step in this path, so it gets a
+checklist pass first. Before `SITE_LIVE=true` is set or a production domain is
+pointed at an app:
+
+1. Run the `shipping-and-launch` skill against `apps/<slug>`: pre-launch
+   checklist, monitoring, staged rollout, rollback plan. Pair it with
+   `docs/GO-LIVE-CHECKLIST.md` (the intake facts) and `docs/GO-LIVE.md` (the Vercel
+   steps).
+2. Record the result in `docs/launches/<slug>.md` as a line:
+   `Shipping-Checklist: PASS - <one line: what was reviewed>`. A `FAIL` or a missing
+   file blocks the flip; fix the finding and rerun the skill.
+3. `pnpm go-live <slug>` checks that line first (`checkLaunchRecord` in
+   `scripts/go-live.ts`, tested in `scripts/go-live.test.ts`), then runs the armed
+   acceptance build. There is no skip flag. Previews (`deploy-preview`) are
+   unaffected: this gate is for going live only.
 
 ---
 
