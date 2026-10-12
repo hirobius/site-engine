@@ -22,6 +22,22 @@
       "dependsOn": ["build"],
       "outputs": ["playwright-report/**", "test-results/**"]
     },
+    "@hirobius/scripts#test": {
+      "dependsOn": ["build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/AGENTS.md",
+        "$TURBO_ROOT$/CLAUDE.md",
+        "$TURBO_ROOT$/SECRETS.md",
+        "$TURBO_ROOT$/status.json",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/docs/**",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/apps/*/client.config.ts",
+        "$TURBO_ROOT$/apps/*/site-spec.ts"
+      ]
+    },
     "dev": {
       "cache": false,
       "persistent": true

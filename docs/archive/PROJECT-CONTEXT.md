@@ -1,3 +1,5 @@
+> **Archived 2026-10-12 (site-engine#229).** History, not current state: a dated session and strategy snapshot; its repo map, status and critical path went stale. Current rules are CLAUDE.md, current layout is AGENTS.md and README.md. Paths and numbers below are not kept up to date.
+
 # Hirobius — Project Context & Handoff
 
 > **Purpose:** paste or reference this file in a new chat to resume with full

@@ -11,7 +11,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "check": "turbo run check",
-    "test": "turbo run test",
+    "test": "pnpm state:check && turbo run test",
     "lint": "turbo run check",
     "ralph:kit-drift": "node scripts/check-ralph-kit-drift.mjs",
     "new-client": "tsx scripts/new-client.ts",
@@ -22,7 +22,9 @@
     "verify-live": "tsx scripts/verify-live.ts",
     "skin-critique": "tsx scripts/skin-critique.ts",
     "inspiration:capture": "tsx scripts/inspiration-capture.ts",
-    "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts"
+    "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts",
+    "state:generate": "tsx scripts/generate-front-door.ts",
+    "state:check": "tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

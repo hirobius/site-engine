@@ -48,7 +48,7 @@ client. The set is deliberately universal — variant ids are layout adjectives
      sessions themselves; exceptions are explicit allowlists reviewed as code.
    - The conversion contract in `docs/HARVESTING.md` (licensing, existing
      schema fields only, graceful degradation), reviewed via `/code-review`.
-4. **Preview + drift guard:** `apps/_gallery/variants.astro` enumerates every
+4. **Preview + drift guard:** `apps/_gallery/src/pages/variants.astro` enumerates every
    pair through `defineClient()` (only shippable combos render); Playwright
    snapshots one image **per section**, so a new variant re-baselines only its
    own section.

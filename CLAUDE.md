@@ -16,15 +16,12 @@ target turns it into a site. Keeping the contract render-agnostic means we're ne
 locked to one delivery platform if that ever changes. The config-only rules below
 apply **whenever you build a client site** — they keep that path clean.
 
-## Engine removed (2026-09-26 — issue #10)
+## Engine lives in ops (issue #10)
 
-`packages/agent` and `scripts/lead-gen` are **deleted**. The engine now lives
-solely in hirobius/ops (`lib/agent`, `lib/schema` vendored, `lib/lead-gen` =
-Outscraper wrapper) — ops's first live generate passed (3 real-lead configs
-generated, confirmed via `/ops/standing`), so the sequencing in
-`docs/OPS-HANDOFF.md` Part A completed and this repo's copy was removed.
-`packages/schema` remains **canonical here** — any schema change must still be
-re-synced to ops's vendored copy.
+`packages/agent` and `scripts/lead-gen` are deleted here; the engine is
+hirobius/ops (`lib/agent`, `lib/lead-gen`, vendored `lib/schema`). `packages/schema`
+remains **canonical here** — any schema change must be re-synced to ops's vendored
+copy.
 
 ## The one rule that matters
 
@@ -124,7 +121,7 @@ Tracker config for `/to-tickets` + `/triage`: our tracker is **GitHub Issues in 
 
 ### Addy Osmani's agent-skills (2026-10-09)
 
-`.claude/skills/` also vendors 25 skills from
+`.claude/skills/` also vendors skills from
 [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT, pin
 `1401c8b`, hirobius/ops#552), locked in `skills-lock.json`. **Pocock's skills above
 stay the mandatory routing**; where an Osmani skill overlaps one
@@ -166,7 +163,9 @@ hirobius/ops repo: fleet state at /api/projects, consolidated tasks at
 /ops/tasks (this repo's GitHub Issues sync there), current cross-project
 state in docs/ai/HANDOFF.md (in ops). Conventions for every session here:
 (a) track new work as GitHub Issues in THIS repo — never a local TODO
-file; (b) before ending any session that changed project state, update
-root status.json (updatedAt, phase, headline, next, blocked) — the ops
-dashboard renders it; (c) read the ops HANDOFF before cross-project
+file; (b) state is derived (ops ADR-010), so there is no session-end state update:
+change `status.json` `focus` only when this repo's direction changes, and never
+hand-write release, next or blocked there (ops derives them from git and issue
+labels; live verdicts and read order are in the AGENTS.md front door);
+(c) read the ops HANDOFF before cross-project
 decisions.

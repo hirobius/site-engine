@@ -1,0 +1,243 @@
+{
+  "$comment": "State-surface registry (site-engine#229, spec hirobius/ops#576, ADR-010; ported from hirobius/hds@511209ab527b67a1b68765f0b3122983dc8671a1). Every file or section that describes project state, and what keeps it true: generated (a generator builds it; its --check runs in `pnpm state:check`), checked (a named gate compares it with the code), editorial (hand-written; owner, reviewedAt and maxAgeDays; the gate says \"review due\" past maxAgeDays). Read by scripts/check-state-surfaces.ts. Initial reviewedAt values (2026-10-12) are the registration baseline: the gate verified their paths and references, not a content re-read; owners re-read within maxAgeDays and bump reviewedAt, then run `pnpm state:generate` (the AGENTS.md front door prints this list). alwaysOn lists the files every agent loads first (CLAUDE.md, and AGENTS.md, which ralph/prompt.md reads first); the gate flags derived facts (versions, counts, issue lists, \"as of\" state) in them, and docs/guardrails/steering-budget.json caps their size. statusFile holds status.json to the v2 shape. registerAll makes every markdown file directly in docs/ belong to an entry (history goes to docs/archive/). ignoreReferences lists path prefixes that docs name but are not rooted here: app-relative (src/, public/), in the ops repo (ops/, lib/, docs/ai/) or deleted history (scripts/lead-gen/).",
+  "alwaysOn": [
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
+  "statusFile": "status.json",
+  "registerAll": [
+    "docs"
+  ],
+  "ignoreReferences": [
+    "src/",
+    "public/",
+    "ops/",
+    "lib/",
+    "scripts/lead-gen/",
+    "docs/ai/"
+  ],
+  "surfaces": [
+    {
+      "path": "status.json",
+      "describes": "Where the repo is heading: focus, phase and note (v2 shape; ops derives release, next and blocked live)",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 45,
+      "section": "focus, phase, note"
+    },
+    {
+      "path": "status.json",
+      "describes": "The v2 shape: schemaVersion 2, focus of 120 characters or fewer, phase, optional note, updatedAt",
+      "kind": "checked",
+      "by": "scripts/check-state-surfaces.ts",
+      "section": "shape"
+    },
+    {
+      "path": "README.md",
+      "describes": "App roster, read from apps/*",
+      "kind": "generated",
+      "by": "scripts/generate-front-door.ts",
+      "section": "app roster",
+      "check": "tsx scripts/generate-front-door.ts --check"
+    },
+    {
+      "path": "README.md",
+      "describes": "Root scripts and the command each runs, read from package.json",
+      "kind": "generated",
+      "by": "scripts/generate-front-door.ts",
+      "section": "root scripts",
+      "check": "tsx scripts/generate-front-door.ts --check"
+    },
+    {
+      "path": "README.md",
+      "describes": "What the factory is, how a client site is built, preview gating, deploy and fleet policy (prose)",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90,
+      "section": "prose"
+    },
+    {
+      "path": "AGENTS.md",
+      "describes": "Front door for agents working in this repo: read order, where live state is, and this index",
+      "kind": "generated",
+      "by": "scripts/generate-front-door.ts",
+      "section": "front door",
+      "check": "tsx scripts/generate-front-door.ts --check"
+    },
+    {
+      "path": "AGENTS.md",
+      "describes": "App roster, read from apps/*",
+      "kind": "generated",
+      "by": "scripts/generate-front-door.ts",
+      "section": "app roster",
+      "check": "tsx scripts/generate-front-door.ts --check"
+    },
+    {
+      "path": "AGENTS.md",
+      "describes": "This repo's lane, the contracts it owns, boundaries and the Ralph quality bar",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 60,
+      "section": "lane and Ralph bar"
+    },
+    {
+      "path": "CLAUDE.md",
+      "describes": "Policy and routing for agents working in this repo: the config-only rule, golden rules, skill protocol",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 60
+    },
+    {
+      "path": "SECRETS.md",
+      "describes": "Which secrets exist per app and who owns them",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 120
+    },
+    {
+      "path": "progress.txt",
+      "describes": "Append-only log of Ralph iterations (history; the loop writes it)",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 365
+    },
+    {
+      "path": "docs/state-surfaces.json",
+      "describes": "This registry",
+      "kind": "checked",
+      "by": "scripts/check-state-surfaces.ts"
+    },
+    {
+      "path": "docs/guardrails/steering-budget.json",
+      "describes": "The size cap on the always-on files",
+      "kind": "checked",
+      "by": "scripts/check-steering-budget.ts"
+    },
+    {
+      "path": "docs/PIPELINE-RUNBOOK.md",
+      "describes": "Lead to gated preview: commands, keys, guardrails and the paste-ready prompt",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 60
+    },
+    {
+      "path": "docs/INTAKE.md",
+      "describes": "Per-client intake worksheet, mapped one to one to client.config.ts",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90
+    },
+    {
+      "path": "docs/GO-LIVE-CHECKLIST.md",
+      "describes": "The facts a site needs before SITE_LIVE=true",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 60
+    },
+    {
+      "path": "docs/GO-LIVE.md",
+      "describes": "Per-client production go-live runbook (keys, SITE_LIVE, domain, verification)",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90
+    },
+    {
+      "path": "docs/HANDOFF.md",
+      "describes": "One-page client handoff: the 7-day change window and the change fee",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 120
+    },
+    {
+      "path": "docs/OPS-INTEGRATION.md",
+      "describes": "The generic recipe for wrapping a tool into ops",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 120
+    },
+    {
+      "path": "docs/AI-ENGINEERING.md",
+      "describes": "The agent architecture, AI-engineering glossary and interview map",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 120
+    },
+    {
+      "path": "docs/AUTHORING-SKINS.md",
+      "describes": "Playbook: inspiration brief to skin PR (epic #173)",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90
+    },
+    {
+      "path": "docs/SKIN-CRITIC.md",
+      "describes": "Taste rubric the skin critic loop scores against",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90
+    },
+    {
+      "path": "docs/HARVESTING.md",
+      "describes": "How a section design becomes a config-selectable variant",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 120
+    },
+    {
+      "path": "docs/DESIGN-MANIFEST.md",
+      "describes": "Adrian's visual preferences for AI sessions designing client sites",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90
+    },
+    {
+      "path": "docs/multi-page-seo-scope.md",
+      "describes": "Scope of record for the multi-page local SEO tier (issue #107)",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 180
+    },
+    {
+      "path": "docs/adr",
+      "describes": "Architecture decision records (dated; superseded ones say so)",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 365
+    },
+    {
+      "path": "docs/inspiration",
+      "describes": "The inspiration pot: reference links, images and video that feed skin briefs",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90
+    },
+    {
+      "path": "docs/previews",
+      "describes": "Speculative brand concept HTML, design references only",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 180
+    }
+  ]
+}
