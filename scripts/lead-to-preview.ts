@@ -315,7 +315,10 @@ if (isMain()) {
   const argv = process.argv.slice(2);
   const valueOf = (flag: string) => {
     const i = argv.indexOf(flag);
-    return i === -1 ? undefined : argv[i + 1];
+    if (i === -1) return undefined;
+    const value = argv[i + 1];
+    if (!value || value.startsWith("--")) die(`${flag} needs a file path.\n  ${USAGE}`);
+    return value;
   };
   const leadFile = valueOf("--lead");
   const renderFile = valueOf("--render");
@@ -324,9 +327,15 @@ if (isMain()) {
 
   const kind = leadFile ? "lead" : "render";
   const file = (leadFile ?? renderFile)!;
+  let json: string;
+  try {
+    json = readFileSync(resolve(file), "utf8");
+  } catch (err) {
+    die(`Could not read ${kind} file ${file}: ${(err as Error).message}`);
+  }
   let input: PipelineInput;
   try {
-    input = parseInput(kind, readFileSync(resolve(file), "utf8"));
+    input = parseInput(kind, json);
   } catch (err) {
     die((err as Error).message);
   }

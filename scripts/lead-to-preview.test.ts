@@ -290,6 +290,18 @@ describe("CLI", () => {
     expect(res.stderr).toMatch(/exactly one/);
   });
 
+  it("exits 1 when a file flag is followed by another flag instead of a path", () => {
+    const res = cli(["--lead", "--deploy"]);
+    expect(res.status).toBe(1);
+    expect(res.stderr).toMatch(/--lead needs a file path/);
+  });
+
+  it("exits 1 with a readable error when the input file is missing", () => {
+    const res = cli(["--lead", join(tmp, "missing.json")]);
+    expect(res.status).toBe(1);
+    expect(res.stderr).toMatch(/Could not read lead file/);
+  });
+
   it("exits 1 on a bad payload before running any step", () => {
     const file = join(tmp, "bad.json");
     writeFileSync(file, renderPayload({ slug: "Not Kebab" }));
