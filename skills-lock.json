@@ -301,6 +301,25 @@
         "../../references/definition-of-done.md"
       ],
       "license": "MIT"
+    },
+    "slopmonster": {
+      "source": "ItsssssJack/SlopMonster",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "pinnedCommit": "3fc9787d9337b57c599a80afbefbbb3be5a8eb0b",
+      "hashAlgorithm": "sha256",
+      "computedHash": "9b4df2002e74bbe8a1162c75bb70c2de8d7fe5def7868bdf4b535802109609ee",
+      "paths": [
+        "prompts/cleanse.txt",
+        "references/principles.md",
+        "references/signs-of-ai-writing.md",
+        "references/sources.md",
+        "tools/cleanse.sh",
+        "tools/deslop.py",
+        "tools/test_cleanse.sh",
+        "tools/test_deslop.py"
+      ],
+      "license": "MIT"
     }
   }
 }
