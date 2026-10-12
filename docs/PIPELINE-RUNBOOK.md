@@ -11,6 +11,32 @@ the bottom — paste it into a fresh session and it does the rest.
 
 ---
 
+## One command: `pnpm lead-to-preview` (#232)
+
+```bash
+pnpm lead-to-preview --lead lead.json        # ops lead row (LeadRow) → leadToConfig()
+pnpm lead-to-preview --render render.json    # ops render payload { slug, config, lead_id? }
+#   --dry-run   print the plan, run nothing (not even the scaffold)
+#   --force     let render-site overwrite a config that already looks live
+#   --deploy    the deliberate human step: deploy-preview + verify-live --expect-gated
+```
+
+It runs steps 2–5 below (and 7 with `--deploy`) as the existing scripts, in
+order, stopping at the first failure and naming it:
+`new-client` (skipped if `apps/<slug>` exists) → `pnpm install` → `render-site`
+→ `check` → `build` → *(only with `--deploy`)* `deploy-preview` →
+`verify-live <bare url> --expect-gated` (3 attempts).
+
+- **Without `--deploy` nothing reaches Vercel.** It stops at a green build and
+  prints the next command. Deploying stays a human-run step (the
+  hirobius/ops leads-to-site spec); agents never pass `--deploy`.
+- **`verify-live` is the gate.** The keyed link is printed only after the bare
+  URL proves closed (401 + `WWW-Authenticate` + noindex). If it fails, don't
+  send the link.
+- **It never commits.** The new app, the README roster and `pnpm-lock.yaml`
+  are left for you to review. Do the phone pre-send step below before sending.
+- The steps below stay as the explanation and the manual fallback.
+
 ## The path (8 steps)
 
 | # | Step | Command / action |
@@ -21,7 +47,7 @@ the bottom — paste it into a fresh session and it does the rest.
 | 4 | **Fill the config** | `pnpm render-site <slug> --config <json>` (writes + re-validates), **or** edit `apps/<slug>/client.config.ts` directly. **Only** this file + photos. |
 | 5 | **Verify (ship gate)** | `pnpm --filter @hirobius/<slug> check && pnpm --filter @hirobius/<slug> build` — both **0 errors**. The build runs Zod via `defineClient()`; a bad config fails here, not in prod. |
 | 6 | **Imagery (optional)** | `PEXELS_API_KEY=<key> node apps/<slug>/scripts/fetch-photos.mjs` — run where the network can reach `api.pexels.com` (local machine or Vercel build; **blocked in the remote sandbox**). No key → ship photo-less, like the existing previews. |
-| 7 | **Deploy a gated preview** | `pnpm deploy-preview <slug>` → prints the `?key=` link. Stays gated (`SITE_LIVE` unset). Never `--prod`; the script enforces preview-only. **Before sending that link, do the pre-send step below.** |
+| 7 | **Deploy a gated preview** | `pnpm deploy-preview <slug>` → prints the `?key=` link. Stays gated (`SITE_LIVE` unset). Never `--prod`; the script enforces preview-only. Gate vars (`PREVIEW_TOKEN`/`USER`/`PASS`/`BUILD`) go to **both** the preview and production env scopes, because a fresh project's first deploy is classed production (#188, #222); harmless after go-live, since `SITE_LIVE=true` bypasses the gate. Then prove it: `pnpm verify-live <deployment url, no ?key=> --expect-gated`. **Before sending that link, do the pre-send step below.** |
 | 8 | **Go live (REQUIRED pre-live step)** | Before any site is set live (`SITE_LIVE=true` or a production domain): run the **`shipping-and-launch`** skill (`.claude/skills/shipping-and-launch/SKILL.md`) and record the checklist result in `docs/launches/<slug>.md` — see the go-live step below. Then `pnpm go-live <slug>`. |
 
 ### Pre-send step — the phone the owner sees (ops#27)
@@ -97,10 +123,9 @@ Keys are set by the human in the environment/CLI — **never** written to a
 
 > Run the next lead through the pipeline per `docs/PIPELINE-RUNBOOK.md`: get one
 > real no-website lead (pull via `hirobius/ops`'s `lib/lead-gen`, or I'll give you one),
-> scaffold it with `new-client`, and fill its `client.config.ts` from the
-> lead's **real** public facts — never invent, stub every unknown. Verify
-> `check` + `build` are green, then produce a **gated** preview link with
-> `deploy-preview`. Follow the runbook's golden-rule guardrails. Stop and flag
-> any missing key or any fact you can't source.
+> save it as JSON and run `pnpm lead-to-preview --lead <file>` until it builds
+> green — never invent facts, stub every unknown and list the TODOs it prints.
+> Do **not** pass `--deploy`; hand me the deploy command. Follow the runbook's
+> golden-rule guardrails. Stop and flag any missing key or any fact you can't source.
 
 That's all the context an agent needs — the runbook carries the rest.

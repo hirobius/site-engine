@@ -13,8 +13,8 @@
  * Input is either a raw ops lead row (`LeadRow`, mapped with `leadToConfig()`)
  * or an ops render payload `{ slug, config, lead_id? }` (the shape #121's
  * dispatch carries). Without `--deploy` the command stops after a green build
- * and prints the next command: deploying stays a deliberate human step (ops
- * docs/specs/leads-to-site.md). It never commits, never pushes, and never
+ * and prints the next command: deploying stays a deliberate human step
+ * (hirobius/ops docs/specs/leads-to-site.md). It never commits, never pushes, and never
  * passes `--prod` (deploy-preview itself refuses to).
  *
  * Each step is the existing script run as a subprocess (argv array, no
