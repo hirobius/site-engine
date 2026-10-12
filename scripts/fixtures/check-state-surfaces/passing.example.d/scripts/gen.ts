@@ -1,1 +1,1 @@
-// generator stub
+// Fixture generator: supports --check.

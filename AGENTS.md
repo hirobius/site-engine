@@ -12,58 +12,11 @@
 
 1. `CLAUDE.md`, then `AGENTS.md`. These are the always-on files: rules, read order and pointers, no state.
 2. Running a lead to a gated preview: `docs/PIPELINE-RUNBOOK.md`. Building a client site: `docs/INTAKE.md`, then the config-only rules in `CLAUDE.md`.
-3. Anything else: the index below.
+3. Every other document, by kind and what keeps it true: `docs/DOCS-INDEX.md` (generated, read on demand). The app roster is in `README.md`.
 
 ### Where live state is
 
-Nothing in this repo records the release, the open work or what is blocked: ops derives them. Read https://hirobius-ops-adrian-6234s-projects.vercel.app/ops/standing (every verdict from live data; password-gated) and `GET /api/projects` on the same host (this repo is `hirobius/site-engine`). `status.json` holds only the hand-written focus, phase and note. Open work is GitHub Issues in this repo; what waits on Adrian carries `needs-adrian` or `needs-credential`.
-
-### Documents and what keeps them true
-
-Built from `docs/state-surfaces.json`, which `scripts/check-state-surfaces.ts` gates. Re-read an editorial document, bump its `reviewedAt` there, then run `pnpm state:generate`.
-
-### Generated
-
-A script builds it (`by` in the registry); `pnpm state:check` fails when it is stale. Do not hand-edit.
-
-- `README.md` (app roster): App roster, read from apps/*
-- `README.md` (root scripts): Root scripts and the command each runs, read from package.json
-- `AGENTS.md` (front door): Front door for agents working in this repo: read order, where live state is, and this index
-- `AGENTS.md` (app roster): App roster, read from apps/*
-
-### Checked
-
-Hand-kept, but a named gate (`by`) compares it with the code.
-
-- `status.json` (shape): The v2 shape: schemaVersion 2, focus of 120 characters or fewer, phase, optional note, updatedAt
-- `docs/state-surfaces.json`: This registry
-- `docs/guardrails/steering-budget.json`: The size cap on the always-on files
-
-### Editorial
-
-Written by a person; the registry carries owner, `reviewedAt` and `maxAgeDays`, and the gate says "review due" past it.
-
-- `status.json` (focus, phase, note): Where the repo is heading: focus, phase and note (v2 shape; ops derives release, next and blocked live)
-- `README.md` (prose): What the factory is, how a client site is built, preview gating, deploy and fleet policy (prose)
-- `AGENTS.md` (lane and Ralph bar): This repo's lane, the contracts it owns, boundaries and the Ralph quality bar
-- `CLAUDE.md`: Policy and routing for agents working in this repo: the config-only rule, golden rules, skill protocol
-- `SECRETS.md`: Which secrets exist per app and who owns them
-- `progress.txt`: Append-only log of Ralph iterations (history; the loop writes it)
-- `docs/PIPELINE-RUNBOOK.md`: Lead to gated preview: commands, keys, guardrails and the paste-ready prompt
-- `docs/INTAKE.md`: Per-client intake worksheet, mapped one to one to client.config.ts
-- `docs/GO-LIVE-CHECKLIST.md`: The facts a site needs before SITE_LIVE=true
-- `docs/GO-LIVE.md`: Per-client production go-live runbook (keys, SITE_LIVE, domain, verification)
-- `docs/HANDOFF.md`: One-page client handoff: the 7-day change window and the change fee
-- `docs/OPS-INTEGRATION.md`: The generic recipe for wrapping a tool into ops
-- `docs/AI-ENGINEERING.md`: The agent architecture, AI-engineering glossary and interview map
-- `docs/AUTHORING-SKINS.md`: Playbook: inspiration brief to skin PR (epic #173)
-- `docs/SKIN-CRITIC.md`: Taste rubric the skin critic loop scores against
-- `docs/HARVESTING.md`: How a section design becomes a config-selectable variant
-- `docs/DESIGN-MANIFEST.md`: Adrian's visual preferences for AI sessions designing client sites
-- `docs/multi-page-seo-scope.md`: Scope of record for the multi-page local SEO tier (issue #107)
-- `docs/adr`: Architecture decision records (dated; superseded ones say so)
-- `docs/inspiration`: The inspiration pot: reference links, images and video that feed skin briefs
-- `docs/previews`: Speculative brand concept HTML, design references only
+Nothing in this repo records the release, the open work or what is blocked: ops derives them. Read the ops dashboard's `/ops/standing` (every verdict from live data; password-gated) and its `GET /api/projects` (this repo is `hirobius/site-engine`). `status.json` holds only the hand-written focus, phase and note. Open work is GitHub Issues in this repo; what waits on Adrian carries `needs-adrian` or `needs-credential`.
 
 <!-- state:front-door:end -->
 
@@ -75,7 +28,7 @@ The runtime engine (lead-gen + AI agent) **has moved to `ops`** — see below.
   `defineClient`). Canonical source of truth; the Astro factory and ops's agent both
   consume it. `ops` vendors a copy and re-syncs on the rare contract change.
 - **Astro production factory (stays here):** `packages/template` (components,
-  theming, SEO/JSON-LD), `apps/*` (the roster is generated below),
+  theming, SEO/JSON-LD), `apps/*` (roster: `README.md`),
   `scripts/new-client` + `eject-client`. **This is the production render target**
   (one Vercel project per client).
 - **Runtime engine (MOVED to `ops`, issue #10):** `packages/agent`
@@ -116,28 +69,6 @@ Funnel: **leads (CRM in `ops`) → become → clients (their Astro sites).**
 - **UI components** live in `design-system` (future); apps import, never fork.
 - **Config-only client builds:** see `CLAUDE.md` — building a client edits only
   `apps/<slug>/client.config.ts` + photos, never `packages/*`.
-
-## Apps
-
-<!-- state:roster:start — generated by scripts/generate-front-door.ts (pnpm state:generate); do not hand-edit until the end marker. -->
-
-Read from `apps/*`. `config-only` is `client.config.ts` plus photos; `bespoke` also has a `site-spec.ts`; `internal` (`_` prefix) is never deployed.
-
-| App | Kind | Business or role |
-| --- | --- | --- |
-| `apps/demo-pressure-pros` | config-only | Pressure Pros |
-| `apps/duran-tree-service` | config-only | Duran's Tree Service LLC |
-| `apps/pnw-arborist` | bespoke | PNW Arborist Consulting Inc |
-| `apps/preview-clearout-junk` | config-only | ClearOut Junk Removal |
-| `apps/preview-evergreen-lawn` | config-only | Evergreen Lawn & Landscape |
-| `apps/preview-solidline-concrete` | config-only | SolidLine Concrete & Fencing |
-| `apps/septic-response` | bespoke | Septic Response |
-| `apps/tevah-lash` | config-only | Tevah Lash |
-| `apps/_bespoke-template` | internal | Copy source for the bespoke tier (`new-client --bespoke`); never deployed |
-| `apps/_gallery` | internal | Internal component and preset preview; the visual-regression baseline |
-| `apps/_template` | internal | Canonical client app; `new-client` copies it |
-
-<!-- state:roster:end -->
 
 ## Multi-agent coordination
 - **One agent per repo lane.** This lane = the reference factory + the contract

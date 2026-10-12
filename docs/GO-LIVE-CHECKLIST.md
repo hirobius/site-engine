@@ -4,8 +4,8 @@
 question to a `client.config.ts` field. This doc is narrower: it's the
 checklist for the moment a preview becomes a **real client site**, so the
 same handful of facts don't get hand-rediscovered on every build
-(crystal-panes, pnw-arborist, septic-response all shipped previews with the
-same missing-facts list — see issue #151).
+(the first client previews all shipped with the same missing-facts list — see
+issue #151).
 
 Every item below is a real field in `packages/schema/src/index.ts`
 (`ClientConfigSchema`) or a real check in

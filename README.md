@@ -62,7 +62,7 @@ packages/
   template/    @hirobius/template — Astro section components, theming, SEO/JSON-LD helpers
 apps/          client sites and internal apps (roster below)
 scripts/       fleet tooling: scaffold, eject, deploy-preview, go-live, state gates (commands below)
-docs/          runbooks, ADRs and archive (indexed in the AGENTS.md front door)
+docs/          runbooks, ADRs and archive (indexed in `docs/DOCS-INDEX.md`)
 ```
 
 ### App roster
@@ -443,6 +443,7 @@ Read from the root `package.json`.
 | `pnpm schema:snapshot-ops` | `tsx packages/schema/scripts/refresh-ops-snapshot.ts` |
 | `pnpm state:generate` | `tsx scripts/generate-front-door.ts` |
 | `pnpm state:check` | `tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts` |
+| `pnpm state:review` | `tsx scripts/check-state-surfaces.ts --strict-review` |
 
 <!-- state:scripts:end -->
 

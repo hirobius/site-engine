@@ -1,9 +1,28 @@
 {
   "$comment": "Fixture mini-root for check-state-surfaces: one planted violation per rule.",
-  "alwaysOn": ["NOTES.md"],
+  "alwaysOn": [
+    "NOTES.md"
+  ],
   "surfaces": [
-    { "path": "generated.json", "describes": "A generated file", "kind": "generated", "by": "scripts/gen.ts" },
-    { "path": "NOTES.md", "describes": "Hand-written notes", "kind": "editorial", "owner": "Adrian", "reviewedAt": "2000-01-01", "maxAgeDays": 90 },
-    { "path": "gone.json", "describes": "Registered but missing", "kind": "generated", "by": "scripts/gen.ts" }
+    {
+      "path": "generated.json",
+      "describes": "A generated file",
+      "kind": "generated",
+      "by": "scripts/gen.ts"
+    },
+    {
+      "path": "NOTES.md",
+      "describes": "Hand-written notes",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2000-01-01",
+      "maxAgeDays": 90
+    },
+    {
+      "path": "gone.json",
+      "describes": "Registered but missing",
+      "kind": "generated",
+      "by": "scripts/gen.ts"
+    }
   ]
 }

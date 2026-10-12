@@ -1,8 +1,23 @@
 {
   "$comment": "Fixture mini-root for check-state-surfaces: nothing to report.",
-  "alwaysOn": ["NOTES.md"],
+  "alwaysOn": [
+    "NOTES.md"
+  ],
   "surfaces": [
-    { "path": "generated.json", "describes": "A generated file", "kind": "generated", "by": "scripts/gen.ts" },
-    { "path": "NOTES.md", "describes": "Hand-written notes", "kind": "editorial", "owner": "Adrian", "reviewedAt": "2099-01-01", "maxAgeDays": 90 }
+    {
+      "path": "generated.json",
+      "describes": "A generated file",
+      "kind": "generated",
+      "by": "scripts/gen.ts",
+      "check": "tsx scripts/gen.ts --check"
+    },
+    {
+      "path": "NOTES.md",
+      "describes": "Hand-written notes",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-01",
+      "maxAgeDays": 90
+    }
   ]
 }

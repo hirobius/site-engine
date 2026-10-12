@@ -1,29 +1,37 @@
 #!/usr/bin/env tsx
 /**
  * generate-front-door — build the state-derived parts of README.md and
- * AGENTS.md (site-engine#229, spec hirobius/ops#576, ADR-010).
+ * AGENTS.md, and docs/DOCS-INDEX.md (site-engine#229, spec hirobius/ops#576,
+ * ADR-010).
  *
- * The front-door idea comes from hirobius/hds@511209ab527b67a1b68765f0b3122983dc8671a1
+ * The front-door idea comes from hirobius/hds#612
  * (scripts/generate-agents-md.mjs: a generated front door between markers,
  * hand-written notes kept byte for byte, `--check` compares exact bytes).
  *
  * Marked blocks (`<!-- state:<id>:start ... -->` to `<!-- state:<id>:end -->`):
- *   README.md   roster   the app roster, read from apps/*
- *               scripts  the root package.json scripts and the command each runs
- *   AGENTS.md   front-door  read order, where live state is, and an index of
- *                           docs/state-surfaces.json by kind
- *               roster      the same app roster
+ *   README.md   roster      the app roster, read from apps/* (the only place
+ *                           it lives: AGENTS.md is read by every session, so
+ *                           it carries no list that grows with the fleet)
+ *               scripts     the root package.json scripts and the command each runs
+ *   AGENTS.md   front-door  a short read order, where live state is, and a
+ *                           pointer to docs/DOCS-INDEX.md
+ * Whole file:
+ *   docs/DOCS-INDEX.md      every registered document by kind, from
+ *                           docs/state-surfaces.json; read on demand
  *
  * Everything outside the markers is hand-written and kept byte for byte. The
  * output holds no run date, no counts and no open work (those are derived:
  * ops states them live), so `--check` compares exact bytes.
  *
+ * `zzz-*` apps are test fixtures (tests scaffold and delete them in parallel),
+ * so they are never listed.
+ *
  * Usage:
- *   tsx scripts/generate-front-door.ts           write README.md and AGENTS.md
- *   tsx scripts/generate-front-door.ts --check   exit 1 when either is stale
+ *   tsx scripts/generate-front-door.ts           write the generated files
+ *   tsx scripts/generate-front-door.ts --check   exit 1 when any is stale
  *   --root <dir>  read and write under <dir> instead of the repo (tests)
  */
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -32,8 +40,10 @@ const DEFAULT_ROOT = join(HERE, "..");
 const REGISTRY_PATH = "docs/state-surfaces.json";
 const GENERATOR = "scripts/generate-front-door.ts";
 
-/** Ops' live verdicts for the whole fleet. Password-gated in production. */
-export const OPS_STANDING_URL = "https://hirobius-ops-adrian-6234s-projects.vercel.app/ops/standing";
+/** The on-demand index of registered documents; AGENTS.md points here instead of carrying it. */
+export const DOCS_INDEX_PATH = "docs/DOCS-INDEX.md";
+/** Apps whose slug starts with this are test fixtures, never part of the fleet. */
+export const FIXTURE_PREFIX = "zzz-";
 const REPO_SLUG = "hirobius/site-engine";
 
 export type AppKind = "config-only" | "bespoke" | "internal";
@@ -55,12 +65,12 @@ const INTERNAL_ROLES: Record<string, string> = {
 const code = (text: string) => `\`${text}\``;
 const cell = (text: string) => text.replace(/\|/g, "\\|");
 
-/** Every apps/<slug> that has a package.json, sorted by slug. */
+/** Every apps/<slug> that has a package.json, sorted by slug. Test fixtures (zzz-*) are skipped before they are read. */
 export function readApps(root: string): AppInfo[] {
   const dir = join(root, "apps");
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
-    .filter((e) => e.isDirectory() && existsSync(join(dir, e.name, "package.json")))
+    .filter((e) => e.isDirectory() && !e.name.startsWith(FIXTURE_PREFIX) && existsSync(join(dir, e.name, "package.json")))
     .map((e): AppInfo => {
       const slug = e.name;
       const pkg = JSON.parse(readFileSync(join(dir, slug, "package.json"), "utf8")).name ?? slug;
@@ -127,16 +137,34 @@ const KIND_ORDER: [RegistrySurface["kind"], string, string][] = [
 ];
 
 /**
- * The generated front door: read order, where live state lives, and every
- * registered document by kind. Holds no versions, counts or open work.
+ * The generated front door, kept short because AGENTS.md is read by every
+ * session: read order, where live state lives, and a pointer to the full index.
+ * Holds no versions, counts or open work.
  */
 export function buildFrontDoor(registry: Registry): string {
   const first = registry.alwaysOn ?? [];
-  const index = KIND_ORDER.flatMap(([kind, title, gloss]) => {
+  return [
+    "## Front door",
+    "",
+    "### Read order",
+    "",
+    `1. ${first.length ? first.map(code).join(", then ") : code("CLAUDE.md")}. These are the always-on files: rules, read order and pointers, no state.`,
+    `2. Running a lead to a gated preview: ${code("docs/PIPELINE-RUNBOOK.md")}. Building a client site: ${code("docs/INTAKE.md")}, then the config-only rules in ${code("CLAUDE.md")}.`,
+    `3. Every other document, by kind and what keeps it true: ${code(DOCS_INDEX_PATH)} (generated, read on demand). The app roster is in ${code("README.md")}.`,
+    "",
+    "### Where live state is",
+    "",
+    `Nothing in this repo records the release, the open work or what is blocked: ops derives them. Read the ops dashboard's ${code("/ops/standing")} (every verdict from live data; password-gated) and its ${code("GET /api/projects")} (this repo is \`${REPO_SLUG}\`). ${code("status.json")} holds only the hand-written focus, phase and note. Open work is GitHub Issues in this repo; what waits on Adrian carries \`needs-adrian\` or \`needs-credential\`.`,
+  ].join("\n");
+}
+
+/** docs/DOCS-INDEX.md: every registered document by kind. A whole generated file. */
+export function buildDocsIndex(registry: Registry): string {
+  const sections = KIND_ORDER.flatMap(([kind, title, gloss]) => {
     const rows = registry.surfaces.filter((s) => s.kind === kind);
     if (rows.length === 0) return [];
     return [
-      `### ${title}`,
+      `## ${title}`,
       "",
       gloss,
       "",
@@ -145,26 +173,17 @@ export function buildFrontDoor(registry: Registry): string {
     ];
   });
   return [
-    "## Front door",
+    "# Documents and what keeps them true",
     "",
-    "### Read order",
+    `<!-- Generated by ${GENERATOR} (pnpm state:generate) from ${REGISTRY_PATH}; do not hand-edit. -->`,
     "",
-    `1. ${first.length ? first.map(code).join(", then ") : code("CLAUDE.md")}. These are the always-on files: rules, read order and pointers, no state.`,
-    `2. Running a lead to a gated preview: ${code("docs/PIPELINE-RUNBOOK.md")}. Building a client site: ${code("docs/INTAKE.md")}, then the config-only rules in ${code("CLAUDE.md")}.`,
-    `3. Anything else: the index below.`,
+    `Built from ${code(REGISTRY_PATH)}, which ${code("scripts/check-state-surfaces.ts")} gates. Re-read an editorial document, bump its \`reviewedAt\` there, then run \`pnpm state:generate\`. AGENTS.md points here so the always-on files stay small.`,
     "",
-    "### Where live state is",
-    "",
-    `Nothing in this repo records the release, the open work or what is blocked: ops derives them. Read ${OPS_STANDING_URL} (every verdict from live data; password-gated) and \`GET /api/projects\` on the same host (this repo is \`${REPO_SLUG}\`). ${code("status.json")} holds only the hand-written focus, phase and note. Open work is GitHub Issues in this repo; what waits on Adrian carries \`needs-adrian\` or \`needs-credential\`.`,
-    "",
-    "### Documents and what keeps them true",
-    "",
-    `Built from ${code(REGISTRY_PATH)}, which ${code("scripts/check-state-surfaces.ts")} gates. Re-read an editorial document, bump its \`reviewedAt\` there, then run \`pnpm state:generate\`.`,
-    "",
-    ...index,
+    ...sections,
   ]
     .join("\n")
-    .trimEnd();
+    .trimEnd()
+    .concat("\n");
 }
 
 interface Target {
@@ -173,7 +192,7 @@ interface Target {
 }
 const TARGETS: Target[] = [
   { file: "README.md", blocks: ["roster", "scripts"] },
-  { file: "AGENTS.md", blocks: ["front-door", "roster"] },
+  { file: "AGENTS.md", blocks: ["front-door"] },
 ];
 
 const startMarker = (id: string) =>
@@ -193,7 +212,7 @@ function splice(file: string, text: string, id: string, body: string): string {
   return `${text.slice(0, start)}${startMarker(id)}\n\n${body}\n\n${endTag}${text.slice(end + endTag.length)}`;
 }
 
-/** What README.md and AGENTS.md should contain, keyed by repo-relative path. */
+/** What every generated file should contain, keyed by repo-relative path. */
 export function expectedFiles(root: string): Record<string, string> {
   const apps = readApps(root);
   const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { scripts?: Record<string, string> };
@@ -209,35 +228,57 @@ export function expectedFiles(root: string): Record<string, string> {
     for (const id of blocks) text = splice(file, text, id, bodies[id]);
     out[file] = text;
   }
+  out[DOCS_INDEX_PATH] = buildDocsIndex(registry);
   return out;
+}
+
+/** The current text of `file` under `root`, or null when it does not exist yet. */
+function readOrNull(root: string, file: string): string | null {
+  const path = join(root, file);
+  return existsSync(path) ? readFileSync(path, "utf8") : null;
+}
+
+/** Repo-relative paths of the generated files that differ from what they should be. */
+export function staleFiles(root: string): string[] {
+  return Object.entries(expectedFiles(root))
+    .filter(([file, text]) => readOrNull(root, file) !== text)
+    .map(([file]) => file);
+}
+
+/** Write every generated file that differs; return the ones it changed. */
+export function writeFrontDoor(root: string): string[] {
+  const changed: string[] = [];
+  for (const [file, text] of Object.entries(expectedFiles(root))) {
+    if (readOrNull(root, file) === text) continue;
+    mkdirSync(dirname(join(root, file)), { recursive: true });
+    writeFileSync(join(root, file), text);
+    changed.push(file);
+  }
+  return changed;
 }
 
 function main() {
   const argv = process.argv.slice(2);
   const rootFlag = argv.indexOf("--root");
   const root = rootFlag >= 0 ? resolve(argv[rootFlag + 1]) : DEFAULT_ROOT;
-  let want: Record<string, string>;
   try {
-    want = expectedFiles(root);
+    if (argv.includes("--check")) {
+      const stale = staleFiles(root);
+      if (stale.length) {
+        console.error(
+          `✗ ${stale.join(" and ")} out of date with apps/*, package.json scripts or ${REGISTRY_PATH}. Run: pnpm state:generate (hand-edit only outside the state: markers).`,
+        );
+        process.exit(1);
+      }
+      console.log(`✓ generate-front-door: ${Object.keys(expectedFiles(root)).join(", ")} are current`);
+      return;
+    }
+    const changed = writeFrontDoor(root);
+    console.log(changed.length ? `✓ wrote ${changed.join(" and ")}` : "✓ generate-front-door: nothing to change");
   } catch (error) {
     console.error(`✗ ${(error as Error).message}`);
     process.exit(1);
   }
-  if (argv.includes("--check")) {
-    const stale = Object.entries(want)
-      .filter(([file, text]) => readFileSync(join(root, file), "utf8") !== text)
-      .map(([file]) => file);
-    if (stale.length) {
-      console.error(
-        `✗ ${stale.join(" and ")} out of date with apps/*, package.json scripts or ${REGISTRY_PATH}. Run: pnpm state:generate (hand-edit only outside the state: markers).`,
-      );
-      process.exit(1);
-    }
-    console.log("✓ generate-front-door: README.md and AGENTS.md are current");
-    return;
-  }
-  for (const [file, text] of Object.entries(want)) writeFileSync(join(root, file), text);
-  console.log(`✓ wrote ${Object.keys(want).join(" and ")}`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

@@ -1,7 +1,8 @@
-// generate-front-door (site-engine#229, idea from hirobius/hds@511209ab527b67a1b68765f0b3122983dc8671a1
+// generate-front-door (site-engine#229, idea from hirobius/hds#612
 // scripts/generate-agents-md.mjs). Seams: readApps/buildRoster/buildScripts/buildFrontDoor
 // for the generated text, expectedFiles() for splicing it into hand-written
-// files, and the CLI's --check for the drift gate.
+// files (and building docs/DOCS-INDEX.md whole), and the CLI's --check for the
+// drift gate.
 import { afterEach, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -9,7 +10,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  OPS_STANDING_URL,
+  DOCS_INDEX_PATH,
+  buildDocsIndex,
   buildFrontDoor,
   buildRoster,
   buildScripts,
@@ -52,7 +54,7 @@ function mono(overrides: Record<string, string> = {}) {
       ],
     }),
     "README.md": `# Repo\n\nIntro.\n\n${START("roster")}\nstale\n${END("roster")}\n\nMiddle prose.\n\n${START("scripts")}\nstale\n${END("scripts")}\n\nOutro.\n`,
-    "AGENTS.md": `# Agents\n\nHand-written lane.\n\n${START("front-door")}\nstale\n${END("front-door")}\n\n${START("roster")}\nstale\n${END("roster")}\n\nRalph bar.\n`,
+    "AGENTS.md": `# Agents\n\nHand-written lane.\n\n${START("front-door")}\nstale\n${END("front-door")}\n\nRalph bar.\n`,
     ...overrides,
   };
   for (const [rel, text] of Object.entries(files)) {
@@ -94,6 +96,17 @@ describe("readApps", () => {
   });
 });
 
+describe("readApps and test fixtures", () => {
+  it("ignores zzz-* fixture apps, which tests scaffold and delete in parallel with this one", () => {
+    const root = mono({
+      "apps/zzz-ralph-newclient-fixture/package.json": JSON.stringify({ name: "@hirobius/zzz-ralph-newclient-fixture" }),
+      // a copy caught half-written must not be read at all
+      "apps/zzz-ralph-half-written/package.json": "{",
+    });
+    expect(readApps(root).map((a) => a.slug)).toEqual(["_template", "alpha-bespoke", "zeta-lawn"]);
+  });
+});
+
 describe("buildRoster", () => {
   it("lists client sites before internal apps, one row each, naming the app path and business", () => {
     const text = buildRoster(readApps(mono()));
@@ -126,26 +139,47 @@ describe("buildFrontDoor", () => {
     expect(door.indexOf("`CLAUDE.md`")).toBeLessThan(door.indexOf("`AGENTS.md`"));
   });
 
-  it("says where live state is, without copying any of it", () => {
+  it("points live state at the ops dashboard's /ops/standing, naming no host, and copies none of it", () => {
     const door = buildFrontDoor(registry);
-    expect(door).toContain(OPS_STANDING_URL);
-    expect(OPS_STANDING_URL).toBe("https://hirobius-ops-adrian-6234s-projects.vercel.app/ops/standing");
+    expect(door).toContain("`/ops/standing`");
+    expect(door).toContain("ops dashboard");
+    expect(door).not.toMatch(/https?:\/\//);
+    expect(door).not.toContain("vercel.app");
     expect(door).toContain("`status.json`");
     expect(door).not.toMatch(/\b\d+ (apps?|issues?|open)\b/i);
   });
 
-  it("indexes every registered surface under its kind, in kind order", () => {
+  it("stays short and sends the full document index to the on-demand file", () => {
     const door = buildFrontDoor(registry);
-    const gen = door.indexOf("### Generated");
-    const chk = door.indexOf("### Checked");
-    const edit = door.indexOf("### Editorial");
+    expect(door).toContain(`\`${DOCS_INDEX_PATH}\``);
+    expect(DOCS_INDEX_PATH).toBe("docs/DOCS-INDEX.md");
+    expect(door).not.toContain("### Generated");
+    expect(door).not.toContain("How to run a lead");
+    expect(door.split("\n").length).toBeLessThan(25);
+  });
+});
+
+describe("buildDocsIndex", () => {
+  const registry = JSON.parse(readFileSync(join(mono(), "docs/state-surfaces.json"), "utf8"));
+
+  it("indexes every registered surface under its kind, in kind order", () => {
+    const index = buildDocsIndex(registry);
+    const gen = index.indexOf("## Generated");
+    const chk = index.indexOf("## Checked");
+    const edit = index.indexOf("## Editorial");
     expect(gen).toBeGreaterThan(-1);
     expect(gen).toBeLessThan(chk);
     expect(chk).toBeLessThan(edit);
-    expect(door.slice(gen, chk)).toContain("`README.md` (app roster)");
-    expect(door.slice(chk, edit)).toContain("`docs/gate.json`");
-    expect(door.slice(edit)).toContain("`docs/RUNBOOK.md`");
-    expect(door.slice(edit)).toContain("How to run a lead");
+    expect(index.slice(gen, chk)).toContain("`README.md` (app roster)");
+    expect(index.slice(chk, edit)).toContain("`docs/gate.json`");
+    expect(index.slice(edit)).toContain("`docs/RUNBOOK.md`");
+    expect(index.slice(edit)).toContain("How to run a lead");
+  });
+
+  it("says it is generated and how to refresh it", () => {
+    const index = buildDocsIndex(registry);
+    expect(index).toContain("generate-front-door.ts");
+    expect(index).toContain("pnpm state:generate");
   });
 });
 
@@ -160,8 +194,20 @@ describe("expectedFiles", () => {
     expect(readme).toContain("`pnpm new-client`");
     expect(readme).not.toContain("stale");
     expect(out["AGENTS.md"]).toContain("## Front door");
-    expect(out["AGENTS.md"]).toContain("Zeta Lawn & Co");
     expect(out["AGENTS.md"]).toContain("Ralph bar.");
+  });
+
+  it("keeps the app roster out of the always-on AGENTS.md: it lives in README.md only", () => {
+    const out = expectedFiles(mono());
+    expect(out["README.md"]).toContain("Zeta Lawn & Co");
+    expect(out["AGENTS.md"]).not.toContain("Zeta Lawn & Co");
+    expect(out["AGENTS.md"]).not.toContain("apps/zeta-lawn");
+  });
+
+  it("builds docs/DOCS-INDEX.md whole, from the registry", () => {
+    const out = expectedFiles(mono());
+    expect(out[DOCS_INDEX_PATH]).toContain("`docs/RUNBOOK.md`");
+    expect(out[DOCS_INDEX_PATH]).toContain("pnpm state:generate");
   });
 
   it("is idempotent: generating from generated output changes nothing", () => {
@@ -187,6 +233,18 @@ describe("CLI", () => {
     expect(cli(root).status).toBe(0);
     expect(cli(root, ["--check"]).status).toBe(0);
     expect(readFileSync(join(root, "README.md"), "utf8")).toContain("Zeta Lawn & Co");
+    expect(readFileSync(join(root, DOCS_INDEX_PATH), "utf8")).toContain("`docs/RUNBOOK.md`");
+  });
+
+  it("--check names docs/DOCS-INDEX.md when it is missing or hand-edited", () => {
+    const root = mono();
+    cli(root);
+    writeFileSync(join(root, DOCS_INDEX_PATH), "hand edit\n");
+    const res = cli(root, ["--check"]);
+    expect(res.status).toBe(1);
+    expect(res.stderr).toContain("docs/DOCS-INDEX.md");
+    rmSync(join(root, DOCS_INDEX_PATH));
+    expect(cli(root, ["--check"]).status).toBe(1);
   });
 
   it("--check catches a new app dropped into apps/", () => {

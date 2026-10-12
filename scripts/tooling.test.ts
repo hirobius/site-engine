@@ -177,6 +177,68 @@ describe("new-client", () => {
   });
 });
 
+/**
+ * A scaffolded client changes what README.md's roster should say, and CI's
+ * `pnpm state:check` compares the two. So `new-client` regenerates the roster
+ * itself; otherwise the first real client PR fails CI on a file the agent is
+ * told not to touch. Driven in a throwaway copy of the repo (NEW_CLIENT_ROOT),
+ * because a real-slug scaffold must not land in this checkout and a zzz-*
+ * fixture is deliberately never in the roster.
+ */
+describe("new-client keeps `pnpm state:check` green (site-engine#229)", () => {
+  const SLUG = "mikes-junk";
+  const STATE_GATES: [string, string[]][] = [
+    ["generate-front-door", ["scripts/generate-front-door.ts", "--check"]],
+    ["check-state-surfaces", ["scripts/check-state-surfaces.ts"]],
+    ["check-steering-budget", ["scripts/check-steering-budget.ts"]],
+  ];
+  let copy = "";
+
+  /** Run each state:check gate (the repo's scripts) against the copy. */
+  const gates = () =>
+    STATE_GATES.map(([name, args]) => {
+      const res = spawnSync(TSX, [resolve(ROOT, args[0]), ...args.slice(1), "--root", copy], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env: { ...process.env, FIXTURE_DIR: copy },
+      });
+      return { name, status: res.status, out: `${res.stdout}${res.stderr}` };
+    });
+
+  beforeAll(() => {
+    copy = makeTmp("new-client-state-");
+    const listed = spawnSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z"], {
+      cwd: ROOT,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    for (const rel of listed.stdout.split("\0").filter(Boolean)) {
+      if (!existsSync(resolve(ROOT, rel))) continue;
+      cpSync(resolve(ROOT, rel), resolve(copy, rel), { recursive: true });
+    }
+    spawnSync("git", ["init", "-q"], { cwd: copy }); // .gitignore is honoured by the dead-reference scan
+  });
+
+  it("starts green, so a failure below is the scaffold's doing", () => {
+    for (const g of gates()) expect(g.status, `${g.name}: ${g.out}`).toBe(0);
+  });
+
+  it("stays green after scaffolding a real client, and the roster lists it in README.md only", () => {
+    const res = spawnSync(TSX, [NEW_CLIENT, SLUG, "--name", "Mike's Junk Removal"], {
+      cwd: ROOT,
+      encoding: "utf8",
+      env: { ...process.env, NEW_CLIENT_ROOT: copy },
+    });
+    expect(res.status, res.stderr).toBe(0);
+    expect(existsSync(resolve(copy, "apps", SLUG, "client.config.ts"))).toBe(true);
+    for (const g of gates()) expect(g.status, `${g.name}: ${g.out}`).toBe(0);
+    const readme = readFileSync(resolve(copy, "README.md"), "utf8");
+    expect(readme).toContain(`apps/${SLUG}`);
+    expect(readme).toContain("Mike's Junk Removal");
+    expect(readFileSync(resolve(copy, "AGENTS.md"), "utf8")).not.toContain(SLUG);
+  });
+});
+
 describe("new-client --bespoke (se#210)", () => {
   beforeAll(() => {
     rmSync(appDir(BESPOKE_FIXTURE), { recursive: true, force: true });

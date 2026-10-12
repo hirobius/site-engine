@@ -1,4 +1,4 @@
-// check-steering-budget (site-engine#229, ported from hirobius/hds@511209ab527b67a1b68765f0b3122983dc8671a1,
+// check-steering-budget (site-engine#229, ported from hirobius/hds#612,
 // itself ported from ops#292). Seams: evaluateBudget (the arithmetic) and the
 // CLI, which reads docs/guardrails/steering-budget.json under FIXTURE_DIR (or
 // the repo) and reports over-budget or missing files.

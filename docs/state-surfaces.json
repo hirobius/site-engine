@@ -1,5 +1,5 @@
 {
-  "$comment": "State-surface registry (site-engine#229, spec hirobius/ops#576, ADR-010; ported from hirobius/hds@511209ab527b67a1b68765f0b3122983dc8671a1). Every file or section that describes project state, and what keeps it true: generated (a generator builds it; its --check runs in `pnpm state:check`), checked (a named gate compares it with the code), editorial (hand-written; owner, reviewedAt and maxAgeDays; the gate says \"review due\" past maxAgeDays). Read by scripts/check-state-surfaces.ts. Initial reviewedAt values (2026-10-12) are the registration baseline: the gate verified their paths and references, not a content re-read; owners re-read within maxAgeDays and bump reviewedAt, then run `pnpm state:generate` (the AGENTS.md front door prints this list). alwaysOn lists the files every agent loads first (CLAUDE.md, and AGENTS.md, which ralph/prompt.md reads first); the gate flags derived facts (versions, counts, issue lists, \"as of\" state) in them, and docs/guardrails/steering-budget.json caps their size. statusFile holds status.json to the v2 shape. registerAll makes every markdown file directly in docs/ belong to an entry (history goes to docs/archive/). ignoreReferences lists path prefixes that docs name but are not rooted here: app-relative (src/, public/), in the ops repo (ops/, lib/, docs/ai/) or deleted history (scripts/lead-gen/).",
+  "$comment": "State-surface registry (site-engine#229, spec hirobius/ops#576, ADR-010; ported from hirobius/hds#612). Every file or section that describes project state, and what keeps it true: generated (a generator builds it; `check` is required and names the command that fails when it is stale, statically verified to exist and handle --check; `pnpm state:check` runs the generator's), checked (a named gate compares it with the code), editorial (hand-written; owner, reviewedAt and maxAgeDays; the gate warns \"review due\" past maxAgeDays, and `pnpm state:review` (--strict-review, for a scheduled run) fails on it; a reviewedAt in the future is always an error). Read by scripts/check-state-surfaces.ts. Initial reviewedAt values (2026-10-12) are the registration baseline: the gate verified their paths and references, not a content re-read; owners re-read within maxAgeDays and bump reviewedAt, then run `pnpm state:generate` (docs/DOCS-INDEX.md prints this list). alwaysOn lists the files every agent loads first (CLAUDE.md, and AGENTS.md, which ralph/prompt.md reads first); the gate flags derived facts (versions, counts, issue lists, \"as of\" state) in them, and docs/guardrails/steering-budget.json caps their size. statusFile holds status.json to the v2 shape. registerAll makes every markdown file directly in docs/ belong to an entry (history goes to docs/archive/). ignoreReferences lists path prefixes that docs name but are not rooted here: app-relative (src/, public/), in the ops repo (ops/, lib/, docs/ai/) or deleted history (scripts/lead-gen/).",
   "alwaysOn": [
     "CLAUDE.md",
     "AGENTS.md"
@@ -60,18 +60,17 @@
     },
     {
       "path": "AGENTS.md",
-      "describes": "Front door for agents working in this repo: read order, where live state is, and this index",
+      "describes": "Short front door for agents (AGENTS.md is always-on): read order, where live state is, a pointer to the docs index",
       "kind": "generated",
       "by": "scripts/generate-front-door.ts",
       "section": "front door",
       "check": "tsx scripts/generate-front-door.ts --check"
     },
     {
-      "path": "AGENTS.md",
-      "describes": "App roster, read from apps/*",
+      "path": "docs/DOCS-INDEX.md",
+      "describes": "Every registered document by kind and what keeps it true (read on demand; AGENTS.md points here)",
       "kind": "generated",
       "by": "scripts/generate-front-door.ts",
-      "section": "app roster",
       "check": "tsx scripts/generate-front-door.ts --check"
     },
     {

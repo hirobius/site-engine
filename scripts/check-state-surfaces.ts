@@ -3,15 +3,15 @@
  * check-state-surfaces — gate for the state-surface registry (site-engine#229,
  * spec hirobius/ops#576, ADR-010 "state is derived").
  *
- * Ported from hirobius/hds@511209ab527b67a1b68765f0b3122983dc8671a1
+ * Ported from hirobius/hds#612
  * (scripts/check-state-surfaces.mjs), moved to TypeScript, plus two opt-in
  * rules this repo needs (`statusFile`, `registerAll`).
  *
  * `docs/state-surfaces.json` lists every file or section that describes
  * project state, and what keeps it true:
  *
- *   generated  built by a generator (`by`); a `--check` for it runs in
- *              `pnpm state:check`, named in `check` for reference
+ *   generated  built by a generator (`by`); `check` names the command that
+ *              proves it current (required; `--run-checks` runs it)
  *   checked    prose or data a named gate (`by`) compares to the code
  *   editorial  hand-written; carries `owner`, `reviewedAt` (YYYY-MM-DD) and
  *              `maxAgeDays`, and goes "review due" when it ages out
@@ -20,8 +20,16 @@
  *   REGISTRY_MISSING / REGISTRY_INVALID  the registry is absent or malformed
  *   SURFACE_MISSING    a registered path does not exist
  *   BY_MISSING         `by` looks like a repo path and does not exist
+ *   CHECK_MISSING      a `generated` surface names no `check`, or its `check`
+ *                      runs no script that exists, or passes `--check` to a
+ *                      script whose source never handles it (static, nothing
+ *                      is executed)
  *   GENERATED_STALE    --run-checks only: a declared `check` command failed
- *   REVIEW_DUE         an editorial surface is older than its maxAgeDays
+ *   REVIEW_DUE         an editorial surface is older than its maxAgeDays. A
+ *                      WARNING (exit 0) by default, so the calendar cannot
+ *                      break an unrelated PR; --strict-review makes it an
+ *                      error, for a scheduled run
+ *   (REGISTRY_INVALID also covers a `reviewedAt` later than today)
  *   DERIVED_FACT       an `alwaysOn` file (CLAUDE.md and anything it makes
  *                      mandatory reading) states a version, a count, a list of
  *                      issue/PR numbers or an "as of <date>" state
@@ -44,10 +52,10 @@
  *
  * Usage:
  *   tsx scripts/check-state-surfaces.ts [--root <dir>] [--registry <path>]
- *        [--today YYYY-MM-DD] [--run-checks] [--json]
+ *        [--today YYYY-MM-DD] [--run-checks] [--strict-review] [--json]
  *   FIXTURE_DIR=<dir> tsx scripts/check-state-surfaces.ts   (fixture mini-root)
  *
- * Exit: 0 clean, 1 violations.
+ * Exit: 0 clean (warnings allowed), 1 errors.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -61,20 +69,22 @@ const DEFAULT_ALSO_SCAN = ["README.md", "CLAUDE.md", "CONTRIBUTING.md", "AGENTS.
 const KINDS = ["generated", "checked", "editorial"];
 const PATH_EXT = /\.(md|mdx|json|mjs|cjs|js|ts|tsx|jsx|css|ya?ml|txt|html|sh|svg|astro)$/i;
 const DAY_MS = 86_400_000;
-const STATUS_KEYS = ["schemaVersion", "focus", "phase", "note", "updatedAt"];
+/** Fields ops derives from git and issue labels; writing them by hand only goes stale. */
+const DERIVED_STATUS_KEYS = ["release", "headline", "next", "blocked"];
 const FOCUS_MAX = 120;
 
 export interface Violation {
   file: string;
   line: number | null;
   rule: string;
-  severity: "error";
+  severity: "error" | "warning";
   message: string;
 }
 
 export interface CheckResult {
   violations: Violation[];
   summary: { byKind: Record<string, number>; scanned: number };
+  /** True when there are no errors; warnings do not fail the gate. */
   ok: boolean;
 }
 
@@ -83,6 +93,8 @@ export interface CheckOptions {
   registry?: string;
   today?: string;
   runChecks?: boolean;
+  /** Treat REVIEW_DUE as an error instead of a warning. */
+  strictReview?: boolean;
 }
 
 interface Surface {
@@ -221,6 +233,24 @@ function resolves(root: string, fromFile: string, p: string): boolean {
   return existsSync(resolve(root, dirname(fromFile), clean)) || existsSync(resolve(root, clean));
 }
 
+/**
+ * Why a generated surface's `check` cannot work, or null. Static: the script
+ * the command runs must exist, and if the command passes `--check` the script's
+ * source must handle that flag. Nothing is executed (--run-checks does that).
+ */
+function checkProblem(root: string, check: unknown): string | null {
+  if (typeof check !== "string" || !check.trim()) {
+    return 'a generated surface must name a "check": the command that fails when it is stale (e.g. `tsx scripts/gen.ts --check`).';
+  }
+  const script = check.split(/\s+/).find((tok) => /^[\w.-]+(?:\/[\w.-]+)+\.(?:[cm]?[jt]s)$/.test(tok));
+  if (!script) return `check \`${check}\` runs no script path in this repo; name the generator's --check command.`;
+  if (!existsSync(join(root, script))) return `check \`${check}\` runs ${script}, which does not exist.`;
+  if (/(?:^|\s)--check(?:\s|$)/.test(check) && !readFileSync(join(root, script), "utf8").includes("--check")) {
+    return `check \`${check}\` passes --check, but ${script} never handles it, so the check would not detect a stale file.`;
+  }
+  return null;
+}
+
 /** Problems with a parsed status.json against the v2 shape (ADR-010). */
 function statusProblems(status: unknown): string[] {
   if (typeof status !== "object" || status === null || Array.isArray(status)) {
@@ -236,10 +266,9 @@ function statusProblems(status: unknown): string[] {
   if (typeof s.updatedAt !== "string" || Number.isNaN(Date.parse(s.updatedAt))) {
     out.push("updatedAt must be an ISO timestamp");
   }
-  for (const key of Object.keys(s)) {
-    if (!STATUS_KEYS.includes(key)) {
-      out.push(`"${key}" is not a v2 field; ops derives release, next and blocked, so it is not written by hand`);
-    }
+  // Other keys are allowed (ops may add fields); only the derived ones are refused.
+  for (const key of DERIVED_STATUS_KEYS) {
+    if (key in s) out.push(`"${key}" is derived by ops from git and issue labels, so it is not written by hand`);
   }
   return out;
 }
@@ -250,13 +279,23 @@ export function checkStateSurfaces({
   registry = DEFAULT_REGISTRY,
   today: now = todayIso(),
   runChecks = false,
+  strictReview = false,
 }: CheckOptions = {}): CheckResult {
   const violations: Violation[] = [];
-  const add = (file: string, rule: string, message: string, line: number | null = null) =>
-    violations.push({ file, line, rule, severity: "error", message });
+  const add = (
+    file: string,
+    rule: string,
+    message: string,
+    line: number | null = null,
+    severity: Violation["severity"] = "error",
+  ) => violations.push({ file, line, rule, severity, message });
   const regPath = join(root, registry);
   const summary: CheckResult["summary"] = { byKind: {}, scanned: 0 };
-  const done = (): CheckResult => ({ violations, summary, ok: violations.length === 0 });
+  const done = (): CheckResult => ({
+    violations,
+    summary,
+    ok: violations.every((v) => v.severity !== "error"),
+  });
 
   if (!existsSync(regPath)) {
     add(registry, "REGISTRY_MISSING", `${registry} does not exist; it lists every file that describes state.`);
@@ -310,10 +349,17 @@ export function checkStateSurfaces({
       if (!s.owner) bad('an editorial surface needs an "owner"');
       if (!isDay(s.reviewedAt)) {
         bad(`"reviewedAt" must be a calendar day (YYYY-MM-DD), not ${JSON.stringify(s.reviewedAt)}`);
+      } else if (Date.parse(s.reviewedAt) > nowMs) {
+        bad(`"reviewedAt" ${s.reviewedAt} is in the future (today is ${now}); it would hide the document from review. Use the day you re-read it.`);
       }
       if (!Number.isInteger(s.maxAgeDays) || (s.maxAgeDays as number) < 1) {
         bad('"maxAgeDays" must be a positive integer');
       }
+    }
+
+    if (s.kind === "generated") {
+      const problem = checkProblem(root, s.check);
+      if (problem) add(s.path, "CHECK_MISSING", `${s.path}: ${problem}`);
     }
 
     if (!existsSync(join(root, s.path))) {
@@ -338,6 +384,8 @@ export function checkStateSurfaces({
           s.path,
           "REVIEW_DUE",
           `${s.path} review due: last reviewed ${s.reviewedAt} (${age} days ago, max ${s.maxAgeDays}); ${String(s.owner ?? "its owner")} re-reads it and bumps reviewedAt in ${registry}.`,
+          null,
+          strictReview ? "error" : "warning",
         );
       }
     }
@@ -459,17 +507,25 @@ function main() {
     registry: argValue(argv, "--registry") ?? DEFAULT_REGISTRY,
     today: argValue(argv, "--today") ?? process.env.STATE_SURFACES_TODAY ?? todayIso(),
     runChecks: argv.includes("--run-checks"),
+    strictReview: argv.includes("--strict-review"),
   });
   if (json) {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-  } else if (result.ok) {
-    const kinds = Object.entries(result.summary.byKind)
-      .map(([k, n]) => `${n} ${k}`)
-      .join(", ");
-    console.log(`✓ check-state-surfaces (${kinds}; ${result.summary.scanned} markdown file(s) scanned)`);
   } else {
-    for (const v of result.violations) console.error(`${v.file}:${v.line ?? "-"} ${v.rule} ${v.message}`);
-    console.error(`✗ check-state-surfaces: ${result.violations.length} violation(s)`);
+    const errors = result.violations.filter((v) => v.severity === "error");
+    const warnings = result.violations.filter((v) => v.severity === "warning");
+    for (const v of result.violations) {
+      console.error(`${v.severity === "warning" ? "warning " : ""}${v.file}:${v.line ?? "-"} ${v.rule} ${v.message}`);
+    }
+    if (errors.length) {
+      console.error(`✗ check-state-surfaces: ${errors.length} violation(s)`);
+    } else {
+      const kinds = Object.entries(result.summary.byKind)
+        .map(([k, n]) => `${n} ${k}`)
+        .join(", ");
+      const note = warnings.length ? `; ${warnings.length} warning(s): documents due for review (pnpm state:review fails on them)` : "";
+      console.log(`✓ check-state-surfaces (${kinds}; ${result.summary.scanned} markdown file(s) scanned${note})`);
+    }
   }
   process.exit(result.ok ? 0 : 1);
 }

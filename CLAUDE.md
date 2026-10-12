@@ -47,7 +47,8 @@ process needs a one-line prompt, not an essay.
    ```
    Presets: `landscaping`, `junk-removal`, `pressure-washing`, `concrete-fencing`.
 2. **Edit only** `apps/<slug>/client.config.ts` and `apps/<slug>/src/assets/photos`
-   (+ `apps/<slug>/public` for og image / favicon).
+   (+ `apps/<slug>/public` for og image / favicon). The scaffold itself also
+   regenerates README.md's app roster (a generated block; commit it, never edit it).
 3. **Do NOT modify** anything under `packages/*` or any `.astro` component while
    building a client. Those are shared across the whole fleet — a change there
    restyles every site (see README → "Fleet rebuild drift").

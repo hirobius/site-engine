@@ -2,7 +2,7 @@
 /**
  * check-steering-budget — cap the always-on agent context (site-engine#229).
  *
- * Ported from hirobius/hds@511209ab527b67a1b68765f0b3122983dc8671a1
+ * Ported from hirobius/hds#612
  * (scripts/check-steering-budget.mjs + scripts/lib/steering-budget.mjs, which
  * ported ops#292).
  *

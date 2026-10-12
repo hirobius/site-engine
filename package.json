@@ -24,7 +24,8 @@
     "inspiration:capture": "tsx scripts/inspiration-capture.ts",
     "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts",
     "state:generate": "tsx scripts/generate-front-door.ts",
-    "state:check": "tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts"
+    "state:check": "tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts",
+    "state:review": "tsx scripts/check-state-surfaces.ts --strict-review"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

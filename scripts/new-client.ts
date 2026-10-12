@@ -17,6 +17,12 @@
  * a wordmark split from --name). It is mutually exclusive with --preset — the
  * bespoke tier has no ClientConfig-driven palette; see docs/PIPELINE-RUNBOOK.md
  * step 3 for the config-only path this replaces.
+ *
+ * It also regenerates the generated docs (the app roster in README.md, via
+ * scripts/generate-front-door.ts): CI's `pnpm state:check` compares them with
+ * apps/*, so a new app must not leave them stale. The agent building the client
+ * still edits only the client config and photos; the scaffold owns that file.
+ * NEW_CLIENT_ROOT points the whole scaffold at another checkout (tests).
  */
 import { cpSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -24,8 +30,11 @@ import { fileURLToPath } from "node:url";
 import { PALETTE_PRESET_IDS, type PalettePresetId } from "../packages/schema/src/presets.js";
 import { generateFaviconSvg } from "./favicon.js";
 import { insertFleetEntry, readTemplateVersion } from "./fleet-register.js";
+import { writeFrontDoor } from "./generate-front-door.js";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = process.env.NEW_CLIENT_ROOT
+  ? resolve(process.env.NEW_CLIENT_ROOT)
+  : resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 function parseArgs(argv: string[]) {
   const positionals: string[] = [];
@@ -168,9 +177,22 @@ if (inserted) {
   writeFileSync(fleetPath, nextFleetSource);
 }
 
+// 5) Regenerate the generated docs (README.md's app roster) so `pnpm state:check`
+// stays green with the new app in place. A fixture slug (zzz-*) is never listed,
+// so this is a no-op for tests. Fail loud, naming the fix, rather than leave CI to find it.
+let regenerated: string[];
+try {
+  regenerated = writeFrontDoor(ROOT);
+} catch (error) {
+  die(
+    `apps/${slug} was created, but regenerating the roster failed: ${(error as Error).message}\n` +
+      "  Fix the cause, then run: pnpm state:generate",
+  );
+}
+
 console.log(`
 ✓ Created apps/${slug}
-${inserted ? `✓ Registered in apps/_gallery fleet list (template v${templateVersion})` : `• apps/_gallery fleet list already has "${slug}" — left untouched`}
+${regenerated.length ? `✓ Regenerated ${regenerated.join(", ")} (app roster)\n` : ""}${inserted ? `✓ Registered in apps/_gallery fleet list (template v${templateVersion})` : `• apps/_gallery fleet list already has "${slug}" — left untouched`}
 
 Next:
   1. Edit apps/${slug}/client.config.ts (business details, copy, services, SEO).
