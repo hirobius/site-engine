@@ -151,10 +151,11 @@ out.
 
 ## Step 6 — Preview
 
-`apps/_gallery/src/pages/skins.astro` already renders every `SKIN_IDS` entry
-side by side (hero + services + reviews, swatches, the resolved dial values)
-against the shared `SKIN_DEMO_INPUT` fixture — it picks up a new skin
-automatically once `SKIN_IDS` includes it, no gallery edit needed. Build the
+`apps/_gallery/src/pages/skins/index.astro` frames a full-page render of every
+`SKIN_IDS` entry (`apps/_gallery/src/pages/skins/[id].astro`, themed on `<html>`
+exactly like a real client site, against the shared `SKIN_DEMO_INPUT` fixture)
+with the resolved dial values — it picks up a new skin automatically once
+`SKIN_IDS` includes it, no gallery edit needed. Build the
 gallery and eyeball the new card before opening the PR:
 
 ```bash
@@ -168,7 +169,7 @@ Issue #177 (epic #173, amplification move ②). Once the gallery preview (Step
 6) renders the proposed skin, **score it before opening a PR** — this is the
 "critique/QA pass" the tools that produce good-looking output run, applied to
 a skin instead of a one-off page. Two halves, both against the rendered
-gallery `skins.astro` page (or the specific skin's card on it):
+gallery `/skins/<id>` page for the new skin:
 
 1. **Deterministic — `impeccable detect`.** Run `pnpm skin-critique` (wraps
    `runImpeccableDetect()` from `packages/template/src/design-quality.ts`,
