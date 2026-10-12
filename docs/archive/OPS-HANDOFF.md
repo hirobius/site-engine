@@ -1,3 +1,5 @@
+> **Archived 2026-10-12 (site-engine#229).** History, not current state: the brief for moving the engine to ops. That move is done (issue #10); the engine now lives in hirobius/ops. Paths and numbers below are not kept up to date.
+
 # Ops handoff — the single brief to build the `ops` side
 
 > **What this is.** One self-contained brief to execute in a Claude Code session

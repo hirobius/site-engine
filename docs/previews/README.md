@@ -35,6 +35,6 @@ decision about that person's data rather than a recovery of design work.
 
 ## Companion specs
 
-The design system these implement is documented in `../realtor-template.md`,
-`../aura-hirobius-core.md` and `../hirobius-core-brief.md` on the
+The design system these implement is documented in the realtor-template,
+aura-hirobius-core and hirobius-core-brief docs on the
 `claude/realtor-starter` branch (site-engine #23/#24).

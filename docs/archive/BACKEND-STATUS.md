@@ -1,3 +1,5 @@
+> **Archived 2026-10-12 (site-engine#229).** History, not current state: a dated backend status narrative; open work is GitHub Issues in this repo and live state is derived by ops (see AGENTS.md, Front door). Paths and numbers below are not kept up to date.
+
 # Hirobius — Backend Status & Architecture
 
 > **Narrative-only.** This document describes the current state and shape of

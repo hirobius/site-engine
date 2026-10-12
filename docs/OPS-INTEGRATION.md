@@ -113,7 +113,7 @@ create index on leads (status);
 ### Source to bring over from `hirobius/clients`
 
 > The full step-by-step (incl. safe sequencing + verification) is the dedicated
-> migration brief: **`hirobius/clients` → `docs/OPS-HANDOFF.md`**. Summary:
+> migration brief: **`hirobius/clients` → `docs/archive/OPS-HANDOFF.md`** (archived: the move is done). Summary:
 
 | Bring over | Move / vendor / replace? | Role |
 |---|---|---|
@@ -126,7 +126,7 @@ The agent + ported config are framework-agnostic TS (deps: `@anthropic-ai/sdk`,
 `zod`, native `fetch`). The agent **moves** (single home in ops); the schema
 **contract** is vendored (stays canonical in `clients` for the Astro factory);
 the self-built scraper is **retired** in favor of a managed provider (we are done
-building our own scraper — see `docs/OPS-HANDOFF.md` → "Lead sourcing"). API routes
+building our own scraper — see `docs/archive/OPS-HANDOFF.md` → "Lead sourcing"). API routes
 are thin wrappers.
 
 ### API route sketch (Next.js App Router)
@@ -196,5 +196,5 @@ SUPABASE_SERVICE_ROLE_KEY    # server-side writes only — never client
 ## How to execute
 
 Open a Claude Code session **on `hirobius/hirobius-ops`** and follow Part 2 (or
-Part 1 for a different tool). Bring `hirobius/clients`'s `docs/PROJECT-CONTEXT.md`
+Part 1 for a different tool). Bring `hirobius/clients`'s `docs/archive/PROJECT-CONTEXT.md`
 for full background on the puller + agent being ported.

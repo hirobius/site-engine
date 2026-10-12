@@ -1,0 +1,8 @@
+{
+  "$comment": "The always-on agent context budget (site-engine#229; ported from hirobius/hds#612, which ported ops#292). Every file listed here is loaded by every agent in every session before it reads a line of code: CLAUDE.md and what the loop reads first (AGENTS.md, via ralph/prompt.md). It is the same list as `alwaysOn` in docs/state-surfaces.json, which keeps these files to rules, read order and pointers. maxTotalBytes is the measured size (16560 bytes: CLAUDE.md 10084, AGENTS.md 6476) after the 2026-10-12 cleanup, with the app roster and the document index moved out of AGENTS.md into README.md and docs/DOCS-INDEX.md, plus 5%, not a round number. Fix a violation by moving history to an on-demand file; raising maxTotalBytes is a deliberate decision about what every future session pays for.",
+  "maxTotalBytes": 17388,
+  "files": [
+    "CLAUDE.md",
+    "AGENTS.md"
+  ]
+}
