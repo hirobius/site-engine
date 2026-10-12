@@ -18,6 +18,7 @@
     "eject-client": "tsx scripts/eject-client.ts",
     "deploy-preview": "tsx scripts/deploy-preview.ts",
     "render-site": "tsx scripts/render-site.ts",
+    "lead-to-preview": "tsx scripts/lead-to-preview.ts",
     "go-live": "tsx scripts/go-live.ts",
     "verify-live": "tsx scripts/verify-live.ts",
     "skin-critique": "tsx scripts/skin-critique.ts",
