@@ -37,10 +37,17 @@ error (bounded backoff, never silent).
 
 ## Add Ralph to another hirobius repo
 
-1. **Vendor this directory** into the repo (from the `hirobius/ralph` kit):
-   `cp -r ../ralph/ralph . && rm -rf ralph/logs ralph/runs.jsonl ralph/.lock`
-   Then edit the two per-repo files: `ralph/gate.sh` (the repo's own
-   typecheck/test/lint steps) and `ralph/config.env` (knobs).
+1. **Vendor the kit** from a local clone of `hirobius/ralph` (pin a commit):
+   copy `kit/{lib,next,run,loop,status}.sh` and `kit/prompt.md` into `ralph/`
+   byte-identical, then pin them:
+   `node scripts/check-ralph-kit-drift.mjs --update --kit-dir ../ralph/kit --ref hirobius/ralph@<sha>`
+   (writes `ralph/kit.lock.json`). Never hand-edit a kit file: `pnpm test` fails
+   on drift (`scripts/check-ralph-kit-drift.test.mjs`; `pnpm ralph:kit-drift`
+   runs it alone), so fix the kit and re-pin instead. Then edit the per-repo
+   files: `ralph/gate.sh`, `ralph/config.env`, `ralph/check-tests.sh`
+   (tests-with-code hook) and `ralph/test.sh` (test-only runner for the kit's
+   red-first check, ops#504: installs the workspace in the bare worktree, then
+   runs just the vitest files the first test commit touched).
 2. **Add the two thin callers** as `.github/workflows/ralph.yml` and
    `.github/workflows/ralph-gate.yml` — copy them from another repo already
    on the kit and change the `uses:` lines to the org-level form:

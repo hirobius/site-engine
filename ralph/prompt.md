@@ -27,6 +27,14 @@ is a first-class outcome, NOT a failure, and it is always better than guessing:
 - Follow existing repo patterns. The codebase is the source of truth,
   not your assumptions.
 
+## 2b. Red first - required
+Commit a FAILING test before the fix. The first commit on your branch that
+touches test files must fail `bash ralph/gate.sh` on its own (red); the final
+commit must pass it (green). Never put the test and the fix in one commit.
+Docs-only changes are exempt. The harness checks this and posts a
+`ralph-tdd:` comment on a mismatch (a warning until 2026-10-21, a failed run
+after).
+
 ## 3. Pass the gate — required
 Run: bash ralph/gate.sh
 Must pass with zero errors. If it fails, fix YOUR change until it passes.
@@ -43,6 +51,9 @@ Append to progress.txt (terse, grammar optional):
 - Branch: ralph/issue-<n>-<slug> — EXACTLY this shape; the harness keys
   reconciliation on it, and it makes a racing duplicate push fail loudly.
 - Commit (match this repo's commit style)
+- Before opening the PR run: bash ralph/lib.sh pre_pr_gates <n>
+  If it prints a reason and exits non-zero, fix that (add the missing tests)
+  and do NOT open the PR.
 - Open PR with a BARE `Closes #<n>` in the body — on its own line, with no
   markdown emphasis around it and never as part of a list. `Closes **#44**`
   and `Closes #186 · #187 · #188` both look right and both silently close
@@ -50,6 +61,11 @@ Append to progress.txt (terse, grammar optional):
   per issue instead. Note this is necessary but NOT sufficient — a clean
   bare reference has also failed — so the harness verifies the transition
   after the merge regardless (ops#305).
+  The body MUST contain the three headings below; write it with the `pr` skill shape: `## Summary` (smallest
+  visual) · `## Evidence` (gate.sh output tail, or the test that went red →
+  green) · `## Merge Danger` (Door one-way/two-way, Blast Radius). Follow the
+  repo's `.github/PULL_REQUEST_TEMPLATE.md` when present: its headings are the
+  `pr` shape, and any extra sections it has are kept too.
 - Comment the issue with a 2-line summary
 - Never merge. Never push to main. A human approves merges
   (`ralph-approved` on the PR, or the issue was pre-tagged `ralph-auto`).

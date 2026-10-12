@@ -73,8 +73,9 @@ if [ -z "${GITHUB_ACTIONS:-}" ]; then
 fi
 
 # ── 2. Single-flight + wedge check ──────────────────────────────────────────
-prs=$(gh_retry pr list --state open --json number,headRefName,headRefOid,updatedAt \
-  --jq '[.[] | select(.headRefName | startswith("ralph/")) | select(.headRefName | startswith("ralph/claim-") | not)]') ||
+# needs-adrian PRs are parked on a human and don't count (ops#476).
+prs=$(gh_retry pr list --state open --json "$RALPH_OPEN_PRS_FIELDS" \
+  --jq "$RALPH_ACTIVE_PRS_JQ") ||
   { EXIT_REASON="gh pr list failed after retries"; finish 20; }
 if [ "$(jq length <<<"$prs")" -gt 0 ]; then
   wedged=$(classify_wedged <<<"$prs")
@@ -167,12 +168,17 @@ work_status="claude exit $work_code"
 echo "ralph: work step finished ($work_status) — reconciling actual state"
 
 # ── 6. Reconcile — state decides, not the exit code ─────────────────────────
-outcome=$(reconcile_issue "$ISSUE" "$RUN_ID" "$work_status")
+outcome=$(reconcile_issue "$ISSUE" "$RUN_ID" "$work_status" "$LOGFILE")
 CLAIMED=0 # reconcile_issue released the claim on every path
 case $outcome in
 pr:*)
   RESULT="PR ${outcome#pr:} for #$ISSUE" EXIT_REASON="shipped"
   echo "ralph: ✅ $RESULT"
+  finish 0
+  ;;
+closed:*)
+  RESULT="closed #$ISSUE" EXIT_REASON="${outcome#closed:}"
+  echo "ralph: ✅ closed #$ISSUE — ${outcome#closed:}"
   finish 0
   ;;
 parked:*)

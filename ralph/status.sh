@@ -22,7 +22,7 @@ gh issue list --label "$RALPH_READY_LABEL" --state open --limit 100 \
     else .[] | "  \(prio)  #\(.number)  \(.title)" end' 2>/dev/null || echo "  (gh unavailable)"
 echo
 
-echo "── open ralph PRs"
+echo "── in-flight ralph PRs (active — block the queue)"
 prs=$(open_ralph_prs 2>/dev/null || echo '[]')
 if [ "$(jq length <<<"$prs")" -eq 0 ]; then
   echo "  (none — loop is free to pick up work)"
@@ -35,6 +35,15 @@ else
   else
     echo "  (healthy in-flight)"
   fi
+fi
+echo
+
+echo "── parked ralph PRs (needs-adrian — waiting on a human, do NOT block the queue)"
+parked=$(parked_ralph_prs 2>/dev/null || echo '[]')
+if [ "$(jq length <<<"$parked")" -eq 0 ]; then
+  echo "  (none)"
+else
+  jq -r '.[] | "  #\(.number)  \(.headRefName)  updated \(.updatedAt)"' <<<"$parked"
 fi
 echo
 
