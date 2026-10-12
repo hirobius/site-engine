@@ -1,0 +1,11 @@
+{
+  "ref": "hirobius/ralph@13f8cec",
+  "files": {
+    "lib.sh": "8febc04a9e5d5ee5853c7b7069c49d1ff9fe17c9db444412d23db4f90e155f96",
+    "next.sh": "f918816ce83cb6d8544d73552f1c9d63a3f04060699112262f0f749ca5663a2c",
+    "run.sh": "d70af11e9ea95226159cdfcfcb3c2c3ec314692be68323c5c7181b1e889ab05c",
+    "loop.sh": "c026a60e97ca57bebfb5a47f95cb4d9272d99194f14304d941a0430b8c71a90a",
+    "status.sh": "169d5f04f608e7acce6c7d5962d6490d98cc825a4b6cb15c52c70857e622aad9",
+    "prompt.md": "95087943e1858249d639973951146ddb0fbc5907ba2300f87b0d842c5f92b198"
+  }
+}
