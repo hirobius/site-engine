@@ -11,8 +11,10 @@
  *   scope        { repos, paths, topics, commands } — arrays of strings.
  *                repos: FLEET_REPOS names, [] = every fleet repo; paths are
  *                globs; topics are prompt keywords; commands are shell patterns.
- *                Paths are checked here only for rows scoped to ops: the copy
- *                vendored into each repo checks that repo's paths (ops#610).
+ *                Paths are checked only for rows scoped to the repo being
+ *                checked: ops here, and `pnpm lessons:vendor` checks the rows
+ *                scoped to a repo against that repo's tree (ops#610). A path a
+ *                repo lacks, on a row scoped to every repo, just never matches.
  *   enforcement  "none" | "review" | "inject" | "check:<registry id>"
  *   status       "candidate" | "active" | "enforced" | "obsolete"
  *                (candidates are excluded from recall until triaged, ops#608)
@@ -153,7 +155,9 @@ function staticPrefix(glob) {
  * LEDGER_RULES key); an empty array means the ledger is well-formed.
  *
  * @param {object[]} rows
- * @param {{ registryIds: Set<string>, pathExists: (p: string) => boolean }} ctx
+ * @param {{ registryIds: Set<string>, pathExists: (p: string) => boolean, repo?: string }} ctx
+ *   `repo` (default "ops") is the repo whose tree `pathExists` answers for: only
+ *   rows whose scope.repos names it have their paths checked.
  */
 export function validateLedger(rows, ctx) {
   const out = [];
@@ -212,7 +216,7 @@ export function validateLedger(rows, ctx) {
     ) {
       flag('inject-without-matcher', 'an inject row needs at least one topic, path or command');
     }
-    if (scope.repos.includes('ops')) {
+    if (scope.repos.includes(ctx.repo ?? 'ops')) {
       for (const glob of scope.paths) {
         const prefix = staticPrefix(glob);
         if (prefix && !ctx.pathExists(prefix)) {

@@ -8,7 +8,7 @@
     "check-drift.mjs": "sha256:f10e295de6c18c36517addd9954ad301a03a59916f60d84fe42302c00ab06c79",
     "learned-rules.jsonl": "sha256:cf7cfea5b69d3f1ced7ad3a9d976d9e6d65b388d4dd08a65227a7982201e5380",
     "lessons-recall.mjs": "sha256:47a300c3e1015b684a68da1c3ae73ba574c31cfc980512060d6cd23393dcfd73",
-    "lib/lessons-ledger.mjs": "sha256:0186e72f76c107b6ce6e38aab2bba4ad162dece7102120bf89e1e7dddf7e7263",
+    "lib/lessons-ledger.mjs": "sha256:0b86a1f1e0111c86e4f1f2d480ae31dd7b915c32aad322f7e5801cc59bb4bfb4",
     "lib/lessons-recall.mjs": "sha256:58314eea879543349db40fc64329c4757bfdf22cf9aa9e0c155c0edbf1054004"
   }
 }
