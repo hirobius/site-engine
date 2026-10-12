@@ -196,3 +196,14 @@ out) does not change when that lands — only where the folder lives.
    need a `docs/inspiration/<name>/` folder kept out of a public mirror of
    this repo? Not a blocker for MVP-1/MVP-2 (repo is private today) — worth a
    one-line policy before S5 puts a drop-zone in front of non-engineers.
+
+## Addendum — 21st.dev is an inspiration source, never a code source (2026-10-12)
+
+Adrian browses 21st.dev for components and patterns. It joins the intake the
+way a reference link does (decision 2): a pattern found there goes into a brief,
+or into a variant's file header as the link plus a note of what was borrowed,
+and is re-implemented on the semantic tokens through `docs/HARVESTING.md`'s
+conversion contract. Nothing it serves is committed and no 21st.dev package is
+added: its output is shadcn/Tailwind code carrying the literals the purity gate
+rejects, and its licence terms are not something this repo has reviewed. HDS
+holds the same line (hds#632, hds#628). `docs/HARVESTING.md` carries the row.
