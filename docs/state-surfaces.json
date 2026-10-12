@@ -175,6 +175,14 @@
       "maxAgeDays": 120
     },
     {
+      "path": "docs/ARCHITECTURE.md",
+      "describes": "Reviewer-facing architecture: the lead → config → build gate → gated preview → eject flow, and the module that enforces each step",
+      "kind": "editorial",
+      "owner": "Adrian",
+      "reviewedAt": "2026-10-12",
+      "maxAgeDays": 90
+    },
+    {
       "path": "docs/AUTHORING-SKINS.md",
       "describes": "Playbook: inspiration brief to skin PR (epic #173)",
       "kind": "editorial",

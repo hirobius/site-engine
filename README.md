@@ -1,9 +1,38 @@
 # hirobius-clients
 
-The **engine + reference factory** for **mass-producing one-page marketing
-sites** for local service businesses (landscaping, junk removal, pressure
-washing, concrete/fencing). A typed `ClientConfig` is the contract; a render
-target turns it into a live site.
+**site-engine**: a small software factory that turns a local service business
+(landscaping, junk removal, pressure washing, concrete and fencing) into a
+fast, one-page marketing site, then hands the owner a gated preview link.
+
+## For reviewers
+
+**What this is.** A typed contract plus one render target. A client site is a
+single validated data file, `ClientConfig`, rendered by shared Astro
+components. Lead sourcing and the AI copy-writer that produce configs live in
+the `hirobius/ops` repo; this repo owns the contract and the factory.
+
+**How the engine works.** Lead → `leadToConfig()` → one config file per client
+→ `astro build`, where `defineClient()` validates the config with Zod and
+`armAcceptanceGate()` blocks a go-live build that still has placeholders or
+unbacked claims → static site → a preview that is **closed by default** until
+the site is deliberately set live → `eject-client` freezes a handed-off site
+into a standalone repo. Diagram and the code behind each step:
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+**What to look at first.**
+
+- The contract: `packages/schema/src/index.ts` (`defineClient()`) and
+  `packages/schema/src/lead-to-config.ts` (maps a lead without inventing facts).
+- The build as the gate: `packages/template/src/build-gate.ts` and
+  `packages/template/src/acceptance.ts`, called from
+  `apps/_template/astro.config.ts`.
+- Component purity: `packages/template/src/purity.ts`, a lexical gate that
+  keeps every shared component schema-driven and token-only.
+- Closed-by-default previews: `apps/_template/middleware.ts` and its tests in
+  `apps/_template/tests/middleware.test.ts`.
+- Eject to freeze: `scripts/eject-client.ts`.
+- How agents are kept on rails: `CLAUDE.md` (one file per client, no escape
+  hatches) and the state-surface gate, `scripts/check-state-surfaces.ts`.
 
 ## Orientation (start here)
 
