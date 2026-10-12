@@ -41,6 +41,9 @@ const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const VERIFY_ATTEMPTS = 3;
 const VERIFY_WAIT_MS = 5_000;
 
+/** Placeholder in the planned verify step, replaced by the bare deployment URL at run time. */
+export const DEPLOY_URL = "<deployment url>";
+
 export interface PipelineInput {
   slug: string;
   name: string;
@@ -172,6 +175,8 @@ export function planSteps(
   steps.push({ name: "build", cmd: "pnpm", args: ["--filter", `@hirobius/${slug}`, "build"] });
   if (opts.deploy) {
     steps.push({ name: "deploy", cmd: "pnpm", args: ["deploy-preview", slug], capture: true });
+    // The URL is only known once deploy-preview has run; runLeadToPreview fills it in.
+    steps.push({ name: "verify-gated", cmd: "pnpm", args: ["verify-live", DEPLOY_URL, "--expect-gated"] });
   }
   return steps;
 }
@@ -192,6 +197,11 @@ export function deployUrlFromOutput(output: string): { keyed: string; bare: stri
   const bare = new URL(keyed);
   bare.search = "";
   return { keyed, bare: bare.toString() };
+}
+
+/** Hides the `?key=` secret in echoed output: the keyed link prints only once verify-live passes. */
+export function redactKey(text: string): string {
+  return text.replace(/([?&]key=)[^\s&"'<>)\]]+/g, "$1<hidden until verified>");
 }
 
 const fmt = (s: Step | { cmd: string; args: string[] }) =>
@@ -220,61 +230,70 @@ export async function runLeadToPreview(
     const steps = planSteps(input, { ...opts, appExists, configPath: "<temp config.json>" });
     log(`Plan for ${input.slug}${input.leadId ? ` (lead ${input.leadId})` : ""} — dry run, nothing executed:`);
     for (const s of steps) log(`  ${s.name.padEnd(13)} ${fmt(s)}`);
-    if (opts.deploy) log(`  ${"verify-gated".padEnd(13)} pnpm verify-live <deployment url> --expect-gated`);
     return { ok: true };
   }
 
   const temp = deps.writeTempConfig(JSON.stringify(input.config, null, 2));
   try {
     const steps = planSteps(input, { ...opts, appExists, configPath: temp.path });
-    let deployOutput = "";
+    let urls: { keyed: string; bare: string } | undefined;
     for (const step of steps) {
+      if (step.name === "verify-gated") return await verifyGated(step, urls!, input, deps);
       log(`\n→ [${step.name}] ${fmt(step)}`);
       const res = deps.run(step.cmd, step.args, { capture: Boolean(step.capture) });
-      if (step.capture) log(res.stdout);
+      if (step.capture) {
+        log(redactKey(res.stdout));
+        if (res.status === 0 && res.stderr) log(redactKey(res.stderr));
+      }
       if (res.status !== 0) {
-        if (res.stderr) log(res.stderr);
+        if (res.stderr) log(redactKey(res.stderr));
         log(`\n✖ Step "${step.name}" failed — fix the error above, then re-run this command.`);
         return { ok: false, failedStep: step.name };
       }
-      if (step.name === "deploy") deployOutput = res.stdout;
-    }
-
-    if (!opts.deploy) {
-      log(`\n✓ ${input.slug} builds green. Deploying is a deliberate human step — when ready, re-run with --deploy:`);
-      log(`\n  pnpm lead-to-preview <same input> --deploy\n`);
-      log(`  (or: pnpm deploy-preview ${input.slug}, then pnpm verify-live <deployment url> --expect-gated)`);
-      closingNotes(input, log);
-      return { ok: true };
-    }
-
-    let urls: { keyed: string; bare: string };
-    try {
-      urls = deployUrlFromOutput(deployOutput);
-    } catch (err) {
-      log(`\n✖ ${(err as Error).message}`);
-      return { ok: false, failedStep: "deploy" };
-    }
-
-    const verify = { cmd: "pnpm", args: ["verify-live", urls.bare, "--expect-gated"] };
-    for (let attempt = 1; attempt <= VERIFY_ATTEMPTS; attempt++) {
-      log(`\n→ [verify-gated] ${fmt(verify)} (attempt ${attempt}/${VERIFY_ATTEMPTS})`);
-      const res = deps.run(verify.cmd, verify.args, { capture: false });
-      if (res.status === 0) {
-        log(`\n✓ Gated preview deployed and proven closed without the key. Send this link:\n\n  ${urls.keyed}\n`);
-        closingNotes(input, log);
-        return { ok: true, previewLink: urls.keyed };
+      if (step.name === "deploy") {
+        try {
+          urls = deployUrlFromOutput(res.stdout);
+        } catch (err) {
+          log(`\n✖ ${(err as Error).message}`);
+          return { ok: false, failedStep: "deploy" };
+        }
       }
-      if (attempt < VERIFY_ATTEMPTS) await deps.sleep(VERIFY_WAIT_MS);
     }
-    log(
-      `\n✖ verify-live --expect-gated failed ${VERIFY_ATTEMPTS}x on ${urls.bare}. Do NOT send the link. ` +
-        "If deploy-preview printed a Deployment Protection deep link, disable it there and re-run.",
-    );
-    return { ok: false, failedStep: "verify-gated" };
+
+    log(`\n✓ ${input.slug} builds green. Deploying is a deliberate human step — when ready, re-run with --deploy:`);
+    log(`\n  pnpm lead-to-preview <same input> --deploy\n`);
+    log(`  (or: pnpm deploy-preview ${input.slug}, then pnpm verify-live ${DEPLOY_URL} --expect-gated)`);
+    closingNotes(input, log);
+    return { ok: true };
   } finally {
     temp.cleanup();
   }
+}
+
+/** Runs the planned verify step against the bare URL, retrying while a fresh deploy propagates. */
+async function verifyGated(
+  step: Step,
+  urls: { keyed: string; bare: string },
+  input: PipelineInput,
+  deps: PipelineDeps,
+): Promise<PipelineResult> {
+  const { log } = deps;
+  const args = step.args.map((a) => (a === DEPLOY_URL ? urls.bare : a));
+  for (let attempt = 1; attempt <= VERIFY_ATTEMPTS; attempt++) {
+    log(`\n→ [${step.name}] ${fmt({ cmd: step.cmd, args })} (attempt ${attempt}/${VERIFY_ATTEMPTS})`);
+    const res = deps.run(step.cmd, args, { capture: false });
+    if (res.status === 0) {
+      log(`\n✓ Gated preview deployed and proven closed without the key. Send this link:\n\n  ${urls.keyed}\n`);
+      closingNotes(input, log);
+      return { ok: true, previewLink: urls.keyed };
+    }
+    if (attempt < VERIFY_ATTEMPTS) await deps.sleep(VERIFY_WAIT_MS);
+  }
+  log(
+    `\n✖ verify-live --expect-gated failed ${VERIFY_ATTEMPTS}x on ${urls.bare}. Do NOT send the link. ` +
+      "If deploy-preview printed a Deployment Protection deep link, disable it there and re-run.",
+  );
+  return { ok: false, failedStep: "verify-gated" };
 }
 
 const defaultDeps: PipelineDeps = {
@@ -298,6 +317,43 @@ const defaultDeps: PipelineDeps = {
   log: (line) => console.log(line),
 };
 
+export interface CliArgs {
+  kind: "lead" | "render";
+  file: string;
+  options: PipelineOptions;
+}
+
+const BOOLEAN_FLAGS = ["--deploy", "--dry-run", "--force"] as const;
+
+/**
+ * Strict argv parsing: an unknown or repeated flag is an error, never
+ * ignored. A typo like `--dryrun` must not silently run the real pipeline.
+ */
+export function parseCliArgs(argv: string[]): CliArgs {
+  const files: Partial<Record<"lead" | "render", string>> = {};
+  const seen = new Set<string>();
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]!;
+    if (seen.has(arg)) throw new Error(`${arg} was given more than once.`);
+    seen.add(arg);
+    if (arg === "--lead" || arg === "--render") {
+      const value = argv[++i];
+      if (!value || value.startsWith("--")) throw new Error(`${arg} needs a file path.`);
+      files[arg.slice(2) as "lead" | "render"] = value;
+    } else if (!(BOOLEAN_FLAGS as readonly string[]).includes(arg)) {
+      throw new Error(`Unknown argument "${arg}".`);
+    }
+  }
+  if (files.lead && files.render) throw new Error("Pass exactly one of --lead or --render.");
+  const kind = files.lead ? "lead" : files.render ? "render" : undefined;
+  if (!kind) throw new Error("No input: pass --lead <file> or --render <file>.");
+  return {
+    kind,
+    file: files[kind]!,
+    options: { deploy: seen.has("--deploy"), force: seen.has("--force"), dryRun: seen.has("--dry-run") },
+  };
+}
+
 const USAGE =
   "Usage: pnpm lead-to-preview (--lead <lead.json> | --render <render.json>) [--deploy] [--dry-run] [--force]";
 
@@ -312,38 +368,25 @@ function isMain(): boolean {
 }
 
 if (isMain()) {
-  const argv = process.argv.slice(2);
-  const valueOf = (flag: string) => {
-    const i = argv.indexOf(flag);
-    if (i === -1) return undefined;
-    const value = argv[i + 1];
-    if (!value || value.startsWith("--")) die(`${flag} needs a file path.\n  ${USAGE}`);
-    return value;
-  };
-  const leadFile = valueOf("--lead");
-  const renderFile = valueOf("--render");
-  if (!leadFile && !renderFile) die(USAGE);
-  if (leadFile && renderFile) die(`Pass exactly one of --lead or --render.\n  ${USAGE}`);
-
-  const kind = leadFile ? "lead" : "render";
-  const file = (leadFile ?? renderFile)!;
+  let cli: CliArgs;
+  try {
+    cli = parseCliArgs(process.argv.slice(2));
+  } catch (err) {
+    die(`${(err as Error).message}\n  ${USAGE}`);
+  }
   let json: string;
   try {
-    json = readFileSync(resolve(file), "utf8");
+    json = readFileSync(resolve(cli.file), "utf8");
   } catch (err) {
-    die(`Could not read ${kind} file ${file}: ${(err as Error).message}`);
+    die(`Could not read ${cli.kind} file ${cli.file}: ${(err as Error).message}`);
   }
   let input: PipelineInput;
   try {
-    input = parseInput(kind, json);
+    input = parseInput(cli.kind, json);
   } catch (err) {
     die((err as Error).message);
   }
 
-  const result = await runLeadToPreview(
-    input,
-    { deploy: argv.includes("--deploy"), force: argv.includes("--force"), dryRun: argv.includes("--dry-run") },
-    defaultDeps,
-  );
+  const result = await runLeadToPreview(input, cli.options, defaultDeps);
   process.exit(result.ok ? 0 : 1);
 }

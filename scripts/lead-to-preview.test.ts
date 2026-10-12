@@ -6,7 +6,9 @@ import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { leadToConfig, type LeadRow } from "../packages/schema/src/lead-to-config.js";
 import {
+  DEPLOY_URL,
   deployUrlFromOutput,
+  parseCliArgs,
   parseInput,
   planSteps,
   runLeadToPreview,
@@ -139,8 +141,9 @@ describe("planSteps", () => {
   it("has no deploy step unless deploy is explicitly on", () => {
     expect(planSteps(input, base).some((s) => s.args.includes("deploy-preview"))).toBe(false);
     const withDeploy = planSteps(input, { ...base, deploy: true });
-    expect(withDeploy.at(-1)!.name).toBe("deploy");
-    expect(withDeploy.at(-1)!.args).toEqual(["deploy-preview", LEAD.slug]);
+    expect(withDeploy.slice(-2).map((s) => s.name)).toEqual(["deploy", "verify-gated"]);
+    expect(withDeploy.at(-2)!.args).toEqual(["deploy-preview", LEAD.slug]);
+    expect(withDeploy.at(-1)!.args).toEqual(["verify-live", DEPLOY_URL, "--expect-gated"]);
   });
 
   it("never passes --prod anywhere", () => {
@@ -216,6 +219,17 @@ describe("runLeadToPreview", () => {
     expect(res.previewLink).toBe("https://hirobius-example-suds-abc123.vercel.app/?key=deadbeef");
   });
 
+  it("never prints the keyed link before verify-live passes, and never if it fails", async () => {
+    const fail: RunResult = { status: 1, stdout: "", stderr: "" };
+    const { deps } = fakeDeps({ results: { "verify-live": [fail, fail, fail] } });
+    const lines: string[] = [];
+    deps.log = (l) => lines.push(l);
+    await runLeadToPreview(input, { deploy: true, force: false, dryRun: false }, deps);
+    const out = lines.join("\n");
+    expect(out).not.toContain("deadbeef");
+    expect(out).toContain("hirobius-example-suds-abc123.vercel.app"); // the host still shows
+  });
+
   it("retries verify-live (deploys can still be propagating) and passes once it does", async () => {
     const fail: RunResult = { status: 1, stdout: "✖ home page returns 401 — status 404", stderr: "" };
     const { deps, calls } = fakeDeps({ results: { "verify-live": [fail, ok()] } });
@@ -272,6 +286,34 @@ describe("runLeadToPreview", () => {
   });
 });
 
+describe("parseCliArgs", () => {
+  it("parses one input file plus boolean flags", () => {
+    expect(parseCliArgs(["--render", "r.json", "--deploy"])).toEqual({
+      kind: "render",
+      file: "r.json",
+      options: { deploy: true, force: false, dryRun: false },
+    });
+  });
+
+  it("rejects an unknown flag, so a typo never runs the real pipeline", () => {
+    expect(() => parseCliArgs(["--lead", "l.json", "--dryrun"])).toThrow(/Unknown argument "--dryrun"/);
+  });
+
+  it("rejects a repeated flag instead of silently dropping one value", () => {
+    expect(() => parseCliArgs(["--lead", "a.json", "--lead", "b.json"])).toThrow(/more than once/);
+  });
+
+  it("rejects a file flag with no value, or with a flag where the value should be", () => {
+    expect(() => parseCliArgs(["--render", "r.json", "--lead"])).toThrow(/--lead needs a file path/);
+    expect(() => parseCliArgs(["--lead", "--deploy"])).toThrow(/--lead needs a file path/);
+  });
+
+  it("requires exactly one of --lead / --render", () => {
+    expect(() => parseCliArgs(["--deploy"])).toThrow(/No input/);
+    expect(() => parseCliArgs(["--lead", "a.json", "--render", "b.json"])).toThrow(/exactly one/);
+  });
+});
+
 describe("CLI", () => {
   const tmp = mkdtempSync(join(tmpdir(), "ltp-cli-"));
   afterAll(() => rmSync(tmp, { recursive: true, force: true }));
@@ -281,6 +323,7 @@ describe("CLI", () => {
   it("exits 1 with usage when no input file is given", () => {
     const res = cli([]);
     expect(res.status).toBe(1);
+    expect(res.stderr).toMatch(/No input/);
     expect(res.stderr).toMatch(/Usage: pnpm lead-to-preview/);
   });
 
