@@ -1,38 +1,44 @@
 # hirobius-clients
 
-**site-engine**: a small software factory that turns a local service business
-(landscaping, junk removal, pressure washing, concrete and fencing) into a
-fast, one-page marketing site, then hands the owner a gated preview link.
+This repo builds one-page marketing sites for local service businesses:
+landscapers, junk haulers, pressure washers, concrete and fence crews. You
+give it a business, and it produces a fast static site plus a private preview
+link to send the owner.
 
 ## For reviewers
 
-**What this is.** A typed contract plus one render target. A client site is a
-single validated data file, `ClientConfig`, rendered by shared Astro
-components. Lead sourcing and the AI copy-writer that produce configs live in
-the `hirobius/ops` repo; this repo owns the contract and the factory.
+Each client site is described by one file, `apps/<slug>/client.config.ts`. It
+holds a `ClientConfig` object, and a set of shared Astro components renders it.
+Nobody writes per-client markup. The code that finds leads and writes the copy
+lives in a separate repo (`hirobius/ops`). This one owns the config format and
+turns configs into sites.
 
-**How the engine works.** Lead → `leadToConfig()` → one config file per client
-→ `astro build`, where `defineClient()` validates the config with Zod and
-`armAcceptanceGate()` blocks a go-live build that still has placeholders or
-unbacked claims → static site → a preview that is **closed by default** until
-the site is deliberately set live → `eject-client` freezes a handed-off site
-into a standalone repo. Diagram and the code behind each step:
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Here is what happens to a lead. `leadToConfig()` maps it to a config, filling
+in placeholders where a fact is missing instead of guessing. When the site
+builds, `defineClient()` checks the config with Zod and the build fails if
+anything is malformed. `armAcceptanceGate()` also runs during the build, and
+it refuses to produce a live site that still has placeholder contact details
+or marketing claims the business can't back up. Every deploy starts behind a
+password gate and stays there until someone deliberately sets it live. When a
+client takes ownership, `eject-client` copies their site out into a
+standalone repo, so later changes here can't touch it. The diagram and the
+code for each step are in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-**What to look at first.**
+If you only have a few minutes, these are the files I'd read:
 
-- The contract: `packages/schema/src/index.ts` (`defineClient()`) and
-  `packages/schema/src/lead-to-config.ts` (maps a lead without inventing facts).
-- The build as the gate: `packages/template/src/build-gate.ts` and
-  `packages/template/src/acceptance.ts`, called from
+- `packages/schema/src/index.ts`: the config schema and `defineClient()`.
+- `packages/schema/src/lead-to-config.ts`: how a raw lead becomes a config
+  without made-up facts.
+- `packages/template/src/build-gate.ts` and
+  `packages/template/src/acceptance.ts`: the go-live checks, wired in from
   `apps/_template/astro.config.ts`.
-- Component purity: `packages/template/src/purity.ts`, a lexical gate that
-  keeps every shared component schema-driven and token-only.
-- Closed-by-default previews: `apps/_template/middleware.ts` and its tests in
+- `packages/template/src/purity.ts`: a lexical check that stops shared
+  components from hardcoding colours, fonts, scripts or outside URLs.
+- `apps/_template/middleware.ts`: the preview gate, with tests in
   `apps/_template/tests/middleware.test.ts`.
-- Eject to freeze: `scripts/eject-client.ts`.
-- How agents are kept on rails: `CLAUDE.md` (one file per client, no escape
-  hatches) and the state-surface gate, `scripts/check-state-surfaces.ts`.
+- `scripts/eject-client.ts`: the handoff.
+- `CLAUDE.md` and `scripts/check-state-surfaces.ts`: the rules AI agents follow
+  in this repo, and the check that keeps the docs honest.
 
 ## Orientation (start here)
 

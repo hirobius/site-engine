@@ -1,7 +1,8 @@
 # Architecture
 
-How a lead becomes a gated preview, and which code enforces each step. Every
-path below is real; follow it to check the claim.
+This page follows a lead from the moment it arrives to the point where a
+client owns their site, and names the code that enforces each step. All the
+paths are real, so you can open any of them and check.
 
 ```mermaid
 flowchart LR
@@ -17,15 +18,16 @@ flowchart LR
 
 ## The contract
 
-A client site is data, not code. `ClientConfig` is a Zod schema in
-`packages/schema/src/index.ts`; `defineClient()` validates a config against it
-and throws on anything malformed. Each app's single editable file,
-`apps/_template/client.config.ts` (copied per client), calls `defineClient()`,
-so the build itself is the validator: an invalid config cannot produce a site.
+Every client site comes from a config object. `ClientConfig` is a Zod schema
+in `packages/schema/src/index.ts`, and `defineClient()` validates a config
+against it, throwing if anything is off. Each app has exactly one file meant
+for editing, `client.config.ts` (the template copy is
+`apps/_template/client.config.ts`), and that file calls `defineClient()`.
+Since the build imports it, a bad config stops the build before a site exists.
 
-The contract is render-agnostic. The engine that emits configs (lead sourcing
-and the AI writer) lives in the `hirobius/ops` repo; this repo owns the
-contract and one render target (Astro).
+Nothing in the config is tied to Astro. Astro is just the renderer used
+today. Finding leads and writing copy happen in the `hirobius/ops` repo,
+which produces configs in this format.
 
 ## Enforcing modules
 
@@ -41,17 +43,20 @@ contract and one render target (Astro).
 | Handoff = a frozen standalone repo | `scripts/eject-client.ts` (inlines workspace packages, pins versions) | `scripts/tooling.test.ts` |
 | Fleet drift | `.github/workflows/visual.yml` (visual regression), `.github/workflows/lighthouse.yml` (perf and a11y budgets) | CI |
 
-## Why it is shaped this way
+## Why it works this way
 
-- **One file per client.** Agents and people edit only the config and photos;
-  anything the schema can't express is a different (custom) engagement, not an
-  escape hatch. See `CLAUDE.md`.
-- **The build is the gate.** Validation runs where the site is made, so there
-  is no "forgot to run the checker" path.
-- **Closed by default.** A preview that leaks to search or to the wrong person
-  is worse than one that 401s, so the middleware fails closed.
-- **Eject to freeze.** A shared-component change restyles every workspace
-  site; handed-off sites are ejected so they never change without a paid,
-  deliberate update.
+- **One file per client.** People and agents only touch the config and the
+  photos. If a client wants something the schema can't describe, that's
+  quoted as custom work. Nobody bends a shared component to fit. The rules are
+  in `CLAUDE.md`.
+- **Checks run inside the build.** There's no separate checker to forget to
+  run. If the config is wrong, the site doesn't build.
+- **Previews start locked.** A preview that shows up in search results, or in
+  front of the wrong person, does more damage than one that asks for a
+  password. So the gate fails closed.
+- **Handed-off sites are frozen.** A change to a shared component restyles
+  every site still in this repo. Ejecting a client's site means it only
+  changes when they pay for an update.
 
-Operator detail lives in `docs/PIPELINE-RUNBOOK.md` and `docs/GO-LIVE.md`.
+The step-by-step operator guides are `docs/PIPELINE-RUNBOOK.md` and
+`docs/GO-LIVE.md`.
