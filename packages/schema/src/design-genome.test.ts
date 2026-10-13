@@ -60,8 +60,8 @@ describe("pickDesign — determinism", () => {
   });
 
   it("differentiates names differing only in a non-Latin-1 character", () => {
-    const lead1 = lead({ placeId: null, slug: null, name: "Café Tree Service", city: "Seattle" });
-    const lead2 = lead({ placeId: null, slug: null, name: "Cafa Tree Service", city: "Seattle" });
+    const lead1 = lead({ placeId: null, slug: null, name: "\u0150ak Tree Service", city: "Seattle" });
+    const lead2 = lead({ placeId: null, slug: null, name: "Pak Tree Service", city: "Seattle" });
     const rng1 = seededRng(stableLeadId(lead1));
     const rng2 = seededRng(stableLeadId(lead2));
     expect(rng1()).not.toEqual(rng2());
