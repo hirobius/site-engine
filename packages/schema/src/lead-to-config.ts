@@ -59,7 +59,10 @@ export interface LeadRow {
    * The design profile id this lead was first assigned (`designProfileId` on
    * a previous `LeadToConfigResult`). Persist it on the lead row and pass it
    * back so rebuilds keep the same look even after `DESIGN_PROFILES` grows —
-   * see `pickDesign`. Absent → seeded draw, as before.
+   * see `pickDesign`. Absent → seeded draw, as before. camelCase like every
+   * other `LeadRow` field — the ops-side reader maps the `design_profile_id`
+   * DB column onto this field (same as `art_direction` → `artDirection`), and
+   * ops#542 writes that column after the first generate.
    */
   designProfileId?: string | null;
 }
