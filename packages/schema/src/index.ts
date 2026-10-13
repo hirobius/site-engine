@@ -299,6 +299,10 @@ export const CopySchema = z.object({
   /** Primary CTA label, e.g. "Get a Free Quote". */
   ctaLabel: z.string().min(1).default("Get a Free Quote"),
   about: z.string().min(1),
+  /** se#221: Services section title. Omit for the template default ("What We Do"). */
+  servicesTitle: z.string().min(1).optional(),
+  /** se#221: Services section subtitle. Omit for the template default. */
+  servicesSubtitle: z.string().min(1).optional(),
 });
 
 export const FormSchema = z.object({
