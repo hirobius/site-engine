@@ -148,19 +148,20 @@ export function paletteOverrideIsContrastSafe(overrides: Partial<PaletteTokens> 
  * (e.g. same-trade leads in one metro) scatter uniformly across the seed space.
  */
 function murmurhash3_32(key: string, seed = 0): number {
+  const bytesData = new TextEncoder().encode(key);
   let k: number,
     h = seed;
-  const remainder = key.length & 3;
-  const bytes = key.length - remainder;
+  const remainder = bytesData.length & 3;
+  const bytes = bytesData.length - remainder;
   const c1 = 0xcc9e2d51,
     c2 = 0x1b873593;
 
   for (let i = 0; i < bytes; i += 4) {
     k =
-      (key.charCodeAt(i) & 0xff) |
-      ((key.charCodeAt(i + 1) & 0xff) << 8) |
-      ((key.charCodeAt(i + 2) & 0xff) << 16) |
-      ((key.charCodeAt(i + 3) & 0xff) << 24);
+      bytesData[i]! |
+      (bytesData[i + 1]! << 8) |
+      (bytesData[i + 2]! << 16) |
+      (bytesData[i + 3]! << 24);
 
     k = Math.imul(k, c1);
     k = (k << 15) | (k >>> 17);
@@ -174,20 +175,20 @@ function murmurhash3_32(key: string, seed = 0): number {
   k = 0;
   switch (remainder) {
     case 3:
-      k ^= (key.charCodeAt(bytes + 2) & 0xff) << 16;
+      k ^= bytesData[bytes + 2]! << 16;
       /* fallthrough */
     case 2:
-      k ^= (key.charCodeAt(bytes + 1) & 0xff) << 8;
+      k ^= bytesData[bytes + 1]! << 8;
       /* fallthrough */
     case 1:
-      k ^= key.charCodeAt(bytes) & 0xff;
+      k ^= bytesData[bytes]!;
       k = Math.imul(k, c1);
       k = (k << 15) | (k >>> 17);
       k = Math.imul(k, c2);
       h ^= k;
   }
 
-  h ^= key.length;
+  h ^= bytesData.length;
   h ^= h >>> 16;
   h = Math.imul(h, 0x85ebca6b);
   h ^= h >>> 13;

@@ -58,6 +58,14 @@ describe("pickDesign — determinism", () => {
     // true for this pair — documents that identity, not chance, drives it.
     expect(b).not.toEqual(a);
   });
+
+  it("differentiates names differing only in a non-Latin-1 character", () => {
+    const lead1 = lead({ placeId: null, slug: null, name: "Café Tree Service", city: "Seattle" });
+    const lead2 = lead({ placeId: null, slug: null, name: "Cafa Tree Service", city: "Seattle" });
+    const rng1 = seededRng(stableLeadId(lead1));
+    const rng2 = seededRng(stableLeadId(lead2));
+    expect(rng1()).not.toEqual(rng2());
+  });
 });
 
 describe("pickDesign — spread", () => {
