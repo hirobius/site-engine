@@ -207,7 +207,8 @@ export const SKINS: Record<SkinId, Skin> = {
   },
 
   /**
-   * Skin #3 (skins batch PR 4): crisp-modern — calm, precise, near-white with
+   * crisp-modern (polish batch 2026-10-07; brief:
+   * `docs/inspiration/crisp-modern/`) — calm, precise, near-white with
    * ink type and one confident blue. For trades that sell reliability and
    * tidiness (cleaning, HVAC, pool, lawn care). `classic` hero (photo under
    * an ink overlay) and `cards` services; Space Grotesk `modern` pairing
