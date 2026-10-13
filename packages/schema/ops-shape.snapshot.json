@@ -68,6 +68,7 @@
                   "values": [
                     "editorial",
                     "industrial",
+                    "luxe",
                     "modern",
                     "slab",
                     "system"
@@ -150,6 +151,18 @@
                     "airy",
                     "comfortable",
                     "compact"
+                  ]
+                },
+                "optional": false,
+                "hasDefault": true
+              },
+              "typeScale": {
+                "shape": {
+                  "kind": "enum",
+                  "values": [
+                    "compact",
+                    "display",
+                    "standard"
                   ]
                 },
                 "optional": false,

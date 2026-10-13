@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defineClient } from "./index.js";
+import { relativeLuminance } from "./design-genome.js";
 import { SKINS, SKIN_IDS } from "./skins.js";
 import type { ClientConfigDraft, ClientConfigInput } from "./index.js";
 
@@ -167,14 +168,19 @@ describe("warm-editorial skin (issue #141)", () => {
     expect(warmResult.brand.motion).not.toBe(classicResult.brand.motion);
   });
 
-  it("lets an explicit brand.cssVarOverrides override the skin's palette", () => {
+  it("merges an explicit brand.cssVarOverrides over the skin's palette one var at a time", () => {
+    // Palette trap fix (polish batch 2026-10-07, skin surface): tweaking one var used to discard the
+    // skin's whole AA-vetted palette. The config's var wins; the rest stay.
     const result = defineClient(
       config({
         design: "warm-editorial",
-        brand: { palettePreset: "pressure-washing", cssVarOverrides: { "--brand-bg": "#ffffff" } },
+        brand: { palettePreset: "pressure-washing", cssVarOverrides: { "--brand-accent": "#7a3d22" } },
       }),
     );
-    expect(result.brand.cssVarOverrides).toEqual({ "--brand-bg": "#ffffff" });
+    expect(result.brand.cssVarOverrides).toEqual({
+      ...SKINS["warm-editorial"].brand.cssVarOverrides,
+      "--brand-accent": "#7a3d22",
+    });
   });
 
   it("renders byte-identical to today when design is omitted (additive)", () => {
@@ -185,5 +191,162 @@ describe("warm-editorial skin (issue #141)", () => {
     // changes output rather than being a no-op.
     const withWarm = defineClient(config({ design: "warm-editorial" }));
     expect(withoutDesign).not.toEqual(withWarm);
+  });
+});
+
+describe("skin surface — spacingDensity + typeScale pins (polish batch 2026-10-07, skin surface)", () => {
+  it("classic pins the default density + type scale, so it still reproduces the schema defaults", () => {
+    expect(SKINS.classic.brand.spacingDensity).toBe("comfortable");
+    expect(SKINS.classic.brand.typeScale).toBe("standard");
+    expect(defineClient(config({ design: "classic" }))).toEqual(defineClient(config()));
+  });
+
+  it("an explicit spacingDensity/typeScale beats the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "classic",
+        brand: { palettePreset: "pressure-washing", spacingDensity: "airy", typeScale: "display" },
+      }),
+    );
+    expect(result.brand.spacingDensity).toBe("airy");
+    expect(result.brand.typeScale).toBe("display");
+  });
+});
+
+describe("bold-industrial skin (polish batch 2026-10-07)", () => {
+  it("pins the banner hero, alternating services, and the heavy industrial dials", () => {
+    const result = defineClient(config({ design: "bold-industrial" }));
+    expect(result.layout.sections.hero.variant).toBe("banner");
+    expect(result.layout.sections.services.variant).toBe("alternating");
+    expect(result.brand.fontPairing).toBe("industrial");
+    expect(result.brand.radius).toBe("none");
+    expect(result.brand.shadow).toBe("hard");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("display");
+    expect(result.brand.spacingDensity).toBe("compact");
+  });
+
+  it("carries its own charcoal + safety-amber palette, independent of the trade preset", () => {
+    const result = defineClient(config({ design: "bold-industrial" }));
+    expect(result.brand.cssVarOverrides).toEqual(SKINS["bold-industrial"].brand.cssVarOverrides);
+    expect(result.brand.cssVarOverrides?.["--brand-on-primary"]).toBe("#f5c200");
+  });
+
+  it("is visibly distinct from its nearest neighbour skin (classic: the other light sans skin)", () => {
+    const classicResult = defineClient(config({ design: "classic" }));
+    const boldResult = defineClient(config({ design: "bold-industrial" }));
+    expect(boldResult.layout.sections.hero.variant).not.toBe(classicResult.layout.sections.hero.variant);
+    expect(boldResult.layout.sections.services.variant).not.toBe(classicResult.layout.sections.services.variant);
+    expect(boldResult.brand.cssVarOverrides).not.toEqual(classicResult.brand.cssVarOverrides);
+    expect(boldResult.brand.fontPairing).not.toBe(classicResult.brand.fontPairing);
+    expect(boldResult.brand.radius).not.toBe(classicResult.brand.radius);
+    expect(boldResult.brand.shadow).not.toBe(classicResult.brand.shadow);
+    expect(boldResult.brand.typeScale).not.toBe(classicResult.brand.typeScale);
+  });
+
+  it("an explicit brand field and an explicit section variant override the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "bold-industrial",
+        brand: { palettePreset: "pressure-washing", radius: "lg" },
+        layout: { sections: { hero: { variant: "split-card" } } },
+      }),
+    );
+    expect(result.brand.radius).toBe("lg");
+    expect(result.layout.sections.hero.variant).toBe("split-card");
+    // Untouched pins still come from the skin.
+    expect(result.brand.shadow).toBe("hard");
+    expect(result.layout.sections.services.variant).toBe("alternating");
+  });
+});
+
+describe("crisp-modern skin (polish batch 2026-10-07)", () => {
+  it("pins the classic hero, card services, and the light, airy modern dials", () => {
+    const result = defineClient(config({ design: "crisp-modern" }));
+    expect(result.layout.sections.hero.variant).toBe("classic");
+    expect(result.layout.sections.services.variant).toBe("cards");
+    expect(result.brand.fontPairing).toBe("modern");
+    expect(result.brand.radius).toBe("sm");
+    expect(result.brand.shadow).toBe("flat");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("compact");
+    expect(result.brand.spacingDensity).toBe("airy");
+  });
+
+  it("is visibly distinct from its nearest neighbour skin (classic: same hero, light sans)", () => {
+    const classicResult = defineClient(config({ design: "classic" }));
+    const crispResult = defineClient(config({ design: "crisp-modern" }));
+    // Same hero variant on purpose; everything around it moves.
+    expect(crispResult.layout.sections.services.variant).not.toBe(classicResult.layout.sections.services.variant);
+    expect(crispResult.brand.cssVarOverrides).not.toEqual(classicResult.brand.cssVarOverrides);
+    expect(crispResult.brand.fontPairing).not.toBe(classicResult.brand.fontPairing);
+    expect(crispResult.brand.radius).not.toBe(classicResult.brand.radius);
+    expect(crispResult.brand.shadow).not.toBe(classicResult.brand.shadow);
+    expect(crispResult.brand.motion).not.toBe(classicResult.brand.motion);
+    expect(crispResult.brand.typeScale).not.toBe(classicResult.brand.typeScale);
+    expect(crispResult.brand.spacingDensity).not.toBe(classicResult.brand.spacingDensity);
+  });
+
+  it("an explicit brand field and an explicit section variant override the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "crisp-modern",
+        brand: { palettePreset: "pressure-washing", spacingDensity: "compact" },
+        layout: { sections: { services: { variant: "grid" } } },
+      }),
+    );
+    expect(result.brand.spacingDensity).toBe("compact");
+    expect(result.layout.sections.services.variant).toBe("grid");
+    // Untouched pins still come from the skin.
+    expect(result.brand.typeScale).toBe("compact");
+    expect(result.layout.sections.hero.variant).toBe("classic");
+  });
+});
+
+describe("luxe-dark skin (polish batch 2026-10-07)", () => {
+  it("pins the split-card hero, masonry reviews, and the luxe dials", () => {
+    const result = defineClient(config({ design: "luxe-dark" }));
+    expect(result.layout.sections.hero.variant).toBe("split-card");
+    expect(result.layout.sections.reviews.variant).toBe("masonry");
+    expect(result.brand.fontPairing).toBe("luxe");
+    expect(result.brand.font).toBe("slab");
+    expect(result.brand.radius).toBe("sm");
+    expect(result.brand.shadow).toBe("soft");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("display");
+    expect(result.brand.spacingDensity).toBe("airy");
+  });
+
+  it("is a dark skin: the page background is darker than the text", () => {
+    const palette = SKINS["luxe-dark"].brand.cssVarOverrides!;
+    expect(relativeLuminance(palette["--brand-bg"]!)).toBeLessThan(relativeLuminance(palette["--brand-fg"]!));
+  });
+
+  it("is visibly distinct from its nearest neighbour skin (warm-editorial: the other serif split-card skin)", () => {
+    const warmResult = defineClient(config({ design: "warm-editorial" }));
+    const luxeResult = defineClient(config({ design: "luxe-dark" }));
+    // Same hero variant on purpose; the palette flips dark and the dials move.
+    expect(luxeResult.layout.sections.reviews.variant).not.toBe(warmResult.layout.sections.reviews.variant);
+    expect(luxeResult.brand.cssVarOverrides).not.toEqual(warmResult.brand.cssVarOverrides);
+    expect(luxeResult.brand.fontPairing).not.toBe(warmResult.brand.fontPairing);
+    expect(luxeResult.brand.radius).not.toBe(warmResult.brand.radius);
+    expect(luxeResult.brand.shadow).not.toBe(warmResult.brand.shadow);
+    expect(luxeResult.brand.typeScale).not.toBe(warmResult.brand.typeScale);
+    expect(luxeResult.brand.spacingDensity).not.toBe(warmResult.brand.spacingDensity);
+  });
+
+  it("an explicit brand field and an explicit section variant override the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "luxe-dark",
+        brand: { palettePreset: "pressure-washing", typeScale: "standard" },
+        layout: { sections: { reviews: { variant: "cards" } } },
+      }),
+    );
+    expect(result.brand.typeScale).toBe("standard");
+    expect(result.layout.sections.reviews.variant).toBe("cards");
+    // Untouched pins still come from the skin.
+    expect(result.brand.fontPairing).toBe("luxe");
+    expect(result.layout.sections.hero.variant).toBe("split-card");
   });
 });

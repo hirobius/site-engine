@@ -445,6 +445,7 @@ Read from the root `package.json`.
 | `pnpm skin-critique` | `tsx scripts/skin-critique.ts` |
 | `pnpm inspiration:capture` | `tsx scripts/inspiration-capture.ts` |
 | `pnpm schema:snapshot-ops` | `tsx packages/schema/scripts/refresh-ops-snapshot.ts` |
+| `pnpm template:snapshot-hds` | `tsx packages/template/scripts/refresh-hds-contract.ts` |
 | `pnpm state:generate` | `tsx scripts/generate-front-door.ts` |
 | `pnpm state:check` | `tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts` |
 | `pnpm state:review` | `tsx scripts/check-state-surfaces.ts --strict-review` |

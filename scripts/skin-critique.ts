@@ -4,7 +4,7 @@
  * (issue #177, epic #173's amplification move ②, `docs/AUTHORING-SKINS.md`
  * step 7 / `docs/SKIN-CRITIC.md`).
  *
- *   pnpm skin-critique              # build the gallery, then scan the skins page
+ *   pnpm skin-critique              # build the gallery, then scan every skin's page
  *   pnpm skin-critique --skip-build # scan an already-built apps/_gallery/dist
  *   pnpm skin-critique --out report.json
  *
@@ -16,9 +16,12 @@
  * repo's sandboxed sessions — HTTP 403 on the one attempt made investigating
  * this). So the deterministic half this script wires is `detect`, reusing
  * `runImpeccableDetect()` (`packages/template/src/design-quality.ts`, #176)
- * against the **rendered** `apps/_gallery/src/pages/skins.astro` page — every
- * `SKIN_IDS` entry side by side — rather than component *source* (#176's
- * target). This is a taste/rendering-output check on top of #176's
+ * against the **rendered** full-page skin renders —
+ * `apps/_gallery/dist/skins/<id>/index.html`, one per `SKIN_IDS` entry, built
+ * from `apps/_gallery/src/pages/skins/[id].astro` — rather than component
+ * *source* (#176's target), and reports findings per skin. The `/skins`
+ * overview page itself is only an iframe shell, so scanning it would see no
+ * skin at all. This is a taste/rendering-output check on top of #176's
  * source-level gate, not a replacement for it.
  *
  * Same offline-safe contract as `design-quality.ts`: no network/npx available
@@ -31,7 +34,12 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { spawnSync as nodeSpawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { runImpeccableDetect, type DesignQualityResult } from "../packages/template/src/design-quality.js";
+import { SKIN_IDS, type SkinId } from "@hirobius/schema";
+import {
+  runImpeccableDetect,
+  type DesignQualityResult,
+  type ImpeccableFinding,
+} from "../packages/template/src/design-quality.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -50,9 +58,40 @@ function defaultSpawnSync(
   return nodeSpawnSync(command, args, options);
 }
 
-/** Where the gallery's rendered skins page lands after a static `astro build`. */
-export function resolveGallerySkinsPage(root: string): string {
-  return resolve(root, "apps/_gallery/dist/skins/index.html");
+export interface SkinPage {
+  id: SkinId;
+  path: string;
+}
+
+/**
+ * Where each skin's full-page render lands after a static `astro build` —
+ * `apps/_gallery/dist/skins/<id>/index.html`, one per `SKIN_IDS` entry
+ * (`apps/_gallery/src/pages/skins/[id].astro`'s `getStaticPaths`).
+ */
+export function resolveGallerySkinPages(root: string, ids: readonly SkinId[] = SKIN_IDS): SkinPage[] {
+  return ids.map((id) => ({ id, path: resolve(root, "apps/_gallery/dist/skins", id, "index.html") }));
+}
+
+/** impeccable reports absolute or cwd-relative paths; match either form. */
+function findingIsFor(file: string, pagePath: string): boolean {
+  const norm = file.replace(/\\/g, "/").replace(/^\.\//, "");
+  const page = pagePath.replace(/\\/g, "/");
+  return norm === page || page.endsWith(`/${norm}`);
+}
+
+/**
+ * Split one detect run over every skin page back into a result per skin, by
+ * the file each finding names. A skipped run stays skipped for every skin.
+ */
+export function groupBySkin(
+  result: DesignQualityResult,
+  pages: readonly SkinPage[],
+): Array<{ page: SkinPage; result: DesignQualityResult }> {
+  if (result.skipped) return pages.map((page) => ({ page, result }));
+  return pages.map((page) => {
+    const findings: ImpeccableFinding[] = result.findings.filter((f) => findingIsFor(f.file, page.path));
+    return { page, result: { skipped: false, findings } };
+  });
 }
 
 /**
@@ -109,22 +148,32 @@ if (isMain()) {
     }
   }
 
-  const target = resolveGallerySkinsPage(ROOT);
-  if (!existsSync(target)) {
+  const pages = resolveGallerySkinPages(ROOT);
+  const missing = pages.filter((p) => !existsSync(p.path));
+  if (missing.length > 0) {
     console.error(
-      `\n✖ ${target} doesn't exist. Run without --skip-build, or build the gallery first:\n` +
+      `\n✖ ${missing.map((p) => p.path).join(", ")} missing. Run without --skip-build, or build the gallery first:\n` +
         `    pnpm --filter @hirobius/gallery build\n`,
     );
     process.exit(1);
   }
 
-  const result = await runImpeccableDetect([target], { cwd: ROOT });
-  const { text, exitCode } = formatReport(result, target);
-  console.log(text);
+  const result = await runImpeccableDetect(
+    pages.map((p) => p.path),
+    { cwd: ROOT },
+  );
+  const perSkinResults = groupBySkin(result, pages);
+  let exitCode: 0 | 2 = 0;
+  for (const { page, result: perSkin } of perSkinResults) {
+    const report = formatReport(perSkin, `skin "${page.id}" (${page.path})`);
+    console.log(report.text);
+    if (report.exitCode === 2) exitCode = 2;
+  }
 
   if (outPath) {
     mkdirSync(dirname(resolve(ROOT, outPath)), { recursive: true });
-    writeFileSync(resolve(ROOT, outPath), JSON.stringify(result, null, 2));
+    const bySkin = Object.fromEntries(perSkinResults.map(({ page, result: r }) => [page.id, r]));
+    writeFileSync(resolve(ROOT, outPath), JSON.stringify(bySkin, null, 2));
     console.log(`\nWrote ${outPath}`);
   }
 
