@@ -142,4 +142,12 @@ describe("brand.typeScale (#86)", () => {
     expect(brandStyle(withBrand({ typeScale: "display" }))).toContain("--semantic-text-display:");
     expect(brandStyle(withBrand({ typeScale: "compact" }))).toContain("--semantic-text-heading:");
   });
+
+  it("pairings whose heading family has an 800 cut load it for the display tier", () => {
+    for (const fontPairing of ["editorial", "industrial", "slab"] as const) {
+      const href = fontHref(withBrand({ fontPairing })) ?? "";
+      const heading = href.split("&family=")[0];
+      expect(heading, fontPairing).toMatch(/wght@[0-9;]*800/);
+    }
+  });
 });

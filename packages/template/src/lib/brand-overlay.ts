@@ -126,6 +126,8 @@ const SPACING_DENSITY_SETS: Record<'compact' | 'airy', { sectionY: string; secti
  * path byte-identical. Each tier moves size, line-height, weight and tracking
  * together: `display` = bigger/tighter/800, `compact` = smaller/calmer/600.
  * Sizes in rem; standard reference: display 2.25/3/3.75, heading 1.875/2.25.
+ * Literal rems on purpose: this is a type scale with no matching primitives,
+ * unlike SPACING_DENSITY_SETS above, which composes `--primitive-space-*`.
  */
 const TYPE_SCALE_SETS: Record<'compact' | 'display', Record<string, string>> = {
   compact: {
