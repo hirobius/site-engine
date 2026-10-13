@@ -26,6 +26,18 @@ import { fileURLToPath } from 'node:url';
 const dir = resolve(process.argv[2] || dirname(fileURLToPath(import.meta.url)));
 const shown = relative(process.cwd(), dir) || '.';
 
+/**
+ * Files every lock must pin (the VENDORED targets in ops's scripts/lib/lessons-vendor.mjs),
+ * so dropping one from the lock cannot let it be edited unchecked.
+ */
+const REQUIRED = [
+  'check-drift.mjs',
+  'learned-rules.jsonl',
+  'lessons-recall.mjs',
+  'lib/lessons-ledger.mjs',
+  'lib/lessons-recall.mjs',
+];
+
 /** `{ file, kind, detail }` for each problem; empty when every pinned file matches. */
 function findProblems() {
   const lockPath = resolve(dir, 'lessons.lock.json');
@@ -57,7 +69,11 @@ function findProblems() {
       ],
     };
   }
-  const problems = [];
+  const problems = REQUIRED.filter((file) => !Object.hasOwn(files, file)).map((file) => ({
+    file,
+    kind: 'unpinned',
+    detail: 'the lock no longer pins this vendored file',
+  }));
   for (const [file, pin] of Object.entries(files).sort()) {
     const abs = resolve(dir, file);
     if (abs !== dir && !abs.startsWith(dir + sep)) {

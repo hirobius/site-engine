@@ -5,10 +5,10 @@
   "note": "Pinned sha256 of the lessons files vendored from hirobius/ops. Never edit them or this lock by hand: run `pnpm lessons:vendor <path to this repo> site-engine` from the ops checkout.",
   "files": {
     "README.md": "sha256:2f779e4cb0b0e8b5d5f050501a671991cf4aa92e6aba0216647f6b1be620b8b7",
-    "check-drift.mjs": "sha256:f10e295de6c18c36517addd9954ad301a03a59916f60d84fe42302c00ab06c79",
+    "check-drift.mjs": "sha256:339ba8b43743174cc57f7dbe4bf1611ec64be7a3fc8bfc4116ff4366baca48f8",
     "learned-rules.jsonl": "sha256:cf7cfea5b69d3f1ced7ad3a9d976d9e6d65b388d4dd08a65227a7982201e5380",
-    "lessons-recall.mjs": "sha256:47a300c3e1015b684a68da1c3ae73ba574c31cfc980512060d6cd23393dcfd73",
+    "lessons-recall.mjs": "sha256:7c1a3fa398464813d40d7373a74da0a2747e0e2f48644ba1616831cb4cbead6f",
     "lib/lessons-ledger.mjs": "sha256:0b86a1f1e0111c86e4f1f2d480ae31dd7b915c32aad322f7e5801cc59bb4bfb4",
-    "lib/lessons-recall.mjs": "sha256:58314eea879543349db40fc64329c4757bfdf22cf9aa9e0c155c0edbf1054004"
+    "lib/lessons-recall.mjs": "sha256:037df7d8f1c260c5cd91fafa88507183a612eb74e5c328286a7e856cb1851a3c"
   }
 }

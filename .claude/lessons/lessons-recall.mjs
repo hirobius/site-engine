@@ -8,8 +8,11 @@
  * file about to change or the command about to run, and prints
  * `{hookSpecificOutput: {hookEventName, additionalContext}}` with one
  * `L-xxxx · rule · why` line per lesson. For a `git diff` command it also lists
- * the changed paths with git, so a reviewer is handed the `review` lessons that
- * match the diff. The matching rules are in scripts/lib/lessons-recall.mjs.
+ * the changed paths with git (in the session's cwd, after any `cd` in the
+ * command), so a reviewer is handed the `review` lessons that match the diff.
+ * An edited file in a worktree of the project (nested, like
+ * .claude/worktrees/<name>, or checked out elsewhere) is matched relative to
+ * that worktree. The matching rules are in scripts/lib/lessons-recall.mjs.
  *
  * Each lesson is shown once per session (state in os.tmpdir(), keyed by
  * session_id), at most 3 per event and 10 per session. No model, no network.
@@ -25,10 +28,18 @@
  * @module lessons-recall-hook
  */
 
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  renameSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseLedger } from './lib/lessons-ledger.mjs';
 import { describeEvent, gitDiffInvocations, hookOutput, recall } from './lib/lessons-recall.mjs';
@@ -86,18 +97,65 @@ function writeShown({ dir, file }, shown) {
   }
 }
 
+/** The repository a work tree at `dir` belongs to (its git common dir), or null. */
+function commonGitDir(dir) {
+  const dotGit = join(dir, '.git');
+  try {
+    if (statSync(dotGit).isDirectory()) return realpathSync(dotGit);
+    // A linked worktree: `.git` is a file naming its git dir, whose `commondir` leads home.
+    const gitDir = /^gitdir:\s*(.+?)\s*$/m.exec(readFileSync(dotGit, 'utf8'))?.[1];
+    if (!gitDir) return null;
+    const own = resolve(dir, gitDir);
+    const common = join(own, 'commondir');
+    return realpathSync(
+      existsSync(common) ? resolve(own, readFileSync(common, 'utf8').trim()) : own,
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The work tree an edited file's path is made relative to: the git work tree
+ * holding the file when it is a checkout of root's repository (root itself, a
+ * worktree nested in it such as .claude/worktrees/<name>, or one checked out
+ * elsewhere), else root. A file in any other repository stays outside.
+ */
+function editRoot(hook, root) {
+  const file = hook?.tool_input?.file_path;
+  if (typeof file !== 'string' || !file) return root;
+  const home = commonGitDir(root);
+  if (!home) return root;
+  for (let dir = dirname(resolve(root, file)); ; dir = dirname(dir)) {
+    if (existsSync(join(dir, '.git'))) return commonGitDir(dir) === home ? dir : root;
+    if (dirname(dir) === dir) return root;
+  }
+}
+
+/**
+ * Config that keeps listing paths from running anything the repo's git config
+ * names: the hook fires before the permission prompt, so it must never run
+ * repo-chosen code the session has not yet been allowed to run.
+ */
+const SAFE_GIT = ['-c', 'core.fsmonitor=false'];
+/** Total time every git call of one event may take, well inside the hook's 5s timeout. */
+const GIT_BUDGET_MS = 3000;
+
 /** Paths the command's `git diff` calls changed (empty when git cannot list them). */
 function changedPaths(command, root) {
   const env = { ...process.env, GIT_OPTIONAL_LOCKS: '0', GIT_PAGER: 'cat' };
   for (const key of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE']) delete env[key];
   const paths = new Set();
+  const deadline = Date.now() + GIT_BUDGET_MS;
   for (const args of gitDiffInvocations(command)) {
+    const timeout = deadline - Date.now();
+    if (timeout <= 0) break;
     try {
-      const out = execFileSync('git', args, {
+      const out = execFileSync('git', [...SAFE_GIT, ...args], {
         cwd: root,
         env,
         encoding: 'utf8',
-        timeout: 3000,
+        timeout,
         maxBuffer: 8 * 1024 * 1024,
         stdio: ['ignore', 'pipe', 'ignore'],
       });
@@ -122,7 +180,7 @@ function main(env) {
     return warn('stdin is not hook JSON; nothing recalled');
   }
   const root = env.CLAUDE_PROJECT_DIR || hook?.cwd || process.cwd();
-  const described = describeEvent(hook, root);
+  const described = describeEvent(hook, editRoot(hook, root));
   if (!described) return;
 
   const ledger = ledgerPath(env);
@@ -141,7 +199,10 @@ function main(env) {
     repo: repoName(env),
     shown,
     changedPaths:
-      event.type === 'bash' && hasReviewRows(rows) ? changedPaths(event.command, root) : [],
+      event.type === 'bash' && hasReviewRows(rows)
+        ? // The diff runs where the session's shell is, which may not be the project dir.
+          changedPaths(event.command, (typeof hook.cwd === 'string' && hook.cwd) || root)
+        : [],
   });
   const output = hookOutput(hookEventName, context);
   if (!output) return;

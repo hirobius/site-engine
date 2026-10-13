@@ -165,11 +165,16 @@ const DIFF_SCOPE_OPTION = /^(--cached|--staged|--merge-base|--diff-filter=[A-Za-
 /** Options that take their value as the next token. */
 const DIFF_VALUE_OPTION = new Set(['-U', '--unified', '-S', '-G', '-O']);
 
+/** A `cd` target the shell would not expand, so git can be pointed at it as written. */
+const LITERAL_DIR = /^[^$`~-][^$`]*$/;
+
 /**
  * The `git` argument lists that print the changed paths (NUL-separated) of each
  * `git diff` in a command line. They run without a shell and without `-c`,
  * `--output` or `--ext-diff`, so listing paths can never do more than the
- * command the agent is about to run anyway.
+ * command the agent is about to run anyway. A `cd <dir>` earlier in the line
+ * becomes `-C <dir>`, so the listing runs where the diff will; after a `cd` to
+ * somewhere only the shell knows (`cd`, `cd -`, `~`, `$VAR`), nothing is listed.
  *
  * @param {unknown} command
  * @returns {string[][]}
@@ -177,13 +182,19 @@ const DIFF_VALUE_OPTION = new Set(['-U', '--unified', '-S', '-G', '-O']);
 export function gitDiffInvocations(command) {
   if (typeof command !== 'string') return [];
   const out = [];
+  const moved = [];
   for (const segment of command.split(/[;&|<>\n]+/)) {
     const t = tokenize(segment);
+    if (t[0] === 'cd') {
+      if (t.length !== 2 || !LITERAL_DIR.test(t[1])) break;
+      moved.push('-C', t[1]);
+      continue;
+    }
     let i = 0;
     while (i < t.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(t[i])) i++;
     if (t[i] !== 'git') continue;
     i++;
-    const pre = [];
+    const pre = [...moved];
     while (i < t.length && t[i].startsWith('-')) {
       if (t[i] === '-C' && t[i + 1] !== undefined) {
         pre.push('-C', t[i + 1]);
