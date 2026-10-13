@@ -61,7 +61,24 @@ export interface ContractDrift {
  * token for. A new dial adds its names here, a reviewed diff; the test fails
  * if HDS ever publishes one of them, so an accidental collision cannot pass.
  */
-export const FACTORY_OWNED: readonly string[] = ["--semantic-spacing-section-y", "--semantic-spacing-section-y-lg"];
+export const FACTORY_OWNED: readonly string[] = [
+  "--semantic-spacing-section-y",
+  "--semantic-spacing-section-y-lg",
+  "--semantic-text-display",
+  "--semantic-text-display-leading",
+  "--semantic-text-display-lg",
+  "--semantic-text-display-lg-leading",
+  "--semantic-text-display-xl",
+  "--semantic-text-display-xl-leading",
+  "--semantic-text-display-weight",
+  "--semantic-text-display-tracking",
+  "--semantic-text-heading",
+  "--semantic-text-heading-leading",
+  "--semantic-text-heading-lg",
+  "--semantic-text-heading-lg-leading",
+  "--semantic-text-heading-weight",
+  "--semantic-text-heading-tracking",
+];
 
 /**
  * The `--brand-*` palette keys: written by both bridges (HDS's writes
@@ -77,7 +94,9 @@ const HDS_NAMESPACE = /^--(semantic|primitive|component)-[A-Za-z0-9]/;
 const CUSTOM_PROPERTY = "--[A-Za-z0-9-]+";
 
 function captures(text: string, pattern: RegExp): string[] {
-  const found = [...text.matchAll(pattern)].map((match) => match[1]).filter((value): value is string => value !== undefined);
+  const found = [...text.matchAll(pattern)]
+    .map((match) => match[1])
+    .filter((value): value is string => value !== undefined);
   return [...new Set(found)].sort();
 }
 
@@ -93,17 +112,24 @@ export function writtenNames(source: string): string[] {
 
 /** HDS-namespaced custom properties a source reads through `var(--name)`. */
 export function readNames(source: string): string[] {
-  return captures(source, new RegExp(`var\\(\\s*(${CUSTOM_PROPERTY})`, "g")).filter((name) => HDS_NAMESPACE.test(name));
+  return captures(
+    source,
+    new RegExp(`var\\(\\s*(${CUSTOM_PROPERTY})`, "g"),
+  ).filter((name) => HDS_NAMESPACE.test(name));
 }
 
 /** The field names of the `BrandPalette` interface in a bridge source or its `.d.ts`. */
 export function brandPaletteFields(source: string): string[] {
-  const block = source.match(/interface BrandPalette \{([\s\S]*?)\n\}/)?.[1] ?? "";
+  const block =
+    source.match(/interface BrandPalette \{([\s\S]*?)\n\}/)?.[1] ?? "";
   return captures(block, /^\s+(\w+)\??:/gm);
 }
 
 /** Compare the template against the snapshot. Every list empty means the contract holds. */
-export function contractDrift(snapshot: HdsContractSnapshot, template: TemplateNames): ContractDrift {
+export function contractDrift(
+  snapshot: HdsContractSnapshot,
+  template: TemplateNames,
+): ContractDrift {
   const hds = new Set(snapshot.variables);
   const owned = new Set(FACTORY_OWNED);
   const provided = new Set([...template.declared, ...template.written]);
@@ -111,10 +137,18 @@ export function contractDrift(snapshot: HdsContractSnapshot, template: TemplateN
 
   return {
     unknownDeclared: template.declared.filter((name) => !known(name)),
-    unknownWritten: template.written.filter((name) => !PALETTE_KEY.test(name) && !known(name)),
+    unknownWritten: template.written.filter(
+      (name) => !PALETTE_KEY.test(name) && !known(name),
+    ),
     unresolvedReads: template.read.filter((name) => !provided.has(name)),
-    collisions: [...provided].filter((name) => owned.has(name) && hds.has(name)).sort(),
-    missingWrites: snapshot.bridge.writes.filter((name) => !template.written.includes(name)),
-    missingFields: snapshot.bridge.fields.filter((field) => !template.paletteFields.includes(field)),
+    collisions: [...provided]
+      .filter((name) => owned.has(name) && hds.has(name))
+      .sort(),
+    missingWrites: snapshot.bridge.writes.filter(
+      (name) => !template.written.includes(name),
+    ),
+    missingFields: snapshot.bridge.fields.filter(
+      (field) => !template.paletteFields.includes(field),
+    ),
   };
 }

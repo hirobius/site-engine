@@ -120,11 +120,10 @@ export const SKINS: Record<SkinId, Skin> = {
    * `font: "slab"` is only the nominal single-stack fallback `og-image.ts`
    * reads when it can't render `fontPairing`'s two stacks (the closest
    * built-in serif to Fraunces) — neither field is a **type scale** (font
-   * sizes / line-heights / a modular scale). The schema has no type-scale
-   * mechanism yet; that's issue #86, deferred, and out of scope here. ADR-0003
-   * §1's "type scale" axis for this skin is a follow-up, not delivered by
-   * this PR — flagging it plainly rather than letting `fontPairing` stand in
-   * for it.
+   * sizes / line-heights / a modular scale). That axis is its own dial now,
+   * `brand.typeScale` (issue #86, shipped 2026-10-07); warm-editorial stays
+   * on `standard` — its editorial feel comes from the Fraunces face and the
+   * palette, not from bigger headings.
    */
   "warm-editorial": {
     sections: {

@@ -154,6 +154,18 @@
                 },
                 "optional": false,
                 "hasDefault": true
+              },
+              "typeScale": {
+                "shape": {
+                  "kind": "enum",
+                  "values": [
+                    "compact",
+                    "display",
+                    "standard"
+                  ]
+                },
+                "optional": false,
+                "hasDefault": true
               }
             }
           },

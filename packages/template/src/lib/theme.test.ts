@@ -132,3 +132,22 @@ describe("brand.spacingDensity (#86, spacing-density slice)", () => {
     expect(style).toContain("--semantic-spacing-section-y-lg:var(--primitive-space-32)");
   });
 });
+
+describe("brand.typeScale (#86)", () => {
+  it("defaults to standard — emits no --semantic-text-* override", () => {
+    expect(brandStyle(withBrand({}))).not.toContain("--semantic-text-");
+  });
+
+  it("'display' and 'compact' reach the inline style", () => {
+    expect(brandStyle(withBrand({ typeScale: "display" }))).toContain("--semantic-text-display:");
+    expect(brandStyle(withBrand({ typeScale: "compact" }))).toContain("--semantic-text-heading:");
+  });
+
+  it("pairings whose heading family has an 800 cut load it for the display tier", () => {
+    for (const fontPairing of ["editorial", "industrial", "slab"] as const) {
+      const href = fontHref(withBrand({ fontPairing })) ?? "";
+      const heading = href.split("&family=")[0];
+      expect(heading, fontPairing).toMatch(/wght@[0-9;]*800/);
+    }
+  });
+});

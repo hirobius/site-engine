@@ -77,3 +77,60 @@ describe("brandOverlayVars spacingDensity dial (#86)", () => {
     expect(withDensity["--semantic-shadow-subtle"]).toBe(without["--semantic-shadow-subtle"]);
   });
 });
+
+describe("brandOverlayVars typeScale dial (#86)", () => {
+  const TYPE_KEYS = [
+    "--semantic-text-display",
+    "--semantic-text-display-lg",
+    "--semantic-text-display-xl",
+    "--semantic-text-heading",
+    "--semantic-text-heading-lg",
+  ];
+
+  it("omits every type key when typeScale is unset — default path unchanged", () => {
+    const vars = brandOverlayVars(BASE_PALETTE);
+    expect(Object.keys(vars).filter((k) => k.startsWith("--semantic-text-"))).toEqual([]);
+  });
+
+  it("omits every type key when typeScale is explicitly 'standard'", () => {
+    const vars = brandOverlayVars({ ...BASE_PALETTE, typeScale: "standard" });
+    expect(Object.keys(vars).filter((k) => k.startsWith("--semantic-text-"))).toEqual([]);
+  });
+
+  it("'display' sets every size larger than the standard tier, heavier and tighter", () => {
+    const vars = brandOverlayVars({ ...BASE_PALETTE, typeScale: "display" });
+    const standardRem: Record<string, number> = {
+      "--semantic-text-display": 2.25,
+      "--semantic-text-display-lg": 3,
+      "--semantic-text-display-xl": 3.75,
+      "--semantic-text-heading": 1.875,
+      "--semantic-text-heading-lg": 2.25,
+    };
+    for (const key of TYPE_KEYS) {
+      expect(parseFloat(vars[key] ?? "0")).toBeGreaterThan(standardRem[key] ?? Infinity);
+    }
+    expect(Number(vars["--semantic-text-display-weight"])).toBeGreaterThan(700);
+    expect(vars["--semantic-text-display-tracking"]).toMatch(/^-/);
+  });
+
+  it("'compact' sets every size smaller than the standard tier and lighter", () => {
+    const vars = brandOverlayVars({ ...BASE_PALETTE, typeScale: "compact" });
+    const standardRem: Record<string, number> = {
+      "--semantic-text-display": 2.25,
+      "--semantic-text-display-lg": 3,
+      "--semantic-text-display-xl": 3.75,
+      "--semantic-text-heading": 1.875,
+      "--semantic-text-heading-lg": 2.25,
+    };
+    for (const key of TYPE_KEYS) {
+      expect(parseFloat(vars[key] ?? "99")).toBeLessThan(standardRem[key] ?? -Infinity);
+    }
+    expect(Number(vars["--semantic-text-heading-weight"])).toBeLessThan(700);
+  });
+
+  it("typeScale dial doesn't disturb unrelated vars", () => {
+    const withScale = brandOverlayVars({ ...BASE_PALETTE, typeScale: "display" });
+    const without = brandOverlayVars(BASE_PALETTE);
+    for (const [k, v] of Object.entries(without)) expect(withScale[k]).toBe(v);
+  });
+});

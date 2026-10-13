@@ -42,14 +42,16 @@ const INTER_FAMILY_PARAM = "family=Inter:wght@400;500;600;700";
  * rule on Fraunces/Space Grotesk — deliberate: these are curated heading
  * faces paired against Inter body text, two of five selectable
  * `brand.fontPairing` art directions a client site opts into, not an
- * engine-imposed default.
+ * engine-imposed default. Heading families load weight 800 where they have
+ * it, because the `brand.typeScale` `display` tier (issue #86) asks for 800.
  */
 const FONT_PAIRING_HREFS: Record<keyof typeof FONT_PAIRINGS, string | null> = {
   system: null,
-  editorial: `https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&${INTER_FAMILY_PARAM}&display=swap`, // impeccable-disable-line overused-font -- selectable brand.fontPairing option, not the engine default
+  editorial: `https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&${INTER_FAMILY_PARAM}&display=swap`, // impeccable-disable-line overused-font -- selectable brand.fontPairing option, not the engine default
+  // This heading family tops out at 700, so the `display` type-scale tier's 800 is browser-synthesized here.
   modern: `https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&${INTER_FAMILY_PARAM}&display=swap`, // impeccable-disable-line overused-font -- selectable brand.fontPairing option, not the engine default
-  industrial: `https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&${INTER_FAMILY_PARAM}&display=swap`,
-  slab: `https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&${INTER_FAMILY_PARAM}&display=swap`,
+  industrial: `https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&${INTER_FAMILY_PARAM}&display=swap`,
+  slab: `https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700;800&${INTER_FAMILY_PARAM}&display=swap`,
 };
 
 /**
@@ -105,6 +107,7 @@ export function brandStyle(config: ClientConfig): string {
     fontBody,
     shadow: config.brand.shadow,
     spacingDensity: config.brand.spacingDensity,
+    typeScale: config.brand.typeScale,
   });
 }
 

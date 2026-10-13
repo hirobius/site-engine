@@ -157,8 +157,10 @@ out) does not change when that lands — only where the folder lives.
   brief (S4), or the ops drop-zone UI (S5) — this ADR and its two docs cover
   MVP-1/MVP-2 (the intake convention + the playbook) only. The epic (#173)
   stays open for those slices.
-- A type-scale dial for skins — still blocked on issue #86 (deferred), same
-  gap `skins.ts`'s doc comments already flag for `warm-editorial`.
+- ~~A type-scale dial for skins — still blocked on issue #86.~~ Shipped
+  2026-10-07 as `brand.typeScale` (issue #86: `standard` | `compact` |
+  `display`), so it is no longer a non-goal; `warm-editorial` stays on
+  `standard`.
 
 ## Consequences
 
