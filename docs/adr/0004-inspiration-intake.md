@@ -43,7 +43,8 @@ new output surface.
    `docs/AUTHORING-SKINS.md` exactly: read brief → extract palette/type/
    spacing/motion from the references → map **only** to the existing config
    surface (`brand.fontPairing`, `brand.cssVarOverrides`, `brand.shadow`,
-   `brand.radius`, `brand.spacingDensity`, `layout.sections.*.variant` pins) →
+   `brand.radius`, `brand.spacingDensity`, `brand.typeScale`,
+   `layout.sections.*.variant` pins) →
    verify AA contrast + purity → add one additive `SKINS` entry → open a
    gated PR. This is MVP-2.
 4. **Every ADR-0002/0003 guardrail rides along unchanged:**
@@ -174,18 +175,17 @@ out) does not change when that lands — only where the folder lives.
   other `packages/schema` change** (ADR-0003's framing, "like adding a
   palette preset") — this ADR does not lower that bar, it just gives the
   input side of it a repeatable shape.
-- `SkinBrand` (`skins.ts`) does not yet expose `brand.spacingDensity`, even
-  though it's part of `BrandSchema` and a plausible skin dial (a "roomy" vs.
-  "tight" editorial feel). Flagged as an open design question below rather
-  than silently working around it.
+- ~~`SkinBrand` (`skins.ts`) does not yet expose `brand.spacingDensity`.~~
+  Resolved 2026-10-07 (skin-surface change of the polish batch): `SkinBrand`
+  now pins `spacingDensity` and `typeScale`, so a skin dials its own rhythm
+  and heading scale (see Open question 1).
 
 ## Open questions for Adrian
 
-1. `SkinBrand` is missing `spacingDensity` (`BrandSchema` has had it since the
-   spacing-density slice, issue #86's sibling work) — should a follow-up issue
-   add it to `skins.ts`'s `SkinBrand`/`SKINS` before S4's first real
-   brief-authored skin needs it, or is per-client `brand.spacingDensity`
-   override enough for now?
+1. ~~`SkinBrand` is missing `spacingDensity` — add it, or is a per-client
+   override enough?~~ **Resolved 2026-10-07:** `SkinBrand` now pins
+   `spacingDensity` and `typeScale` (polish batch, skin-surface change); a
+   client config can still override either one.
 2. Confirmed naming: the epic body (#173) says clients pick a skin via
    `artDirection`; the shipped mechanism (#140/#141) uses `design`. This ADR
    and `docs/AUTHORING-SKINS.md` use `design` throughout, matching

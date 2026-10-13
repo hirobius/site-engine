@@ -1,6 +1,6 @@
 import type { FontId, FontPairingId } from "./presets.js";
 import type { PaletteTokens } from "./presets.js";
-import type { SkinId } from "./skins.js";
+import { SKINS, type SkinId } from "./skins.js";
 import type { SectionVariantId } from "./section-variants.js";
 
 /**
@@ -32,10 +32,10 @@ import type { SectionVariantId } from "./section-variants.js";
  *
  * `palettePreset` itself is deliberately **not** an axis here — it stays
  * trade-driven exactly as today (`leadToConfig`'s `mapCategoryToTrade`). A
- * skin can still carry its own bespoke `cssVarOverrides` bundle (only
- * `warm-editorial` does today) that displaces the trade palette for sites
- * that land on it — that's the existing, already-contrast-vetted skin
- * mechanism (`skins.ts`), not a new palette pool this module invents.
+ * skin can still carry its own bespoke `cssVarOverrides` bundle that
+ * displaces the trade palette for sites that land on it — skins that carry a
+ * palette pin it in `SKINS` (`skins.ts`), already contrast-vetted there; this
+ * module never invents a palette pool of its own.
  *
  * `"video"` is deliberately excluded from every profile's hero-variant pool:
  * it renders an empty dark hero without `hero.videoSrc`
@@ -231,48 +231,53 @@ export interface DesignProfileBrand {
   shadow: "flat" | "soft" | "hard";
   motion: "none" | "subtle" | "rich";
   spacingDensity: "compact" | "comfortable" | "airy";
+  /** Only present when the profile's skin (or deltas) pins it. */
+  typeScale?: "standard" | "compact" | "display";
   /**
    * Optional bespoke palette bundle a profile pins directly (beyond whatever
    * its `skin` already contributes). None of the shipped profiles below set
-   * this — the two shipped skins already cover the palette axis — but the
-   * field exists so a future profile can, and `pickContrastSafeProfile`
-   * guards it the same way regardless.
+   * this — a palette belongs on the skin, in `SKINS` — but the field exists
+   * so a future profile can, and `pickContrastSafeProfile` guards it the same
+   * way regardless.
    */
   cssVarOverrides?: Partial<PaletteTokens>;
 }
 
 export interface DesignProfile {
   id: string;
+  /** The canonical bundle (`SKINS`) this profile starts from. */
   skin: SkinId;
-  brand: DesignProfileBrand;
+  /**
+   * What this profile changes on top of its skin's brand pins. A profile is a
+   * thin variation of a skin, not a second registry of full bundles — the
+   * skin owns the art direction; `resolveProfileBrand` layers these on top.
+   */
+  deltas: Partial<DesignProfileBrand>;
   /** Hero variants that read as intentional with this profile's skin/type. */
   heroVariants: readonly SectionVariantId<"hero">[];
 }
 
 /**
- * The curated pool. Each entry is a hand-picked, internally coherent bundle —
- * see the module doc comment for why this is profiles-first rather than
+ * The curated pool. Each entry is a skin plus a few hand-picked deltas — see
+ * the module doc comment for why this is profiles-first rather than
  * independent per-axis draws. Keep this set curated (same posture as
  * `SKINS`/`PALETTE_PRESETS`): adding an entry is a design decision.
+ *
+ * ORDER IS LOAD-BEARING: append only. A lead without a persisted
+ * `designProfileId` is drawn by position, so reordering re-rolls it — and
+ * even appending re-rolls such leads (see `pickDesign`).
  */
 export const DESIGN_PROFILES: readonly DesignProfile[] = [
   {
     id: "classic-clean",
     skin: "classic",
-    brand: {
-      font: "system",
-      fontPairing: "system",
-      radius: "md",
-      shadow: "soft",
-      motion: "rich",
-      spacingDensity: "comfortable",
-    },
+    deltas: { font: "system", fontPairing: "system" },
     heroVariants: ["classic", "banner"],
   },
   {
     id: "crisp-modern",
     skin: "classic",
-    brand: {
+    deltas: {
       font: "geist",
       fontPairing: "modern",
       radius: "sm",
@@ -285,7 +290,7 @@ export const DESIGN_PROFILES: readonly DesignProfile[] = [
   {
     id: "industrial-bold",
     skin: "classic",
-    brand: {
+    deltas: {
       font: "work-sans",
       fontPairing: "industrial",
       radius: "none",
@@ -298,30 +303,34 @@ export const DESIGN_PROFILES: readonly DesignProfile[] = [
   {
     id: "warm-editorial-classic",
     skin: "warm-editorial",
-    brand: {
-      font: "slab",
-      fontPairing: "editorial",
-      radius: "lg",
-      shadow: "flat",
-      motion: "subtle",
-      spacingDensity: "comfortable",
-    },
+    deltas: {},
     heroVariants: ["split-card", "banner"],
   },
   {
     id: "warm-editorial-airy",
     skin: "warm-editorial",
-    brand: {
-      font: "slab",
-      fontPairing: "editorial",
-      radius: "xl",
-      shadow: "flat",
-      motion: "none",
-      spacingDensity: "airy",
-    },
+    deltas: { radius: "xl", motion: "none", spacingDensity: "airy" },
     heroVariants: ["split-card"],
   },
 ] as const;
+
+/**
+ * A profile's full brand dials: its skin's pins with the profile's deltas on
+ * top. The skin's `cssVarOverrides` is left out — `defineClient` applies the
+ * skin's palette itself via `design` — so only a profile's own override
+ * bundle travels with the pick. Throws if the pair leaves a required dial
+ * unset (a curated-pool authoring error, caught by the genome tests).
+ */
+export function resolveProfileBrand(profile: Pick<DesignProfile, "id" | "skin" | "deltas">): DesignProfileBrand {
+  const { cssVarOverrides: _skinPalette, ...skinBrand } = SKINS[profile.skin].brand;
+  const merged = { ...skinBrand, ...profile.deltas };
+  for (const key of ["font", "fontPairing", "radius", "shadow", "motion", "spacingDensity"] as const) {
+    if (merged[key] === undefined) {
+      throw new Error(`Design profile "${profile.id}" leaves brand.${key} unset — pin it on the skin or in deltas`);
+    }
+  }
+  return merged as DesignProfileBrand;
+}
 
 /**
  * Draw a profile from `pool`, guaranteed never to return one whose own
@@ -334,11 +343,11 @@ export const DESIGN_PROFILES: readonly DesignProfile[] = [
  * injected pool, independent of `DESIGN_PROFILES`'s real (already-safe)
  * contents.
  */
-export function pickContrastSafeProfile<T extends { brand: { cssVarOverrides?: Partial<PaletteTokens> } }>(
+export function pickContrastSafeProfile<T extends { deltas: { cssVarOverrides?: Partial<PaletteTokens> } }>(
   rng: () => number,
   pool: readonly T[],
 ): T {
-  const safePool = pool.filter((profile) => paletteOverrideIsContrastSafe(profile.brand.cssVarOverrides));
+  const safePool = pool.filter((profile) => paletteOverrideIsContrastSafe(profile.deltas.cssVarOverrides));
   return pickFrom(rng, safePool.length > 0 ? safePool : pool);
 }
 
@@ -380,7 +389,7 @@ export function pickDesign(lead: DesignSeedLead, pool: readonly DesignProfile[] 
   return {
     profileId: profile.id,
     design: profile.skin,
-    brand: { ...profile.brand },
+    brand: resolveProfileBrand(profile),
     layout: { sections: { hero: { variant: heroVariant } } },
   };
 }
