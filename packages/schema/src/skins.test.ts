@@ -168,7 +168,7 @@ describe("warm-editorial skin (issue #141)", () => {
   });
 
   it("merges an explicit brand.cssVarOverrides over the skin's palette one var at a time", () => {
-    // Palette trap fix (skins batch PR 2): tweaking one var used to discard the
+    // Palette trap fix (polish batch 2026-10-07, skin surface): tweaking one var used to discard the
     // skin's whole AA-vetted palette. The config's var wins; the rest stay.
     const result = defineClient(
       config({
@@ -193,7 +193,7 @@ describe("warm-editorial skin (issue #141)", () => {
   });
 });
 
-describe("skin surface — spacingDensity + typeScale pins (skins batch PR 2)", () => {
+describe("skin surface — spacingDensity + typeScale pins (polish batch 2026-10-07, skin surface)", () => {
   it("classic pins the default density + type scale, so it still reproduces the schema defaults", () => {
     expect(SKINS.classic.brand.spacingDensity).toBe("comfortable");
     expect(SKINS.classic.brand.typeScale).toBe("standard");

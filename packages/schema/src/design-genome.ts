@@ -32,10 +32,10 @@ import type { SectionVariantId } from "./section-variants.js";
  *
  * `palettePreset` itself is deliberately **not** an axis here — it stays
  * trade-driven exactly as today (`leadToConfig`'s `mapCategoryToTrade`). A
- * skin can still carry its own bespoke `cssVarOverrides` bundle (only
- * `warm-editorial` does today) that displaces the trade palette for sites
- * that land on it — that's the existing, already-contrast-vetted skin
- * mechanism (`skins.ts`), not a new palette pool this module invents.
+ * skin can still carry its own bespoke `cssVarOverrides` bundle that
+ * displaces the trade palette for sites that land on it — skins that carry a
+ * palette pin it in `SKINS` (`skins.ts`), already contrast-vetted there; this
+ * module never invents a palette pool of its own.
  *
  * `"video"` is deliberately excluded from every profile's hero-variant pool:
  * it renders an empty dark hero without `hero.videoSrc`
@@ -236,9 +236,9 @@ export interface DesignProfileBrand {
   /**
    * Optional bespoke palette bundle a profile pins directly (beyond whatever
    * its `skin` already contributes). None of the shipped profiles below set
-   * this — the two shipped skins already cover the palette axis — but the
-   * field exists so a future profile can, and `pickContrastSafeProfile`
-   * guards it the same way regardless.
+   * this — a palette belongs on the skin, in `SKINS` — but the field exists
+   * so a future profile can, and `pickContrastSafeProfile` guards it the same
+   * way regardless.
    */
   cssVarOverrides?: Partial<PaletteTokens>;
 }

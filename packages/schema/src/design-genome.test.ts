@@ -203,7 +203,7 @@ describe("pickDesign output validates end to end", () => {
   });
 });
 
-// Re-roll guard (skins batch, prerequisite for appending a 6th profile).
+// Re-roll guard (polish batch 2026-10-07, prerequisite for appending a 6th profile).
 // `pickFrom` indexes by `floor(rng() * pool.length)`, so growing the pool
 // changes the pick for most leads even when existing entries keep their
 // order. Persisting the picked profile id on the lead (and passing it back
@@ -271,7 +271,7 @@ describe("pickDesign — persisted designProfileId survives pool growth", () => 
   });
 });
 
-// Genome unification (skins batch PR 2): profiles are thin {id, skin, deltas}
+// Genome unification (polish batch 2026-10-07, skin surface): profiles are thin {id, skin, deltas}
 // wrappers over SKINS. This pins the resolved brand of every pre-existing
 // profile so the refactor (and later skin edits) can't silently change a pick.
 describe("DESIGN_PROFILES resolve to the same brand bundles as before unification", () => {

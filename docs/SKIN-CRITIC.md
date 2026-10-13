@@ -8,7 +8,8 @@ rubric that step calls out to, not a standalone process.
 
 **The boundary this rubric exists inside:** a fix this rubric prescribes is
 always a change to the skin's **`SKINS["<id>"]` entry** — `fontPairing`,
-`cssVarOverrides`, `radius`, `shadow`, `motion`, or a section-variant pin.
+`cssVarOverrides`, `radius`, `shadow`, `motion`, `spacingDensity`,
+`typeScale`, or a section-variant pin.
 **Never** a markup edit, a new CSS property, or a schema field. If a finding
 can't be fixed by changing one of those config values, it isn't this rubric's
 to fix — flag it as an open question the same way `AUTHORING-SKINS.md` Step 2
@@ -87,35 +88,43 @@ invisible-on-hover accent text until a human notices. Fix: darken/saturate
 the accent hex until accent/bg and accent/muted both clear 3:1, re-verify,
 record the new ratios.
 
-## 3. Whitespace / vertical rhythm — honest about the current gap
+## 3. Whitespace / vertical rhythm and type scale — the dials match the brief
 
 **What it's for:** a roomy editorial brief and a tight utilitarian brief
-should not resolve to the same perceived density. **`SkinBrand` does not
-expose `spacingDensity` yet** (ADR-0004's open question 1, `BrandSchema` has
-it, `skins.ts`'s `SkinBrand` interface doesn't) — this dimension can only be
-graded honestly against what a skin *can* control today: `radius` + `shadow`
-as a proxy for density, and documentation completeness for the rest.
+should not resolve to the same perceived density or heading presence.
+`SkinBrand` pins both directly (2026-10-07): `brand.spacingDensity`
+(`"compact" | "comfortable" | "airy"`, section vertical rhythm) and
+`brand.typeScale` (`"standard" | "compact" | "display"`, hero + section
+heading size, line-height, weight and tracking — issue #86). Grade those two
+dials, not a proxy.
 
-**Pass criteria (both):**
-- `radius`/`shadow` are internally consistent with the brief's spacing
-  impression: an "airy"/"roomy" brief leans soft edges (`radius: "lg"` or
-  `"xl"`, `shadow: "flat"` or `"soft"`) — soft boundaries read as breathing
-  room; a "tight"/"dense" brief leans crisp edges (`radius: "none"` or
-  `"sm"`, `shadow: "hard"`) — sharp boundaries substitute for the space the
-  skin can't yet dial down directly.
-- If the brief's spacing impression (Step 1 scratch notes) is strongly
-  "tight" or "airy" (not "comfortable" — the schema default), the skin's doc
-  comment **names the `spacingDensity` gap as a flagged follow-up**, per
-  `AUTHORING-SKINS.md` Step 2's own instruction. A skin that ships without
-  this note when the brief clearly wanted a spacing dial it can't reach is an
-  incomplete critique pass, not a silent no-op.
+**Pass criteria (all three):**
+- `spacingDensity` matches the brief's spacing impression (Step 1 scratch
+  notes / brief §6): "tight"/"dense" → `"compact"`, "airy"/"roomy" →
+  `"airy"`, otherwise `"comfortable"`. When the brief is strongly tight or
+  airy, the skin **pins** it — leaving it unset inherits `"comfortable"`,
+  which is the mismatch this dimension exists to catch.
+- `typeScale` matches the brief's type impression: loud, confident,
+  poster-like headings → `"display"`; quiet, precise, calm headings →
+  `"compact"`; anything else → `"standard"` (unset is fine there). A
+  `"display"` scale on an airy, restrained brief, or `"compact"` on a loud
+  one, is a fail unless the doc comment says why.
+- Corners and shadows are graded on their own merits (Dimension 1 and the
+  brief's shape impression), **not** as a density proxy: an airy skin with
+  `radius: "sm"` is fine when the brief's corners are crisp (`crisp-modern`
+  and `luxe-dark` are airy with `radius: "sm"` by design).
+
+What a skin still cannot control — e.g. per-section padding, line length, or
+gaps inside a section — gets **named as a gap** in the skin's doc comment,
+per `AUTHORING-SKINS.md` Step 2's own instruction, rather than faked with
+another dial.
 
 **Failure example:** the brief's §3 says "roomy, breathing, uncluttered
-editorial spread" but the skin ships `radius: "none"`, `shadow: "hard"` (both
-read as dense/utilitarian) and the doc comment never mentions
-`spacingDensity`. The rendered gallery card will look tighter than the brief
-asked for with no trace of why. Fix: switch to `radius: "lg"`/`"xl"` +
-`shadow: "flat"`/`"soft"`, and add the gap note.
+editorial spread" but the skin leaves `spacingDensity` unset (resolves to
+`"comfortable"`) and pins `typeScale: "display"`. The rendered gallery page
+looks tighter and louder than the brief asked for. Fix: pin
+`spacingDensity: "airy"` and drop `typeScale` back to `"standard"` (or
+`"compact"`).
 
 ## 4. Type-pairing coherence — the two font fields must agree with each other
 

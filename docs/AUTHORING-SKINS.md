@@ -189,7 +189,7 @@ gallery `skins.astro` page (or the specific skin's card on it):
 
 **Apply fixes, then re-critique.** Every FAIL the rubric returns maps to a
 specific `SKINS["<id>"]` config value — `fontPairing`, a `cssVarOverrides`
-hex, `radius`, `shadow`, `motion`, or a section-variant pin. Change **only**
+hex, `radius`, `shadow`, `motion`, `spacingDensity`, `typeScale`, or a section-variant pin. Change **only**
 that value (this is still Step 5's entry, being tuned — never a markup edit;
 same config-only boundary `CLAUDE.md`'s "one rule that matters" draws for
 client sites, one level up). Re-run the gallery build (Step 6), re-run both
@@ -250,7 +250,7 @@ Then:
   one business.
 - **Not a markup tool.** The critic loop (step 7) only ever prescribes a
   `SKINS["<id>"]` config value change. A rubric finding that can't be fixed by
-  changing `fontPairing`/`cssVarOverrides`/`radius`/`shadow`/`motion`/a
+  changing `fontPairing`/`cssVarOverrides`/`radius`/`shadow`/`motion`/`spacingDensity`/`typeScale`/a
   section-variant pin isn't this loop's to fix — flag it, same as step 2's
   unmappable-request rule.
 - **Not a substitute for `/code-review`.** The critic loop scores taste
