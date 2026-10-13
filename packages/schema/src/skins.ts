@@ -18,7 +18,7 @@ import type { SectionVariantId } from "./section-variants.js";
  * fills gaps" contract as `content-packs.ts`.
  */
 
-export const SKIN_IDS = ["classic", "warm-editorial", "bold-industrial", "crisp-modern"] as const;
+export const SKIN_IDS = ["classic", "warm-editorial", "bold-industrial", "crisp-modern", "luxe-dark"] as const;
 export type SkinId = (typeof SKIN_IDS)[number];
 
 /** Section variant pins a skin can make. Keys mirror `SECTION_VARIANTS`. */
@@ -250,6 +250,67 @@ export const SKINS: Record<SkinId, Skin> = {
       motion: "subtle",
       spacingDensity: "airy",
       typeScale: "compact",
+    },
+  },
+
+  /**
+   * luxe-dark (polish batch 2026-10-07; brief: `docs/inspiration/luxe-dark/`)
+   * — the factory's first dark skin.
+   * Near-black page, warm-white type, raised-charcoal surfaces and a single
+   * gold accent; for premium/appearance trades (detailing, salons and lash
+   * studios, custom builders, high-end landscaping). `split-card` hero (copy
+   * column + elevated photo card) and `masonry` reviews (testimonials as a
+   * collage, not a row of equal boxes). New `luxe` pairing: Playfair Display
+   * headings over Inter (`slab` as the serif og-image fallback) — a
+   * deliberate schema extension the plan asked for, shipped with the skin that
+   * needs it (the exception `docs/AUTHORING-SKINS.md` Step 2 names), at the
+   * `display` type scale; `radius: "sm"`, `shadow: "soft"`,
+   * `motion: "subtle"`, `spacingDensity: "airy"`.
+   *
+   * Contrast (all six keys pinned): primary/on-primary 7.84:1, fg/bg
+   * 16.19:1, fg/muted 14.24:1, primary-as-text/bg 7.86:1,
+   * primary-as-text/muted 6.92:1, accent/bg 9.64:1, accent/muted 8.49:1.
+   * Inverted `bg-fg` sections render near-black on warm-white (16.19:1).
+   *
+   * Hero pin: the gold primary on the warm-white fg surface is only 2.06:1,
+   * so a CTA on the inverted `classic`/`video` hero would all but vanish. The
+   * skin pins `split-card` (CTA on the dark page) for that reason, and its
+   * genome profile draws `split-card` only; a config that overrides the hero
+   * variant takes that risk on itself.
+   *
+   * Dark-surface caveat: the shared shadow color is a dark slate, so the
+   * `soft` shadows barely register on a near-black page — depth here comes
+   * from the raised-charcoal `muted` surface and the `border-fg/10` card
+   * borders, which is the intended look. The inverted `bg-fg` footer also
+   * renders light on this skin. Both gaps (dark-tuned shadow tiers, a footer
+   * that stays dark on a dark skin) belong to the #86 dial-value design pass
+   * (plan PR 7), not this skin.
+   */
+  "luxe-dark": {
+    sections: {
+      hero: "split-card",
+      services: "grid",
+      gallery: "grid",
+      reviews: "masonry",
+      serviceAreaMap: "standard",
+      contact: "standard",
+    },
+    brand: {
+      font: "slab",
+      fontPairing: "luxe",
+      cssVarOverrides: {
+        "--brand-primary": "#c9a24a",
+        "--brand-accent": "#d8b56a",
+        "--brand-bg": "#121110",
+        "--brand-fg": "#f3ede2",
+        "--brand-muted": "#211e1a",
+        "--brand-on-primary": "#14110d",
+      },
+      radius: "sm",
+      shadow: "soft",
+      motion: "subtle",
+      spacingDensity: "airy",
+      typeScale: "display",
     },
   },
 };

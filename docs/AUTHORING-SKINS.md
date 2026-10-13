@@ -58,7 +58,7 @@ Translate the extracted values into `SkinBrand` / `SkinSections` fields —
 
 | Skin axis | Field | Source of truth |
 | --- | --- | --- |
-| Typeface pairing | `brand.fontPairing` | `packages/schema/src/presets.ts` → `FONT_PAIRINGS` (`system` / `editorial` / `modern` / `industrial` / `slab`). Pick the closest existing pairing. **Do not invent a new pairing here** — that's a separate, deliberate font-work issue, flagged not built. `brand.font` only matters as the nominal single-stack fallback (e.g. `og-image.ts`) when `fontPairing` is set — pick the built-in font id closest to the pairing's heading stack (see `warm-editorial`'s `font: "slab"` alongside `fontPairing: "editorial"`). |
+| Typeface pairing | `brand.fontPairing` | `packages/schema/src/presets.ts` → `FONT_PAIRINGS` (`system` / `editorial` / `modern` / `industrial` / `slab` / `luxe`). Pick the closest existing pairing. **Do not invent a new pairing here** — a genuinely new pairing is its own deliberate schema change, flagged not built mid-playbook. When a plan explicitly calls for one, it ships with the skin that needs it and refreshes the ops snapshot in the same PR (`luxe`, with `luxe-dark`, 2026-10-07). `brand.font` only matters as the nominal single-stack fallback (e.g. `og-image.ts`) when `fontPairing` is set — pick the built-in font id closest to the pairing's heading stack (see `warm-editorial`'s `font: "slab"` alongside `fontPairing: "editorial"`). |
 | Palette | `brand.cssVarOverrides` | Six `--brand-*` keys: `primary`, `accent`, `bg`, `fg`, `muted`, `on-primary` (see `PaletteTokens` in `presets.ts`). Only set the keys the brief's palette actually diverges on — omitted keys fall through to the client's own `palettePreset`. This is the "palette family beyond the four trade presets" ADR-0003 §3 calls out. A client config that sets its own `cssVarOverrides` is merged over the skin's var by var, so it can tweak one var without losing the rest of the skin's vetted palette. |
 | Type scale | `brand.typeScale` | `"standard" \| "compact" \| "display"` (issue #86) — one dial for hero + section heading size, line-height, weight and tracking. `display` = bigger/tighter/800, `compact` = smaller/calmer/600. |
 | Corner shape | `brand.radius` | `"none" \| "sm" \| "md" \| "lg" \| "xl"` |
@@ -216,7 +216,9 @@ pnpm check && pnpm build                 # workspace-wide: tsc/astro check + eve
 
 `design` is stripped before Zod (never reaches `ClientConfigSchema`), so a
 byte-identical `pnpm schema:snapshot-ops` diff is expected and correct —
-confirm it's a no-op, don't skip running it.
+confirm it's a no-op, unless the PR deliberately extends the schema (e.g. a
+new font pairing per Step 2, which changes the snapshot), and don't skip
+running it.
 
 Then:
 

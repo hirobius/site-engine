@@ -316,3 +316,17 @@ describe("genome wiring — crisp-modern (polish batch 2026-10-07)", () => {
     expect(resolveProfileBrand(profile!).typeScale).toBe("compact");
   });
 });
+
+describe("genome wiring — luxe-dark (polish batch 2026-10-07)", () => {
+  it("appends luxe-dark as the sixth profile, after the original five", () => {
+    expect(DESIGN_PROFILES.map((p) => p.id)).toEqual([
+      "classic-clean",
+      "crisp-modern",
+      "industrial-bold",
+      "warm-editorial-classic",
+      "warm-editorial-airy",
+      "luxe-dark",
+    ]);
+    expect(DESIGN_PROFILES[5]?.skin).toBe("luxe-dark");
+  });
+});
