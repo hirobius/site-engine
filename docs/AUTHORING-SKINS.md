@@ -173,8 +173,10 @@ gallery `/skins/<id>` page for the new skin:
 
 1. **Deterministic — `impeccable detect`.** Run `pnpm skin-critique` (wraps
    `runImpeccableDetect()` from `packages/template/src/design-quality.ts`,
-   #176, over the built `apps/_gallery/dist/skins/index.html` — see
-   `scripts/skin-critique.ts`). Same offline-safe contract as the
+   #176, over every built full-page skin render,
+   `apps/_gallery/dist/skins/<id>/index.html` — one per `SKIN_IDS` entry —
+   and reports findings per skin; the `/skins` overview is only an iframe
+   shell, so it is not scanned — see `scripts/skin-critique.ts`). Same offline-safe contract as the
    `packages/template` gate: no network/npx available → skips with a reason,
    never blocks the loop. **Note:** `impeccable`'s CLI has no `critique` or
    `polish` subcommand (investigated for #177 — confirmed against the pinned

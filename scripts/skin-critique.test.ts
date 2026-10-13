@@ -2,14 +2,22 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { ImpeccableFinding } from "../packages/template/src/design-quality.js";
-import { buildGallery, formatReport, resolveGallerySkinsPage, type SpawnSyncLike } from "./skin-critique.js";
+import { SKIN_IDS } from "@hirobius/schema";
+import {
+  buildGallery,
+  formatReport,
+  groupBySkin,
+  resolveGallerySkinPages,
+  type SpawnSyncLike,
+} from "./skin-critique.js";
 
 /**
  * Coverage for skin-critique's CLI plumbing (issue #177, the critic loop's
  * deterministic half — `docs/AUTHORING-SKINS.md` step 7 / `docs/SKIN-CRITIC.md`).
  * The real `impeccable detect` sweep itself is already covered end-to-end by
  * `packages/template/src/design-quality.test.ts` (#176) — this file only
- * exercises what's new here: locating the rendered gallery page, driving the
+ * exercises what's new here: locating every skin's rendered gallery page,
+ * splitting findings back per skin, driving the
  * gallery build via an injectable `spawnSync`, and formatting the report /
  * exit-code contract the critic loop scripts against.
  */
@@ -25,10 +33,33 @@ const FINDING: ImpeccableFinding = {
   snippet: "Google Fonts: inter",
 };
 
-describe("resolveGallerySkinsPage", () => {
-  it("points at the built skins page, not the source .astro file", () => {
-    const target = resolveGallerySkinsPage(ROOT);
-    expect(target).toBe(resolve(ROOT, "apps/_gallery/dist/skins/index.html"));
+describe("resolveGallerySkinPages", () => {
+  it("lists one built full-page render per SKIN_IDS entry, not the iframe overview", () => {
+    const pages = resolveGallerySkinPages(ROOT);
+    expect(pages.map((p) => p.id)).toEqual([...SKIN_IDS]);
+    for (const { id, path } of pages) {
+      expect(path).toBe(resolve(ROOT, "apps/_gallery/dist/skins", id, "index.html"));
+    }
+    expect(pages.map((p) => p.path)).not.toContain(resolve(ROOT, "apps/_gallery/dist/skins/index.html"));
+  });
+});
+
+describe("groupBySkin", () => {
+  const pages = resolveGallerySkinPages(ROOT, ["classic", "warm-editorial"]);
+
+  it("attributes each finding to the skin page it names (absolute or root-relative path)", () => {
+    const onClassic = { ...FINDING, file: pages[0]!.path };
+    const onWarm = { ...FINDING, file: "apps/_gallery/dist/skins/warm-editorial/index.html" };
+    const grouped = groupBySkin({ skipped: false, findings: [onClassic, onWarm, onWarm] }, pages);
+    expect(grouped.map(({ page, result }) => [page.id, result.skipped ? -1 : result.findings.length])).toEqual([
+      ["classic", 1],
+      ["warm-editorial", 2],
+    ]);
+  });
+
+  it("keeps a skipped run skipped for every skin", () => {
+    const grouped = groupBySkin({ skipped: true, reason: "offline" }, pages);
+    expect(grouped.every(({ result }) => result.skipped)).toBe(true);
   });
 });
 

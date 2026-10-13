@@ -154,7 +154,8 @@ export const SKINS: Record<SkinId, Skin> = {
   },
 
   /**
-   * Skin #2 (skins batch PR 3): bold-industrial — loud, utilitarian, built for
+   * bold-industrial (polish batch 2026-10-07; brief:
+   * `docs/inspiration/bold-industrial/`) — loud, utilitarian, built for
    * trades that sell toughness (concrete, demolition, junk removal, fencing).
    * Charcoal + safety-amber: the CTA is a charcoal block with amber type,
    * like site signage, and amber stars/accents; page surfaces are a warm
@@ -169,9 +170,11 @@ export const SKINS: Record<SkinId, Skin> = {
    * the type does the shouting).
    *
    * Contrast (all six keys pinned so no trade preset mixes in), every pair
-   * the template renders text on: primary/on-primary 8.96:1, fg/bg 15.42:1,
+   * the template renders text on: primary/on-primary 9.89:1, fg/bg 15.42:1,
    * fg/muted 13.20:1, primary-as-text/bg 14.60:1, primary-as-text/muted
-   * 12.51:1, accent/bg 4.63:1, accent/muted 3.96:1. Primary is charcoal, so
+   * 12.51:1, accent/bg 4.63:1, accent/muted 3.96:1, and the footer's small
+   * print (on-primary at 60% over the `bg-fg` footer) 4.54:1 — the amber was
+   * nudged from #f5b400 (4.17:1 there) to #f5c200 to clear AA. Primary is charcoal, so
    * a CTA on the inverted classic hero (fg surface) would vanish — the skin
    * pins `banner` and its genome profile draws `banner` only.
    */
@@ -193,7 +196,7 @@ export const SKINS: Record<SkinId, Skin> = {
         "--brand-bg": "#f3f1ec",
         "--brand-fg": "#1a1a1a",
         "--brand-muted": "#e4e0d6",
-        "--brand-on-primary": "#f5b400",
+        "--brand-on-primary": "#f5c200",
       },
       radius: "none",
       shadow: "hard",

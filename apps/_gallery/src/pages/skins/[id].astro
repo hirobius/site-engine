@@ -8,19 +8,26 @@ import Reviews from "@hirobius/template/components/Reviews.astro";
 import ServiceAreaMap from "@hirobius/template/components/ServiceAreaMap.astro";
 import ContactForm from "@hirobius/template/components/ContactForm.astro";
 import Footer from "@hirobius/template/components/Footer.astro";
+import StickyCTA from "@hirobius/template/components/StickyCTA.astro";
 import { SKIN_IDS, type SectionId, type SkinId } from "@hirobius/schema";
 import { withDesignSkin } from "../../fixtures.js";
 
 // Full-page render of one skin, themed on <html> exactly like a real client
-// site (Document.astro) — palette, web fonts, type scale and density all
-// resolve the way they would in production. The /skins overview frames these
+// site (Document.astro) and composed like apps/_template's index page (hero,
+// sections in config order, footer, sticky CTA) — palette, web fonts, type
+// scale and density all resolve the way they would in production. Each page
+// gets its own <title> (Document reads config.seo.title) so the framed
+// renders and `pnpm skin-critique`'s per-skin report are told apart. The
+// /skins overview frames these
 // pages; a scoped wrapper div can't stand in for them, because Tailwind
 // resolves its --color-*/--font-* theme vars once at :root.
 export function getStaticPaths() {
   return SKIN_IDS.map((id) => ({ params: { id } }));
 }
 
-const config = withDesignSkin(Astro.params.id as SkinId);
+const id = Astro.params.id as SkinId;
+const skinned = withDesignSkin(id);
+const config = { ...skinned, seo: { ...skinned.seo, title: `${id} skin | ${skinned.business.name} (gallery)` } };
 const SECTIONS: Record<SectionId, typeof ServicesGrid> = {
   services: ServicesGrid,
   gallery: Gallery,
@@ -41,4 +48,5 @@ const SECTIONS: Record<SectionId, typeof ServicesGrid> = {
     }
   </main>
   <Footer config={config} />
+  <StickyCTA config={config} />
 </Document>
