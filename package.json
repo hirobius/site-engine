@@ -23,6 +23,7 @@
     "skin-critique": "tsx scripts/skin-critique.ts",
     "inspiration:capture": "tsx scripts/inspiration-capture.ts",
     "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts",
+    "template:snapshot-hds": "tsx packages/template/scripts/refresh-hds-contract.ts",
     "state:generate": "tsx scripts/generate-front-door.ts",
     "state:check": "tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts",
     "state:review": "tsx scripts/check-state-surfaces.ts --strict-review"
@@ -33,6 +34,9 @@
     "typescript": "^5.7.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "sharp"]
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }
