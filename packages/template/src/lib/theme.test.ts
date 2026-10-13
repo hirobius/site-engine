@@ -152,7 +152,7 @@ describe("brand.typeScale (#86)", () => {
   });
 });
 
-describe("luxe font pairing (skins batch PR 5)", () => {
+describe("luxe font pairing (luxe-dark skin, polish batch 2026-10-07)", () => {
   it("pairs a Playfair Display heading with an Inter body", () => {
     const style = brandStyle(withBrand({ fontPairing: "luxe" }));
     expect(style).toContain("--primitive-typography-family-display:'Playfair Display'");

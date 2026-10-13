@@ -140,7 +140,8 @@ social preview) looks like a different skin than the site.
   serif) for literary/warm briefs, `modern` (Space Grotesk) for
   geometric/tech briefs, `industrial` (Archivo grotesk) for
   utilitarian/trade briefs, `slab` (Roboto Slab) for sturdy/blue-collar
-  briefs, `system` only for a deliberately flat brief (see Dimension 1).
+  briefs, `luxe` (Playfair Display serif) for premium/luxury briefs,
+  `system` only for a deliberately flat brief (see Dimension 1).
 - `font` (the fallback `FontId`) is the closest built-in single stack to that
   same heading character — serif/slab pairing → `font: "slab"` (the only
   built-in serif-ish `FontId`), sans pairing → `font: "inter"` / `"geist"` /

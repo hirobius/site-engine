@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defineClient } from "./index.js";
+import { relativeLuminance } from "./design-genome.js";
 import { SKINS, SKIN_IDS } from "./skins.js";
 import type { ClientConfigDraft, ClientConfigInput } from "./index.js";
 
@@ -302,7 +303,7 @@ describe("crisp-modern skin (polish batch 2026-10-07)", () => {
   });
 });
 
-describe("luxe-dark skin (skins batch PR 5)", () => {
+describe("luxe-dark skin (polish batch 2026-10-07)", () => {
   it("pins the split-card hero, masonry reviews, and the luxe dials", () => {
     const result = defineClient(config({ design: "luxe-dark" }));
     expect(result.layout.sections.hero.variant).toBe("split-card");
@@ -318,6 +319,34 @@ describe("luxe-dark skin (skins batch PR 5)", () => {
 
   it("is a dark skin: the page background is darker than the text", () => {
     const palette = SKINS["luxe-dark"].brand.cssVarOverrides!;
-    expect(parseInt(palette["--brand-bg"]!.slice(1), 16)).toBeLessThan(parseInt(palette["--brand-fg"]!.slice(1), 16));
+    expect(relativeLuminance(palette["--brand-bg"]!)).toBeLessThan(relativeLuminance(palette["--brand-fg"]!));
+  });
+
+  it("is visibly distinct from its nearest neighbour skin (warm-editorial: the other serif split-card skin)", () => {
+    const warmResult = defineClient(config({ design: "warm-editorial" }));
+    const luxeResult = defineClient(config({ design: "luxe-dark" }));
+    // Same hero variant on purpose; the palette flips dark and the dials move.
+    expect(luxeResult.layout.sections.reviews.variant).not.toBe(warmResult.layout.sections.reviews.variant);
+    expect(luxeResult.brand.cssVarOverrides).not.toEqual(warmResult.brand.cssVarOverrides);
+    expect(luxeResult.brand.fontPairing).not.toBe(warmResult.brand.fontPairing);
+    expect(luxeResult.brand.radius).not.toBe(warmResult.brand.radius);
+    expect(luxeResult.brand.shadow).not.toBe(warmResult.brand.shadow);
+    expect(luxeResult.brand.typeScale).not.toBe(warmResult.brand.typeScale);
+    expect(luxeResult.brand.spacingDensity).not.toBe(warmResult.brand.spacingDensity);
+  });
+
+  it("an explicit brand field and an explicit section variant override the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "luxe-dark",
+        brand: { palettePreset: "pressure-washing", typeScale: "standard" },
+        layout: { sections: { reviews: { variant: "cards" } } },
+      }),
+    );
+    expect(result.brand.typeScale).toBe("standard");
+    expect(result.layout.sections.reviews.variant).toBe("cards");
+    // Untouched pins still come from the skin.
+    expect(result.brand.fontPairing).toBe("luxe");
+    expect(result.layout.sections.hero.variant).toBe("split-card");
   });
 });

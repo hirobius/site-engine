@@ -317,7 +317,7 @@ describe("genome wiring — crisp-modern (polish batch 2026-10-07)", () => {
   });
 });
 
-describe("genome wiring — luxe-dark (skins batch PR 5)", () => {
+describe("genome wiring — luxe-dark (polish batch 2026-10-07)", () => {
   it("appends luxe-dark as the sixth profile, after the original five", () => {
     expect(DESIGN_PROFILES.map((p) => p.id)).toEqual([
       "classic-clean",
