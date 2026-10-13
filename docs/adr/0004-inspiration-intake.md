@@ -199,7 +199,8 @@ out) does not change when that lands — only where the folder lives.
 
 ## Addendum — 21st.dev is an inspiration source, never a code source (2026-10-12)
 
-Adrian browses 21st.dev for components and patterns. It joins the intake the
+When a component or pattern needs visual inspiration, look at 21st.dev first
+(the same line hds#632 writes into HDS's DESIGN.md). It joins the intake the
 way a reference link does (decision 2): a pattern found there goes into a brief,
 or into a variant's file header as the link plus a note of what was borrowed,
 and is re-implemented on the semantic tokens through `docs/HARVESTING.md`'s
