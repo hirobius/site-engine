@@ -112,7 +112,7 @@ packages/schema/src/skins.ts      <- unchanged mechanism (#140/#141, ADR-0003)
         |
         v
 gated PR: /code-review, purity.test.ts, acceptance.test.ts, skins.test.ts,
-apps/_gallery skins.astro preview, pnpm schema:snapshot-ops (ops re-sync)
+apps/_gallery /skins/<id> preview, pnpm schema:snapshot-ops (ops re-sync)
 ```
 
 S3 adds the extraction *helper* `pnpm inspiration:capture <brief> --url <u>`

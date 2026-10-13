@@ -273,8 +273,9 @@ describe("pickDesign — persisted designProfileId survives pool growth", () => 
 
 // Genome unification (polish batch 2026-10-07, skin surface): profiles are thin {id, skin, deltas}
 // wrappers over SKINS. This pins the resolved brand of every pre-existing
-// profile so the refactor (and later skin edits) can't silently change a pick.
-describe("DESIGN_PROFILES resolve to the same brand bundles as before unification", () => {
+// profile so the refactor (and later skin edits) can't silently change a pick;
+// a profile re-pointed to a new skin on purpose updates its row here.
+describe("DESIGN_PROFILES resolve to their pinned brand bundles", () => {
   const expected: Record<string, Record<string, string>> = {
     "classic-clean": { font: "system", fontPairing: "system", radius: "md", shadow: "soft", motion: "rich", spacingDensity: "comfortable" },
     "crisp-modern": { font: "geist", fontPairing: "modern", radius: "sm", shadow: "hard", motion: "subtle", spacingDensity: "compact" },
@@ -295,4 +296,13 @@ describe("DESIGN_PROFILES resolve to the same brand bundles as before unificatio
       for (const [k, v] of Object.entries(brand)) expect(resolved[k as keyof typeof resolved]).toBe(v);
     });
   }
+});
+
+describe("genome wiring — bold-industrial (polish batch 2026-10-07)", () => {
+  it("the industrial-bold profile now draws the bold-industrial skin, banner hero only", () => {
+    const profile = DESIGN_PROFILES.find((p) => p.id === "industrial-bold");
+    expect(profile?.skin).toBe("bold-industrial");
+    expect(profile?.heroVariants).toEqual(["banner"]);
+    expect(resolveProfileBrand(profile!).typeScale).toBe("display");
+  });
 });

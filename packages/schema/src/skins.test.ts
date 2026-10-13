@@ -211,3 +211,50 @@ describe("skin surface — spacingDensity + typeScale pins (polish batch 2026-10
     expect(result.brand.typeScale).toBe("display");
   });
 });
+
+describe("bold-industrial skin (polish batch 2026-10-07)", () => {
+  it("pins the banner hero, alternating services, and the heavy industrial dials", () => {
+    const result = defineClient(config({ design: "bold-industrial" }));
+    expect(result.layout.sections.hero.variant).toBe("banner");
+    expect(result.layout.sections.services.variant).toBe("alternating");
+    expect(result.brand.fontPairing).toBe("industrial");
+    expect(result.brand.radius).toBe("none");
+    expect(result.brand.shadow).toBe("hard");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("display");
+    expect(result.brand.spacingDensity).toBe("compact");
+  });
+
+  it("carries its own charcoal + safety-amber palette, independent of the trade preset", () => {
+    const result = defineClient(config({ design: "bold-industrial" }));
+    expect(result.brand.cssVarOverrides).toEqual(SKINS["bold-industrial"].brand.cssVarOverrides);
+    expect(result.brand.cssVarOverrides?.["--brand-on-primary"]).toBe("#f5c200");
+  });
+
+  it("is visibly distinct from its nearest neighbour skin (classic: the other light sans skin)", () => {
+    const classicResult = defineClient(config({ design: "classic" }));
+    const boldResult = defineClient(config({ design: "bold-industrial" }));
+    expect(boldResult.layout.sections.hero.variant).not.toBe(classicResult.layout.sections.hero.variant);
+    expect(boldResult.layout.sections.services.variant).not.toBe(classicResult.layout.sections.services.variant);
+    expect(boldResult.brand.cssVarOverrides).not.toEqual(classicResult.brand.cssVarOverrides);
+    expect(boldResult.brand.fontPairing).not.toBe(classicResult.brand.fontPairing);
+    expect(boldResult.brand.radius).not.toBe(classicResult.brand.radius);
+    expect(boldResult.brand.shadow).not.toBe(classicResult.brand.shadow);
+    expect(boldResult.brand.typeScale).not.toBe(classicResult.brand.typeScale);
+  });
+
+  it("an explicit brand field and an explicit section variant override the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "bold-industrial",
+        brand: { palettePreset: "pressure-washing", radius: "lg" },
+        layout: { sections: { hero: { variant: "split-card" } } },
+      }),
+    );
+    expect(result.brand.radius).toBe("lg");
+    expect(result.layout.sections.hero.variant).toBe("split-card");
+    // Untouched pins still come from the skin.
+    expect(result.brand.shadow).toBe("hard");
+    expect(result.layout.sections.services.variant).toBe("alternating");
+  });
+});

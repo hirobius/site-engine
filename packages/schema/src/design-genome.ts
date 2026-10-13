@@ -289,16 +289,11 @@ export const DESIGN_PROFILES: readonly DesignProfile[] = [
   },
   {
     id: "industrial-bold",
-    skin: "classic",
-    deltas: {
-      font: "work-sans",
-      fontPairing: "industrial",
-      radius: "none",
-      shadow: "hard",
-      motion: "subtle",
-      spacingDensity: "compact",
-    },
-    heroVariants: ["banner", "classic"],
+    // Banner only: the skin's charcoal primary would vanish as a CTA on the
+    // classic hero's inverted fg surface (see SKINS["bold-industrial"]).
+    skin: "bold-industrial",
+    deltas: {},
+    heroVariants: ["banner"],
   },
   {
     id: "warm-editorial-classic",
