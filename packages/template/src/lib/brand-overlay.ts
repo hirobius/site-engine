@@ -1,7 +1,12 @@
-/* Vendored from @hirobius/design-system/src/brand/overlay.ts (clients #42).
- * Dependency-free palette -> HDS-semantic bridge. Copied so the factory no
- * longer depends on the (now-frozen) @hirobius/design-system package; it only
- * ever used this ~130-line function + the token vars (see styles/tokens.css). */
+/* The fleet brand bridge (clients #42, ADR-0005): HDS's
+ * @hirobius/design-system/brand overlay plus the factory's own dials (shadow,
+ * spacingDensity). The BrandPalette fields HDS accepts and every custom
+ * property HDS's bridge writes are a contract held by ../hds-contract.test.ts.
+ * The shadow dial rewrites `--semantic-shadow-*`, names HDS publishes; the
+ * spacing dial writes `--semantic-spacing-section-y{,-lg}`, factory-owned
+ * names HDS has no token for (listed in ../hds-contract.ts). Dependency-free
+ * on purpose: the factory ships zero React and no HDS runtime, only the token
+ * names (see styles/tokens.css). */
 /**
  * overlay.ts — pure palette → HDS-semantic overlay bridge.
  *
