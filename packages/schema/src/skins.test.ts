@@ -258,3 +258,46 @@ describe("bold-industrial skin (polish batch 2026-10-07)", () => {
     expect(result.layout.sections.services.variant).toBe("alternating");
   });
 });
+
+describe("crisp-modern skin (polish batch 2026-10-07)", () => {
+  it("pins the classic hero, card services, and the light, airy modern dials", () => {
+    const result = defineClient(config({ design: "crisp-modern" }));
+    expect(result.layout.sections.hero.variant).toBe("classic");
+    expect(result.layout.sections.services.variant).toBe("cards");
+    expect(result.brand.fontPairing).toBe("modern");
+    expect(result.brand.radius).toBe("sm");
+    expect(result.brand.shadow).toBe("flat");
+    expect(result.brand.motion).toBe("subtle");
+    expect(result.brand.typeScale).toBe("compact");
+    expect(result.brand.spacingDensity).toBe("airy");
+  });
+
+  it("is visibly distinct from its nearest neighbour skin (classic: same hero, light sans)", () => {
+    const classicResult = defineClient(config({ design: "classic" }));
+    const crispResult = defineClient(config({ design: "crisp-modern" }));
+    // Same hero variant on purpose; everything around it moves.
+    expect(crispResult.layout.sections.services.variant).not.toBe(classicResult.layout.sections.services.variant);
+    expect(crispResult.brand.cssVarOverrides).not.toEqual(classicResult.brand.cssVarOverrides);
+    expect(crispResult.brand.fontPairing).not.toBe(classicResult.brand.fontPairing);
+    expect(crispResult.brand.radius).not.toBe(classicResult.brand.radius);
+    expect(crispResult.brand.shadow).not.toBe(classicResult.brand.shadow);
+    expect(crispResult.brand.motion).not.toBe(classicResult.brand.motion);
+    expect(crispResult.brand.typeScale).not.toBe(classicResult.brand.typeScale);
+    expect(crispResult.brand.spacingDensity).not.toBe(classicResult.brand.spacingDensity);
+  });
+
+  it("an explicit brand field and an explicit section variant override the skin's pin", () => {
+    const result = defineClient(
+      config({
+        design: "crisp-modern",
+        brand: { palettePreset: "pressure-washing", spacingDensity: "compact" },
+        layout: { sections: { services: { variant: "grid" } } },
+      }),
+    );
+    expect(result.brand.spacingDensity).toBe("compact");
+    expect(result.layout.sections.services.variant).toBe("grid");
+    // Untouched pins still come from the skin.
+    expect(result.brand.typeScale).toBe("compact");
+    expect(result.layout.sections.hero.variant).toBe("classic");
+  });
+});
