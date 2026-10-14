@@ -740,3 +740,27 @@ describe("defineClient", () => {
     });
   });
 });
+
+describe("copy.servicesTitle / copy.servicesSubtitle (se#221)", () => {
+  const withCopy = (extra: Record<string, unknown>) => ({
+    ...BASE_INPUT,
+    copy: { ...BASE_INPUT.copy, ...extra },
+  });
+
+  it("stays valid when omitted", () => {
+    const c = defineClient(BASE_INPUT);
+    expect(c.copy.servicesTitle).toBeUndefined();
+    expect(c.copy.servicesSubtitle).toBeUndefined();
+  });
+
+  it("accepts both overrides", () => {
+    const c = defineClient(withCopy({ servicesTitle: "Our Work", servicesSubtitle: "Built to last." }));
+    expect(c.copy.servicesTitle).toBe("Our Work");
+    expect(c.copy.servicesSubtitle).toBe("Built to last.");
+  });
+
+  it("rejects empty strings", () => {
+    expect(() => defineClient(withCopy({ servicesTitle: "" }))).toThrow();
+    expect(() => defineClient(withCopy({ servicesSubtitle: "" }))).toThrow();
+  });
+});

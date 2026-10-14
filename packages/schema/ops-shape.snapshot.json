@@ -336,6 +336,22 @@
                 },
                 "optional": false,
                 "hasDefault": false
+              },
+              "servicesSubtitle": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "servicesTitle": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
               }
             }
           },
