@@ -58,10 +58,42 @@ describe("pickDesign — determinism", () => {
     // true for this pair — documents that identity, not chance, drives it.
     expect(b).not.toEqual(a);
   });
+
+  it("differentiates names differing only in a non-Latin-1 character", () => {
+    const lead1 = lead({ placeId: null, slug: null, name: "\u0150ak Tree Service", city: "Seattle" });
+    const lead2 = lead({ placeId: null, slug: null, name: "Pak Tree Service", city: "Seattle" });
+    const rng1 = seededRng(stableLeadId(lead1));
+    const rng2 = seededRng(stableLeadId(lead2));
+    expect(rng1()).not.toEqual(rng2());
+  });
 });
 
 describe("pickDesign — spread", () => {
   const picks = Array.from({ length: 60 }, (_, i) => pickDesign(lead({ placeId: `ChIJ_synthetic_${i}` })));
+
+  it("draws >=3 distinct profiles for a fixed sample of 4 realistic same-trade leads in one metro", () => {
+    const yakimaTreeLeads: DesignSeedLead[] = [
+      { name: "Yakima Tree Service", city: "Yakima" },
+      { name: "Cascade Tree Care", city: "Yakima" },
+      { name: "Central WA Tree Trimming", city: "Yakima" },
+      { name: "Valley Tree Experts", city: "Yakima" },
+    ];
+    const profiles = yakimaTreeLeads.map((l) => pickDesign(l).profileId);
+    const distinctProfiles = new Set(profiles);
+    expect(distinctProfiles.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it("draws every profile in DESIGN_PROFILES at least once across a representative sample of 50 leads", () => {
+    const sample50: DesignSeedLead[] = Array.from({ length: 50 }, (_, i) => ({
+      placeId: `ChIJ_rep_lead_${i}`,
+      name: `Lead ${i}`,
+      city: "Yakima",
+    }));
+    const profilesDrawn = new Set(sample50.map((l) => pickDesign(l).profileId));
+    for (const profile of DESIGN_PROFILES) {
+      expect(profilesDrawn.has(profile.id)).toBe(true);
+    }
+  });
 
   it("visits every shipped skin across many leads", () => {
     const skinsSeen = new Set(picks.map((p) => p.design));

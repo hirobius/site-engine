@@ -139,29 +139,66 @@ export function paletteOverrideIsContrastSafe(overrides: Partial<PaletteTokens> 
 }
 
 // ---------------------------------------------------------------------------
-// Seeded PRNG: xmur3 hash -> mulberry32 generator.
+// Seeded PRNG: MurmurHash3 string hash -> mulberry32 generator.
 // ---------------------------------------------------------------------------
 
 /**
- * xmur3 string hash — turns an arbitrary string into a 32-bit seed function.
- * Calling the returned function advances and returns a new hashed value each
- * time (used once here to derive `mulberry32`'s seed).
+ * MurmurHash3 32-bit string hash — converts an arbitrary string into a 32-bit
+ * integer seed with excellent avalanche behavior, so similar/nearby string inputs
+ * (e.g. same-trade leads in one metro) scatter uniformly across the seed space.
  */
-function xmur3(str: string): () => number {
-  let h = 1779033703 ^ str.length;
-  for (let i = 0; i < str.length; i++) {
-    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+function murmurhash3_32(key: string, seed = 0): number {
+  const bytesData = new TextEncoder().encode(key);
+  let k: number,
+    h = seed;
+  const remainder = bytesData.length & 3;
+  const bytes = bytesData.length - remainder;
+  const c1 = 0xcc9e2d51,
+    c2 = 0x1b873593;
+
+  for (let i = 0; i < bytes; i += 4) {
+    k =
+      bytesData[i]! |
+      (bytesData[i + 1]! << 8) |
+      (bytesData[i + 2]! << 16) |
+      (bytesData[i + 3]! << 24);
+
+    k = Math.imul(k, c1);
+    k = (k << 15) | (k >>> 17);
+    k = Math.imul(k, c2);
+
+    h ^= k;
     h = (h << 13) | (h >>> 19);
+    h = Math.imul(h, 5) + 0xe6546b64;
   }
-  return function next(): number {
-    h = Math.imul(h ^ (h >>> 16), 2246822507);
-    h = Math.imul(h ^ (h >>> 13), 3266489909);
-    h ^= h >>> 16;
-    return h >>> 0;
-  };
+
+  k = 0;
+  switch (remainder) {
+    case 3:
+      k ^= bytesData[bytes + 2]! << 16;
+      /* fallthrough */
+    case 2:
+      k ^= bytesData[bytes + 1]! << 8;
+      /* fallthrough */
+    case 1:
+      k ^= bytesData[bytes]!;
+      k = Math.imul(k, c1);
+      k = (k << 15) | (k >>> 17);
+      k = Math.imul(k, c2);
+      h ^= k;
+  }
+
+  h ^= bytesData.length;
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+
+  return h >>> 0;
 }
 
-/** mulberry32 PRNG — fast, small, good-enough-for-this deterministic generator. */
+/** mulberry32 PRNG — fast, small, deterministic generator. */
 function mulberry32(seed: number): () => number {
   let a = seed;
   return function next(): number {
@@ -175,8 +212,7 @@ function mulberry32(seed: number): () => number {
 
 /** Build a deterministic `[0, 1)` generator from an arbitrary seed string. */
 export function seededRng(seed: string): () => number {
-  const hash = xmur3(seed);
-  return mulberry32(hash());
+  return mulberry32(murmurhash3_32(seed));
 }
 
 function pickFrom<T>(rng: () => number, pool: readonly T[]): T {
