@@ -148,31 +148,31 @@ so it always wins the cascade. Four trade presets ship today: `landscaping`,
 
 ## New client walkthrough
 
-1. **Scaffold** (≈1 min)
+1. **Scaffold**
    ```bash
    pnpm new-client mikes-junk --name "Mike's Junk Removal" --preset junk-removal
    ```
    This copies `apps/_template → apps/mikes-junk`, stubs the config, and prints
    the exact Vercel CLI commands.
 
-2. **Fill in the config** (≈4 min) — `apps/<slug>/client.config.ts`:
+2. **Fill in the config** — `apps/<slug>/client.config.ts`:
    business name/phone/email/hours/serviceAreas, copy, services, reviews, SEO
    (title/description/city/region/siteUrl), and the Web3Forms `accessKey`
    (+ `hcaptchaSiteKey`).
 
-3. **Add photos** (≈3 min) — optimized photos go in `src/assets/photos`
+3. **Add photos** — optimized photos go in `src/assets/photos`
    (astro:assets makes responsive WebP), verbatim assets (og image, favicon) in
    `public`. See **Images** below for the intake rule. `new-client` already
    generated a brand-colored monogram `favicon.svg` (business initial on the
    preset primary) — drop a real logo file over it if the client has one.
 
-4. **Verify** (≈1 min)
+4. **Verify**
    ```bash
    pnpm install
    pnpm --filter @hirobius/mikes-junk build
    ```
 
-5. **Ship on Vercel** (≈1 min) — run the commands `new-client` printed:
+5. **Ship on Vercel** — run the commands `new-client` printed:
    ```bash
    vercel link --cwd apps/mikes-junk --project hirobius-mikes-junk --yes
    # Root Directory = apps/mikes-junk ; Ignored Build Step = npx turbo-ignore

@@ -20,6 +20,8 @@ describe("README numbers", () => {
 
   it("carries no unproven timing or pricing claims", () => {
     expect(readme).not.toMatch(/in 10 minutes/i);
-    expect(readme).not.toMatch(/\$9\/mo/);
+    expect(readme).not.toMatch(/\$\s?9(\.00)?\s*(\/|per|a)\s*(mo|month)/i);
+    // Per-step time estimates ("≈4 min") add back up to the cut 10-minute claim.
+    expect(readme).not.toMatch(/[≈~]\s*\d+\s*(min|minutes|mins)\b/i);
   });
 });
