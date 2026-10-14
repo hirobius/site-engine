@@ -148,7 +148,7 @@ describe("setPreviewTokenEnv — idempotent regardless of prior state", () => {
   it("always removes then adds, so a re-run converges instead of erroring on 'already exists'", () => {
     const spawnImpl = vi.fn().mockReturnValue({ status: 0, stdout: "", stderr: "" });
     setPreviewTokenEnv("ejected/mikes-junk", "tok123", "vercel-tok", spawnImpl);
-    expect(spawnImpl).toHaveBeenCalledTimes(2);
+    expect(spawnImpl).toHaveBeenCalledTimes(4); // rm + add, per scope (#222)
     expect(spawnImpl.mock.calls[0]![1]).toEqual(
       expect.arrayContaining(["env", "rm", "PREVIEW_TOKEN", "preview"]),
     );
@@ -161,7 +161,7 @@ describe("setPreviewTokenEnv — idempotent regardless of prior state", () => {
     const spawnImpl = vi
       .fn()
       .mockReturnValueOnce({ status: 1, stdout: "", stderr: "not found" })
-      .mockReturnValueOnce({ status: 0, stdout: "", stderr: "" });
+      .mockReturnValue({ status: 0, stdout: "", stderr: "" });
     expect(setPreviewTokenEnv("ejected/mikes-junk", "tok123", "vercel-tok", spawnImpl)).toBe(true);
   });
 
@@ -201,23 +201,26 @@ describe("setBasicAuthEnv — idempotent regardless of prior state", () => {
     const spawnImpl = vi.fn().mockReturnValue({ status: 0, stdout: "", stderr: "" });
     const ok = setBasicAuthEnv("ejected/mikes-junk", { user: "preview", pass: "secretpass" }, "vercel-tok", spawnImpl);
     expect(ok).toBe(true);
-    expect(spawnImpl).toHaveBeenCalledTimes(4);
+    expect(spawnImpl).toHaveBeenCalledTimes(8); // rm + add, per var, per scope (#222)
     const commands = spawnImpl.mock.calls.map((c) => (c[1] as string[]).slice(0, 3).join(" "));
     expect(commands).toEqual([
       "env rm PREVIEW_USER",
       "env add PREVIEW_USER",
+      "env rm PREVIEW_USER",
+      "env add PREVIEW_USER",
+      "env rm PREVIEW_PASS",
+      "env add PREVIEW_PASS",
       "env rm PREVIEW_PASS",
       "env add PREVIEW_PASS",
     ]);
   });
 
   it("returns false if either var fails to set", () => {
-    const spawnImpl = vi
-      .fn()
-      .mockReturnValueOnce({ status: 0, stdout: "", stderr: "" }) // rm USER
-      .mockReturnValueOnce({ status: 0, stdout: "", stderr: "" }) // add USER
-      .mockReturnValueOnce({ status: 0, stdout: "", stderr: "" }) // rm PASS
-      .mockReturnValueOnce({ status: 1, stdout: "", stderr: "boom" }); // add PASS fails
+    const spawnImpl = vi.fn((_cmd: string, args: string[]) => ({
+      status: args[1] === "add" && args[2] === "PREVIEW_PASS" ? 1 : 0, // add PASS fails
+      stdout: "",
+      stderr: "",
+    }));
     const ok = setBasicAuthEnv("ejected/mikes-junk", { user: "preview", pass: "secretpass" }, "vercel-tok", spawnImpl);
     expect(ok).toBe(false);
   });
@@ -299,5 +302,64 @@ describe("disableSsoProtection", () => {
 describe("projectName", () => {
   it("matches the new-client.ts fleet convention", () => {
     expect(projectName("mikes-junk")).toBe("hirobius-mikes-junk");
+  });
+});
+
+/**
+ * Regression for #222: a fresh Vercel project's FIRST deploy is classed
+ * `production` (same root cause as #188), so a gate var set only in the
+ * `preview` scope is missing at runtime and middleware.ts fails closed with a
+ * 503 even with the `?key=`. Every gate var must land in BOTH scopes, the way
+ * `setPreviewBuildEnv` already does for PREVIEW_BUILD.
+ */
+describe("gate vars are set in both preview and production scopes (#222)", () => {
+  const ok = () => vi.fn().mockReturnValue({ status: 0, stdout: "", stderr: "" });
+
+  /** `env add <VAR> <scope>` calls, with the stdin each one was given. */
+  function adds(spawnImpl: ReturnType<typeof ok>): Array<{ cmd: string; input: unknown }> {
+    return spawnImpl.mock.calls
+      .filter((c) => (c[1] as string[])[1] === "add")
+      .map((c) => ({ cmd: (c[1] as string[]).slice(2, 4).join(" "), input: (c[2] as { input?: unknown }).input }));
+  }
+
+  it("setPreviewTokenEnv adds PREVIEW_TOKEN to preview AND production", () => {
+    const spawnImpl = ok();
+    expect(setPreviewTokenEnv("ejected/x", "tok123", "vercel-tok", spawnImpl)).toBe(true);
+    expect(adds(spawnImpl)).toEqual([
+      { cmd: "PREVIEW_TOKEN preview", input: "tok123\n" },
+      { cmd: "PREVIEW_TOKEN production", input: "tok123\n" },
+    ]);
+  });
+
+  it("setBasicAuthEnv adds PREVIEW_USER and PREVIEW_PASS to preview AND production", () => {
+    const spawnImpl = ok();
+    expect(setBasicAuthEnv("ejected/x", { user: "preview", pass: "pw" }, "vercel-tok", spawnImpl)).toBe(true);
+    expect(adds(spawnImpl)).toEqual([
+      { cmd: "PREVIEW_USER preview", input: "preview\n" },
+      { cmd: "PREVIEW_USER production", input: "preview\n" },
+      { cmd: "PREVIEW_PASS preview", input: "pw\n" },
+      { cmd: "PREVIEW_PASS production", input: "pw\n" },
+    ]);
+  });
+
+  it("removes before adding in each scope, so re-runs converge", () => {
+    const spawnImpl = ok();
+    setPreviewTokenEnv("ejected/x", "tok123", "vercel-tok", spawnImpl);
+    expect(spawnImpl.mock.calls.map((c) => (c[1] as string[]).slice(1, 4).join(" "))).toEqual([
+      "rm PREVIEW_TOKEN preview",
+      "add PREVIEW_TOKEN preview",
+      "rm PREVIEW_TOKEN production",
+      "add PREVIEW_TOKEN production",
+    ]);
+  });
+
+  it("fails if the production-scope add fails, even when preview succeeded", () => {
+    const spawnImpl = vi.fn((_cmd: string, args: string[]) => ({
+      status: args[1] === "add" && args[3] === "production" ? 1 : 0,
+      stdout: "",
+      stderr: "",
+    }));
+    expect(setPreviewTokenEnv("ejected/x", "tok123", "vercel-tok", spawnImpl)).toBe(false);
+    expect(setBasicAuthEnv("ejected/x", { user: "preview", pass: "pw" }, "vercel-tok", spawnImpl)).toBe(false);
   });
 });

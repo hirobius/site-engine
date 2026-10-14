@@ -10,8 +10,10 @@
  *   1. `pnpm eject-client <slug>`               -> ejected/<slug>, a standalone build
  *   2. `vercel link`                              -> link ejected/<slug> to its Vercel project
  *   3. set `PREVIEW_TOKEN` (+ `PREVIEW_USER`/      -> the `?key=` gate secret middleware.ts reads,
- *      `PREVIEW_PASS`)                                plus Basic-auth creds so the *no-key* path
- *                                                       fails closed with 401, not a bare 503
+ *      `PREVIEW_PASS`) in BOTH the preview and         plus Basic-auth creds so the *no-key* path
+ *      production scopes                               fails closed with 401, not a bare 503 —
+ *                                                       a fresh project's first deploy is classed
+ *                                                       production (issues #188, #222)
  *   4. disable Vercel Deployment Protection       -> Vercel's own SSO gate 401s the keyed
  *      ("Vercel Authentication")                     link before middleware.ts ever runs
  *   5. `vercel deploy --target=preview`           -> NEVER --prod: a first deploy to a fresh
@@ -134,24 +136,48 @@ export function ensurePreviewToken(dir: string, fs: FsLike = defaultFs): string 
 }
 
 /**
- * Idempotently sets the `PREVIEW_TOKEN` preview env var to `token`: removes
- * any existing value first (failure ignored — it may simply not exist yet),
- * then adds the current value. Re-running always converges on the same env
- * state instead of erroring on "already exists" or drifting.
+ * Every env scope a gate var must live in. A fresh Vercel project's FIRST
+ * deploy is classed `production` even for a gated preview (issue #188), so a
+ * var set only in `preview` is missing at runtime and middleware.ts fails
+ * closed with a 503 even with the `?key=` (issue #222). Safe: this is a
+ * dedicated preview project; go-live (`SITE_LIVE=true`) bypasses the gate.
  */
+export const GATE_ENV_SCOPES = ["preview", "production"] as const;
+
+/**
+ * Idempotently sets env var `name` to `value` in every `GATE_ENV_SCOPES`
+ * scope: removes any existing value first (failure ignored — it may simply
+ * not exist yet), then adds the current value on stdin (never argv, so a
+ * secret never shows up in a process list). Re-running always converges on
+ * the same env state instead of erroring on "already exists" or drifting.
+ * True only when every scope's add succeeded.
+ */
+export function setEnvInGateScopes(
+  dir: string,
+  name: string,
+  value: string,
+  vercelToken: string,
+  spawnImpl: SpawnFn = defaultSpawn,
+): boolean {
+  let ok = true;
+  for (const scope of GATE_ENV_SCOPES) {
+    spawnImpl("vercel", ["env", "rm", name, scope, "--yes", "--cwd", dir, "--token", vercelToken], {});
+    const res = spawnImpl("vercel", ["env", "add", name, scope, "--cwd", dir, "--token", vercelToken], {
+      input: `${value}\n`,
+    });
+    ok = ok && res.status === 0;
+  }
+  return ok;
+}
+
+/** Sets the `PREVIEW_TOKEN` gate secret in both scopes (see `setEnvInGateScopes`). */
 export function setPreviewTokenEnv(
   dir: string,
   token: string,
   vercelToken: string,
   spawnImpl: SpawnFn = defaultSpawn,
 ): boolean {
-  spawnImpl("vercel", ["env", "rm", "PREVIEW_TOKEN", "preview", "--yes", "--cwd", dir, "--token", vercelToken], {});
-  const res = spawnImpl(
-    "vercel",
-    ["env", "add", "PREVIEW_TOKEN", "preview", "--cwd", dir, "--token", vercelToken],
-    { input: `${token}\n` },
-  );
-  return res.status === 0;
+  return setEnvInGateScopes(dir, "PREVIEW_TOKEN", token, vercelToken, spawnImpl);
 }
 
 /**
@@ -169,17 +195,7 @@ export function setPreviewBuildEnv(
   vercelToken: string,
   spawnImpl: SpawnFn = defaultSpawn,
 ): boolean {
-  let ok = true;
-  for (const scope of ["preview", "production"] as const) {
-    spawnImpl("vercel", ["env", "rm", "PREVIEW_BUILD", scope, "--yes", "--cwd", dir, "--token", vercelToken], {});
-    const res = spawnImpl(
-      "vercel",
-      ["env", "add", "PREVIEW_BUILD", scope, "--cwd", dir, "--token", vercelToken],
-      { input: "true\n" },
-    );
-    ok = ok && res.status === 0;
-  }
-  return ok;
+  return setEnvInGateScopes(dir, "PREVIEW_BUILD", "true", vercelToken, spawnImpl);
 }
 
 export interface BasicAuthCreds {
@@ -212,22 +228,15 @@ export function ensureBasicAuthCreds(dir: string, fs: FsLike = defaultFs): Basic
   return creds;
 }
 
-/** Idempotently sets PREVIEW_USER/PREVIEW_PASS the same rm-then-add way as `setPreviewTokenEnv`. */
+/** Sets PREVIEW_USER/PREVIEW_PASS in both scopes the same way as `setPreviewTokenEnv`. */
 export function setBasicAuthEnv(
   dir: string,
   creds: BasicAuthCreds,
   vercelToken: string,
   spawnImpl: SpawnFn = defaultSpawn,
 ): boolean {
-  const set = (name: string, value: string): boolean => {
-    spawnImpl("vercel", ["env", "rm", name, "preview", "--yes", "--cwd", dir, "--token", vercelToken], {});
-    const res = spawnImpl("vercel", ["env", "add", name, "preview", "--cwd", dir, "--token", vercelToken], {
-      input: `${value}\n`,
-    });
-    return res.status === 0;
-  };
-  const userOk = set("PREVIEW_USER", creds.user);
-  const passOk = set("PREVIEW_PASS", creds.pass);
+  const userOk = setEnvInGateScopes(dir, "PREVIEW_USER", creds.user, vercelToken, spawnImpl);
+  const passOk = setEnvInGateScopes(dir, "PREVIEW_PASS", creds.pass, vercelToken, spawnImpl);
   return userOk && passOk;
 }
 
@@ -413,15 +422,15 @@ if (isMain()) {
   }
 
   const token = ensurePreviewToken(outDir);
-  console.log(`\n→ Setting PREVIEW_TOKEN (preview env)...`);
+  console.log(`\n→ Setting PREVIEW_TOKEN (preview + production env — issue #222)...`);
   if (!setPreviewTokenEnv(outDir, token, vercelToken)) {
-    die("`vercel env add PREVIEW_TOKEN preview` failed — see output above.");
+    die("`vercel env add PREVIEW_TOKEN` failed — see output above.");
   }
 
   const basicAuth = ensureBasicAuthCreds(outDir);
-  console.log(`→ Setting PREVIEW_USER/PREVIEW_PASS (preview env, so the no-key path fails closed with 401)...`);
+  console.log(`→ Setting PREVIEW_USER/PREVIEW_PASS (preview + production env, so the no-key path fails closed with 401)...`);
   if (!setBasicAuthEnv(outDir, basicAuth, vercelToken)) {
-    die("`vercel env add PREVIEW_USER/PREVIEW_PASS preview` failed — see output above.");
+    die("`vercel env add PREVIEW_USER/PREVIEW_PASS` failed — see output above.");
   }
 
   console.log(`→ Setting PREVIEW_BUILD=true (keeps the gated preview from arming the go-live gate — issue #188)...`);

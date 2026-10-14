@@ -475,6 +475,7 @@ Read from the root `package.json`.
 | `pnpm eject-client` | `tsx scripts/eject-client.ts` |
 | `pnpm deploy-preview` | `tsx scripts/deploy-preview.ts` |
 | `pnpm render-site` | `tsx scripts/render-site.ts` |
+| `pnpm lead-to-preview` | `tsx scripts/lead-to-preview.ts` |
 | `pnpm go-live` | `tsx scripts/go-live.ts` |
 | `pnpm verify-live` | `tsx scripts/verify-live.ts` |
 | `pnpm skin-critique` | `tsx scripts/skin-critique.ts` |
