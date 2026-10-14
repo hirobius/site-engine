@@ -140,3 +140,46 @@ carries `applyDesignSkin`/`SKINS` at all only once the #140 follow-up above
 re-syncs the mechanism — this PR's new `SKINS["warm-editorial"]` entry needs
 the same re-sync once that lands, so the ops agent can eventually emit
 `design: "warm-editorial"` too.
+
+## Addendum — the polish batch: typeScale, the skin surface, three skins (2026-10-07)
+
+Adrian's 2026-10-07 direction ("polished, visually varied" sites, not the same
+bland site to everyone) shipped as one stacked chain. Recorded here so the
+next reader doesn't have to reassemble it from six PRs:
+
+- **The type-scale dial (#86).** `brand.typeScale`: `standard` (default,
+  byte-identical to before) | `compact` (smaller, calmer, 600) | `display`
+  (bigger, tighter, 800). One dial moves hero and section heading size,
+  line-height, weight and tracking together through new
+  `--semantic-text-display-*` / `--semantic-text-heading-*` tokens, emitted
+  only when not `standard`. This closes the "type scale" gap the #141
+  correction above left open.
+- **The skin surface (next change in the chain).** `SkinBrand` gains
+  `spacingDensity` and `typeScale`; a config's own `cssVarOverrides` merges
+  over a skin's var by var instead of replacing the whole vetted palette; and
+  `SKINS` becomes the single bundle registry — the genome's `DESIGN_PROFILES`
+  become thin wrappers over a skin. The `crisp-modern` and `industrial-bold`
+  profiles re-point to the new same-named skins (`crisp-modern`,
+  `bold-industrial`), which changes the look of leads already on those
+  profiles **by design**: the persisted profile id (`designProfileId`) pins a
+  lead to a *profile* across pool growth, not to a frozen output.
+  `industrial-bold`'s hero variants narrow to `banner` to match its skin.
+  Ejected/frozen client sites are unaffected.
+- **Three skins**, each with a brief under `docs/inspiration/<id>/`:
+  `bold-industrial` (charcoal + safety amber, `industrial` type, `display`
+  scale, compact), `crisp-modern` (near-white, ink, one blue; `modern` type,
+  `compact` scale, airy) and `luxe-dark` (near-black, warm white, gold;
+  `display` scale, airy). The first two back the existing same-named genome
+  profiles (above); `luxe-dark` is appended as the sixth profile, after the
+  existing five, so the pool order the seeded draw relies on is preserved.
+- **The `luxe` font pairing** (Playfair Display + Inter) ships with
+  `luxe-dark` as a planned schema extension (plan PR 5), with the ops
+  snapshot refreshed in the same change. That is an exception to
+  `docs/AUTHORING-SKINS.md` Step 2's "do not invent a new pairing" rule, and
+  the playbook now names it as the deliberate-schema-change path.
+- **Versions:** `@hirobius/schema` 0.4.0 and `@hirobius/template` 0.8.0 for
+  the whole batch.
+- **Known dark-skin gaps, not fixed here:** on `luxe-dark` the inverted
+  `bg-fg` footer renders light, and shadows are invisible on the dark
+  surface. Both belong to the dial-value design pass the plan calls PR 7,
+  together with the ops vendored-schema re-sync that follows this chain.

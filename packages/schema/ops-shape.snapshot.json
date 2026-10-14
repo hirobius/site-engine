@@ -68,6 +68,7 @@
                   "values": [
                     "editorial",
                     "industrial",
+                    "luxe",
                     "modern",
                     "slab",
                     "system"
@@ -150,6 +151,18 @@
                     "airy",
                     "comfortable",
                     "compact"
+                  ]
+                },
+                "optional": false,
+                "hasDefault": true
+              },
+              "typeScale": {
+                "shape": {
+                  "kind": "enum",
+                  "values": [
+                    "compact",
+                    "display",
+                    "standard"
                   ]
                 },
                 "optional": false,
@@ -322,6 +335,22 @@
                   "type": "string"
                 },
                 "optional": false,
+                "hasDefault": false
+              },
+              "servicesSubtitle": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
+                "hasDefault": false
+              },
+              "servicesTitle": {
+                "shape": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "optional": true,
                 "hasDefault": false
               }
             }

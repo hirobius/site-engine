@@ -43,7 +43,8 @@ new output surface.
    `docs/AUTHORING-SKINS.md` exactly: read brief → extract palette/type/
    spacing/motion from the references → map **only** to the existing config
    surface (`brand.fontPairing`, `brand.cssVarOverrides`, `brand.shadow`,
-   `brand.radius`, `brand.spacingDensity`, `layout.sections.*.variant` pins) →
+   `brand.radius`, `brand.spacingDensity`, `brand.typeScale`,
+   `layout.sections.*.variant` pins) →
    verify AA contrast + purity → add one additive `SKINS` entry → open a
    gated PR. This is MVP-2.
 4. **Every ADR-0002/0003 guardrail rides along unchanged:**
@@ -111,7 +112,7 @@ packages/schema/src/skins.ts      <- unchanged mechanism (#140/#141, ADR-0003)
         |
         v
 gated PR: /code-review, purity.test.ts, acceptance.test.ts, skins.test.ts,
-apps/_gallery skins.astro preview, pnpm schema:snapshot-ops (ops re-sync)
+apps/_gallery /skins/<id> preview, pnpm schema:snapshot-ops (ops re-sync)
 ```
 
 S3 adds the extraction *helper* `pnpm inspiration:capture <brief> --url <u>`
@@ -157,8 +158,10 @@ out) does not change when that lands — only where the folder lives.
   brief (S4), or the ops drop-zone UI (S5) — this ADR and its two docs cover
   MVP-1/MVP-2 (the intake convention + the playbook) only. The epic (#173)
   stays open for those slices.
-- A type-scale dial for skins — still blocked on issue #86 (deferred), same
-  gap `skins.ts`'s doc comments already flag for `warm-editorial`.
+- ~~A type-scale dial for skins — still blocked on issue #86.~~ Shipped
+  2026-10-07 as `brand.typeScale` (issue #86: `standard` | `compact` |
+  `display`), so it is no longer a non-goal; `warm-editorial` stays on
+  `standard`.
 
 ## Consequences
 
@@ -172,18 +175,17 @@ out) does not change when that lands — only where the folder lives.
   other `packages/schema` change** (ADR-0003's framing, "like adding a
   palette preset") — this ADR does not lower that bar, it just gives the
   input side of it a repeatable shape.
-- `SkinBrand` (`skins.ts`) does not yet expose `brand.spacingDensity`, even
-  though it's part of `BrandSchema` and a plausible skin dial (a "roomy" vs.
-  "tight" editorial feel). Flagged as an open design question below rather
-  than silently working around it.
+- ~~`SkinBrand` (`skins.ts`) does not yet expose `brand.spacingDensity`.~~
+  Resolved 2026-10-07 (skin-surface change of the polish batch): `SkinBrand`
+  now pins `spacingDensity` and `typeScale`, so a skin dials its own rhythm
+  and heading scale (see Open question 1).
 
 ## Open questions for Adrian
 
-1. `SkinBrand` is missing `spacingDensity` (`BrandSchema` has had it since the
-   spacing-density slice, issue #86's sibling work) — should a follow-up issue
-   add it to `skins.ts`'s `SkinBrand`/`SKINS` before S4's first real
-   brief-authored skin needs it, or is per-client `brand.spacingDensity`
-   override enough for now?
+1. ~~`SkinBrand` is missing `spacingDensity` — add it, or is a per-client
+   override enough?~~ **Resolved 2026-10-07:** `SkinBrand` now pins
+   `spacingDensity` and `typeScale` (polish batch, skin-surface change); a
+   client config can still override either one.
 2. Confirmed naming: the epic body (#173) says clients pick a skin via
    `artDirection`; the shipped mechanism (#140/#141) uses `design`. This ADR
    and `docs/AUTHORING-SKINS.md` use `design` throughout, matching
@@ -196,3 +198,15 @@ out) does not change when that lands — only where the folder lives.
    need a `docs/inspiration/<name>/` folder kept out of a public mirror of
    this repo? Not a blocker for MVP-1/MVP-2 (repo is private today) — worth a
    one-line policy before S5 puts a drop-zone in front of non-engineers.
+
+## Addendum — 21st.dev is an inspiration source, never a code source (2026-10-12)
+
+When a component or pattern needs visual inspiration, look at 21st.dev first
+(the same line hds#632 writes into HDS's DESIGN.md). It joins the intake the
+way a reference link does (decision 2): a pattern found there goes into a brief,
+or into a variant's file header as the link plus a note of what was borrowed,
+and is re-implemented on the semantic tokens through `docs/HARVESTING.md`'s
+conversion contract. Nothing it serves is committed and no 21st.dev package is
+added: its output is shadcn/Tailwind code carrying the literals the purity gate
+rejects, and its licence terms are not something this repo has reviewed. HDS
+holds the same line (hds#632, hds#628). `docs/HARVESTING.md` carries the row.

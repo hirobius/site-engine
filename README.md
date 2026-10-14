@@ -429,9 +429,13 @@ Read from the root `package.json`.
 | `pnpm build` | `turbo run build` |
 | `pnpm dev` | `turbo run dev` |
 | `pnpm check` | `turbo run check` |
-| `pnpm test` | `pnpm state:check && turbo run test` |
+| `pnpm test` | `pnpm state:check && pnpm lessons:drift && pnpm guardrail:drift && pnpm skills:check && turbo run test` |
 | `pnpm lint` | `turbo run check` |
 | `pnpm ralph:kit-drift` | `node scripts/check-ralph-kit-drift.mjs` |
+| `pnpm lessons:drift` | `node .claude/lessons/check-drift.mjs` |
+| `pnpm guardrail:drift` | `node scripts/check-guardrail-drift.mjs` |
+| `pnpm skills:check` | `node scripts/check-skills-lock.mjs` |
+| `pnpm skills:install` | `node scripts/install-skills.mjs` |
 | `pnpm new-client` | `tsx scripts/new-client.ts` |
 | `pnpm eject-client` | `tsx scripts/eject-client.ts` |
 | `pnpm deploy-preview` | `tsx scripts/deploy-preview.ts` |
@@ -442,6 +446,7 @@ Read from the root `package.json`.
 | `pnpm skin-critique` | `tsx scripts/skin-critique.ts` |
 | `pnpm inspiration:capture` | `tsx scripts/inspiration-capture.ts` |
 | `pnpm schema:snapshot-ops` | `tsx packages/schema/scripts/refresh-ops-snapshot.ts` |
+| `pnpm template:snapshot-hds` | `tsx packages/template/scripts/refresh-hds-contract.ts` |
 | `pnpm state:generate` | `tsx scripts/generate-front-door.ts` |
 | `pnpm state:check` | `tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts` |
 | `pnpm state:review` | `tsx scripts/check-state-surfaces.ts --strict-review` |

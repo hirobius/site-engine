@@ -4,6 +4,7 @@ import {
   paletteOverrideIsContrastSafe,
   pickContrastSafeProfile,
   pickDesign,
+  resolveProfileBrand,
   seededRng,
   stableLeadId,
   type DesignSeedLead,
@@ -57,10 +58,42 @@ describe("pickDesign — determinism", () => {
     // true for this pair — documents that identity, not chance, drives it.
     expect(b).not.toEqual(a);
   });
+
+  it("differentiates names differing only in a non-Latin-1 character", () => {
+    const lead1 = lead({ placeId: null, slug: null, name: "\u0150ak Tree Service", city: "Seattle" });
+    const lead2 = lead({ placeId: null, slug: null, name: "Pak Tree Service", city: "Seattle" });
+    const rng1 = seededRng(stableLeadId(lead1));
+    const rng2 = seededRng(stableLeadId(lead2));
+    expect(rng1()).not.toEqual(rng2());
+  });
 });
 
 describe("pickDesign — spread", () => {
   const picks = Array.from({ length: 60 }, (_, i) => pickDesign(lead({ placeId: `ChIJ_synthetic_${i}` })));
+
+  it("draws >=3 distinct profiles for a fixed sample of 4 realistic same-trade leads in one metro", () => {
+    const yakimaTreeLeads: DesignSeedLead[] = [
+      { name: "Yakima Tree Service", city: "Yakima" },
+      { name: "Cascade Tree Care", city: "Yakima" },
+      { name: "Central WA Tree Trimming", city: "Yakima" },
+      { name: "Valley Tree Experts", city: "Yakima" },
+    ];
+    const profiles = yakimaTreeLeads.map((l) => pickDesign(l).profileId);
+    const distinctProfiles = new Set(profiles);
+    expect(distinctProfiles.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it("draws every profile in DESIGN_PROFILES at least once across a representative sample of 50 leads", () => {
+    const sample50: DesignSeedLead[] = Array.from({ length: 50 }, (_, i) => ({
+      placeId: `ChIJ_rep_lead_${i}`,
+      name: `Lead ${i}`,
+      city: "Yakima",
+    }));
+    const profilesDrawn = new Set(sample50.map((l) => pickDesign(l).profileId));
+    for (const profile of DESIGN_PROFILES) {
+      expect(profilesDrawn.has(profile.id)).toBe(true);
+    }
+  });
 
   it("visits every shipped skin across many leads", () => {
     const skinsSeen = new Set(picks.map((p) => p.design));
@@ -100,7 +133,7 @@ describe("pickDesign — spread", () => {
 describe("contrast safety", () => {
   it("meets AA on every shipped DESIGN_PROFILES override (none set one today, so vacuously true)", () => {
     for (const profile of DESIGN_PROFILES) {
-      expect(paletteOverrideIsContrastSafe(profile.brand.cssVarOverrides)).toBe(true);
+      expect(paletteOverrideIsContrastSafe(profile.deltas.cssVarOverrides)).toBe(true);
     }
   });
 
@@ -140,13 +173,13 @@ describe("contrast safety", () => {
   it("pickContrastSafeProfile never returns a profile whose override fails AA, across many seeds", () => {
     const goodProfile = {
       id: "good",
-      brand: {
+      deltas: {
         cssVarOverrides: { "--brand-primary": "#4f6350", "--brand-on-primary": "#faf6ee" } as Partial<PaletteTokens>,
       },
     };
     const badProfile = {
       id: "bad",
-      brand: {
+      deltas: {
         cssVarOverrides: { "--brand-primary": "#161616", "--brand-on-primary": "#0d0d0d" } as Partial<PaletteTokens>,
       },
     };
@@ -163,7 +196,7 @@ describe("contrast safety", () => {
     const onlyBad = [
       {
         id: "bad",
-        brand: {
+        deltas: {
           cssVarOverrides: { "--brand-primary": "#161616", "--brand-on-primary": "#0d0d0d" } as Partial<PaletteTokens>,
         },
       },
@@ -199,5 +232,133 @@ describe("pickDesign output validates end to end", () => {
     expect(config.layout.sections.hero.variant).toBe(picked.layout.sections.hero.variant);
     expect(config.brand.fontPairing).toBe(picked.brand.fontPairing);
     expect(config.brand.radius).toBe(picked.brand.radius);
+  });
+});
+
+// Re-roll guard (polish batch 2026-10-07, prerequisite for appending a 6th profile).
+// `pickFrom` indexes by `floor(rng() * pool.length)`, so growing the pool
+// changes the pick for most leads even when existing entries keep their
+// order. Persisting the picked profile id on the lead (and passing it back
+// as `designProfileId`) must make the pick immune to pool growth.
+describe("pickDesign — persisted designProfileId survives pool growth", () => {
+  const extra = {
+    id: "test-appended-sixth",
+    skin: "classic",
+    deltas: { font: "system", fontPairing: "system" },
+    heroVariants: ["classic"],
+  } as const;
+  const grownPool = [...DESIGN_PROFILES, extra];
+  const ids = Array.from({ length: 200 }, (_, i) => `ChIJ_reroll_${i}`);
+
+  it("reports the picked profile id so the caller can persist it", () => {
+    const pick = pickDesign(lead({ placeId: "ChIJ_report" }));
+    expect(DESIGN_PROFILES.map((p) => p.id)).toContain(pick.profileId);
+  });
+
+  it("documents the hazard: without a persisted id, growing the pool re-rolls some leads", () => {
+    const rerolled = ids.filter(
+      (placeId) => pickDesign(lead({ placeId })).profileId !== pickDesign(lead({ placeId }), grownPool).profileId,
+    );
+    expect(rerolled.length).toBeGreaterThan(0);
+  });
+
+  it("with the persisted id, every lead keeps its exact pick after the pool grows", () => {
+    for (const placeId of ids) {
+      const original = pickDesign(lead({ placeId }));
+      const rebuilt = pickDesign(lead({ placeId, designProfileId: original.profileId }), grownPool);
+      expect(rebuilt).toEqual(original);
+    }
+  });
+
+  it("an unknown persisted id (profile retired) falls back to the seeded draw", () => {
+    const seeded = pickDesign(lead({ placeId: "ChIJ_retired" }));
+    expect(pickDesign(lead({ placeId: "ChIJ_retired", designProfileId: "no-such-profile" }))).toEqual(seeded);
+  });
+
+  it("leadToConfig returns designProfileId and honors it on re-generate", () => {
+    const row: LeadRow = {
+      name: "Pinned Wash",
+      slug: "pinned-wash",
+      category: "Pressure washing service",
+      city: "Spokane",
+      region: "WA",
+      placeId: "ChIJ_pinned",
+    };
+    const first = leadToConfig(row);
+    expect(first.designProfileId).toBe(pickDesign(row).profileId);
+    const again = leadToConfig({ ...row, designProfileId: first.designProfileId });
+    expect(again.config).toEqual(first.config);
+  });
+
+  it("an explicit artDirection reports no designProfileId (nothing seeded to persist)", () => {
+    const result = leadToConfig({
+      name: "Art Directed",
+      slug: "art-directed",
+      category: "Landscaping",
+      city: "Boise",
+      region: "ID",
+      artDirection: "warm-editorial",
+    });
+    expect(result.designProfileId).toBeUndefined();
+  });
+});
+
+// Genome unification (polish batch 2026-10-07, skin surface): profiles are thin {id, skin, deltas}
+// wrappers over SKINS. This pins the resolved brand of every pre-existing
+// profile so the refactor (and later skin edits) can't silently change a pick;
+// a profile re-pointed to a new skin on purpose updates its row here.
+describe("DESIGN_PROFILES resolve to their pinned brand bundles", () => {
+  const expected: Record<string, Record<string, string>> = {
+    "classic-clean": { font: "system", fontPairing: "system", radius: "md", shadow: "soft", motion: "rich", spacingDensity: "comfortable" },
+    // Re-pointed to the crisp-modern skin (polish batch 2026-10-07): flat shadows + airy density now.
+    "crisp-modern": { font: "geist", fontPairing: "modern", radius: "sm", shadow: "flat", motion: "subtle", spacingDensity: "airy" },
+    "industrial-bold": { font: "work-sans", fontPairing: "industrial", radius: "none", shadow: "hard", motion: "subtle", spacingDensity: "compact" },
+    "warm-editorial-classic": { font: "slab", fontPairing: "editorial", radius: "lg", shadow: "flat", motion: "subtle", spacingDensity: "comfortable" },
+    "warm-editorial-airy": { font: "slab", fontPairing: "editorial", radius: "xl", shadow: "flat", motion: "none", spacingDensity: "airy" },
+  };
+
+  it("keeps the first five profiles in their original order", () => {
+    expect(DESIGN_PROFILES.slice(0, 5).map((p) => p.id)).toEqual(Object.keys(expected));
+  });
+
+  for (const [id, brand] of Object.entries(expected)) {
+    it(`${id} resolves to its original dials`, () => {
+      const profile = DESIGN_PROFILES.find((p) => p.id === id);
+      expect(profile).toBeDefined();
+      const resolved = resolveProfileBrand(profile!);
+      for (const [k, v] of Object.entries(brand)) expect(resolved[k as keyof typeof resolved]).toBe(v);
+    });
+  }
+});
+
+describe("genome wiring — bold-industrial (polish batch 2026-10-07)", () => {
+  it("the industrial-bold profile now draws the bold-industrial skin, banner hero only", () => {
+    const profile = DESIGN_PROFILES.find((p) => p.id === "industrial-bold");
+    expect(profile?.skin).toBe("bold-industrial");
+    expect(profile?.heroVariants).toEqual(["banner"]);
+    expect(resolveProfileBrand(profile!).typeScale).toBe("display");
+  });
+});
+
+describe("genome wiring — crisp-modern (polish batch 2026-10-07)", () => {
+  it("the crisp-modern profile draws the crisp-modern skin with its original hero list", () => {
+    const profile = DESIGN_PROFILES.find((p) => p.id === "crisp-modern");
+    expect(profile?.skin).toBe("crisp-modern");
+    expect(profile?.heroVariants).toEqual(["banner", "classic"]);
+    expect(resolveProfileBrand(profile!).typeScale).toBe("compact");
+  });
+});
+
+describe("genome wiring — luxe-dark (polish batch 2026-10-07)", () => {
+  it("appends luxe-dark as the sixth profile, after the original five", () => {
+    expect(DESIGN_PROFILES.map((p) => p.id)).toEqual([
+      "classic-clean",
+      "crisp-modern",
+      "industrial-bold",
+      "warm-editorial-classic",
+      "warm-editorial-airy",
+      "luxe-dark",
+    ]);
+    expect(DESIGN_PROFILES[5]?.skin).toBe("luxe-dark");
   });
 });

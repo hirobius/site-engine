@@ -11,9 +11,13 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "check": "turbo run check",
-    "test": "pnpm state:check && turbo run test",
+    "test": "pnpm state:check && pnpm lessons:drift && pnpm guardrail:drift && pnpm skills:check && turbo run test",
     "lint": "turbo run check",
     "ralph:kit-drift": "node scripts/check-ralph-kit-drift.mjs",
+    "lessons:drift": "node .claude/lessons/check-drift.mjs",
+    "guardrail:drift": "node scripts/check-guardrail-drift.mjs",
+    "skills:check": "node scripts/check-skills-lock.mjs",
+    "skills:install": "node scripts/install-skills.mjs",
     "new-client": "tsx scripts/new-client.ts",
     "eject-client": "tsx scripts/eject-client.ts",
     "deploy-preview": "tsx scripts/deploy-preview.ts",
@@ -24,6 +28,7 @@
     "skin-critique": "tsx scripts/skin-critique.ts",
     "inspiration:capture": "tsx scripts/inspiration-capture.ts",
     "schema:snapshot-ops": "tsx packages/schema/scripts/refresh-ops-snapshot.ts",
+    "template:snapshot-hds": "tsx packages/template/scripts/refresh-hds-contract.ts",
     "state:generate": "tsx scripts/generate-front-door.ts",
     "state:check": "tsx scripts/generate-front-door.ts --check && tsx scripts/check-state-surfaces.ts && tsx scripts/check-steering-budget.ts",
     "state:review": "tsx scripts/check-state-surfaces.ts --strict-review"
@@ -34,6 +39,9 @@
     "typescript": "^5.7.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "sharp"]
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }

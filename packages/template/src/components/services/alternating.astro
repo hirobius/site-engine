@@ -5,6 +5,7 @@
 // to a centered text-only row when service.image is absent.
 import type { ClientConfig } from "@hirobius/schema";
 import Section from "../Section.astro";
+import { servicesCopy } from "../../lib/services-copy.js";
 import ResponsiveImage from "../ResponsiveImage.astro";
 
 interface Props {
@@ -13,9 +14,10 @@ interface Props {
 
 const { config } = Astro.props;
 const { services } = config;
+const copy = servicesCopy(config);
 ---
 
-<Section id="services" title="What We Do" subtitle="Professional service, done right the first time.">
+<Section id="services" title={copy.title} subtitle={copy.subtitle}>
   <div class="flex flex-col gap-12 sm:gap-16">
     {
       services.map((service, index) => (

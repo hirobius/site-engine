@@ -281,6 +281,29 @@ describe("defineClient", () => {
     });
   });
 
+  describe("brand.typeScale (#86)", () => {
+    it("defaults to standard", () => {
+      const result = defineClient(config({ brand: { palettePreset: "pressure-washing" } }));
+      expect(result.brand.typeScale).toBe("standard");
+    });
+
+    it("resolves standard, compact, and display", () => {
+      for (const typeScale of ["standard", "compact", "display"] as const) {
+        expect(
+          defineClient(config({ brand: { palettePreset: "pressure-washing", typeScale } })).brand.typeScale,
+        ).toBe(typeScale);
+      }
+    });
+
+    it("rejects an unknown typeScale value", () => {
+      expect(() =>
+        defineClient(
+          config({ brand: { palettePreset: "pressure-washing", typeScale: "huge" as never } }),
+        ),
+      ).toThrow();
+    });
+  });
+
   describe("brand.cssVarOverrides", () => {
     it("accepts valid --brand-* keys with hex color values", () => {
       const result = defineClient(
@@ -715,5 +738,29 @@ describe("defineClient", () => {
         ),
       ).toThrow();
     });
+  });
+});
+
+describe("copy.servicesTitle / copy.servicesSubtitle (se#221)", () => {
+  const withCopy = (extra: Record<string, unknown>) => ({
+    ...BASE_INPUT,
+    copy: { ...BASE_INPUT.copy, ...extra },
+  });
+
+  it("stays valid when omitted", () => {
+    const c = defineClient(BASE_INPUT);
+    expect(c.copy.servicesTitle).toBeUndefined();
+    expect(c.copy.servicesSubtitle).toBeUndefined();
+  });
+
+  it("accepts both overrides", () => {
+    const c = defineClient(withCopy({ servicesTitle: "Our Work", servicesSubtitle: "Built to last." }));
+    expect(c.copy.servicesTitle).toBe("Our Work");
+    expect(c.copy.servicesSubtitle).toBe("Built to last.");
+  });
+
+  it("rejects empty strings", () => {
+    expect(() => defineClient(withCopy({ servicesTitle: "" }))).toThrow();
+    expect(() => defineClient(withCopy({ servicesSubtitle: "" }))).toThrow();
   });
 });
