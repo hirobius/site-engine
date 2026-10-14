@@ -1,0 +1,17 @@
+{
+  "$comment": "Reviewed false positives for scripts/check-skill-content.mjs. Each entry names the exact matched text; if the skill's text changes the entry stops matching and the scan fails again, so a reviewed line can't hide a later edit.",
+  "entries": [
+    {
+      "file": ".claude/skills/browser-testing-with-devtools/SKILL.md",
+      "rule": "PROMPT_INJECTION",
+      "match": "Ignore previous instructions",
+      "reason": "Defensive: quotes the phrase as an example of page content the agent must treat as data, not instructions. Reviewed 2026-10-14."
+    },
+    {
+      "file": ".claude/skills/source-driven-development/SKILL.md",
+      "rule": "PROMPT_INJECTION",
+      "match": "ignore previous instructions",
+      "reason": "Defensive: lists the phrase under directives in fetched docs that the agent must ignore. Reviewed 2026-10-14."
+    }
+  ]
+}
