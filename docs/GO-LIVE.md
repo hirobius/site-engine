@@ -29,7 +29,7 @@ out — nothing below is invented.
 - [ ] Intake is complete (`docs/INTAKE.md` filled in) and the preview deploy
       has been reviewed/approved.
 - [ ] The client's Vercel project already exists and is linked (`new-client`
-      prints this; see README → "New client in 10 minutes", step 5). Project
+      prints this; see README → "New client walkthrough", step 5). Project
       name convention: `hirobius-<slug>` (`SECRETS.md`).
 - [ ] You have (or can get) the client's real **Web3Forms** access key and
       **hCaptcha** site key (step 1), and the domain is registered at

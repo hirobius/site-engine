@@ -146,7 +146,7 @@ so it always wins the cascade. Four trade presets ship today: `landscaping`,
 
 ---
 
-## New client in 10 minutes
+## New client walkthrough
 
 1. **Scaffold** (≈1 min)
    ```bash
@@ -321,7 +321,7 @@ analytics: { provider: "plausible", domain: "realbusinessco.com" }, // bare host
 ```
 
 Provider decision + rationale: issue #84 (cookieless, ~1KB, no consent banner,
-one $9/mo account covers the whole fleet). `domain` must be a bare hostname —
+one account covers the whole fleet). `domain` must be a bare hostname —
 a pasted URL is rejected by the schema with a fix-it message.
 
 **Two conversion events, dashboard-side setup (once per client site):**
@@ -429,7 +429,7 @@ The factory's pitch is "green Core Web Vitals by default" — the
 `packages/**`, `apps/_template/**`, or `apps/demo-pressure-pros/**`. It builds
 `demo-pressure-pros`, serves the static output, and enforces budgets against `/`:
 
-- **Lighthouse CI** (mobile, simulated throttling): Performance ≥ 95,
+- **Lighthouse CI** (mobile, simulated throttling): Performance ≥ 93 (0.95 is the target, not the gate),
   Accessibility = 100, SEO = 100, LCP < 2.5s. 3 runs per URL; lhci's `optimistic`
   aggregation (its default) takes the best-scoring run, which absorbs simulated-
   throttling measurement noise without hiding a real regression — a genuine
