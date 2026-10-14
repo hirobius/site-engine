@@ -18,7 +18,7 @@ import type { SectionVariantId } from "./section-variants.js";
  * fills gaps" contract as `content-packs.ts`.
  */
 
-export const SKIN_IDS = ["classic", "warm-editorial"] as const;
+export const SKIN_IDS = ["classic", "warm-editorial", "bold-industrial", "crisp-modern", "luxe-dark"] as const;
 export type SkinId = (typeof SKIN_IDS)[number];
 
 /** Section variant pins a skin can make. Keys mirror `SECTION_VARIANTS`. */
@@ -36,15 +36,12 @@ export interface SkinSections {
  * ordinary Zod default (i.e. every field a config can omit). `palettePreset`
  * is deliberately excluded: it's `BrandSchema`'s one required field (the
  * trade palette is picked per client, not per skin) and stays a config-only
- * choice, same axis as `contentPack`. `cssVarOverrides` lets a future skin
- * pin the "palette family" ADR-0003 point 1 calls for beyond the four
- * trade presets; `font`/`fontPairing` pin a heading↔body font pairing
- * (typeface only). Correction (#141 review): that is NOT the "type scale"
- * axis ADR-0003 point 1 also names — a type scale is font sizes /
- * line-heights / a modular scale, and the schema has no mechanism for that
- * yet (issue #86, deferred). Until #86 lands, a skin can only pin typeface;
- * "type scale" stays an open follow-up, not something `font`/`fontPairing`
- * should be read as covering.
+ * choice, same axis as `contentPack`. `cssVarOverrides` pins a palette family
+ * beyond the four trade presets (ADR-0003 point 1); a config that sets its own
+ * `cssVarOverrides` is merged over the skin's one var at a time, so tweaking
+ * one var never discards the skin's AA-vetted palette. `font`/`fontPairing`
+ * pin the typeface; `typeScale` (issue #86) pins the heading sizes, weight and
+ * tracking; `spacingDensity` pins section vertical rhythm.
  */
 export interface SkinBrand {
   font?: FontId;
@@ -53,6 +50,8 @@ export interface SkinBrand {
   radius?: "none" | "sm" | "md" | "lg" | "xl";
   shadow?: "flat" | "soft" | "hard";
   motion?: "none" | "subtle" | "rich";
+  spacingDensity?: "compact" | "comfortable" | "airy";
+  typeScale?: "standard" | "compact" | "display";
 }
 
 export interface Skin {
@@ -80,6 +79,8 @@ export const SKINS: Record<SkinId, Skin> = {
       radius: "md",
       shadow: "soft",
       motion: "rich",
+      spacingDensity: "comfortable",
+      typeScale: "standard",
     },
   },
 
@@ -120,11 +121,10 @@ export const SKINS: Record<SkinId, Skin> = {
    * `font: "slab"` is only the nominal single-stack fallback `og-image.ts`
    * reads when it can't render `fontPairing`'s two stacks (the closest
    * built-in serif to Fraunces) — neither field is a **type scale** (font
-   * sizes / line-heights / a modular scale). The schema has no type-scale
-   * mechanism yet; that's issue #86, deferred, and out of scope here. ADR-0003
-   * §1's "type scale" axis for this skin is a follow-up, not delivered by
-   * this PR — flagging it plainly rather than letting `fontPairing` stand in
-   * for it.
+   * sizes / line-heights / a modular scale). That axis is its own dial now,
+   * `brand.typeScale` (issue #86, shipped 2026-10-07); warm-editorial stays
+   * on `standard` — its editorial feel comes from the Fraunces face and the
+   * palette, not from bigger headings.
    */
   "warm-editorial": {
     sections: {
@@ -149,6 +149,168 @@ export const SKINS: Record<SkinId, Skin> = {
       radius: "lg",
       shadow: "flat",
       motion: "subtle",
+      spacingDensity: "comfortable",
+    },
+  },
+
+  /**
+   * bold-industrial (polish batch 2026-10-07; brief:
+   * `docs/inspiration/bold-industrial/`) — loud, utilitarian, built for
+   * trades that sell toughness (concrete, demolition, junk removal, fencing).
+   * Charcoal + safety-amber: the CTA is a charcoal block with amber type,
+   * like site signage, and amber stars/accents; page surfaces are a warm
+   * concrete-grey. `banner` hero (big centered headline on the muted
+   * surface — the `display` type scale's natural stage) and `alternating`
+   * services (wide image/text rows read as a portfolio of jobs, not a menu).
+   *
+   * Dials: Archivo `industrial` pairing (`work-sans` as the sans og-image
+   * fallback), `radius: "none"` and `shadow: "hard"` for hard edges and
+   * solid offset shadows, `typeScale: "display"` (bigger/tighter/800),
+   * `spacingDensity: "compact"`, `motion: "subtle"` (reveal, no stagger —
+   * the type does the shouting).
+   *
+   * Contrast (all six keys pinned so no trade preset mixes in), every pair
+   * the template renders text on: primary/on-primary 9.89:1, fg/bg 15.42:1,
+   * fg/muted 13.20:1, primary-as-text/bg 14.60:1, primary-as-text/muted
+   * 12.51:1, accent/bg 4.63:1, accent/muted 3.96:1, and the footer's small
+   * print (on-primary at 60% over the `bg-fg` footer) 4.54:1 — the amber was
+   * nudged from #f5b400 (4.17:1 there) to #f5c200 to clear AA. Primary is charcoal, so
+   * a CTA on the inverted classic hero (fg surface) would vanish — the skin
+   * pins `banner` and its genome profile draws `banner` only.
+   */
+  "bold-industrial": {
+    sections: {
+      hero: "banner",
+      services: "alternating",
+      gallery: "grid",
+      reviews: "cards",
+      serviceAreaMap: "standard",
+      contact: "standard",
+    },
+    brand: {
+      font: "work-sans",
+      fontPairing: "industrial",
+      cssVarOverrides: {
+        "--brand-primary": "#1f1f1f",
+        "--brand-accent": "#a35a00",
+        "--brand-bg": "#f3f1ec",
+        "--brand-fg": "#1a1a1a",
+        "--brand-muted": "#e4e0d6",
+        "--brand-on-primary": "#f5c200",
+      },
+      radius: "none",
+      shadow: "hard",
+      motion: "subtle",
+      spacingDensity: "compact",
+      typeScale: "display",
+    },
+  },
+
+  /**
+   * crisp-modern (polish batch 2026-10-07; brief:
+   * `docs/inspiration/crisp-modern/`) — calm, precise, near-white with
+   * ink type and one confident blue. For trades that sell reliability and
+   * tidiness (cleaning, HVAC, pool, lawn care). `classic` hero (photo under
+   * an ink overlay) and `cards` services; Space Grotesk `modern` pairing
+   * (`geist` as the sans og-image fallback). Restraint does the work:
+   * `shadow: "flat"` (borders, no glow), `radius: "sm"`, `motion: "subtle"`,
+   * `typeScale: "compact"` (smaller, calmer headings) and
+   * `spacingDensity: "airy"` (generous section rhythm).
+   *
+   * Contrast (all six keys pinned): primary/on-primary 6.18:1, fg/bg 18.64:1,
+   * fg/muted 17.03:1, primary-as-text/bg 6.02:1, primary-as-text/muted
+   * 5.50:1, accent/bg 8.49:1, accent/muted 7.76:1, and primary vs the ink fg
+   * 3.10:1 so the CTA still reads on the classic hero's ink overlay. That
+   * last pair is why fg is near-black ink (#0b0f19) rather than slate: the
+   * blue can't be both dark enough for a 6:1 CTA and light enough to stand
+   * off a slate surface.
+   */
+  "crisp-modern": {
+    sections: {
+      hero: "classic",
+      services: "cards",
+      gallery: "grid",
+      reviews: "cards",
+      serviceAreaMap: "standard",
+      contact: "standard",
+    },
+    brand: {
+      font: "geist",
+      fontPairing: "modern",
+      cssVarOverrides: {
+        "--brand-primary": "#1a56db",
+        "--brand-accent": "#1e40af",
+        "--brand-bg": "#fbfcfd",
+        "--brand-fg": "#0b0f19",
+        "--brand-muted": "#eef2f7",
+        "--brand-on-primary": "#ffffff",
+      },
+      radius: "sm",
+      shadow: "flat",
+      motion: "subtle",
+      spacingDensity: "airy",
+      typeScale: "compact",
+    },
+  },
+
+  /**
+   * luxe-dark (polish batch 2026-10-07; brief: `docs/inspiration/luxe-dark/`)
+   * — the factory's first dark skin.
+   * Near-black page, warm-white type, raised-charcoal surfaces and a single
+   * gold accent; for premium/appearance trades (detailing, salons and lash
+   * studios, custom builders, high-end landscaping). `split-card` hero (copy
+   * column + elevated photo card) and `masonry` reviews (testimonials as a
+   * collage, not a row of equal boxes). New `luxe` pairing: Playfair Display
+   * headings over Inter (`slab` as the serif og-image fallback) — a
+   * deliberate schema extension the plan asked for, shipped with the skin that
+   * needs it (the exception `docs/AUTHORING-SKINS.md` Step 2 names), at the
+   * `display` type scale; `radius: "sm"`, `shadow: "soft"`,
+   * `motion: "subtle"`, `spacingDensity: "airy"`.
+   *
+   * Contrast (all six keys pinned): primary/on-primary 7.84:1, fg/bg
+   * 16.19:1, fg/muted 14.24:1, primary-as-text/bg 7.86:1,
+   * primary-as-text/muted 6.92:1, accent/bg 9.64:1, accent/muted 8.49:1.
+   * Inverted `bg-fg` sections render near-black on warm-white (16.19:1).
+   *
+   * Hero pin: the gold primary on the warm-white fg surface is only 2.06:1,
+   * so a CTA on the inverted `classic`/`video` hero would all but vanish. The
+   * skin pins `split-card` (CTA on the dark page) for that reason, and its
+   * genome profile draws `split-card` only; a config that overrides the hero
+   * variant takes that risk on itself.
+   *
+   * Dark-surface caveat: the shared shadow color is a dark slate, so the
+   * `soft` shadows barely register on a near-black page — depth here comes
+   * from the raised-charcoal `muted` surface and the `border-fg/10` card
+   * borders, which is the intended look. The inverted `bg-fg` footer also
+   * renders light on this skin. Both gaps (dark-tuned shadow tiers, a footer
+   * that stays dark on a dark skin) belong to the #86 dial-value design pass
+   * (plan PR 7), not this skin.
+   */
+  "luxe-dark": {
+    sections: {
+      hero: "split-card",
+      services: "grid",
+      gallery: "grid",
+      reviews: "masonry",
+      serviceAreaMap: "standard",
+      contact: "standard",
+    },
+    brand: {
+      font: "slab",
+      fontPairing: "luxe",
+      cssVarOverrides: {
+        "--brand-primary": "#c9a24a",
+        "--brand-accent": "#d8b56a",
+        "--brand-bg": "#121110",
+        "--brand-fg": "#f3ede2",
+        "--brand-muted": "#211e1a",
+        "--brand-on-primary": "#14110d",
+      },
+      radius: "sm",
+      shadow: "soft",
+      motion: "subtle",
+      spacingDensity: "airy",
+      typeScale: "display",
     },
   },
 };

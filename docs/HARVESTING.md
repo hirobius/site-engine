@@ -9,12 +9,13 @@ the factory: **agents building client sites pick variants via a closed enum in
 > only in service of a skin's section vocabulary — ~3 variants per section
 > max, pruned when no skin uses them. Don't grow this library for its own sake.
 
-## Sources (three sanctioned types)
+## Sources (four sanctioned types)
 
 | Type | Rule |
 | --- | --- |
 | Open-source Astro themes | Code may be ported. **MIT / Apache-2.0 / BSD / CC0 only** — record theme name, repo URL, commit SHA, and license in `packages/template/ATTRIBUTIONS.md` plus a header comment in the variant file. GPL and marketplace/paid themes are rejected. |
 | Tailwind-UI-style patterns | **Layout ideas only, re-implemented from scratch — never copy code.** Note the inspiration in the file header; no attribution obligation. |
+| 21st.dev components and patterns | **Look at 21st.dev first for visual inspiration; inspiration only, never code** (ADR-0004 addendum, 2026-10-12; the same line as hds#632). Record the link and what was borrowed in the file header, re-implement on the semantic tokens: the tokens, the purity gate and the skin rules always win. Nothing it serves is committed and no 21st.dev package is added. |
 | Reference sites Adrian points at | Same as above: from-scratch re-implementation of the layout idea only. |
 
 ## The conversion contract (every port must pass all of these)

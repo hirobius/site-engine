@@ -61,7 +61,8 @@ Video: sampled as frames (ffmpeg) at authoring time.
 
 - **Serif / sans / slab / display:** `__________`
 - **Closest existing `FONT_PAIRINGS` id, if any** (`system` / `editorial` /
-  `modern` / `industrial` / `slab` — see `packages/schema/src/presets.ts`):
+  `modern` / `industrial` / `slab` / `luxe` — see
+  `packages/schema/src/presets.ts`):
   `__________`
 - **If none fit:** describe the heading vs. body contrast you want; new font
   work is a deliberate, separate decision (`docs/AUTHORING-SKINS.md` maps to

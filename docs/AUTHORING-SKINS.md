@@ -24,8 +24,9 @@ client sites, one level up the stack.
   extracts from a brief, it doesn't write one.
 - Read `packages/schema/src/skins.ts` end to end, including the doc comments
   on `SkinBrand` and both existing entries (`classic`, `warm-editorial`).
-  They record real prior decisions (e.g. why `font`/`fontPairing` are NOT a
-  "type scale" — issue #86, deferred) that this playbook assumes.
+  They record real prior decisions (e.g. why `font`/`fontPairing` pin the
+  typeface only, while `typeScale` — issue #86 — pins heading sizes) that
+  this playbook assumes.
 - Confirm the brief doesn't already overlap an existing skin. If `classic` or
   `warm-editorial` already covers the vibe, stop — a duplicate skin is not
   "more variety," it's maintenance for nothing (ADR-0003 §1: "2–4 skins, each
@@ -57,12 +58,13 @@ Translate the extracted values into `SkinBrand` / `SkinSections` fields —
 
 | Skin axis | Field | Source of truth |
 | --- | --- | --- |
-| Typeface pairing | `brand.fontPairing` | `packages/schema/src/presets.ts` → `FONT_PAIRINGS` (`system` / `editorial` / `modern` / `industrial` / `slab`). Pick the closest existing pairing. **Do not invent a new pairing here** — that's a separate, deliberate font-work issue, flagged not built. `brand.font` only matters as the nominal single-stack fallback (e.g. `og-image.ts`) when `fontPairing` is set — pick the built-in font id closest to the pairing's heading stack (see `warm-editorial`'s `font: "slab"` alongside `fontPairing: "editorial"`). |
-| Palette | `brand.cssVarOverrides` | Six `--brand-*` keys: `primary`, `accent`, `bg`, `fg`, `muted`, `on-primary` (see `PaletteTokens` in `presets.ts`). Only set the keys the brief's palette actually diverges on — omitted keys fall through to the client's own `palettePreset`. This is the "palette family beyond the four trade presets" ADR-0003 §3 calls out. |
+| Typeface pairing | `brand.fontPairing` | `packages/schema/src/presets.ts` → `FONT_PAIRINGS` (`system` / `editorial` / `modern` / `industrial` / `slab` / `luxe`). Pick the closest existing pairing. **Do not invent a new pairing here** — a genuinely new pairing is its own deliberate schema change, flagged not built mid-playbook. When a plan explicitly calls for one, it ships with the skin that needs it and refreshes the ops snapshot in the same PR (`luxe`, with `luxe-dark`, 2026-10-07). `brand.font` only matters as the nominal single-stack fallback (e.g. `og-image.ts`) when `fontPairing` is set — pick the built-in font id closest to the pairing's heading stack (see `warm-editorial`'s `font: "slab"` alongside `fontPairing: "editorial"`). |
+| Palette | `brand.cssVarOverrides` | Six `--brand-*` keys: `primary`, `accent`, `bg`, `fg`, `muted`, `on-primary` (see `PaletteTokens` in `presets.ts`). Only set the keys the brief's palette actually diverges on — omitted keys fall through to the client's own `palettePreset`. This is the "palette family beyond the four trade presets" ADR-0003 §3 calls out. A client config that sets its own `cssVarOverrides` is merged over the skin's var by var, so it can tweak one var without losing the rest of the skin's vetted palette. |
+| Type scale | `brand.typeScale` | `"standard" \| "compact" \| "display"` (issue #86) — one dial for hero + section heading size, line-height, weight and tracking. `display` = bigger/tighter/800, `compact` = smaller/calmer/600. |
 | Corner shape | `brand.radius` | `"none" \| "sm" \| "md" \| "lg" \| "xl"` |
 | Shadow character | `brand.shadow` | `"flat" \| "soft" \| "hard"` |
 | Motion feel | `brand.motion` | `"none" \| "subtle" \| "rich"` — see `docs/adr/0001-motion-foundation.md` for what each tier actually does before picking one. |
-| Spacing density | `brand.spacingDensity` | **Not yet exposed on `SkinBrand`** (see caveat below) — `BrandSchema` has `"compact" \| "comfortable" \| "airy"`, but `skins.ts`'s `SkinBrand` interface doesn't include it yet. If the brief's spacing impression is strongly "tight" or "airy," note it in the skin's doc comment as a known gap and flag the `SkinBrand` extension as a follow-up (don't extend the schema inline inside a skin-authoring PR — that's a deliberate schema change, reviewed on its own). |
+| Spacing density | `brand.spacingDensity` | `"compact" \| "comfortable" \| "airy"` — section vertical rhythm. |
 | Section identity | `layout.sections.<id>.variant` | One pin per section in `SkinSections` (`hero`, `services`, `gallery`, `reviews`, `serviceAreaMap`, `contact`). Pick the closest **existing** variant from `packages/schema/src/section-variants.ts` for each section the brief's §8 calls out — pin every section anyway (even ones with only one variant today), same self-documenting reasoning `warm-editorial`'s doc comment gives, so the skin stays forward-safe if a second variant lands later. |
 
 **If the brief's §8 flags a genuinely missing section variant** (a hero
@@ -149,10 +151,11 @@ out.
 
 ## Step 6 — Preview
 
-`apps/_gallery/src/pages/skins.astro` already renders every `SKIN_IDS` entry
-side by side (hero + services + reviews, swatches, the resolved dial values)
-against the shared `SKIN_DEMO_INPUT` fixture — it picks up a new skin
-automatically once `SKIN_IDS` includes it, no gallery edit needed. Build the
+`apps/_gallery/src/pages/skins/index.astro` frames a full-page render of every
+`SKIN_IDS` entry (`apps/_gallery/src/pages/skins/[id].astro`, themed on `<html>`
+exactly like a real client site, against the shared `SKIN_DEMO_INPUT` fixture)
+with the resolved dial values — it picks up a new skin automatically once
+`SKIN_IDS` includes it, no gallery edit needed. Build the
 gallery and eyeball the new card before opening the PR:
 
 ```bash
@@ -166,12 +169,14 @@ Issue #177 (epic #173, amplification move ②). Once the gallery preview (Step
 6) renders the proposed skin, **score it before opening a PR** — this is the
 "critique/QA pass" the tools that produce good-looking output run, applied to
 a skin instead of a one-off page. Two halves, both against the rendered
-gallery `skins.astro` page (or the specific skin's card on it):
+gallery `/skins/<id>` page for the new skin:
 
 1. **Deterministic — `impeccable detect`.** Run `pnpm skin-critique` (wraps
    `runImpeccableDetect()` from `packages/template/src/design-quality.ts`,
-   #176, over the built `apps/_gallery/dist/skins/index.html` — see
-   `scripts/skin-critique.ts`). Same offline-safe contract as the
+   #176, over every built full-page skin render,
+   `apps/_gallery/dist/skins/<id>/index.html` — one per `SKIN_IDS` entry —
+   and reports findings per skin; the `/skins` overview is only an iframe
+   shell, so it is not scanned — see `scripts/skin-critique.ts`). Same offline-safe contract as the
    `packages/template` gate: no network/npx available → skips with a reason,
    never blocks the loop. **Note:** `impeccable`'s CLI has no `critique` or
    `polish` subcommand (investigated for #177 — confirmed against the pinned
@@ -187,7 +192,7 @@ gallery `skins.astro` page (or the specific skin's card on it):
 
 **Apply fixes, then re-critique.** Every FAIL the rubric returns maps to a
 specific `SKINS["<id>"]` config value — `fontPairing`, a `cssVarOverrides`
-hex, `radius`, `shadow`, `motion`, or a section-variant pin. Change **only**
+hex, `radius`, `shadow`, `motion`, `spacingDensity`, `typeScale`, or a section-variant pin. Change **only**
 that value (this is still Step 5's entry, being tuned — never a markup edit;
 same config-only boundary `CLAUDE.md`'s "one rule that matters" draws for
 client sites, one level up). Re-run the gallery build (Step 6), re-run both
@@ -211,7 +216,9 @@ pnpm check && pnpm build                 # workspace-wide: tsc/astro check + eve
 
 `design` is stripped before Zod (never reaches `ClientConfigSchema`), so a
 byte-identical `pnpm schema:snapshot-ops` diff is expected and correct —
-confirm it's a no-op, don't skip running it.
+confirm it's a no-op, unless the PR deliberately extends the schema (e.g. a
+new font pairing per Step 2, which changes the snapshot), and don't skip
+running it.
 
 Then:
 
@@ -248,7 +255,7 @@ Then:
   one business.
 - **Not a markup tool.** The critic loop (step 7) only ever prescribes a
   `SKINS["<id>"]` config value change. A rubric finding that can't be fixed by
-  changing `fontPairing`/`cssVarOverrides`/`radius`/`shadow`/`motion`/a
+  changing `fontPairing`/`cssVarOverrides`/`radius`/`shadow`/`motion`/`spacingDensity`/`typeScale`/a
   section-variant pin isn't this loop's to fix — flag it, same as step 2's
   unmappable-request rule.
 - **Not a substitute for `/code-review`.** The critic loop scores taste

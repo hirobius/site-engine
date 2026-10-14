@@ -1,6 +1,6 @@
 import type { FontId, FontPairingId } from "./presets.js";
 import type { PaletteTokens } from "./presets.js";
-import type { SkinId } from "./skins.js";
+import { SKINS, type SkinId } from "./skins.js";
 import type { SectionVariantId } from "./section-variants.js";
 
 /**
@@ -32,10 +32,10 @@ import type { SectionVariantId } from "./section-variants.js";
  *
  * `palettePreset` itself is deliberately **not** an axis here — it stays
  * trade-driven exactly as today (`leadToConfig`'s `mapCategoryToTrade`). A
- * skin can still carry its own bespoke `cssVarOverrides` bundle (only
- * `warm-editorial` does today) that displaces the trade palette for sites
- * that land on it — that's the existing, already-contrast-vetted skin
- * mechanism (`skins.ts`), not a new palette pool this module invents.
+ * skin can still carry its own bespoke `cssVarOverrides` bundle that
+ * displaces the trade palette for sites that land on it — skins that carry a
+ * palette pin it in `SKINS` (`skins.ts`), already contrast-vetted there; this
+ * module never invents a palette pool of its own.
  *
  * `"video"` is deliberately excluded from every profile's hero-variant pool:
  * it renders an empty dark hero without `hero.videoSrc`
@@ -139,29 +139,66 @@ export function paletteOverrideIsContrastSafe(overrides: Partial<PaletteTokens> 
 }
 
 // ---------------------------------------------------------------------------
-// Seeded PRNG: xmur3 hash -> mulberry32 generator.
+// Seeded PRNG: MurmurHash3 string hash -> mulberry32 generator.
 // ---------------------------------------------------------------------------
 
 /**
- * xmur3 string hash — turns an arbitrary string into a 32-bit seed function.
- * Calling the returned function advances and returns a new hashed value each
- * time (used once here to derive `mulberry32`'s seed).
+ * MurmurHash3 32-bit string hash — converts an arbitrary string into a 32-bit
+ * integer seed with excellent avalanche behavior, so similar/nearby string inputs
+ * (e.g. same-trade leads in one metro) scatter uniformly across the seed space.
  */
-function xmur3(str: string): () => number {
-  let h = 1779033703 ^ str.length;
-  for (let i = 0; i < str.length; i++) {
-    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+function murmurhash3_32(key: string, seed = 0): number {
+  const bytesData = new TextEncoder().encode(key);
+  let k: number,
+    h = seed;
+  const remainder = bytesData.length & 3;
+  const bytes = bytesData.length - remainder;
+  const c1 = 0xcc9e2d51,
+    c2 = 0x1b873593;
+
+  for (let i = 0; i < bytes; i += 4) {
+    k =
+      bytesData[i]! |
+      (bytesData[i + 1]! << 8) |
+      (bytesData[i + 2]! << 16) |
+      (bytesData[i + 3]! << 24);
+
+    k = Math.imul(k, c1);
+    k = (k << 15) | (k >>> 17);
+    k = Math.imul(k, c2);
+
+    h ^= k;
     h = (h << 13) | (h >>> 19);
+    h = Math.imul(h, 5) + 0xe6546b64;
   }
-  return function next(): number {
-    h = Math.imul(h ^ (h >>> 16), 2246822507);
-    h = Math.imul(h ^ (h >>> 13), 3266489909);
-    h ^= h >>> 16;
-    return h >>> 0;
-  };
+
+  k = 0;
+  switch (remainder) {
+    case 3:
+      k ^= bytesData[bytes + 2]! << 16;
+      /* fallthrough */
+    case 2:
+      k ^= bytesData[bytes + 1]! << 8;
+      /* fallthrough */
+    case 1:
+      k ^= bytesData[bytes]!;
+      k = Math.imul(k, c1);
+      k = (k << 15) | (k >>> 17);
+      k = Math.imul(k, c2);
+      h ^= k;
+  }
+
+  h ^= bytesData.length;
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+
+  return h >>> 0;
 }
 
-/** mulberry32 PRNG — fast, small, good-enough-for-this deterministic generator. */
+/** mulberry32 PRNG — fast, small, deterministic generator. */
 function mulberry32(seed: number): () => number {
   let a = seed;
   return function next(): number {
@@ -175,8 +212,7 @@ function mulberry32(seed: number): () => number {
 
 /** Build a deterministic `[0, 1)` generator from an arbitrary seed string. */
 export function seededRng(seed: string): () => number {
-  const hash = xmur3(seed);
-  return mulberry32(hash());
+  return mulberry32(murmurhash3_32(seed));
 }
 
 function pickFrom<T>(rng: () => number, pool: readonly T[]): T {
@@ -198,6 +234,13 @@ export interface DesignSeedLead {
   slug?: string | null;
   name: string;
   city: string;
+  /**
+   * The `DesignProfile.id` this lead was first assigned, persisted on the lead
+   * row and passed back on every rebuild. When it names a profile still in the
+   * pool, it wins over the seeded draw — so growing `DESIGN_PROFILES` never
+   * re-rolls a lead that already has a design. Absent/unknown → seeded draw.
+   */
+  designProfileId?: string | null;
 }
 
 /**
@@ -224,97 +267,102 @@ export interface DesignProfileBrand {
   shadow: "flat" | "soft" | "hard";
   motion: "none" | "subtle" | "rich";
   spacingDensity: "compact" | "comfortable" | "airy";
+  /** Only present when the profile's skin (or deltas) pins it. */
+  typeScale?: "standard" | "compact" | "display";
   /**
    * Optional bespoke palette bundle a profile pins directly (beyond whatever
    * its `skin` already contributes). None of the shipped profiles below set
-   * this — the two shipped skins already cover the palette axis — but the
-   * field exists so a future profile can, and `pickContrastSafeProfile`
-   * guards it the same way regardless.
+   * this — a palette belongs on the skin, in `SKINS` — but the field exists
+   * so a future profile can, and `pickContrastSafeProfile` guards it the same
+   * way regardless.
    */
   cssVarOverrides?: Partial<PaletteTokens>;
 }
 
 export interface DesignProfile {
   id: string;
+  /** The canonical bundle (`SKINS`) this profile starts from. */
   skin: SkinId;
-  brand: DesignProfileBrand;
+  /**
+   * What this profile changes on top of its skin's brand pins. A profile is a
+   * thin variation of a skin, not a second registry of full bundles — the
+   * skin owns the art direction; `resolveProfileBrand` layers these on top.
+   */
+  deltas: Partial<DesignProfileBrand>;
   /** Hero variants that read as intentional with this profile's skin/type. */
   heroVariants: readonly SectionVariantId<"hero">[];
 }
 
 /**
- * The curated pool. Each entry is a hand-picked, internally coherent bundle —
- * see the module doc comment for why this is profiles-first rather than
+ * The curated pool. Each entry is a skin plus a few hand-picked deltas — see
+ * the module doc comment for why this is profiles-first rather than
  * independent per-axis draws. Keep this set curated (same posture as
  * `SKINS`/`PALETTE_PRESETS`): adding an entry is a design decision.
+ *
+ * ORDER IS LOAD-BEARING: append only. A lead without a persisted
+ * `designProfileId` is drawn by position, so reordering re-rolls it — and
+ * even appending re-rolls such leads (see `pickDesign`).
  */
 export const DESIGN_PROFILES: readonly DesignProfile[] = [
   {
     id: "classic-clean",
     skin: "classic",
-    brand: {
-      font: "system",
-      fontPairing: "system",
-      radius: "md",
-      shadow: "soft",
-      motion: "rich",
-      spacingDensity: "comfortable",
-    },
+    deltas: { font: "system", fontPairing: "system" },
     heroVariants: ["classic", "banner"],
   },
   {
     id: "crisp-modern",
-    skin: "classic",
-    brand: {
-      font: "geist",
-      fontPairing: "modern",
-      radius: "sm",
-      shadow: "hard",
-      motion: "subtle",
-      spacingDensity: "compact",
-    },
+    skin: "crisp-modern",
+    deltas: {},
     heroVariants: ["banner", "classic"],
   },
   {
     id: "industrial-bold",
-    skin: "classic",
-    brand: {
-      font: "work-sans",
-      fontPairing: "industrial",
-      radius: "none",
-      shadow: "hard",
-      motion: "subtle",
-      spacingDensity: "compact",
-    },
-    heroVariants: ["banner", "classic"],
+    // Banner only: the skin's charcoal primary would vanish as a CTA on the
+    // classic hero's inverted fg surface (see SKINS["bold-industrial"]).
+    skin: "bold-industrial",
+    deltas: {},
+    heroVariants: ["banner"],
   },
   {
     id: "warm-editorial-classic",
     skin: "warm-editorial",
-    brand: {
-      font: "slab",
-      fontPairing: "editorial",
-      radius: "lg",
-      shadow: "flat",
-      motion: "subtle",
-      spacingDensity: "comfortable",
-    },
+    deltas: {},
     heroVariants: ["split-card", "banner"],
   },
   {
     id: "warm-editorial-airy",
     skin: "warm-editorial",
-    brand: {
-      font: "slab",
-      fontPairing: "editorial",
-      radius: "xl",
-      shadow: "flat",
-      motion: "none",
-      spacingDensity: "airy",
-    },
+    deltas: { radius: "xl", motion: "none", spacingDensity: "airy" },
+    heroVariants: ["split-card"],
+  },
+  // Appended sixth (luxe-dark, polish batch 2026-10-07). Leads drawn before this landed keep
+  // their look only through a persisted designProfileId — see pickDesign.
+  {
+    id: "luxe-dark",
+    skin: "luxe-dark",
+    deltas: {},
     heroVariants: ["split-card"],
   },
 ] as const;
+
+/**
+ * A profile's full brand dials: its skin's pins with the profile's deltas on
+ * top. The skin's `cssVarOverrides` is left out — `defineClient` applies the
+ * skin's palette itself via `design` — so only a profile's own override
+ * bundle travels with the pick. Throws if the pair leaves a required dial
+ * unset (a curated-pool authoring error, caught by the genome tests).
+ */
+export function resolveProfileBrand(profile: Pick<DesignProfile, "id" | "skin" | "deltas">): DesignProfileBrand {
+  const { cssVarOverrides: _skinPalette, ...skinBrand } = SKINS[profile.skin].brand;
+  const merged = { ...skinBrand, ...profile.deltas };
+  for (const key of ["font", "fontPairing", "radius", "shadow", "motion", "spacingDensity"] as const) {
+    if (merged[key] === undefined) {
+      throw new Error(`Design profile "${profile.id}" leaves brand.${key} unset — pin it on the skin or in deltas`);
+    }
+  }
+  return merged as DesignProfileBrand;
+}
 
 /**
  * Draw a profile from `pool`, guaranteed never to return one whose own
@@ -327,11 +375,11 @@ export const DESIGN_PROFILES: readonly DesignProfile[] = [
  * injected pool, independent of `DESIGN_PROFILES`'s real (already-safe)
  * contents.
  */
-export function pickContrastSafeProfile<T extends { brand: { cssVarOverrides?: Partial<PaletteTokens> } }>(
+export function pickContrastSafeProfile<T extends { deltas: { cssVarOverrides?: Partial<PaletteTokens> } }>(
   rng: () => number,
   pool: readonly T[],
 ): T {
-  const safePool = pool.filter((profile) => paletteOverrideIsContrastSafe(profile.brand.cssVarOverrides));
+  const safePool = pool.filter((profile) => paletteOverrideIsContrastSafe(profile.deltas.cssVarOverrides));
   return pickFrom(rng, safePool.length > 0 ? safePool : pool);
 }
 
@@ -340,6 +388,8 @@ export function pickContrastSafeProfile<T extends { brand: { cssVarOverrides?: P
 // ---------------------------------------------------------------------------
 
 export interface DesignPick {
+  /** The picked `DesignProfile.id` — persist it on the lead as `designProfileId`. */
+  profileId: string;
   design: SkinId;
   brand: Omit<DesignProfileBrand, "cssVarOverrides"> & { cssVarOverrides?: Partial<PaletteTokens> };
   layout: {
@@ -355,14 +405,23 @@ export interface DesignPick {
  * `DESIGN_PROFILES` (contrast-guarded) then an on-brand hero variant from
  * that profile's own short list — two draws off one seeded generator, so the
  * result is fully determined by `stableLeadId(lead)`.
+ *
+ * Pool growth: the profile draw indexes by `floor(rng() * pool.length)`, so
+ * appending a profile re-rolls most leads even with existing entries kept in
+ * order. A persisted `lead.designProfileId` pins the profile instead. The
+ * profile draw is still consumed, so the hero draw sees the same second
+ * value and lands on the same variant. `pool` is injectable for tests.
  */
-export function pickDesign(lead: DesignSeedLead): DesignPick {
+export function pickDesign(lead: DesignSeedLead, pool: readonly DesignProfile[] = DESIGN_PROFILES): DesignPick {
   const rng = seededRng(stableLeadId(lead));
-  const profile = pickContrastSafeProfile(rng, DESIGN_PROFILES);
+  const drawn = pickContrastSafeProfile(rng, pool);
+  const pinned = lead.designProfileId ? pool.find((p) => p.id === lead.designProfileId) : undefined;
+  const profile = pinned ?? drawn;
   const heroVariant = pickFrom(rng, profile.heroVariants);
   return {
+    profileId: profile.id,
     design: profile.skin,
-    brand: { ...profile.brand },
+    brand: resolveProfileBrand(profile),
     layout: { sections: { hero: { variant: heroVariant } } },
   };
 }

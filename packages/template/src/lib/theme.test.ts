@@ -132,3 +132,37 @@ describe("brand.spacingDensity (#86, spacing-density slice)", () => {
     expect(style).toContain("--semantic-spacing-section-y-lg:var(--primitive-space-32)");
   });
 });
+
+describe("brand.typeScale (#86)", () => {
+  it("defaults to standard — emits no --semantic-text-* override", () => {
+    expect(brandStyle(withBrand({}))).not.toContain("--semantic-text-");
+  });
+
+  it("'display' and 'compact' reach the inline style", () => {
+    expect(brandStyle(withBrand({ typeScale: "display" }))).toContain("--semantic-text-display:");
+    expect(brandStyle(withBrand({ typeScale: "compact" }))).toContain("--semantic-text-heading:");
+  });
+
+  it("pairings whose heading family has an 800 cut load it for the display tier", () => {
+    for (const fontPairing of ["editorial", "industrial", "slab"] as const) {
+      const href = fontHref(withBrand({ fontPairing })) ?? "";
+      const heading = href.split("&family=")[0];
+      expect(heading, fontPairing).toMatch(/wght@[0-9;]*800/);
+    }
+  });
+});
+
+describe("luxe font pairing (luxe-dark skin, polish batch 2026-10-07)", () => {
+  it("pairs a Playfair Display heading with an Inter body", () => {
+    const style = brandStyle(withBrand({ fontPairing: "luxe" }));
+    expect(style).toContain("--primitive-typography-family-display:'Playfair Display'");
+    expect(style).toContain("--primitive-typography-family-primary:'Inter'");
+  });
+
+  it("loads both families in one Google Fonts stylesheet, including the 800 weight the display scale uses", () => {
+    const href = fontHref(withBrand({ fontPairing: "luxe" }));
+    expect(href).toContain("family=Playfair+Display:wght@");
+    expect(href).toContain("800");
+    expect(href).toContain("family=Inter");
+  });
+});
