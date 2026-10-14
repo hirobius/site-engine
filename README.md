@@ -1,9 +1,44 @@
 # hirobius-clients
 
-The **engine + reference factory** for **mass-producing one-page marketing
-sites** for local service businesses (landscaping, junk removal, pressure
-washing, concrete/fencing). A typed `ClientConfig` is the contract; a render
-target turns it into a live site.
+This repo builds one-page marketing sites for local service businesses:
+landscapers, junk haulers, pressure washers, concrete and fence crews. You
+give it a business, and it produces a fast static site plus a private preview
+link to send the owner.
+
+## For reviewers
+
+Each client site is described by one file, `apps/<slug>/client.config.ts`. It
+holds a `ClientConfig` object, and a set of shared Astro components renders it.
+Nobody writes per-client markup. The code that finds leads and writes the copy
+lives in a separate repo (`hirobius/ops`). This one owns the config format and
+turns configs into sites.
+
+Here is what happens to a lead. `leadToConfig()` maps it to a config, filling
+in placeholders where a fact is missing instead of guessing. When the site
+builds, `defineClient()` checks the config with Zod and the build fails if
+anything is malformed. `armAcceptanceGate()` also runs during the build, and
+it refuses to produce a live site that still has placeholder contact details
+or marketing claims the business can't back up. Every deploy starts behind a
+password gate and stays there until someone deliberately sets it live. When a
+client takes ownership, `eject-client` copies their site out into a
+standalone repo, so later changes here can't touch it. The diagram and the
+code for each step are in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+If you only have a few minutes, these are the files I'd read:
+
+- `packages/schema/src/index.ts`: the config schema and `defineClient()`.
+- `packages/schema/src/lead-to-config.ts`: how a raw lead becomes a config
+  without made-up facts.
+- `packages/template/src/build-gate.ts` and
+  `packages/template/src/acceptance.ts`: the go-live checks, wired in from
+  `apps/_template/astro.config.ts`.
+- `packages/template/src/purity.ts`: a lexical check that stops shared
+  components from hardcoding colours, fonts, scripts or outside URLs.
+- `apps/_template/middleware.ts`: the preview gate, with tests in
+  `apps/_template/tests/middleware.test.ts`.
+- `scripts/eject-client.ts`: the handoff.
+- `CLAUDE.md` and `scripts/check-state-surfaces.ts`: the rules AI agents follow
+  in this repo, and the check that keeps the docs honest.
 
 ## Orientation (start here)
 

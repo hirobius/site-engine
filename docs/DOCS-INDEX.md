@@ -38,6 +38,7 @@ Written by a person; the registry carries owner, `reviewedAt` and `maxAgeDays`, 
 - `docs/HANDOFF.md`: One-page client handoff: the 7-day change window and the change fee
 - `docs/OPS-INTEGRATION.md`: The generic recipe for wrapping a tool into ops
 - `docs/AI-ENGINEERING.md`: The agent architecture, AI-engineering glossary and interview map
+- `docs/ARCHITECTURE.md`: Reviewer-facing architecture: the lead → config → build gate → gated preview → eject flow, and the module that enforces each step
 - `docs/AUTHORING-SKINS.md`: Playbook: inspiration brief to skin PR (epic #173)
 - `docs/SKIN-CRITIC.md`: Taste rubric the skin critic loop scores against
 - `docs/HARVESTING.md`: How a section design becomes a config-selectable variant
