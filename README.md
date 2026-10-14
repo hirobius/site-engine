@@ -146,33 +146,33 @@ so it always wins the cascade. Four trade presets ship today: `landscaping`,
 
 ---
 
-## New client in 10 minutes
+## New client walkthrough
 
-1. **Scaffold** (≈1 min)
+1. **Scaffold**
    ```bash
    pnpm new-client mikes-junk --name "Mike's Junk Removal" --preset junk-removal
    ```
    This copies `apps/_template → apps/mikes-junk`, stubs the config, and prints
    the exact Vercel CLI commands.
 
-2. **Fill in the config** (≈4 min) — `apps/<slug>/client.config.ts`:
+2. **Fill in the config** — `apps/<slug>/client.config.ts`:
    business name/phone/email/hours/serviceAreas, copy, services, reviews, SEO
    (title/description/city/region/siteUrl), and the Web3Forms `accessKey`
    (+ `hcaptchaSiteKey`).
 
-3. **Add photos** (≈3 min) — optimized photos go in `src/assets/photos`
+3. **Add photos** — optimized photos go in `src/assets/photos`
    (astro:assets makes responsive WebP), verbatim assets (og image, favicon) in
    `public`. See **Images** below for the intake rule. `new-client` already
    generated a brand-colored monogram `favicon.svg` (business initial on the
    preset primary) — drop a real logo file over it if the client has one.
 
-4. **Verify** (≈1 min)
+4. **Verify**
    ```bash
    pnpm install
    pnpm --filter @hirobius/mikes-junk build
    ```
 
-5. **Ship on Vercel** (≈1 min) — run the commands `new-client` printed:
+5. **Ship on Vercel** — run the commands `new-client` printed:
    ```bash
    vercel link --cwd apps/mikes-junk --project hirobius-mikes-junk --yes
    # Root Directory = apps/mikes-junk ; Ignored Build Step = npx turbo-ignore
@@ -321,7 +321,7 @@ analytics: { provider: "plausible", domain: "realbusinessco.com" }, // bare host
 ```
 
 Provider decision + rationale: issue #84 (cookieless, ~1KB, no consent banner,
-one $9/mo account covers the whole fleet). `domain` must be a bare hostname —
+one account covers the whole fleet). `domain` must be a bare hostname —
 a pasted URL is rejected by the schema with a fix-it message.
 
 **Two conversion events, dashboard-side setup (once per client site):**
@@ -429,7 +429,7 @@ The factory's pitch is "green Core Web Vitals by default" — the
 `packages/**`, `apps/_template/**`, or `apps/demo-pressure-pros/**`. It builds
 `demo-pressure-pros`, serves the static output, and enforces budgets against `/`:
 
-- **Lighthouse CI** (mobile, simulated throttling): Performance ≥ 95,
+- **Lighthouse CI** (mobile, simulated throttling): Performance ≥ 93 (0.95 is the target, not the gate),
   Accessibility = 100, SEO = 100, LCP < 2.5s. 3 runs per URL; lhci's `optimistic`
   aggregation (its default) takes the best-scoring run, which absorbs simulated-
   throttling measurement noise without hiding a real regression — a genuine
