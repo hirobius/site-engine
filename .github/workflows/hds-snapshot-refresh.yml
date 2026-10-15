@@ -1,0 +1,83 @@
+name: HDS snapshot refresh
+
+# The client template keeps its own token VALUES (packages/template/src/styles/
+# tokens.css, a seed forked from HDS) and shares HDS's NAMES. The names are
+# held to packages/template/hds-contract.snapshot.json, which used to be
+# refreshed by hand and went a release stale. This job refreshes it weekly (and
+# on demand) and opens one PR when it changed.
+#
+# It never restyles a client: only the NAMES snapshot moves. tokens.css and
+# every live client site stay exactly as they are (docs/adr/0006). A red
+# hds-contract test on the PR is a real name drift for a person to decide on.
+#
+# Needs the repo setting "Allow GitHub Actions to create and approve pull
+# requests" (Settings → Actions → General → Workflow permissions). A PR opened
+# with GITHUB_TOKEN does not trigger CI on its own; this job runs the contract
+# test itself and writes the result into the PR body, and any push to the
+# branch (a session merging main in) starts the normal checks.
+
+on:
+  schedule:
+    - cron: '17 9 * * 1' # Mondays 09:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: hds-snapshot-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Refresh the HDS name snapshot from the latest published package
+        run: pnpm template:snapshot-hds
+
+      - name: Did it change?
+        id: diff
+        run: |
+          if git diff --quiet -- packages/template/hds-contract.snapshot.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "version=$(node -p "require('./packages/template/hds-contract.snapshot.json').version")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the name-contract test against the new snapshot
+        id: contract
+        if: steps.diff.outputs.changed == 'true'
+        continue-on-error: true
+        run: pnpm --filter @hirobius/template exec vitest run src/hds-contract.test.ts
+
+      - name: Open or update the PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bot/hds-snapshot-refresh
+          delete-branch: true
+          add-paths: packages/template/hds-contract.snapshot.json
+          commit-message: 'chore(template): refresh HDS name snapshot to ${{ steps.diff.outputs.version }}'
+          title: 'chore(template): refresh HDS name snapshot to ${{ steps.diff.outputs.version }}'
+          body: |
+            Weekly refresh of `packages/template/hds-contract.snapshot.json` from `@hirobius/design-system@${{ steps.diff.outputs.version }}`.
+
+            **Name-contract test:** ${{ steps.contract.outcome == 'success' && 'passed' || 'FAILED — a real name drift; decide before merging (see the job log)' }}
+
+            Only the NAMES snapshot changes. `tokens.css` and every live client site are untouched (ADR-0006: a generated site is a seed, never a live link to HDS).
+
+            Opened by `.github/workflows/hds-snapshot-refresh.yml`. CI does not start on a bot-opened PR; merge `main` into the branch to run the normal checks.
